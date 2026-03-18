@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Vendedores - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/usuarios.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Gestión de Vendedores</h1>
+        <span class="subtitle">Administra todos los vendedores del sistema</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Listado de Vendedores</h2>
+            <a th:href="@{/admin/vendedores/vendedor}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Vendedor
+            </a>
+        </div>
+
+        <div class="breadcrumb">
+            <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Vendedores</span>
+        </div>
+
+        <!-- Mensajes flash -->
+        <div th:if="${success}" class="alert alert-success" style="margin: 1rem 1.5rem;">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger" style="margin: 1rem 1.5rem;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="card-body">
+            <div class="table-container">
+
+                <!-- Tabla con datos -->
+                <table class="modern-table" th:if="${not #lists.isEmpty(vendedores)}">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-id-card"></i> DUI</th>
+                        <th><i class="fas fa-user"></i> Nombre</th>
+                        <th><i class="fas fa-user-tag"></i> Apellido</th>
+                        <th><i class="fas fa-envelope"></i> Correo</th>
+                        <th><i class="fas fa-phone"></i> Teléfono</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Zona</th>
+                        <th><i class="fas fa-toggle-on"></i> Estado</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="vendedor, iterStat : ${vendedores}"
+                        class="fade-in-row"
+                        th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+
+                        <td>
+                            <span class="id-badge" th:text="${vendedor.dui}"></span>
+                        </td>
+                        <td>
+                            <strong th:text="${vendedor.nombre}"></strong>
+                        </td>
+                        <td th:text="${vendedor.apellido}"></td>
+                        <td th:text="${vendedor.email}"></td>
+                        <td th:text="${vendedor.telefono}"></td>
+                        <td>
+                            <span th:if="${vendedor.zona != null}"
+                                  class="role-badge role-seller">
+                                <i class="fas fa-map-pin"></i>
+                                <span th:text="${vendedor.zona}"></span>
+                            </span>
+                            <span th:unless="${vendedor.zona != null}" style="color:#aaa;">—</span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-active" th:if="${vendedor.activo}">
+                                <i class="fas fa-check-circle"></i> Activo
+                            </span>
+                            <span class="status-badge status-inactive" th:unless="${vendedor.activo}">
+                                <i class="fas fa-times-circle"></i> Inactivo
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-icons">
+
+                                <!-- Ver detalle -->
+
+
+                                <!-- Editar -->
+                                <a th:href="@{/admin/vendedores/vendedor/{dui}(dui=${vendedor.dui})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- Activar / Desactivar -->
+
+
+                                <!-- Eliminar -->
+                                <form th:action="@{/vendedor/eliminar/{dui}(dui=${vendedor.dui})}"
+                                      method="post" style="display:inline;">
+                                    <button type="submit"
+                                            class="action-btn delete"
+                                            data-tooltip="Eliminar"
+                                            onclick="return confirm('¿Está seguro que desea eliminar este vendedor?\n\nEsta acción no se puede deshacer.');"
+                                            style="background:none;border:none;cursor:pointer;padding:0;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Estado vacío -->
+                <div class="empty-state" th:if="${#lists.isEmpty(vendedores)}">
+                    <i class="fas fa-user-tie"></i>
+                    <h3>No hay vendedores registrados</h3>
+                    <p>Comienza creando un nuevo vendedor para gestionar la fuerza de ventas</p>
+                    <a th:href="@{/admin/vendedores/vendedor}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Crear Vendedor
+                    </a>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-container" th:if="${totalPaginas > 1}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/vendedores/(page=${paginaActual - 1})}"
+                           aria-label="Anterior">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item"
+                        th:each="num : ${#numbers.sequence(0, totalPaginas - 1)}"
+                        th:classappend="${num == paginaActual} ? 'active'">
+                        <a class="page-link"
+                           th:href="@{/vendedores/(page=${num})}"
+                           th:text="${num + 1}"></a>
+                    </li>
+                    <li class="page-item" th:classappend="${paginaActual == totalPaginas - 1} ? 'disabled'">
+                        <a class="page-link"
+                           th:href="@{/vendedores/(page=${paginaActual + 1})}"
+                           aria-label="Siguiente">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${esEdicion} ? 'Editar Médico' : 'Registrar Médico'">Médico - Asistencia El Salvador</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/medico.css}">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1 th:text="${esEdicion} ? 'Editar Médico' : 'Registrar Médico'">Médico</h1>
+    <span class="subtitle"
+          th:text="${esEdicion} ? 'Actualiza la información del médico' : 'Completa los datos para registrar un nuevo médico'">
+        </span>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 th:text="${esEdicion} ? 'Datos del Médico' : 'Nuevo Médico'">Datos del Médico</h2>
+    </div>
+
+    <div class="breadcrumb">
+      <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+      <i class="fas fa-chevron-right"></i>
+      <a th:href="@{/medicos/listar}">Médicos</a>
+      <i class="fas fa-chevron-right"></i>
+      <span th:text="${esEdicion} ? 'Editar' : 'Nuevo'">Nuevo</span>
+    </div>
+
+    <div class="card-body">
+
+      <!-- Mensaje de error -->
+      <div th:if="${error}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+      </div>
+
+      <!-- Mensaje de éxito -->
+      <div th:if="${success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}"></span>
+      </div>
+
+      <!--
+          Si es edición  → POST /medicos/editar/{dui}
+          Si es registro → POST /medicos/nuevo
+      -->
+      <form th:action="${esEdicion}
+                        ? @{/medicos/editar/{dui}(dui=${medico.dui})}
+                        : @{/medicos/nuevo}"
+            th:object="${medico}"
+            method="post">
+
+        <div class="form-grid">
+
+          <!-- DUI -->
+          <div class="form-group">
+            <label for="dui"><i class="fas fa-id-card"></i> DUI</label>
+            <input type="text"
+                   th:field="*{dui}"
+                   id="dui"
+                   class="input"
+                   placeholder="00000000-0"
+                   pattern="[0-9]{8}-[0-9]"
+                   title="Formato: 12345678-9"
+                   th:readonly="${esEdicion}"
+                   th:classappend="${esEdicion} ? 'input-readonly'"
+                   required>
+            <small th:if="${esEdicion}" class="field-note">
+              <i class="fas fa-lock"></i> El DUI no puede modificarse
+            </small>
+          </div>
+
+          <!-- NIT -->
+          <div class="form-group">
+            <label for="nit"><i class="fas fa-file-invoice"></i> NIT <span class="optional">(Opcional)</span></label>
+            <input type="text"
+                   th:field="*{nit}"
+                   id="nit"
+                   class="input"
+                   placeholder="0000-000000-000-0"
+                   maxlength="45">
+          </div>
+
+          <!-- Nombre -->
+          <div class="form-group">
+            <label for="nombre"><i class="fas fa-user"></i> Nombre</label>
+            <input type="text"
+                   th:field="*{nombre}"
+                   id="nombre"
+                   class="input"
+                   placeholder="Ingrese el nombre"
+                   maxlength="45"
+                   required>
+          </div>
+
+          <!-- Apellido -->
+          <div class="form-group">
+            <label for="apellido"><i class="fas fa-user"></i> Apellido</label>
+            <input type="text"
+                   th:field="*{apellido}"
+                   id="apellido"
+                   class="input"
+                   placeholder="Ingrese el apellido"
+                   maxlength="45"
+                   required>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group full-width">
+            <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+            <input type="email"
+                   th:field="*{email}"
+                   id="email"
+                   class="input"
+                   placeholder="correo@ejemplo.com"
+                   maxlength="45"
+                   required>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="form-group">
+            <label for="telefono"><i class="fas fa-phone"></i> Teléfono <span class="optional">(Opcional)</span></label>
+            <input type="tel"
+                   th:field="*{telefono}"
+                   id="telefono"
+                   class="input"
+                   placeholder="0000-0000"
+                   pattern="[0-9]{4}-[0-9]{4}"
+                   title="Formato: 1234-5678"
+                   maxlength="20">
+          </div>
+
+          <!-- Especialidad -->
+          <div class="form-group">
+            <label for="idEspecialidad"><i class="fas fa-stethoscope"></i> Especialidad</label>
+            <select th:field="*{idEspecialidad}" id="idEspecialidad" class="input" required>
+              <option value="">Seleccione una especialidad...</option>
+              <option th:each="esp : ${especialidades}"
+                      th:value="${esp.idEspecialidad}"
+                      th:text="${esp.nombreEspecialidad}"
+                      th:selected="${medico.idEspecialidad != null and medico.idEspecialidad == esp.idEspecialidad}">
+              </option>
+            </select>
+          </div>
+
+          <!-- Estado -->
+          <div class="form-group full-width">
+            <label for="estado"><i class="fas fa-toggle-on"></i> Estado</label>
+            <select th:field="*{estado}" id="estado" class="input" required>
+              <option value="">Seleccione un estado...</option>
+              <option value="1" th:selected="${medico.estado == 1}">Activo</option>
+              <option value="0" th:selected="${medico.estado == 0}">Inactivo</option>
+            </select>
+          </div>
+
+        </div><!-- /form-grid -->
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">
+            <i th:class="${esEdicion} ? 'fas fa-save' : 'fas fa-user-plus'"></i>
+            <span th:text="${esEdicion} ? 'Guardar Cambios' : 'Registrar Médico'">Guardar</span>
+          </button>
+          <a th:href="@{/medicos/listar}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Cancelar
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>

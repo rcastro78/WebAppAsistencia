@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!-- Título dinámico según modo -->
+    <title th:text="${modoEdicion} ? 'Editar Vehículo - Asistencia El Salvador' : 'Nuevo Vehículo - Asistencia El Salvador'">
+        Vehículo - Asistencia El Salvador
+    </title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}">
+
+    <style>
+        /* ── Badge de modo en el header ── */
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-left: 12px;
+            vertical-align: middle;
+        }
+        .mode-badge.nuevo  { background: #d4edda; color: #155724; }
+        .mode-badge.editar { background: #fff3cd; color: #856404; }
+
+        /* ── Placa bloqueada en edición ── */
+        input[readonly] {
+            background: #f5f5f5 !important;
+            cursor: not-allowed;
+            opacity: 0.75;
+        }
+
+        /* ── Separador visual de secciones ── */
+        .form-section-title {
+            grid-column: 1 / -1;
+            font-size: 14px;
+            font-weight: 700;
+            color: #4A90E2;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e3ecf7;
+            padding-bottom: 6px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- ── Header ── -->
+    <div class="header">
+        <h1>
+            <i th:class="${modoEdicion} ? 'fas fa-edit' : 'fas fa-car'"></i>
+            <span th:text="${modoEdicion} ? 'Editar Vehículo' : 'Registro de Vehículo'"></span>
+            <span class="mode-badge"
+                  th:classappend="${modoEdicion} ? 'editar' : 'nuevo'"
+                  th:text="${modoEdicion} ? 'Modo Edición' : 'Nuevo Registro'">
+            </span>
+        </h1>
+        <span class="subtitle"
+              th:text="${modoEdicion}
+                        ? 'Modifica los datos del vehículo seleccionado'
+                        : 'Completa la información para registrar un nuevo vehículo'">
+        </span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 th:text="${modoEdicion} ? 'Datos del Vehículo' : 'Datos del Nuevo Vehículo'"></h2>
+        </div>
+
+        <div class="card-body">
+
+            <!--
+                ACTION dinámica:
+                  - Nuevo  → POST /vehiculos/guardar
+                  - Editar → POST /vehiculos/actualizar
+            -->
+            <form id="vehiculoForm"
+                  th:action="${modoEdicion} ? @{/vehiculos/actualizar} : @{/vehiculos/guardar}"
+                  th:object="${vehiculo}"
+                  method="post">
+
+                <div class="form-grid">
+
+                    <!-- ── Sección: Identificación ── -->
+                    <div class="form-section-title">
+                        <i class="fas fa-car"></i> Identificación del Vehículo
+                    </div>
+
+                    <!-- Placa (PK): editable solo en modo NUEVO; readonly en edición -->
+                    <div class="form-group">
+                        <label for="placaVehiculo">
+                            <i class="fas fa-hashtag"></i> Placa <span style="color:#e74c3c">*</span>
+                        </label>
+                        <input type="text"
+                               th:field="*{placaVehiculo}"
+                               id="placaVehiculo"
+                               class="input"
+                               placeholder="Ej: P-123456"
+                               th:readonly="${modoEdicion}"
+                               required
+                               style="text-transform: uppercase;">
+                        <small th:if="${modoEdicion}" style="color:#888;">
+                            <i class="fas fa-lock"></i> La placa no puede modificarse.
+                        </small>
+                    </div>
+
+                    <!-- DUI Afiliado -->
+                    <div class="form-group">
+                        <label for="duiUsuario">
+                            <i class="fas fa-id-card"></i> DUI del Afiliado <span style="color:#e74c3c">*</span>
+                        </label>
+                        <input type="text"
+                               th:field="*{duiUsuario}"
+                               id="duiUsuario"
+                               class="input"
+                               placeholder="00000000-0"
+                               pattern="[0-9]{8}-[0-9]"
+                               th:value="${duiAfiliado != null} ? ${duiAfiliado} : *{duiUsuario}"
+                               th:readonly="${duiAfiliado != null}"
+                               required>
+                    </div>
+
+                    <!-- ── Sección: Datos técnicos ── -->
+                    <div class="form-section-title">
+                        <i class="fas fa-wrench"></i> Datos Técnicos
+                    </div>
+
+                    <!-- Marca -->
+                    <div class="form-group">
+                        <label for="marca">
+                            <i class="fas fa-industry"></i> Marca <span style="color:#e74c3c">*</span>
+                        </label>
+                        <input type="text"
+                               th:field="*{marca}"
+                               id="marca"
+                               class="input"
+                               placeholder="Ej: Toyota, Honda, Chevrolet"
+                               required>
+                    </div>
+
+                    <!-- Modelo -->
+                    <div class="form-group">
+                        <label for="modelo">
+                            <i class="fas fa-car-side"></i> Modelo <span style="color:#e74c3c">*</span>
+                        </label>
+                        <input type="text"
+                               th:field="*{modelo}"
+                               id="modelo"
+                               class="input"
+                               placeholder="Ej: Corolla, Civic, Cruze"
+                               required>
+                    </div>
+
+                    <!-- Año -->
+                    <div class="form-group">
+                        <label for="anio">
+                            <i class="fas fa-calendar-alt"></i> Año <span style="color:#e74c3c">*</span>
+                        </label>
+                        <input type="number"
+                               th:field="*{anio}"
+                               id="anio"
+                               class="input"
+                               placeholder="Ej: 2022"
+                               min="1900"
+                               th:max="${#dates.year(#dates.createNow())}"
+                               required>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="form-group">
+                        <label for="estado">
+                            <i class="fas fa-toggle-on"></i> Estado
+                        </label>
+                        <select id="estado" th:field="*{estado}" class="input">
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <!-- Características -->
+                    <div class="form-group full-width">
+                        <label for="caracteristicas">
+                            <i class="fas fa-info-circle"></i> Características
+                        </label>
+                        <input type="text"
+                               th:field="*{caracteristicas}"
+                               id="caracteristicas"
+                               class="input"
+                               placeholder="Ej: Color rojo, 4 puertas, automático"
+                               maxlength="100">
+                    </div>
+
+                </div><!-- /form-grid -->
+
+                <!-- ── Botones ── -->
+                <div class="actions">
+
+                    <!-- Guardar / Actualizar -->
+                    <button type="submit" class="btn">
+                        <i th:class="${modoEdicion} ? 'fas fa-save' : 'fas fa-plus-circle'"></i>
+                        <span th:text="${modoEdicion} ? 'Actualizar Vehículo' : 'Guardar Vehículo'"></span>
+                    </button>
+
+                    <!-- Cancelar -->
+                    <a th:href="@{/vehiculos}" class="btn secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+
+                    <!-- Botón Eliminar (solo en modo edición) -->
+                    <button type="button"
+                            class="btn"
+                            style="background: #e74c3c;"
+                            th:if="${modoEdicion}"
+                            th:data-placa="*{placaVehiculo}"
+                            th:data-info="*{marca + ' ' + modelo + ' (' + placaVehiculo + ')'}"
+                            onclick="confirmarEliminacionInline(this)">
+                        <i class="fas fa-trash-alt"></i> Eliminar Vehículo
+                    </button>
+                </div>
+
+            </form>
+
+            <!-- Formulario oculto para eliminar (solo en edición) -->
+            <form th:if="${modoEdicion}"
+                  id="deleteFormInline"
+                  th:action="@{/vehiculos/delete/{placa}(placa=${vehiculo.placaVehiculo})}"
+                  method="post"
+                  style="display: none;">
+            </form>
+
+        </div><!-- /card-body -->
+    </div><!-- /card -->
+</div><!-- /app -->
+
+<script>
+    // ── Eliminar desde el formulario de edición ────────────────────────────────
+    function confirmarEliminacionInline(btn) {
+        const placa = btn.dataset.placa;
+        const info  = btn.dataset.info;
+
+        const ok = confirm(
+            '⚠️ ADVERTENCIA ⚠️\n\n' +
+            `¿Está seguro que desea eliminar el vehículo:\n${info}?\n\n` +
+            '• Esta acción no se puede deshacer\n' +
+            '• Se perderán todos los datos asociados\n\n' +
+            '¿Desea continuar?'
+        );
+
+        if (ok) {
+            const input = prompt('Para confirmar la eliminación, escriba: CONFIRMAR');
+            if (input === 'CONFIRMAR') {
+                document.getElementById('deleteFormInline').submit();
+            } else {
+                alert('❌ Eliminación cancelada. El texto ingresado no coincide.');
+            }
+        }
+    }
+
+    // ── Formato automático de DUI ─────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        const duiInput = document.getElementById('duiUsuario');
+        if (duiInput && !duiInput.readOnly) {
+            duiInput.addEventListener('input', function (e) {
+                let v = e.target.value.replace(/\D/g, '');
+                if (v.length >= 8) {
+                    v = v.substring(0, 8) + '-' + v.substring(8, 9);
+                }
+                e.target.value = v;
+            });
+        }
+
+        // Placa en mayúsculas automático
+        const placaInput = document.getElementById('placaVehiculo');
+        if (placaInput && !placaInput.readOnly) {
+            placaInput.addEventListener('input', function (e) {
+                e.target.value = e.target.value.toUpperCase();
+            });
+        }
+
+        // Año: limitar al año actual
+        const anioInput = document.getElementById('anio');
+        if (anioInput) {
+            anioInput.setAttribute('max', new Date().getFullYear());
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esEdicion} ? 'Editar Cobertura' : 'Agregar Cobertura'">Cobertura del Proveedor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/spc.css}">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary:       #1a56db;
+            --primary-dark:  #1e429f;
+            --primary-light: #ebf0ff;
+            --success:       #10b981;
+            --danger:        #ef4444;
+            --text-main:     #111827;
+            --text-muted:    #6b7280;
+            --border:        #e5e7eb;
+            --bg:            #f3f4f6;
+            --white:         #ffffff;
+            --shadow-md:     0 4px 16px rgba(0,0,0,.10);
+            --radius:        12px;
+            --radius-sm:     8px;
+            --transition:    .2s ease;
+        }
+
+        /* Modo edición → acento ámbar */
+        body.modo-edicion {
+            --primary:       #d97706;
+            --primary-dark:  #b45309;
+            --primary-light: #fffbeb;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        .page-wrapper { max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+
+        /* ── Header ─────────────────────────────────── */
+        .page-header {
+            display: flex; align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px; margin-bottom: 28px; flex-wrap: wrap;
+        }
+        .header-left { display: flex; align-items: center; gap: 16px; }
+
+        .header-icon {
+            width: 52px; height: 52px; border-radius: var(--radius-sm);
+            background: var(--primary);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,.20);
+        }
+        .header-icon i { color: var(--white); font-size: 22px; }
+
+        .header-text h1 { font-size: 22px; font-weight: 700; color: var(--text-main); line-height: 1.25; }
+
+        .mode-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .5px; margin-top: 5px;
+        }
+        .mode-badge.nuevo  { background: #dbeafe; color: #1e40af; }
+        .mode-badge.editar { background: #fef3c7; color: #92400e; }
+
+        .breadcrumb {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; color: var(--text-muted); margin-top: 6px;
+        }
+        .breadcrumb a { color: var(--primary); text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .breadcrumb i { font-size: 9px; }
+
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 18px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+            background: var(--white); color: var(--text-main);
+            font-size: 14px; font-weight: 500; text-decoration: none;
+            transition: var(--transition); white-space: nowrap;
+        }
+        .btn-back:hover { background: var(--bg); border-color: #d1d5db; }
+
+        /* ── Alerts ─────────────────────────────────── */
+        .alert {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; border-radius: var(--radius-sm);
+            font-size: 14px; margin-bottom: 24px;
+        }
+        .alert-success { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; }
+        .alert-danger  { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+
+        /* ── Card ───────────────────────────────────── */
+        .form-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; }
+
+        .form-card-header {
+            padding: 20px 28px; border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--white) 100%);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .form-card-header i { color: var(--primary); font-size: 18px; }
+        .form-card-header h2 { font-size: 16px; font-weight: 600; color: var(--text-main); }
+
+        .form-card-body { padding: 28px; }
+
+        /* ── Proveedor strip ─────────────────────────── */
+        .proveedor-strip {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 18px; background: var(--primary-light);
+            border: 1px solid #c7d7f9; border-radius: var(--radius-sm); margin-bottom: 28px;
+        }
+        .modo-edicion .proveedor-strip { border-color: #fcd34d; }
+        .strip-icon {
+            width: 40px; height: 40px; border-radius: 8px; background: var(--primary);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .strip-icon i { color: var(--white); font-size: 16px; }
+        .strip-label { font-size: 12px; color: var(--primary-dark); font-weight: 500; }
+        .strip-value { font-size: 15px; font-weight: 700; color: var(--primary-dark); }
+
+        /* ── Edit notice ────────────────────────────── */
+        .edit-notice {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px 16px; background: #fffbeb;
+            border: 1px solid #fcd34d; border-radius: var(--radius-sm);
+            margin-bottom: 20px; font-size: 13px; color: #92400e;
+        }
+        .edit-notice i { font-size: 15px; margin-top: 1px; flex-shrink: 0; color: #d97706; }
+
+        /* ── Form grid ──────────────────────────────── */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-grid .full { grid-column: 1 / -1; }
+
+        /* ── Field ──────────────────────────────────── */
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label {
+            font-size: 13px; font-weight: 600; color: var(--text-main);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .field label i { color: var(--primary); font-size: 13px; }
+        .field .hint { font-size: 12px; color: var(--text-muted); margin-top: -2px; margin-bottom: 2px; }
+
+        .field input, .field select {
+            width: 100%; padding: 11px 14px;
+            border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 14px; color: var(--text-main); background: var(--white);
+            transition: border-color var(--transition), box-shadow var(--transition);
+            outline: none; appearance: none;
+        }
+        .field select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+        }
+        .field input:focus, .field select:focus {
+            border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+        }
+        .field input.is-invalid, .field select.is-invalid {
+            border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239,68,68,.10);
+        }
+        .field .error-msg { font-size: 12px; color: var(--danger); display: flex; align-items: center; gap: 4px; }
+
+        /* Campo bloqueado (PK en edición) */
+        .field-readonly input,
+        .field-readonly select {
+            background: #f9fafb; color: var(--text-muted);
+            cursor: not-allowed; border-style: dashed;
+        }
+        .readonly-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 11px; font-weight: 600; color: #6b7280;
+            background: #f3f4f6; border: 1px solid var(--border);
+            border-radius: 4px; padding: 2px 7px; margin-left: 6px;
+        }
+
+        /* ── Input con prefijo $ ─────────────────────── */
+        .input-group { position: relative; }
+        .input-group .input-prefix {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            font-size: 14px; font-weight: 700; color: var(--text-muted); pointer-events: none;
+        }
+        .input-group input { padding-left: 28px; }
+
+        /* ── Toggle estado ──────────────────────────── */
+        .estado-toggle { display: flex; gap: 10px; }
+        .toggle-opt {
+            flex: 1; display: flex; align-items: center; gap: 8px;
+            padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            cursor: pointer; transition: var(--transition); user-select: none;
+        }
+        .toggle-opt:hover { border-color: var(--primary); background: var(--primary-light); }
+        .toggle-opt.active-on  { border-color: var(--success); background: #ecfdf5; }
+        .toggle-opt.active-off { border-color: var(--danger);  background: #fef2f2; }
+        .toggle-opt input[type="radio"] { display: none; }
+        .toggle-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; transition: var(--transition); }
+        .toggle-opt.active-on  .toggle-dot { border-color: var(--success); background: var(--success); }
+        .toggle-opt.active-off .toggle-dot { border-color: var(--danger);  background: var(--danger); }
+        .toggle-opt span { font-size: 14px; font-weight: 500; }
+
+        /* ── Section divider ───────────────────────── */
+        .section-divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 8px 0 20px;
+            color: var(--text-muted); font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .5px;
+        }
+        .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* ── Summary ────────────────────────────────── */
+        .summary-box {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 16px; margin-top: 24px;
+        }
+        .summary-box h4 {
+            font-size: 13px; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px;
+        }
+        .summary-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 7px 0; border-bottom: 1px dashed var(--border); font-size: 14px;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .s-label { color: var(--text-muted); }
+        .s-value { font-weight: 600; color: var(--text-main); }
+        .s-value.highlight { color: var(--primary); }
+
+        /* ── Footer actions ─────────────────────────── */
+        .form-actions {
+            display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+            padding: 20px 28px; border-top: 1px solid var(--border); background: #fafafa; flex-wrap: wrap;
+        }
+        .btn-cancel {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 22px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            background: var(--white); color: var(--text-main);
+            font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-cancel:hover { background: var(--bg); border-color: #d1d5db; }
+        .btn-submit {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 11px 28px; border: none; border-radius: var(--radius-sm);
+            background: var(--primary); color: var(--white);
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,.18);
+            transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+        }
+        .btn-submit:hover  { background: var(--primary-dark); box-shadow: 0 4px 14px rgba(0,0,0,.22); transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-card-body { padding: 20px; }
+            .form-actions { justify-content: stretch; }
+            .btn-cancel, .btn-submit { flex: 1; justify-content: center; }
+            .page-header { flex-direction: column; }
+        }
+    </style>
+</head>
+
+<body th:classappend="${esEdicion} ? 'modo-edicion'">
+<div class="page-wrapper">
+
+    <!-- ── Header ── -->
+    <div class="page-header">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="fas" th:classappend="${esEdicion} ? 'fa-pen-to-square' : 'fa-shield-plus'"></i>
+            </div>
+            <div class="header-text">
+                <h1 th:text="${esEdicion} ? 'Editar Cobertura' : 'Agregar Cobertura'">Cobertura</h1>
+                <span class="mode-badge" th:classappend="${esEdicion} ? 'editar' : 'nuevo'">
+                    <i class="fas" th:classappend="${esEdicion} ? 'fa-pencil' : 'fa-plus'"></i>
+                    <span th:text="${esEdicion} ? 'Modo edición' : 'Nueva cobertura'"></span>
+                </span>
+                <div class="breadcrumb">
+                    <a th:href="@{/usuarios/dashboard}"><i class="fas fa-home"></i> Inicio</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a href="#">Proveedores</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a th:href="@{/proveedores/cobertura/(idProveedor=${idProveedor})}">Coberturas</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span th:text="${esEdicion} ? 'Editar' : 'Nueva'"></span>
+                </div>
+            </div>
+        </div>
+        <a th:href="@{/proveedores/cobertura/(idProveedor=${idProveedor})}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <!-- ── Flash messages ── -->
+    <div class="alert alert-success" th:if="${successMessage}">
+        <i class="fas fa-circle-check"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div class="alert alert-danger" th:if="${errorMessage}">
+        <i class="fas fa-circle-exclamation"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+
+    <!-- ── Main card ── -->
+    <div class="form-card">
+
+        <div class="form-card-header">
+            <i class="fas" th:classappend="${esEdicion} ? 'fa-file-pen' : 'fa-file-medical'"></i>
+            <h2 th:text="${esEdicion} ? 'Modificar datos de la cobertura' : 'Datos de la nueva cobertura'">
+                Datos de la cobertura
+            </h2>
+        </div>
+
+        <div class="form-card-body">
+
+            <!-- Proveedor strip -->
+            <div class="proveedor-strip">
+                <div class="strip-icon"><i class="fas fa-building"></i></div>
+                <div>
+                    <div class="strip-label">Proveedor</div>
+                    <div class="strip-value" th:text="${nombreProveedor}">Nombre del Proveedor</div>
+                </div>
+            </div>
+
+            <!-- Aviso solo en modo edición -->
+            <div class="edit-notice" th:if="${esEdicion}">
+                <i class="fas fa-triangle-exclamation"></i>
+                <div>
+                    <strong>Modo edición:</strong>
+                    el <strong>Plan</strong> y la <strong>Cobertura</strong> forman la clave primaria
+                    y no pueden modificarse. Solo puedes actualizar la
+                    <strong>tarifa</strong> y el <strong>estado</strong>.
+                </div>
+            </div>
+
+            <!-- ═══════ FORM ═══════ -->
+            <form th:action="@{/proveedores/cobertura/guardar}" method="post"
+                  id="formCobertura" novalidate>
+
+                <!-- Hiddens de contexto -->
+                <input type="hidden" name="idProveedor" th:value="${idProveedor}">
+                <!-- Bandera que lee el controller para decidir INSERT vs UPDATE -->
+                <input type="hidden" name="esEdicion"   th:value="${esEdicion}">
+
+                <!-- ── Plan & Cobertura ── -->
+                <div class="section-divider">Plan y cobertura</div>
+                <div class="form-grid">
+
+                    <!-- PLAN -->
+                    <div class="field" th:classappend="${esEdicion} ? 'field-readonly'">
+                        <label for="idPlan">
+                            <i class="fas fa-layer-group"></i>
+                            Plan
+                            <span class="readonly-badge" th:if="${esEdicion}">
+                                <i class="fas fa-lock"></i> Bloqueado
+                            </span>
+                        </label>
+                        <p class="hint"
+                           th:text="${esEdicion}
+                               ? 'No modificable — parte de la clave primaria.'
+                               : 'Selecciona el plan al que aplica esta cobertura.'">
+                        </p>
+
+                        <!-- EDICIÓN: hidden con valor real + select visual deshabilitado -->
+                        <th:block th:if="${esEdicion}">
+                            <input type="hidden" name="idPlan" th:value="${idPlanActual}">
+                            <select id="idPlan" disabled>
+                                <option th:each="plan : ${planes}"
+                                        th:value="${plan.idPlan}"
+                                        th:text="${plan.nombrePlan}"
+                                        th:selected="${plan.idPlan == idPlanActual}">
+                                </option>
+                            </select>
+                        </th:block>
+
+                        <!-- CREACIÓN: select normal requerido -->
+                        <th:block th:unless="${esEdicion}">
+                            <select id="idPlan" name="idPlan" required>
+                                <option value="" disabled selected>— Seleccionar plan —</option>
+                                <option th:each="plan : ${planes}"
+                                        th:value="${plan.idPlan}"
+                                        th:text="${plan.nombrePlan}">
+                                </option>
+                            </select>
+                            <span class="error-msg" id="errorPlan" style="display:none">
+                                <i class="fas fa-circle-exclamation"></i> Debes seleccionar un plan.
+                            </span>
+                        </th:block>
+                    </div>
+
+                    <!-- COBERTURA -->
+                    <div class="field" th:classappend="${esEdicion} ? 'field-readonly'">
+                        <label for="idCobertura">
+                            <i class="fas fa-shield-halved"></i>
+                            Cobertura
+                            <span class="readonly-badge" th:if="${esEdicion}">
+                                <i class="fas fa-lock"></i> Bloqueado
+                            </span>
+                        </label>
+                        <p class="hint"
+                           th:text="${esEdicion}
+                               ? 'No modificable — parte de la clave primaria.'
+                               : 'Selecciona el tipo de cobertura a agregar.'">
+                        </p>
+
+                        <!-- EDICIÓN: hidden + select visual deshabilitado -->
+                        <th:block th:if="${esEdicion}">
+                            <input type="hidden" name="idCobertura" th:value="${idCoberturaActual}">
+                            <select id="idCobertura" disabled>
+                                <option th:each="cobertura : ${coberturas}"
+                                        th:value="${cobertura.idCobertura}"
+                                        th:text="${cobertura.nombreCobertura}"
+                                        th:selected="${cobertura.idCobertura == idCoberturaActual}">
+                                </option>
+                            </select>
+                        </th:block>
+
+                        <!-- CREACIÓN: select normal requerido -->
+                        <th:block th:unless="${esEdicion}">
+                            <select id="idCobertura" name="idCobertura" required>
+                                <option value="" disabled selected>— Seleccionar cobertura —</option>
+                                <option th:each="cobertura : ${coberturas}"
+                                        th:value="${cobertura.idCobertura}"
+                                        th:text="${cobertura.nombreCobertura}">
+                                </option>
+                            </select>
+                            <span class="error-msg" id="errorCobertura" style="display:none">
+                                <i class="fas fa-circle-exclamation"></i> Debes seleccionar una cobertura.
+                            </span>
+                        </th:block>
+                    </div>
+
+                </div>
+
+                <!-- ── Tarifa & Estado ── -->
+                <div class="section-divider" style="margin-top:28px;">Tarifa y estado</div>
+                <div class="form-grid">
+
+                    <!-- TARIFA -->
+                    <div class="field">
+                        <label for="tarifa">
+                            <i class="fas fa-dollar-sign"></i>
+                            Cobertura máxima (tarifa)
+                        </label>
+                        <p class="hint">Monto máximo cubierto en dólares.</p>
+                        <div class="input-group">
+                            <span class="input-prefix">$</span>
+                            <input type="number"
+                                   id="tarifa" name="tarifa"
+                                   min="0" step="0.01" placeholder="0.00"
+                                   required
+                                   th:value="${tarifaActual}">
+                        </div>
+                        <span class="error-msg" id="errorTarifa" style="display:none">
+                            <i class="fas fa-circle-exclamation"></i> Ingresa una tarifa válida (≥ 0).
+                        </span>
+                    </div>
+
+                    <!-- ESTADO -->
+                    <div class="field">
+                        <label>
+                            <i class="fas fa-toggle-on"></i>
+                            Estado
+                        </label>
+                        <p class="hint"
+                           th:text="${esEdicion}
+                               ? 'Actualiza el estado activo/inactivo.'
+                               : 'Indica si la cobertura estará activa al crearse.'">
+                        </p>
+                        <div class="estado-toggle">
+                            <label class="toggle-opt"
+                                   th:classappend="${estadoActual != 0} ? 'active-on'"
+                                   id="lblActivo">
+                                <input type="radio" name="estado" value="1"
+                                       th:checked="${estadoActual != 0}"
+                                       onchange="updateToggle(this)">
+                                <span class="toggle-dot"></span>
+                                <span>Activo</span>
+                            </label>
+                            <label class="toggle-opt"
+                                   th:classappend="${estadoActual == 0} ? 'active-off'"
+                                   id="lblInactivo">
+                                <input type="radio" name="estado" value="0"
+                                       th:checked="${estadoActual == 0}"
+                                       onchange="updateToggle(this)">
+                                <span class="toggle-dot"></span>
+                                <span>Inactivo</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ── Resumen en vivo ── -->
+                <div class="summary-box">
+                    <h4><i class="fas fa-list-check"></i> Resumen de la cobertura</h4>
+                    <div class="summary-row">
+                        <span class="s-label">Proveedor</span>
+                        <span class="s-value" th:text="${nombreProveedor}">—</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="s-label">Plan</span>
+                        <span class="s-value" id="sPlan">—</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="s-label">Cobertura</span>
+                        <span class="s-value" id="sCobertura">—</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="s-label">Tarifa máxima</span>
+                        <span class="s-value highlight" id="sTarifa">$0.00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="s-label">Estado</span>
+                        <span class="s-value" id="sEstado">—</span>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- ── Footer ── -->
+        <div class="form-actions">
+            <a th:href="@{/proveedores/cobertura/(idProveedor=${idProveedor})}" class="btn-cancel">
+                <i class="fas fa-xmark"></i> Cancelar
+            </a>
+            <button type="submit" form="formCobertura" class="btn-submit" id="btnGuardar">
+                <i class="fas" th:classappend="${esEdicion} ? 'fa-pen-to-square' : 'fa-floppy-disk'"></i>
+                <span th:text="${esEdicion} ? 'Actualizar cobertura' : 'Guardar cobertura'">Guardar</span>
+            </button>
+        </div>
+
+    </div><!-- /form-card -->
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const ES_EDICION = /*[[${esEdicion}]]*/ false;
+
+    // ── Toggle estado ─────────────────────────────────────────────
+    function updateToggle(radio) {
+        const lblActivo   = document.getElementById('lblActivo');
+        const lblInactivo = document.getElementById('lblInactivo');
+        lblActivo.classList.remove('active-on');
+        lblInactivo.classList.remove('active-off');
+        if (radio.value === '1') {
+            lblActivo.classList.add('active-on');
+            document.getElementById('sEstado').textContent = 'Activo';
+        } else {
+            lblInactivo.classList.add('active-off');
+            document.getElementById('sEstado').textContent = 'Inactivo';
+        }
+    }
+
+    // ── Resumen en vivo ───────────────────────────────────────────
+    const selPlan      = document.getElementById('idPlan');
+    const selCobertura = document.getElementById('idCobertura');
+    const inputTarifa  = document.getElementById('tarifa');
+
+    function updateSummary() {
+        const planOpt = selPlan ? selPlan.options[selPlan.selectedIndex] : null;
+        document.getElementById('sPlan').textContent =
+            (planOpt && planOpt.value) ? planOpt.text : '—';
+
+        const cobOpt = selCobertura ? selCobertura.options[selCobertura.selectedIndex] : null;
+        document.getElementById('sCobertura').textContent =
+            (cobOpt && cobOpt.value) ? cobOpt.text : '—';
+
+        const t = parseFloat(inputTarifa.value);
+        document.getElementById('sTarifa').textContent =
+            isNaN(t) ? '$0.00' : '$' + t.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    if (selPlan)      selPlan.addEventListener('change', updateSummary);
+    if (selCobertura) selCobertura.addEventListener('change', updateSummary);
+    if (inputTarifa)  inputTarifa.addEventListener('input', updateSummary);
+
+    // ── Inicializar resumen y toggle al cargar ────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        updateSummary();
+        const radioChecked = document.querySelector('input[name="estado"]:checked');
+        if (radioChecked) updateToggle(radioChecked);
+    });
+
+    // ── Validación antes de enviar ────────────────────────────────
+    document.getElementById('formCobertura').addEventListener('submit', function (e) {
+        let valid = true;
+
+        // Plan y Cobertura solo se validan en modo CREACIÓN
+        if (!ES_EDICION) {
+            const errPlan = document.getElementById('errorPlan');
+            if (!selPlan.value) {
+                selPlan.classList.add('is-invalid'); errPlan.style.display = 'flex'; valid = false;
+            } else {
+                selPlan.classList.remove('is-invalid'); errPlan.style.display = 'none';
+            }
+
+            const errCob = document.getElementById('errorCobertura');
+            if (!selCobertura.value) {
+                selCobertura.classList.add('is-invalid'); errCob.style.display = 'flex'; valid = false;
+            } else {
+                selCobertura.classList.remove('is-invalid'); errCob.style.display = 'none';
+            }
+        }
+
+        // Tarifa siempre requerida
+        const errTarifa = document.getElementById('errorTarifa');
+        const tarifaVal = parseFloat(inputTarifa.value);
+        if (inputTarifa.value.trim() === '' || isNaN(tarifaVal) || tarifaVal < 0) {
+            inputTarifa.classList.add('is-invalid'); errTarifa.style.display = 'flex'; valid = false;
+        } else {
+            inputTarifa.classList.remove('is-invalid'); errTarifa.style.display = 'none';
+        }
+
+        if (!valid) {
+            e.preventDefault();
+            document.querySelector('.is-invalid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            document.getElementById('btnGuardar').disabled = true;
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

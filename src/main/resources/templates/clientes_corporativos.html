@@ -1,0 +1,914 @@
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes Corporativos - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/comercios.css}">
+    <link rel="stylesheet" th:href="@{/css/corporativo.css}">
+</head>
+<style>
+    .file-upload-wrapper {
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .file-upload-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 15px;
+        border: 2px dashed #e0e0e0;
+        border-radius: 8px;
+        background: #f9f9f9;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-upload-label:hover {
+        border-color: #00BCD4;
+        background: #f0f9ff;
+    }
+
+    .file-upload-label i {
+        font-size: 20px;
+        color: #00BCD4;
+    }
+
+    .file-upload-label span {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .file-upload-label.has-file {
+        border-color: #4CAF50;
+        background: #f1f8f4;
+    }
+
+    .file-upload-label.has-file i {
+        color: #4CAF50;
+    }
+
+    .file-upload-label.has-file span {
+        color: #4CAF50;
+        font-weight: 600;
+    }
+</style>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                JO
+            </div>
+            <h3>Jorge Orellana</h3>
+            <p>jorge.orellana@asistenciaelsalvador.com</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/plan}" class="nav-item">
+                <i class="fas fa-list-check"></i>
+                <span>Planes</span>
+            </a>
+
+            <a th:href="@{/admin/dashboard}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a th:href="@{/comerciosAfiliados/}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios Afiliados</span>
+            </a>
+
+            <a th:href="@{/afiliado/carga-masiva}" class="nav-item">
+                <i class="fas fa-file-arrow-up"></i>
+                <span>Carga masiva</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reportes</span>
+            </a>
+
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>Clientes Corporativos</h1>
+                <p>Clientes de servicios de Asistencia El Salvador.</p>
+
+                <div class="breadcrumb">
+                    <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Inicio</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Clientes Corporativos</span>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="user-menu">
+                    <span th:text="|${session.nombre} ${session.apellido}|"></span>
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="header-illustration">
+                    <img src="https://via.placeholder.com/150x120/FF8C00/FFFFFF?text=Store" alt="Store Illustration">
+                </div>
+            </div>
+        </div>
+
+        <!-- Notificación de éxito/error -->
+        <div th:if="${mensaje}"
+             th:class="${tipoMensaje == 'error' ? 'alert-error' : 'alert-success'}"
+             style="margin: 20px; padding: 15px; border-radius: 10px; color: white;">
+            <i th:class="${tipoMensaje == 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle'}"></i>
+            <span th:text="${mensaje}"></span>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-right">
+                <button class="btn-create-commerce" onclick="crearNuevoCliente()">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Nuevo Cliente</span>
+                </button>
+
+                <div class="view-toggle">
+                    <button class="view-btn active" id="gridView" title="Vista en mosaico">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" id="listView" title="Vista en lista">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+
+                <div class="stats-summary">
+                    <div class="stat-item">
+                        <i class="fas fa-building"></i>
+                        <span class="stat-number" th:text="${totalClientes}">0</span>
+                        <span>Clientes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comercios Container -->
+        <div class="comercios-container">
+            <div class="list-header-section">
+                <h2>Listado de Clientes</h2>
+                <br/>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState" style="display: none;">
+                <div class="spinner"></div>
+                <span>Cargando clientes...</span>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" th:if="${#lists.isEmpty(clientesCorporativos)}" style="display: flex;">
+                <i class="fas fa-building-slash"></i>
+                <h3>No se encontraron clientes</h3>
+                <p>No hay clientes corporativos registrados. Haz clic en "Nuevo Cliente" para agregar uno.</p>
+            </div>
+
+            <!-- Comercios Grid -->
+            <div class="comercios-grid" id="comerciosContainer" th:unless="${#lists.isEmpty(clientesCorporativos)}">
+                <!-- Tarjeta de cliente -->
+                <div class="comercio-card"
+                     th:each="cliente : ${clientesCorporativos}"
+                     th:attr="data-category=${cliente.nit}"
+                     th:data-nombre="${cliente.nombreCliente}"
+                     th:data-nit="${cliente.nit}">
+
+                    <div class="card-header">
+                        <div class="comercio-logo">
+                            <img th:if="${cliente.imagenURL != null && !cliente.imagenURL.isEmpty()}"
+                                 th:src="${cliente.imagenURL}"
+                                 th:alt="${cliente.nombreCliente}"
+                                 style="width:80px;height:80px; object-fit: cover;"
+                                 onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-building\'></i>';">
+                            <i th:if="${cliente.imagenURL == null || cliente.imagenURL.isEmpty()}"
+                               class="fas fa-building"></i>
+                        </div>
+                        <div class="card-decoration"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <h3 class="comercio-name" th:text="${cliente.nombreCliente}">Nombre Cliente</h3>
+
+                        <div class="comercio-info-extra">
+                            <div class="info-item" th:if="${cliente.nit != null && !cliente.nit.isEmpty()}">
+                                <i class="fas fa-id-card"></i>
+                                <span th:text="'NIT: ' + ${cliente.nit}">NIT</span>
+                            </div>
+
+                            <div class="info-item" th:if="${cliente.nrc != null && !cliente.nrc.isEmpty()}">
+                                <i class="fas fa-file-invoice"></i>
+                                <span th:text="'NRC: ' + ${cliente.nrc}">NRC</span>
+                            </div>
+
+                            <div class="info-item" th:if="${cliente.emailContacto != null && !cliente.emailContacto.isEmpty()}">
+                                <i class="fas fa-envelope"></i>
+                                <span th:text="${cliente.emailContacto}">Email</span>
+                            </div>
+
+                            <div class="info-item" th:if="${cliente.telefono != null && !cliente.telefono.isEmpty()}">
+                                <i class="fas fa-phone"></i>
+                                <span th:text="${cliente.telefono}">Teléfono</span>
+                            </div>
+
+                            <div class="info-item">
+                                <i th:class="${cliente.estado == 1 ? 'fas fa-check-circle' : 'fas fa-times-circle'}"></i>
+                                <span th:text="${cliente.estado == 1 ? 'Activo' : 'Inactivo'}"
+                                      th:style="${cliente.estado == 1 ? 'color: #4CAF50;' : 'color: #f44336;'}">
+                                    Estado
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-actions">
+                            <button class="action-btn primary btn-editar"
+                                    th:data-nit="${cliente.nit}">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+
+                            <button class="action-btn payment btn-registrar-pago"
+                                    th:data-nit="${cliente.nit}"
+                                    th:data-nombre="${cliente.nombreCliente}">
+                                <i class="fas fa-hand-holding-dollar"></i> Registrar Pago
+                            </button>
+
+                            <button class="action-btn danger btn-eliminar"
+                                    th:data-nit="${cliente.nit}"
+                                    th:data-nombre="${cliente.nombreCliente}">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal-overlay" id="modalEliminar">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="modal-title">Confirmar eliminación</div>
+        </div>
+        <div class="modal-body">
+            <p>¿Está seguro que desea eliminar el cliente <strong id="nombreClienteEliminar"></strong>?</p>
+            <p style="color: #ff4444; font-size: 14px; margin-top: 10px;">Esta acción marcará el cliente como eliminado (soft delete).</p>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="cerrarModal()">Cancelar</button>
+            <button class="modal-btn modal-btn-confirm" onclick="eliminarCliente()">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de registro de pago -->
+<!-- Modal de registro de pago -->
+<div class="modal-overlay" id="modalRegistrarPago">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-icon modal-icon-payment">
+                <i class="fas fa-hand-holding-dollar"></i>
+            </div>
+            <div class="modal-title">Registrar Pago Masivo</div>
+        </div>
+        <div class="modal-body">
+            <p>Cliente: <strong id="nombreClientePago"></strong></p>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Seleccione el mes, año y forma de pago para registrar el pago masivo de todos los afiliados.</p>
+
+            <form id="formPagoMasivo" action="/clientesCorporativos/pago-masivo" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="nitPago" name="nit" />
+
+                <div class="form-group">
+                    <label for="mesPago">Mes: <span style="color: red;">*</span></label>
+                    <select id="mesPago" name="mes" class="form-control" required>
+                        <option value="">Seleccione un mes</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="anioPago">Año: <span style="color: red;">*</span></label>
+                    <select id="anioPago" name="anio" class="form-control" required>
+                        <option value="">Seleccione un año</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="formaPago">Forma de Pago: <span style="color: red;">*</span></label>
+                    <select id="formaPago" name="idFormaPago" class="form-control" required>
+                        <option value="">Seleccione una forma de pago</option>
+                        <option th:each="forma : ${formasPago}"
+                                th:value="${forma.id}"
+                                th:text="${forma.formaPagoNombre}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="voucherFile">Comprobante de Pago (Opcional):</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file"
+                               id="voucherFile"
+                               name="voucherFile"
+                               class="file-input"
+                               accept=".png,.jpg,.jpeg,.webp,.bmp"
+                               onchange="updateFileName(this)">
+                        <label for="voucherFile" class="file-upload-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span id="fileName">Seleccionar archivo (PNG, JPG, WEBP, BMP)</span>
+                        </label>
+                    </div>
+                    <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i> Formatos permitidos: PNG, JPG, JPEG, WEBP, BMP
+                    </small>
+                </div>
+            </form>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn modal-btn-cancel" onclick="cerrarModalPago()">Cancelar</button>
+            <button class="modal-btn modal-btn-confirm-payment" onclick="confirmarPago()">Registrar Pago</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Datos iniciales desde el servidor
+    const comerciosData = /*[[${clientesCorporativos}]]*/ [];
+
+    // Elementos del DOM
+    const gridViewBtn = document.getElementById('gridView');
+    const listViewBtn = document.getElementById('listView');
+    const comerciosContainer = document.getElementById('comerciosContainer');
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+    const modalEliminar = document.getElementById('modalEliminar');
+    const nombreClienteEliminar = document.getElementById('nombreClienteEliminar');
+    const modalRegistrarPago = document.getElementById('modalRegistrarPago');
+    const nombreClientePago = document.getElementById('nombreClientePago');
+    const nitPago = document.getElementById('nitPago');
+    const formPagoMasivo = document.getElementById('formPagoMasivo');
+
+    // Estado actual
+    let currentView = 'grid';
+    let nitClienteAEliminar = null;
+    let nombreClienteAEliminar = null;
+
+    // Función para crear nuevo cliente
+    function crearNuevoCliente() {
+        window.location.href = '/clientesCorporativos/nuevo';
+    }
+
+    // Función para editar cliente
+    function editarCliente(nit) {
+        console.log('Editando cliente con NIT:', nit);
+        window.location.href = `/clientesCorporativos/editar/${nit}`;
+    }
+
+    // Función para registrar pago
+    function registrarPago(nit, nombre) {
+        console.log('Abriendo modal de pago para NIT:', nit, 'Nombre:', nombre);
+
+        if (!nit) {
+            console.error('Error: NIT no proporcionado');
+            alert('Error: No se pudo obtener el NIT del cliente');
+            return;
+        }
+
+        nombreClientePago.textContent = nombre;
+        nitPago.value = nit;
+
+        console.log('NIT asignado al campo hidden:', nitPago.value);
+
+        // Limpiar selecciones previas
+        document.getElementById('mesPago').value = '';
+        document.getElementById('anioPago').value = '';
+
+        modalRegistrarPago.style.display = 'flex';
+    }
+
+    // Función para cerrar modal de pago
+    function cerrarModalPago() {
+        modalRegistrarPago.style.display = 'none';
+    }
+
+    // Función para confirmar pago
+    function confirmarPago() {
+        const mes = document.getElementById('mesPago').value;
+        const anio = document.getElementById('anioPago').value;
+        const nit = document.getElementById('nitPago').value;
+
+        // Validar que todos los campos estén llenos
+        if (!nit || !mes || !anio) {
+            alert('Por favor, complete todos los campos');
+            console.error('Datos faltantes - NIT:', nit, 'Mes:', mes, 'Año:', anio);
+            return;
+        }
+
+        console.log('Enviando pago masivo - NIT:', nit, 'Mes:', mes, 'Año:', anio);
+
+        // Enviar el formulario
+        formPagoMasivo.submit();
+    }
+
+    // Función para confirmar eliminación
+    function confirmarEliminar(nit, nombre) {
+        console.log('Confirmando eliminación de:', nit, nombre);
+        nitClienteAEliminar = nit;
+        nombreClienteAEliminar = nombre;
+        nombreClienteEliminar.textContent = nombre;
+        modalEliminar.style.display = 'flex';
+    }
+
+    // Función para cerrar modal
+    function cerrarModal() {
+        modalEliminar.style.display = 'none';
+        nitClienteAEliminar = null;
+        nombreClienteAEliminar = null;
+    }
+
+    // Función para eliminar cliente
+    function eliminarCliente() {
+        if (nitClienteAEliminar) {
+            console.log('Eliminando cliente:', nitClienteAEliminar);
+            window.location.href = `/clientesCorporativos/eliminar/${nitClienteAEliminar}`;
+        }
+    }
+
+    // Cerrar modal al hacer clic fuera
+    if (modalEliminar) {
+        modalEliminar.addEventListener('click', function(e) {
+            if (e.target === modalEliminar) {
+                cerrarModal();
+            }
+        });
+    }
+
+    // Cerrar modal de pago al hacer clic fuera
+    if (modalRegistrarPago) {
+        modalRegistrarPago.addEventListener('click', function(e) {
+            if (e.target === modalRegistrarPago) {
+                cerrarModalPago();
+            }
+        });
+    }
+
+    // Función para cambiar entre vista de mosaico y lista
+    function toggleView(viewType) {
+        if (viewType === 'list') {
+            comerciosContainer.className = 'comercios-list';
+            const cards = comerciosContainer.querySelectorAll('.comercio-card');
+            cards.forEach(card => {
+                card.classList.add('list-view');
+            });
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+        } else {
+            comerciosContainer.className = 'comercios-grid';
+            const cards = comerciosContainer.querySelectorAll('.comercio-card');
+            cards.forEach(card => {
+                card.classList.remove('list-view');
+            });
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+        }
+        currentView = viewType;
+    }
+
+    // Función para mostrar notificaciones
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#FF8C00'};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideInRight 0.3s ease-out;
+        `;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // Event listeners para cambio de vista
+    if (gridViewBtn) {
+        gridViewBtn.addEventListener('click', () => toggleView('grid'));
+    }
+    if (listViewBtn) {
+        listViewBtn.addEventListener('click', () => toggleView('list'));
+    }
+
+    // Agregar animaciones CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        .btn-create-commerce {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+        }
+
+        .btn-create-commerce:hover {
+            background: linear-gradient(135deg, #357ABD 0%, #2868A8 100%);
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .action-btn.payment {
+            background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+            color: white;
+        }
+
+        .action-btn.payment:hover {
+            background: linear-gradient(135deg, #0097A7 0%, #00838F 100%);
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+            color: white;
+        }
+
+        .action-btn.danger:hover {
+            background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+        }
+
+        .alert-success {
+            background: #4CAF50;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .alert-error {
+            background: #f44336;
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon {
+            width: 50px;
+            height: 50px;
+            background: #ff4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .modal-icon-payment {
+            background: #00BCD4;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00BCD4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .modal-btn-confirm {
+            background: #ff4444;
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background: #cc0000;
+        }
+
+        .modal-btn-confirm-payment {
+            background: #00BCD4;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-confirm-payment:hover {
+            background: #0097A7;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Clientes corporativos cargados:', comerciosData.length);
+
+        // Generar opciones de años (año actual - 1, actual, y próximos 2 años)
+        const currentYear = new Date().getFullYear();
+        const anioPagoSelect = document.getElementById('anioPago');
+        for (let i = -1; i <= 2; i++) {
+            const year = currentYear + i;
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            if (i === 0) option.selected = true; // Seleccionar año actual por defecto
+            anioPagoSelect.appendChild(option);
+        }
+
+        // Establecer mes actual por defecto
+        const currentMonth = new Date().getMonth() + 1;
+        document.getElementById('mesPago').value = currentMonth;
+
+        // Auto-ocultar mensaje de éxito/error después de 5 segundos
+        const alerts = document.querySelectorAll('.alert-success, .alert-error');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.animation = 'slideOutRight 0.3s ease-out';
+                setTimeout(() => {
+                    alert.remove();
+                }, 300);
+            }, 5000);
+        });
+
+        // Event listeners para botones de editar
+        document.querySelectorAll('.btn-editar').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const nit = this.getAttribute('data-nit');
+                editarCliente(nit);
+            });
+        });
+
+        // Event listeners para botones de registrar pago
+        document.querySelectorAll('.btn-registrar-pago').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const nit = this.getAttribute('data-nit');
+                const nombre = this.getAttribute('data-nombre');
+                registrarPago(nit, nombre);
+            });
+        });
+
+        // Event listeners para botones de eliminar
+        document.querySelectorAll('.btn-eliminar').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const nit = this.getAttribute('data-nit');
+                const nombre = this.getAttribute('data-nombre');
+                confirmarEliminar(nit, nombre);
+            });
+        });
+    });
+
+    function updateFileName(input) {
+        const fileNameSpan = document.getElementById('fileName');
+        const label = input.nextElementSibling;
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileName = file.name;
+            const fileSize = (file.size / 1024 / 1024).toFixed(2); // Tamaño en MB
+
+            // Validar tipo de archivo
+            const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/webp', 'image/bmp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Por favor seleccione un archivo de imagen válido (PNG, JPG, WEBP, BMP)');
+                input.value = '';
+                fileNameSpan.textContent = 'Seleccionar archivo (PNG, JPG, WEBP, BMP)';
+                label.classList.remove('has-file');
+                return;
+            }
+
+            // Validar tamaño (máximo 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('El archivo no debe superar los 5MB');
+                input.value = '';
+                fileNameSpan.textContent = 'Seleccionar archivo (PNG, JPG, WEBP, BMP)';
+                label.classList.remove('has-file');
+                return;
+            }
+
+            fileNameSpan.textContent = `${fileName} (${fileSize} MB)`;
+            label.classList.add('has-file');
+        } else {
+            fileNameSpan.textContent = 'Seleccionar archivo (PNG, JPG, WEBP, BMP)';
+            label.classList.remove('has-file');
+        }
+    }
+
+    // Función para limpiar el formulario al cerrar el modal
+    function cerrarModalPago() {
+        document.getElementById('modalRegistrarPago').style.display = 'none';
+        document.getElementById('formPagoMasivo').reset();
+        document.getElementById('fileName').textContent = 'Seleccionar archivo (PNG, JPG, WEBP, BMP)';
+        document.querySelector('.file-upload-label').classList.remove('has-file');
+    }
+
+    // Función para confirmar pago
+    function confirmarPago() {
+        const mes = document.getElementById('mesPago').value;
+        const anio = document.getElementById('anioPago').value;
+        const nit = document.getElementById('nitPago').value;
+        const formaPago = document.getElementById('formaPago').value;
+
+        // Validar que todos los campos requeridos estén llenos
+        if (!nit || !mes || !anio || !formaPago) {
+            alert('Por favor, complete todos los campos obligatorios');
+            console.error('Datos faltantes - NIT:', nit, 'Mes:', mes, 'Año:', anio, 'Forma de Pago:', formaPago);
+            return;
+        }
+
+        console.log('Enviando pago masivo - NIT:', nit, 'Mes:', mes, 'Año:', anio, 'Forma de Pago:', formaPago);
+
+        // Enviar el formulario
+        document.getElementById('formPagoMasivo').submit();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Listado de Afiliados - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/afiliados.css}">
+    <style>
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .breadcrumb a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<div th:if="${success}" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    <span th:text="${success}"></span>
+</div>
+
+<div th:if="${error}" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span th:text="${error}"></span>
+</div>
+
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Gestión de Afiliados</h1>
+        <span class="subtitle">Administra todos los afiliados registrados en el sistema</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header" th:if="${!session.patrocinio}">
+            <h2>Listado de Afiliados</h2>
+            <a th:href="${rol == 2} ? @{/afiliado/vendedor/nuevo} : @{/afiliado/nuevo}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Afiliado
+            </a>
+        </div>
+
+        <div class="card-header" th:if="${session.patrocinio}">
+            <h2>Mis patrocinados</h2>
+        </div>
+
+        <div class="breadcrumb" th:if="${session.patrocinio}">
+            <a th:href="@{/usuarios/dashboard/}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+
+        <div class="breadcrumb" th:if="${!session.patrocinio}">
+            <a th:href="${rol == 2} ? @{/admin/ventas/dashboard} : @{/admin/dashboard}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Planes</span>
+        </div>
+
+        <div class="card-body">
+            <div class="table-container">
+                <!-- Tabla con datos -->
+                <table class="modern-table" th:if="${not #lists.isEmpty(afiliados)}">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-id-card"></i> ID/DUI</th>
+                        <th><i class="fas fa-user"></i> Nombre Completo</th>
+                        <th><i class="fas fa-envelope"></i> Correo</th>
+                        <th><i class="fas fa-phone"></i> Teléfono</th>
+                        <th><i class="fas fa-shield-check"></i> Estado</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Dirección</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="afiliado, iterStat : ${afiliados}" class="fade-in-row" th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+                        <td>
+                            <span class="id-badge" th:text="${afiliado.dui}"></span>
+                        </td>
+                        <td>
+                            <strong th:text="${afiliado.nombre + ' ' + afiliado.apellido}"></strong>
+                        </td>
+                        <td th:text="${afiliado.email}"></td>
+                        <td th:text="${afiliado.telefono}"></td>
+                        <td>
+                            <span class="status-badge status-verified" th:if="${afiliado.estado == 1}">
+                                <i class="fas fa-check-circle"></i> V
+                            </span>
+                            <span class="status-badge status-unverified" th:if="${afiliado.estado == 0}">
+                                <i class="fas fa-clock"></i> P
+                            </span>
+                        </td>
+                        <td th:text="${afiliado.direccion}" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></td>
+                        <td>
+                            <div class="action-icons" th:if="${!session.patrocinio}">
+                                <!-- Imprimir -->
+                                <a th:href="@{/pdf/contrato/{dui}(dui=${afiliado.dui})}"
+                                   class="action-btn print"
+                                   data-tooltip="Imprimir"
+                                   target="_blank">
+                                    <i class="fas fa-print"></i>
+                                </a>
+
+
+                                <a th:href="|https://wa.me/${afiliado.telefono.replace('-', '')}?text=Hola ${afiliado.nombre} ${afiliado.apellido}, necesito hablar contigo sobre tu afiliacion.|"
+                                   data-tooltip="Enviar WhatsApp"
+                                   target="_blank">
+                                    <img th:src="@{/images/whatsapp.png}" alt="WhatsApp" style="width: 36px; height: 36px;">
+                                </a>
+
+                                <!-- Verificar/Desverificar-->
+                                <a th:href="@{/afiliado/reactivate/{dui}(dui=${afiliado.dui})}"
+                                   th:class="'action-btn ' + (${afiliado.estado} ? 'unverify' : 'verify')"
+                                   th:data-tooltip="${afiliado.estado} ? 'Desverificar' : 'Verificar'">
+                                    <i th:class="'fas ' + (${afiliado.estado} ? 'fa-times-circle' : 'fa-check-circle')"></i>
+                                </a>
+
+                                <!-- Pago -->
+                                <a th:href="@{/pagos/nuevo/{dui}(dui=${afiliado.dui})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Pago">
+                                    <i class="fas fa-receipt"></i>
+                                </a>
+
+                                <!-- Editar -->
+                                <a th:href="@{/afiliado/editar/{dui}(dui=${afiliado.dui})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- Eliminar -->
+                                <a href="#"
+                                   class="action-btn delete"
+                                   data-tooltip="Eliminar"
+                                   th:data-dui="${afiliado.dui}"
+                                   th:data-nombre="${afiliado.nombre + ' ' + afiliado.apellido}"
+                                   onclick="confirmarEliminacion(event, this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+
+                                <!-- Formulario oculto para cada afiliado -->
+                                <form th:id="'deleteForm-' + ${afiliado.dui}"
+                                      th:action="@{/afiliado/delete/{dui}(dui=${afiliado.dui})}"
+                                      method="post"
+                                      style="display: none;">
+                                </form>
+                            </div>
+
+                            <div class="action-icons" th:if="${session.patrocinio}">
+                                <!-- Imprimir -->
+                                <a th:href="@{/pdf/contrato/{dui}(dui=${afiliado.dui})}"
+                                   class="action-btn print"
+                                   data-tooltip="Imprimir"
+                                   target="_blank">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                                <!-- Pago -->
+                                <!-- hacerlo mediante el link de wompi -->
+                                <a th:href="${afiliado.linkPago}"
+                                   class="action-btn edit"
+                                   data-tooltip="Pago"
+                                    target="_blank">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Estado vacío -->
+                <div class="empty-state" th:if="${#lists.isEmpty(afiliados)} and ${!session.patrocinio}">
+                    <i class="fas fa-users"></i>
+                    <h3>No hay afiliados registrados</h3>
+                    <p>Comience agregando el primer afiliado al sistema</p>
+                    <a th:href="@{/afiliado/nuevo}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Registrar Primer Afiliado
+                    </a>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(afiliados)} and ${session.patrocinio}">
+                    <i class="fas fa-users"></i>
+                    <h3>No tienes patrocinados</h3>
+                    <p>Comience agregando el primer afiliado desde el dashboard</p>
+                    <a th:href="@{/usuarios/dashboard/}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Volver
+                    </a>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-container" th:if="${totalPaginas > 1}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/afiliado(page=${paginaActual-1})}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas-1)}"
+                        th:classappend="${i == paginaActual} ? 'active'">
+                        <a class="page-link" th:href="@{/afiliado(page=${i})}" th:text="${i+1}"></a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${paginaActual == totalPaginas-1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/afiliado(page=${paginaActual+1})}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para confirmar eliminación
+    function confirmarEliminacion(event, element) {
+        event.preventDefault();
+
+        const dui = element.dataset.dui;
+        const nombre = element.dataset.nombre;
+
+        const confirmation = confirm(
+            '⚠️ ADVERTENCIA ⚠️\n\n' +
+            `¿Está completamente seguro que desea eliminar a ${nombre}?\n\n` +
+            '• Esta acción no se puede deshacer\n' +
+            '• Se perderán todos los datos asociados\n' +
+            '• El proceso es irreversible\n\n' +
+            '¿Desea continuar?'
+        );
+
+        if (confirmation) {
+            const userInput = prompt('Para confirmar la eliminación, escriba: CONFIRMAR');
+            if (userInput === 'CONFIRMAR') {
+                document.getElementById('deleteForm-' + dui).submit();
+            } else {
+                alert('❌ Eliminación cancelada. El texto ingresado no coincide.');
+            }
+        }
+    }
+
+    // Animación secuencial de las filas
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('.fade-in-row');
+
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                row.style.transition = 'all 0.4s ease-out';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Confirmación para cambio de estado de verificación
+        const verifyButtons = document.querySelectorAll('.action-btn.verify, .action-btn.unverify');
+        verifyButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const isVerifying = this.classList.contains('verify');
+                const action = isVerifying ? 'verificar' : 'desverificar';
+
+                const confirmation = confirm(
+                    `¿Está seguro que desea ${action} este afiliado?\n\n` +
+                    `Esta acción cambiará el estado de verificación del afiliado.`
+                );
+
+                if (confirmation) {
+                    window.location.href = this.href;
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

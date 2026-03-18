@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Usuarios - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/usuarios.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Gestión de Usuarios</h1>
+        <span class="subtitle">Administra todos los usuarios del sistema</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Listado de Usuarios</h2>
+            <a th:href="@{/usuarios/registro}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Usuario
+            </a>
+        </div>
+        <div class="breadcrumb">
+            <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+        <span>Usuarios</span>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <!-- Tabla con datos -->
+                <table class="modern-table" th:if="${not #lists.isEmpty(usuarios)}">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-id-card"></i> DUI</th>
+                        <th><i class="fas fa-user"></i> Nombre</th>
+                        <th><i class="fas fa-user-tag"></i> Apellido</th>
+                        <th><i class="fas fa-envelope"></i> Correo</th>
+                        <th><i class="fas fa-phone"></i> Teléfono</th>
+                        <th><i class="fas fa-user-shield"></i> Rol</th>
+                        <th><i class="fas fa-toggle-on"></i> Estado</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="usuario, iterStat : ${usuarios}" class="fade-in-row" th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+                        <td>
+                            <span class="id-badge" th:text="${usuario.dui}"></span>
+                        </td>
+                        <td>
+                            <strong th:text="${usuario.nombre}"></strong>
+                        </td>
+                        <td th:text="${usuario.apellido}"></td>
+                        <td th:text="${usuario.email}"></td>
+                        <td th:text="${usuario.telefono}"></td>
+                        <td>
+                            <span class="role-badge role-admin" th:if="${usuario.rol == 1}">
+                                <i class="fas fa-crown"></i> Administrador
+                            </span>
+                            <span class="role-badge role-seller" th:if="${usuario.rol == 2}">
+                                <i class="fas fa-shopping-bag"></i> Vendedor
+                            </span>
+                        </td>
+
+
+                        <td>
+                        <span class="status-badge status-active" th:if="${usuario.activo}">
+                            <i class="fas fa-check-circle"></i> Activo
+                        </span>
+                        <span class="status-badge status-inactive" th:unless="${usuario.activo}">
+                            <i class="fas fa-times-circle"></i> Inactivo
+                        </span>
+                        </td>
+
+                        <td>
+                            <div class="action-icons">
+                                <!-- Editar -->
+                                <a th:href="@{/usuarios/editar/{dui}(dui=${usuario.dui})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- Eliminar -->
+                                <a th:href="@{/usuarios/eliminar/{dui}(dui=${usuario.dui})}"
+                                   class="action-btn delete"
+                                   data-tooltip="Eliminar"
+                                   onclick="return confirm('¿Está seguro que desea eliminar este usuario?\n\nEsta acción no se puede deshacer.');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Estado vacío -->
+                <div class="empty-state" th:if="${#lists.isEmpty(usuarios)}">
+                    <i class="fas fa-user-friends"></i>
+                    <h3>No hay usuarios registrados</h3>
+                    <p>Comienza creando un nuevo usuario para gestionar el sistema</p>
+                    <a th:href="@{/usuario/nuevo}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </a>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-container" th:if="${totalPages > 1}">
+                <ul class="pagination">
+                    <!-- Botón Anterior -->
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/usuario/listar(page=${currentPage - 1}, size=${pageSize})}" aria-label="Anterior">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <!-- Números de página -->
+                    <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                        th:classappend="${pageNum == currentPage} ? 'active'">
+                        <a class="page-link" th:href="@{/usuario/listar(page=${pageNum}, size=${pageSize})}" th:text="${pageNum}"></a>
+                    </li>
+
+                    <!-- Botón Siguiente -->
+                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{/usuario/listar(page=${currentPage + 1}, size=${pageSize})}" aria-label="Siguiente">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

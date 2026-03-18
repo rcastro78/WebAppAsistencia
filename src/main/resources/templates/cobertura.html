@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esEdicion ? 'Editar Cobertura' : 'Nueva Cobertura'} + ' - Asistencia El Salvador'">Cobertura - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/cobertura.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1 th:text="${esEdicion ? 'Editar Cobertura' : 'Nueva Cobertura'}">Cobertura</h1>
+        <span class="subtitle" th:text="${esEdicion ? 'Modifica la cobertura del plan' : 'Agrega una nueva cobertura al plan'}"></span>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a th:href="@{/admin/dashboard}">
+            <i class="fas fa-home"></i> Dashboard
+        </a>
+        <span>/</span>
+        <a th:href="@{/planes}">
+            <i class="fas fa-clipboard-list"></i> Planes
+        </a>
+        <span>/</span>
+        <a th:href="@{/planesCobertura(idPlan=${plan.idPlan})}">
+            <i class="fas fa-umbrella"></i> Coberturas
+        </a>
+        <span>/</span>
+        <span class="current" th:text="${esEdicion ? 'Editar' : 'Nueva'}">Acción</span>
+    </nav>
+
+    <div class="card fade-in">
+        <div class="card-header">
+            <h2 th:text="${esEdicion ? 'Editar Cobertura' : 'Agregar Cobertura'}">Cobertura</h2>
+            <a th:href="@{/planesCobertura(idPlan=${plan.idPlan})}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Listado
+            </a>
+        </div>
+
+        <div class="card-body">
+            <!-- Información del Plan -->
+            <div class="plan-info">
+                <h3><i class="fas fa-clipboard-list"></i> Plan Seleccionado</h3>
+                <div class="plan-details">
+                    <div class="plan-detail-item">
+                        <span class="plan-detail-label">Nombre del Plan</span>
+                        <span class="plan-detail-value" th:text="${plan.nombrePlan}"></span>
+                    </div>
+                    <div class="plan-detail-item">
+                        <span class="plan-detail-label">Costo Mensual</span>
+                        <span class="plan-detail-value price"
+                              th:text="|${plan.simboloMoneda} ${plan.costoPlan}|"></span>
+                    </div>
+                    <div class="plan-detail-item">
+                        <span class="plan-detail-label">Costo Anual</span>
+                        <span class="plan-detail-value price"
+                              th:text="|${plan.simboloMoneda} ${plan.costoPlanAnual}|"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes de éxito -->
+            <div class="alert alert-success" th:if="${mensaje}">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${mensaje}"></span>
+            </div>
+
+            <!-- Mensajes de error -->
+            <div class="alert alert-danger" th:if="${error}">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Formulario -->
+            <form th:action="@{${esEdicion ? '/planesCobertura/editar?id=' + planesCobertura.idCobertura : '/planesCobertura/guardar'}}"
+                  th:object="${planesCobertura}"
+                  method="post"
+                  class="form"
+                  novalidate>
+
+                <!-- Campo oculto para el ID del plan -->
+                <input type="hidden" name="idPlan" th:value="${plan.idPlan}">
+                <input type="hidden" th:if="${esEdicion}" name="idCoberturaPlan" th:field="*{idCobertura}">
+
+                <!-- Campo oculto para el ID en modo edición -->
+                <input type="hidden" th:if="${esEdicion}" th:field="*{idCobertura}">
+
+                <div class="form-row">
+                    <!-- Selección de Cobertura -->
+                    <div class="form-group">
+                        <label for="idCobertura" class="form-label required">
+                            <i class="fas fa-shield-alt"></i> Cobertura
+                        </label>
+                        <select id="idCobertura"
+                                name="idCobertura"
+                                class="form-control"
+                                required>
+                            <option value="">Seleccione una cobertura</option>
+                            <option th:each="cobertura : ${coberturas}"
+                                    th:value="${cobertura.idCobertura}"
+                                    th:text="${cobertura.nombreCobertura}"
+                                    th:selected="${planesCobertura.idCobertura == cobertura.idCobertura}"></option>
+                        </select>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Seleccione la cobertura que desea agregar a este plan
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtEventos" class="form-label required">
+                            <i class="fas fa-hashtag"></i> Eventos
+                        </label>
+                        <input type="number"
+                               name="eventos"
+                               class="form-control"
+                               id="txtEventos"
+                               min="0"
+                               th:value="${planesCobertura.eventos}"
+                               required/>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            El valor 0 indica un número ilimitado de eventos
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="form-actions">
+                    <a th:href="@{/planesCobertura(idPlan=${plan.idPlan})}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success" id="submitBtn">
+                        <i th:class="${esEdicion ? 'fas fa-edit' : 'fas fa-save'}"></i>
+                        <span th:text="${esEdicion ? 'Actualizar Cobertura' : 'Agregar Cobertura'}">Guardar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const esEdicion = /*[[${esEdicion}]]*/ false;
+    /*]]>*/
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.form');
+        const submitBtn = document.getElementById('submitBtn');
+        const coberturaSelect = document.getElementById('idCobertura');
+
+        // Validación del formulario
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let isValid = true;
+            const cobertura = coberturaSelect.value.trim();
+
+            if (!cobertura) {
+                coberturaSelect.classList.add('is-invalid');
+                alert('Por favor, seleccione una cobertura.');
+                isValid = false;
+            } else {
+                coberturaSelect.classList.remove('is-invalid');
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            // Mostrar loading
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+            // Enviar formulario
+            setTimeout(() => {
+                this.submit();
+            }, 500);
+        });
+
+        // Remover clase is-invalid al cambiar el select
+        coberturaSelect.addEventListener('change', function() {
+            this.classList.remove('is-invalid');
+        });
+
+        // Ocultar alertas después de 5 segundos
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 5000);
+        });
+    });
+</script>
+</body>
+</html>

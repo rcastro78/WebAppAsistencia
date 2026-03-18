@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esEdicion ? 'Editar Promoción' : 'Nueva Promoción'} + ' - Asistencia El Salvador'">Promoción - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/empresa.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header" th:if="${session.rol<1}">
+        <h1 th:text="${esEdicion ? 'Editar Promoción' : 'Nueva Promoción'}">Promoción</h1>
+        <span class="subtitle" th:text="${esEdicion ? 'Modifica la información de la promoción' : 'Completa la información para registrar una nueva promoción'}"></span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos de la promoción</h2>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/comerciosAfiliados/promociones/guardar}"
+                  th:object="${promocion}"
+                  method="post"
+                  id="promocionForm">
+
+                <!-- Campo oculto para el NIT -->
+                <input type="hidden" name="nitEmpresa" th:value="${nit}">
+
+                <!-- Campo oculto para el ID en modo edición -->
+                <input type="hidden" th:if="${esEdicion}" th:field="*{idPromocion}">
+
+                <div class="form-grid">
+                    <!-- NIT (solo lectura) -->
+                    <div class="form-group">
+                        <label for="nitDisplay"><i class="fas fa-id-card"></i> NIT Empresa</label>
+                        <input type="text" id="nitDisplay" class="input" th:value="${nit}" readonly>
+                    </div>
+
+                    <!-- Nombre de la Promoción -->
+                    <div class="form-group">
+                        <label for="nombrePromo"><i class="fas fa-tag"></i> Nombre de la Promoción</label>
+                        <input type="text" th:field="*{nombrePromo}" id="nombrePromo" class="input" placeholder="Ingrese el nombre de la promoción" maxlength="200" required>
+                    </div>
+
+                    <!-- Fecha Inicio -->
+                    <div class="form-group">
+                        <label for="fechaInicio"><i class="fas fa-calendar-alt"></i> Fecha de Inicio</label>
+                        <input type="date" th:field="*{fechaInicio}" id="fechaInicio" class="input" required>
+                    </div>
+
+                    <!-- Fecha Fin -->
+                    <div class="form-group">
+                        <label for="fechaFin"><i class="fas fa-calendar-check"></i> Fecha de Finalización</label>
+                        <input type="date" th:field="*{fechaFin}" id="fechaFin" class="input" required>
+                    </div>
+
+                    <!-- Plan -->
+                    <div class="form-group">
+                        <label for="plan"><i class="fas fa-clipboard-list"></i> Plan</label>
+                        <select id="plan" th:field="*{idPlan}" class="input" required>
+                            <option value="-1">Seleccione un plan</option>
+                            <option th:each="p : ${planes}"
+                                    th:value="${p.idPlan}"
+                                    th:text="${p.nombrePlan}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Monto -->
+                    <div class="form-group">
+                        <label for="monto"><i class="fas fa-dollar-sign"></i> Monto/Descuento</label>
+                        <input type="number" th:field="*{monto}" id="monto" class="input" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado"><i class="fas fa-info"></i> Estado</label>
+                        <select id="estado" th:field="*{estado}" class="input" required>
+                            <option value="-1">Seleccione un estado</option>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <!-- Estado -->
+                    <!--<div class="form-group">
+                        <label><i class="fas fa-toggle-on"></i> Estado</label>
+                        <select th:field="*{estado}" class="input" required>
+                            <option value="">Seleccione el estado</option>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>-->
+
+                    <!-- Detalle (ocupa todo el ancho) -->
+                    <div class="form-group full-width">
+                        <label for="detalle"><i class="fas fa-align-left"></i> Detalle de la Promoción</label>
+                        <textarea th:field="*{detalle}" id="detalle" class="input textarea" placeholder="Describe los detalles de la promoción" rows="4" maxlength="500"></textarea>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn">
+                        <i th:class="${esEdicion ? 'fas fa-edit' : 'fas fa-save'}"></i>
+                        <span th:text="${esEdicion ? 'Actualizar' : 'Guardar'}">Guardar</span>
+                    </button>
+
+                    <a th:href="@{/comerciosAfiliados/promociones(nit=${nit})}" class="btn secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validación del formulario
+        const form = document.getElementById('promocionForm');
+
+        form.addEventListener('submit', function(e) {
+            const nombrePromo = document.getElementById('nombrePromo').value.trim();
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            const plan = document.getElementById('plan').value;
+            const monto = document.getElementById('monto').value;
+            const estado = document.querySelector('select[name="estado"]').value;
+
+            if (!nombrePromo || !fechaInicio || !fechaFin || !plan || !monto || !estado) {
+                alert('Por favor complete todos los campos requeridos');
+                e.preventDefault();
+                return false;
+            }
+
+            // Validar que la fecha de fin sea posterior a la fecha de inicio
+            if (fechaInicio && fechaFin) {
+                const inicio = new Date(fechaInicio);
+                const fin = new Date(fechaFin);
+
+                if (fin < inicio) {
+                    alert('La fecha de finalización debe ser posterior a la fecha de inicio');
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
+            if (nombrePromo.length > 200) {
+                alert('El nombre de la promoción no puede exceder 200 caracteres');
+                e.preventDefault();
+                return false;
+            }
+
+            if (parseFloat(monto) < 0) {
+                alert('El monto debe ser un valor positivo');
+                e.preventDefault();
+                return false;
+            }
+
+            return true;
+        });
+
+        // Contador de caracteres para nombre de promoción
+        const nombrePromoInput = document.getElementById('nombrePromo');
+        if (nombrePromoInput) {
+            const maxLength = 200;
+            const counterDiv = document.createElement('small');
+            counterDiv.className = 'form-text';
+            counterDiv.style.color = '#6c757d';
+            nombrePromoInput.parentNode.appendChild(counterDiv);
+
+            function updateCounter() {
+                const currentLength = nombrePromoInput.value.length;
+                counterDiv.textContent = `${currentLength}/${maxLength} caracteres`;
+
+                if (currentLength > maxLength * 0.9) {
+                    counterDiv.style.color = '#dc3545';
+                } else {
+                    counterDiv.style.color = '#6c757d';
+                }
+            }
+
+            nombrePromoInput.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+
+        // Contador de caracteres para detalle
+        const detalleInput = document.getElementById('detalle');
+        if (detalleInput) {
+            const maxLength = 500;
+            const counterDiv = document.createElement('small');
+            counterDiv.className = 'form-text';
+            counterDiv.style.color = '#6c757d';
+            detalleInput.parentNode.appendChild(counterDiv);
+
+            function updateDetalleCounter() {
+                const currentLength = detalleInput.value.length;
+                counterDiv.textContent = `${currentLength}/${maxLength} caracteres`;
+
+                if (currentLength > maxLength * 0.9) {
+                    counterDiv.style.color = '#dc3545';
+                } else {
+                    counterDiv.style.color = '#6c757d';
+                }
+            }
+
+            detalleInput.addEventListener('input', updateDetalleCounter);
+            updateDetalleCounter();
+        }
+
+        // Estilo para campo readonly
+        const nitDisplay = document.getElementById('nitDisplay');
+        if (nitDisplay) {
+            nitDisplay.style.backgroundColor = '#e9ecef';
+            nitDisplay.style.cursor = 'not-allowed';
+        }
+
+        // Validación en tiempo real de fechas
+        const fechaInicio = document.getElementById('fechaInicio');
+        const fechaFin = document.getElementById('fechaFin');
+
+        function validarFechas() {
+            if (fechaInicio.value && fechaFin.value) {
+                const inicio = new Date(fechaInicio.value);
+                const fin = new Date(fechaFin.value);
+
+                if (fin < inicio) {
+                    fechaFin.setCustomValidity('La fecha de finalización debe ser posterior a la fecha de inicio');
+                } else {
+                    fechaFin.setCustomValidity('');
+                }
+            }
+        }
+
+        fechaInicio.addEventListener('change', validarFechas);
+        fechaFin.addEventListener('change', validarFechas);
+    });
+</script>
+
+<style>
+    .form-text {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group label i {
+        margin-right: 8px;
+        color: #007bff;
+    }
+
+    .input {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    .textarea {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+
+    .input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .input[readonly] {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+        color: #495057;
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn.secondary {
+        background-color: #6c757d;
+    }
+
+    .btn.secondary:hover {
+        background-color: #545b62;
+    }
+</style>
+</body>
+</html>

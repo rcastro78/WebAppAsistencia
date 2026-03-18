@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Contrato de Prestación de Servicios - AESAL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 21cm;
+            margin: 0 auto;
+            background: white;
+            padding: 2cm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2c5aa0;
+        }
+
+        .header h1 {
+            color: #2c5aa0;
+            font-size: 18pt;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 12pt;
+        }
+
+        .intro {
+            text-align: justify;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #2c5aa0;
+            font-size: 10pt;
+        }
+
+        .clause {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .clause-title {
+            background: #2c5aa0;
+            color: white;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 11pt;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .clause-content {
+            padding: 15px;
+            text-align: justify;
+            font-size: 10pt;
+            line-height: 1.8;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+        }
+
+        .highlight {
+            background: #fff9e6;
+            padding: 12px;
+            border-left: 4px solid #ffa500;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        .subsection {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .subsection-title {
+            font-weight: bold;
+            color: #2c5aa0;
+            margin-bottom: 8px;
+            font-size: 10.5pt;
+        }
+
+        .list-item {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .list-item::before {
+            content: "•";
+            position: absolute;
+            left: 10px;
+            color: #2c5aa0;
+            font-weight: bold;
+        }
+
+        .data-section {
+            margin: 30px 0;
+            page-break-inside: avoid;
+        }
+
+        .data-title {
+            background: #2c5aa0;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .section-header {
+            background: #f0f4f8;
+            padding: 12px;
+            margin: 25px 0 15px 0;
+            border-left: 5px solid #2c5aa0;
+            font-weight: bold;
+            font-size: 11pt;
+            color: #2c5aa0;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            margin: 15px 0;
+            border-collapse: collapse;
+            font-size: 10pt;
+        }
+
+        table tr {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table td {
+            padding: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #2c5aa0;
+            width: 40%;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            padding: 20px;
+            border: 2px solid #2c5aa0;
+            background: #f8f9fa;
+        }
+
+        .signature-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 50px;
+            gap: 40px;
+        }
+
+        .signature-box {
+            flex: 1;
+            text-align: center;
+            min-height: 150px;
+        }
+
+        .signature-area {
+            min-height: 100px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .signature-image {
+            max-width: 200px;
+            max-height: 80px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .signature-line {
+            border-bottom: 2px solid #333;
+            width: 100%;
+            height: 2px;
+            margin-top: 5px;
+        }
+
+        .contact-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: #2c5aa0;
+            color: white;
+            text-align: center;
+        }
+
+        .contact-info h3 {
+            margin-bottom: 15px;
+            font-size: 14pt;
+        }
+
+        .contact-info p {
+            margin: 8px 0;
+            font-size: 10pt;
+        }
+
+        .coverage-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            font-size: 9pt;
+        }
+
+        .coverage-table th {
+            background: #2c5aa0;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .coverage-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .coverage-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .checkmark {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+                padding: 1cm;
+            }
+            .clause {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- ENCABEZADO -->
+    <div class="header">
+        <h1>Contrato para la Prestación de Servicios de Asistencia</h1>
+        <p><strong>TARJETAS DE ASISTENCIA</strong></p>
+        <p style="margin-top: 10px;">ASISTENCIA EL SALVADOR, SOCIEDAD ANÓNIMA DE CAPITAL VARIABLE</p>
+        <p><strong>AESAL, S.A. DE C.V.</strong></p>
+    </div>
+
+    <!-- INTRODUCCIÓN -->
+    <div class="intro">
+        En lo sucesivo "el CLIENTE", por medio del presente instrumento OTORGO: Que en esta fecha he (mos) convenido en suscribir con la sociedad ASISTENCIA EL SALVADOR, SOCIEDAD ANÓNIMA DE CAPITAL VARIABLE, que puede abreviarse AESAL, S.A. DE C.V., en lo sucesivo "AESAL", un CONTRATO DE PRESTACIÓN DE SERVICIOS DE ASISTENCIA, el cual se regirá bajo las cláusulas siguientes:
+    </div>
+
+    <!-- CLÁUSULA 1 -->
+    <div class="clause">
+        <div class="clause-title">1) OBJETO</div>
+        <div class="clause-content">
+            En virtud de este contrato, el CLIENTE recibirá de AESAL el servicio de asistencia técnica y profesional oportuna, así como los servicios suplementarios o de valor agregado solicitados. El servicio de asistencia es prestado dentro de las áreas de cobertura previamente determinadas por AESAL, por medio de recursos humanos propios y una amplia red de proveedores distribuidos geográficamente en todo el país. Para la prestación del (de los) servicio (s) objeto del presente contrato, es necesario que EL CLIENTE cuente con su servicio de asistencia vigente, y se regirá por los términos y condiciones de este Contrato.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 2 -->
+    <div class="clause">
+        <div class="clause-title">2) PRECIO DE LOS SERVICIOS</div>
+        <div class="clause-content">
+            Como contraprestación de los servicios prestados, el CLIENTE pagará periódicamente, mensualmente o anualmente como corresponda en el contrato, a AESAL el valor correspondiente de la membresía del plan solicitado, durante la vigencia de este contrato.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 3 -->
+    <div class="clause">
+        <div class="clause-title">3) FACTURACIÓN Y FORMA DE PAGO</div>
+        <div class="clause-content">
+            Los servicios serán facturados en dólares, moneda de los Estados Unidos de América, por períodos mensuales o anuales, de acuerdo al ciclo de facturación que corresponda. El CLIENTE deberá realizar el pago correspondiente a más tardar en la fecha indicada en el documento de cobro. AESAL se obliga a enviar el documento electrónico de cobro a la dirección de correo electrónico proporcionada por EL CLIENTE o a su número telefónico por medio de WhatsApp, SMS o cualquier otro medio electrónico, con anticipación no menor de diez días calendario a la fecha de vencimiento del periodo.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 4 -->
+    <div class="clause">
+        <div class="clause-title">4) RECARGO POR MORA</div>
+        <div class="clause-content">
+            <div class="highlight">
+                El CLIENTE se constituirá en mora, al día siguiente de la fecha indicada en el documento de cobro, sin que haya efectuado el pago de las sumas que está obligado a pagar por su membresía y afiliación al servicio de asistencia. En este caso el CLIENTE pagará a AESAL un recargo de UN DÓLAR ($1.00), IVA incluido, por cada cobro que se encuentre en mora.
+            </div>
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 5 -->
+    <div class="clause">
+        <div class="clause-title">5) SUSPENSIÓN DEL SERVICIO</div>
+        <div class="clause-content">
+            <div class="subsection">
+                <div class="subsection-title">5.1. AESAL podrá suspender el servicio de ASISTENCIA, sin previo aviso, en los siguientes casos:</div>
+                <div class="list-item">Cuando estén pendientes de pago las facturaciones o cuotas de dos o más meses</div>
+                <div class="list-item">Cuando se ocasione mal funcionamiento o daño a la red de AESAL</div>
+                <div class="list-item">Cuando el cliente haga fraude a la red de proveedores de AESAL</div>
+                <div class="list-item">A solicitud de autoridad competente</div>
+            </div>
+            <div class="subsection">
+                <div class="subsection-title">5.2. El CLIENTE autoriza a AESAL para que le sea suspendido el servicio en caso de:</div>
+                <div class="list-item">Mora de conformidad con la cláusula 4 de este contrato</div>
+                <div class="list-item">Sospechas de fraude en el uso de las asistencias</div>
+                <div class="list-item">Cualquier otro caso que hagan suponer un uso indebido del servicio</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 6 -->
+    <div class="clause">
+        <div class="clause-title">6) CESIÓN DEL SERVICIO DE ASISTENCIA</div>
+        <div class="clause-content">
+            El CLIENTE podrá solicitar a AESAL la cesión de sus servicios de manera escrita, indicando a la persona natural o jurídica a la que se le cederá dicho servicio. AESAL sólo aceptará la cesión si el cesionario reúne los requisitos del CLIENTE, a juicio de AESAL.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 7 -->
+    <div class="clause">
+        <div class="clause-title">7) PLAZO</div>
+        <div class="clause-content">
+            El plazo del presente contrato es por tiempo indefinido, contado a partir de la fecha de entrega de los servicios. Una vez aprobado el servicio, AESAL se obliga a entregar los servicios en un plazo de siete días hábiles, salvo que se hubiere acordado con EL CLIENTE un plazo distinto.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 8 -->
+    <div class="clause">
+        <div class="clause-title">8) TERMINACIÓN DEL CONTRATO</div>
+        <div class="clause-content">
+            El presente contrato podrá terminarse anticipadamente en los siguientes casos:
+
+            <div class="subsection">
+                <div class="subsection-title">A) MUTUO CONSENTIMIENTO</div>
+                Será necesario una solicitud personal, que por escrito haga el CLIENTE a AESAL, con diez días hábiles de anticipación a la fecha en que desee que el contrato se dé por terminado, en cuyo caso deberá cancelar los valores económicos que a la fecha se encuentren pendientes de pago.
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">B) TERMINACIÓN POR AESAL</div>
+                AESAL podrá dar por terminado este contrato sin intervención judicial cuando, EL CLIENTE ha dejado transcurrir más de noventa días calendario sin hacer efectivo el pago por los servicios prestados.
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">C) TERMINACIÓN POR EL CLIENTE</div>
+                El CLIENTE podrá dar por terminado el presente contrato sin responsabilidad por desistimiento, modificaciones unilaterales perjudiciales, o incumplimiento de condiciones ofertadas.
+            </div>
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 9 -->
+    <div class="clause">
+        <div class="clause-title">9) CARGO POR TERMINACIÓN ANTICIPADA</div>
+        <div class="clause-content">
+            <div class="highlight">
+                En el supuesto que EL CLIENTE solicite la terminación anticipada del servicio previo al vencimiento del plazo mínimo contratado, éste NO deberá pagar a AESAL conceptos algunos por penalidad. En caso de pagos anticipados por membresías anuales, AESAL deberá hacer la devolución de los meses restantes a EL CLIENTE, a un máximo de 15 días de la solicitud de cancelación del contrato.
+            </div>
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 10 -->
+    <div class="clause">
+        <div class="clause-title">10) IMPUESTOS</div>
+        <div class="clause-content">
+            Serán de cuenta del CLIENTE el impuesto de transferencia de bienes muebles y prestación de servicio que graven el presente servicio y cualquier otro que le sea aplicable.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 11 -->
+    <div class="clause">
+        <div class="clause-title">11) COBERTURA DEL SERVICIO</div>
+        <div class="clause-content">
+            El servicio de Asistencia, será habilitado al CLIENTE a nivel nacional, en las áreas donde AESAL posea cobertura en sus diferentes redes de proveedores. La cobertura no comprende espacios aéreos ni marítimos. AESAL pondrá a disposición del CLIENTE los medios para que conozca sus áreas de cobertura, tales como su página Web, Redes Sociales, WhatsApp, Centro de Atención al Cliente, etc.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 12 -->
+    <div class="clause">
+        <div class="clause-title">12) CALIDAD DEL SERVICIO</div>
+        <div class="clause-content">
+            AESAL suministrará los servicios de asistencia conforme a los niveles de calidad establecidos en la legislación vigente y conforme a los estándares internacionales de operación, a manera de asegurar la continuidad del servicio al CLIENTE.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 13 -->
+    <div class="clause">
+        <div class="clause-title">13) CASO FORTUITO O FUERZA MAYOR</div>
+        <div class="clause-content">
+            El CLIENTE reconoce que pueden existir situaciones o acontecimientos impredecibles, imprevistos o que previstos no puedan evitarse y que imposibiliten el cumplimiento de las obligaciones contractuales para ambas partes. En este supuesto, ninguna de las partes será considerada como responsable.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 14 -->
+    <div class="clause">
+        <div class="clause-title">14) RECLAMOS SOBRE EL SERVICIO; CONSULTAS; SOLICITUDES</div>
+        <div class="clause-content">
+            <div class="subsection">
+                <div class="subsection-title">A) RECLAMOS</div>
+                Los reclamos motivados por posibles incumplimientos al presente contrato, deberán ser presentados por escrito en las oficinas de atención al cliente de AESAL o por medios digitales, en un periodo no mayor a 7 días hábiles al incumplimiento.
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">B) CONSULTAS</div>
+                AESAL pondrá a disposición diferentes medios de atención:
+                <div class="list-item">Call center: 2200-7000</div>
+                <div class="list-item">WhatsApp: 7355-8877</div>
+                <div class="list-item">Página Web: www.asistenciaelsalvador.com</div>
+                <div class="list-item">Correo electrónico: info@asistenciaelsalvador.com</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 15 -->
+    <div class="clause">
+        <div class="clause-title">15) SOBRE LOS SERVICIOS</div>
+        <div class="clause-content">
+            El CLIENTE acepta al suscribirse a los planes de asistencia comercializados por AESAL, que los servicios son suministrados por personal calificado con estructura propia de AESAL y su amplia red de proveedores externos.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 16 -->
+    <div class="clause">
+        <div class="clause-title">16) DERECHOS Y OBLIGACIONES DEL CLIENTE</div>
+        <div class="clause-content">
+            <div class="subsection">
+                <div class="subsection-title">16.1) DERECHOS</div>
+                <div class="list-item">Recibir los servicios contratados bajo los niveles de calidad y coberturas ofrecidas</div>
+                <div class="list-item">Interponer sus reclamos por escrito según lo establecido en la normativa vigente</div>
+                <div class="list-item">A que no se le deshabilite arbitrariamente el servicio</div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">16.2) OBLIGACIONES</div>
+                <div class="list-item">Pagar puntualmente las facturas derivadas de la prestación de los servicios adquiridos</div>
+                <div class="list-item">Responder por el mal uso de los servicios prestados</div>
+                <div class="list-item">Responsabilizarse por el uso fraudulento del servicio</div>
+                <div class="list-item">Mantener vigente el presente contrato para que sus coberturas estén siempre disponibles</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 17 -->
+    <div class="clause">
+        <div class="clause-title">17) DERECHOS Y OBLIGACIONES DE AESAL</div>
+        <div class="clause-content">
+            <div class="subsection">
+                <div class="subsection-title">17.1) DERECHOS</div>
+                <div class="list-item">Gestionar el pago de los servicios en la fecha correspondiente</div>
+                <div class="list-item">Suspender la prestación de los servicios al CLIENTE en caso de incumplimiento</div>
+                <div class="list-item">Solicitar al CLIENTE el pago de cualquier monto generado como excedente</div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">17.2) OBLIGACIONES</div>
+                <div class="list-item">Suministrar los servicios contratados bajo los niveles de calidad establecidos</div>
+                <div class="list-item">Recibir los reclamos del CLIENTE y proporcionar respuesta dentro del plazo señalado</div>
+                <div class="list-item">No deshabilitar arbitrariamente el servicio al CLIENTE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 18 -->
+    <div class="clause">
+        <div class="clause-title">18) SERVICIOS SUPLEMENTARIOS Y/O DE VALOR AGREGADO</div>
+        <div class="clause-content">
+            Los servicios suplementarios y/o de valor agregado estarán a disposición del CLIENTE desde la activación del servicio de asistencia. El CLIENTE deberá, previo a la utilización de los servicios, informarse sobre la buena aplicación de estas coberturas, así como de las condiciones de uso. Los servicios de valor agregado no generan costo adicional para el CLIENTE.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 19 -->
+    <div class="clause">
+        <div class="clause-title">19) DECLARACIONES ESPECIALES</div>
+        <div class="clause-content">
+            En el supuesto que el CLIENTE pertenezca a determinadas empresas o instituciones vinculadas comercialmente con AESAL, ésta podrá otorgar al CLIENTE ciertos beneficios negociados. El CLIENTE reconoce que tales beneficios serán aplicables únicamente durante el tiempo en que éste se encuentre laborando para dicha institución/empresa.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 20 -->
+    <div class="clause">
+        <div class="clause-title">20) DOMICILIO</div>
+        <div class="clause-content">
+            Para los efectos legales del presente contrato, las partes señalan como domicilio especial el de la ciudad San Salvador, de la República de El Salvador, a cuyos tribunales se someten.
+        </div>
+    </div>
+
+    <!-- CLÁUSULA 21 -->
+    <div class="clause">
+        <div class="clause-title">21) INTEGRACIÓN DEL CONTRATO</div>
+        <div class="clause-content">
+            Forman parte integrante de este contrato la solicitud de servicios de asistencia y los anexos, debidamente suscritos por el CLIENTE, los cuales constituyen el acuerdo total entre AESAL y el CLIENTE. En caso de controversia entre el contenido de este Contrato y sus Anexos, prevalecerá lo dispuesto en los Anexos respectivos.
+        </div>
+    </div>
+
+    <!-- NUEVA PÁGINA: ANEXO COBERTURAS -->
+    <div style="page-break-before: always;"/>
+
+    <div class="data-section">
+        <div class="data-title">ANEXO - CONDICIONES COMERCIALES CONTRATADAS</div>
+
+        <h3 style="text-align: center; margin: 20px 0; color: #2c5aa0;">PLANES DE ASISTENCIA - TARJETAS</h3>
+
+        <table class="coverage-table">
+            <thead>
+            <tr>
+                <th>SERVICIO</th>
+                <th>Orange</th>
+                <th>Blue</th>
+                <th>Black</th>
+                <th>Silver</th>
+                <th>Gold</th>
+                <th>Implementación</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Asistencia Vital</td>
+                <td><span class="checkmark">1</span></td>
+                <td><span class="checkmark">2</span></td>
+                <td><span class="checkmark">2</span></td>
+                <td><span class="checkmark">2</span></td>
+                <td><span class="checkmark">2</span></td>
+                <td>7 días hábiles</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Asistencia Legal Telefónica</td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td>Inmediata</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Asistencia Médica Telefónica</td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td>Inmediata</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Clínica Asistencial</td>
+                <td>-</td>
+                <td><span class="checkmark">✓</span></td>
+                <td>Grupo Familiar</td>
+                <td>Grupo Familiar</td>
+                <td>Grupo Familiar</td>
+                <td>A partir de 1° abril 2025</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Coordinación de Ambulancia</td>
+                <td>-</td>
+                <td><span class="checkmark">✓</span></td>
+                <td>Grupo Familiar</td>
+                <td>Grupo Familiar</td>
+                <td>Grupo Familiar</td>
+                <td>Inmediata</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Asistencia Laboral</td>
+                <td>-</td>
+                <td>-</td>
+                <td><span class="checkmark">✓¹</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓²</span></td>
+                <td>Inmediata</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Asistencia Educativa</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>Hijos</td>
+                <td>Hijos</td>
+                <td>Inmediata</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Asistencia Vial</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>1 vehículo</td>
+                <td>7 días hábiles</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Asistencia Hogar</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>1 hogar</td>
+                <td>7 días hábiles</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Tarjeta de Descuentos</td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td style="text-align: left; font-weight: bold;">Red de Proveedores</td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td><span class="checkmark">✓</span></td>
+                <td>-</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- DETALLE DE COBERTURAS -->
+    <div class="clause">
+        <div class="clause-title">ASISTENCIA VITAL</div>
+        <div class="clause-content">
+            <p><strong>Cobertura:</strong> Asistencia en caso de fallecimiento del titular por cualquier causa (ver exclusiones). Hasta el monto de cobertura contratado.</p>
+            <p><strong>Alcance:</strong> A nivel nacional (territorio de El Salvador)</p>
+            <p><strong>Edad de elegibilidad:</strong> De 18 años antes de los 70 años</p>
+            <p><strong>Monto máximo:</strong> $1,000.00 USD</p>
+            <p><strong>Periodo de Espera:</strong> 30 días general, 90 días para enfermedades preexistentes, 2 años para suicidio. No aplica en accidentes.</p>
+
+            <div class="subsection">
+                <div class="subsection-title">Servicios Incluidos:</div>
+                <div class="list-item">Gestión de trámites legales con autoridades competentes</div>
+                <div class="list-item">Traslado terrestre nacional (máximo 35km)</div>
+                <div class="list-item">Servicio de tanatopraxia (24 horas)</div>
+                <div class="list-item">Ataúd de madera (soporta hasta 300 libras)</div>
+                <div class="list-item">Sala de velación (24 horas) con alimentación para 20 personas</div>
+                <div class="list-item">Libro de condolencias</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">ASISTENCIA LEGAL TELEFÓNICA</div>
+        <div class="clause-content">
+            <p>Asesoría telefónica 24/7 en materia civil, mercantil, administrativo, comercial, familiar, notarial, penal, inquilinato y laboral. Sin límite de eventos al año. Cobertura en territorio nacional.</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">ASISTENCIA MÉDICA TELEFÓNICA</div>
+        <div class="clause-content">
+            <p>Orientación médica telefónica 24/7 con profesionales de la salud. Prevención de automedicación, orientación sobre síntomas, recomendaciones generales. Sin límite de eventos mensuales y sin costo por evento.</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">CLÍNICA ASISTENCIAL</div>
+        <div class="clause-content">
+            <p>Consulta médica general en Clínica AESAL ubicada en Colonia Roma #22A1, San Salvador. Servicio bajo cita previa a través del Call Center 2200-7700 o WhatsApp 7355-8877. Ilimitado para titular o grupo familiar según plan contratado.</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">COORDINACIÓN DE AMBULANCIA</div>
+        <div class="clause-content">
+            <p>Traslado médico terrestre en ambulancia en caso de emergencia por accidente o enfermedad. Requiere evaluación y aprobación del médico de AESAL. Sin límites de eventos al año dentro del territorio salvadoreño.</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">ASISTENCIA LABORAL</div>
+        <div class="clause-content">
+            <p><strong>Cobertura:</strong> Apoyo en caso de pérdida involuntaria de empleo habitual.</p>
+            <p><strong>Beneficio:</strong> 3 vales de supermercado de $50.00 cada uno.</p>
+            <p><strong>Periodo de Carencia:</strong> 90 días después de iniciada la vigencia.</p>
+            <p><strong>Requisito:</strong> Contrato laboral de un año o más de antigüedad.</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">ASISTENCIA EDUCATIVA</div>
+        <div class="clause-content">
+            <p>Apoyo educativo para hijos del titular como tutor en línea:</p>
+            <div class="list-item">Apoyo docente en materias básicas del 1° a 9° grado</div>
+            <div class="list-item">Apoyo en matemáticas (bachillerato)</div>
+            <div class="list-item">Apoyo en idioma inglés</div>
+            <div class="list-item">Información propedéutica universitaria</div>
+            <p style="margin-top: 10px;"><strong>Cobertura ilimitada</strong>, eventos de máximo 15 minutos. Horario: 10:00 AM - 12:00 PM y 2:00 PM - 4:00 PM vía videoconferencia.</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">ASISTENCIA VIAL</div>
+        <div class="clause-content">
+            <p>Servicio disponible 24/7, 365 días del año a nivel nacional:</p>
+            <div class="list-item"><strong>Grúa:</strong> 2 eventos/año hasta $120 o 60 kms máximo</div>
+            <div class="list-item"><strong>Cerrajería:</strong> 2 eventos/año hasta $50 por evento</div>
+            <div class="list-item"><strong>Cambio de llanta:</strong> 2 eventos/año hasta $50 por evento</div>
+            <div class="list-item"><strong>Paso de corriente:</strong> 2 eventos/año hasta $50 por evento</div>
+            <div class="list-item"><strong>Abasto de combustible:</strong> 2 eventos/año hasta $50</div>
+            <p style="margin-top: 10px;"><strong>Límites:</strong> Vehículos con máximo 20 años de antigüedad, no comerciales.</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">ASISTENCIA HOGAR</div>
+        <div class="clause-content">
+            <p>Servicios de emergencia en el hogar registrado:</p>
+            <div class="list-item"><strong>Cerrajería:</strong> Apertura de puertas exteriores</div>
+            <div class="list-item"><strong>Electricidad:</strong> Restablecimiento por corto circuito</div>
+            <div class="list-item"><strong>Fontanería:</strong> Reparación de fugas internas</div>
+            <div class="list-item"><strong>Vidriería:</strong> Cambio de vidrios rotos en puertas/ventanas exteriores</div>
+            <p style="margin-top: 10px;"><strong>Cobertura:</strong> 1 evento por especialidad por año, máximo $75.00 por evento (incluye materiales y mano de obra).</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">TARJETA DE DESCUENTOS Y PROMOCIONES</div>
+        <div class="clause-content">
+            <p>Acceso ilimitado a promociones y precios especiales del Club de Comercios Afiliados mostrando su tarjeta física o digital. Condiciones en www.asistenciacard.com</p>
+        </div>
+    </div>
+
+    <div class="clause">
+        <div class="clause-title">RED DE PROVEEDORES</div>
+        <div class="clause-content">
+            <p>Amplia red de proveedores técnicos y profesionales constantemente evaluados en calidad, presentación y honradez. Precios preferenciales por su afiliación a AESAL.</p>
+        </div>
+    </div>
+
+    <!-- NUEVA PÁGINA: SOLICITUD DE SERVICIOS -->
+    <div style="page-break-before: always;"/>
+
+    <div class="data-section">
+        <div class="data-title">SOLICITUD DE SERVICIOS DE ASISTENCIA</div>
+
+        <div class="section-header">INFORMACIÓN INSTITUCIONAL</div>
+        <table>
+            <tr>
+                <td class="label">Institución:</td>
+                <td><span th:text="${institucion}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Vendedor:</td>
+                <td><span th:text="${afiliadoPor}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Fecha de Contrato:</td>
+                <td><span th:text="${fechaCreacion}"></span></td>
+            </tr>
+        </table>
+
+        <div class="section-header">DATOS PERSONALES – TITULAR PRINCIPAL</div>
+        <table>
+            <tr>
+                <td class="label">Nombre Completo:</td>
+                <td><span th:text="${nombreTitular}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">No. Documento de Identidad:</td>
+                <td><span th:text="${dui}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Edad:</td>
+                <td><span th:text="${edad}"> años</span></td>
+            </tr>
+            <tr>
+                <td class="label">Ocupación:</td>
+                <td><span th:text="${ocupacion}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Teléfono:</td>
+                <td><span th:text="${celular}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Estado Civil:</td>
+                <td><span th:text="${estadoCivil}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Dirección:</td>
+                <td><span th:text="${direccion}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Departamento:</td>
+                <td><span th:text="${departamento}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Municipio:</td>
+                <td><span th:text="${municipio}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Correo Electrónico:</td>
+                <td><span th:text="${email}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Plan Contratado:</td>
+                <td><span th:text="${planContratado}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Cargo del Plan:</td>
+                <td><span th:text="${cargoPlan}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Lugar de Trabajo:</td>
+                <td><span th:text="${lugarTrabajo}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Teléfono de Trabajo:</td>
+                <td><span th:text="${telTrabajo}"></span></td>
+            </tr>
+        </table>
+
+        <div class="section-header">DATOS PERSONALES – TITULAR II</div>
+        <p style="text-align: center; font-size: 9pt; color: #666; margin-bottom: 10px;">(Tarjetas Blue, Silver o Gold)</p>
+        <table>
+            <tr>
+                <td class="label">Nombre Completo:</td>
+                <td><span th:text="${nombreTitular2}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">No. Documento de Identidad:</td>
+                <td><span th:text="${duiTitular2}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Edad:</td>
+                <td><span th:text="${fNacTitular2}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Ocupación:</td>
+                <td><span th:text="${ocupacionTitular2}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Celular:</td>
+                <td><span th:text="${telTitular2}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Estado Civil:</td>
+                <td><span th:text="${estadoCivilTitular2}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Dirección:</td>
+                <td><span th:text="${direccionTitular2}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Email:</td>
+                <td><span th:text="${emailTitular2}"></span></td>
+            </tr>
+
+        </table>
+
+        <div class="section-header">INFORMACIÓN EMPLEADOS – ASISTENCIA LABORAL</div>
+        <p style="text-align: center; font-size: 9pt; color: #666; margin-bottom: 10px;">(Tarjetas Black, Silver y Gold)</p>
+        <table>
+            <tr>
+                <td class="label">Profesión:</td>
+                <td><span th:text="${ocupacion}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Cargo que Ocupa:</td>
+                <td><span th:text="${cargo}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Antigüedad:</td>
+                <td><span th:text="${antiguedad}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Jefe Inmediato:</td>
+                <td><span th:text="${jefe}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Fecha de inicio:</td>
+                <td><span th:text="${fechaInicioEmpleo}"></span></td>
+            </tr>
+        </table>
+
+        <div class="section-header">EN CASO DE EMERGENCIA, LLAMAR A:</div>
+        <table>
+            <tr>
+                <td class="label">Contacto 1 - Nombre:</td>
+                <td><span th:text="${c1Nombre}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Celular:</td>
+                <td><span th:text="${c1Telefono}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Teléfono:</td>
+                <td><span th:text="${c1Telefono}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Parentesco:</td>
+                <td><span th:text="${c1Parentesco}"></span></td>
+            </tr>
+        </table>
+
+        <table style="margin-top: 15px;">
+            <tr>
+                <td class="label">Contacto 2 - Nombre:</td>
+                <td><span th:text="${c2Nombre}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Celular:</td>
+                <td><span th:text="${c2Telefono}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Teléfono:</td>
+                <td><span th:text="${c2Telefono}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Parentesco:</td>
+                <td><span th:text="${c2Parentesco}"></span></td>
+            </tr>
+        </table>
+
+        <div class="section-header">INFORMACIÓN DE VEHÍCULO – ASISTENCIA VIAL</div>
+        <p style="text-align: center; font-size: 9pt; color: #666; margin-bottom: 10px;">(Tarjeta Gold)</p>
+        <table>
+            <tr>
+                <td class="label">Placa:</td>
+                <td><span th:text="${vPlaca}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Marca:</td>
+                <td><span th:text="${vMarca}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Modelo:</td>
+                <td><span th:text="${vModelo}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Año:</td>
+                <td><span th:text="${vAnio}"></span></td>
+            </tr>
+
+        </table>
+
+        <div class="section-header">INFORMACIÓN CASA – ASISTENCIA HOGAR</div>
+        <p style="text-align: center; font-size: 9pt; color: #666; margin-bottom: 10px;">(Tarjeta Gold)</p>
+        <table>
+            <tr>
+                <td class="label">Dirección Completa:</td>
+                <td><span th:text="${hDireccion}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Departamento:</td>
+                <td><span th:text="${hDepartamento}"></span></td>
+            </tr>
+            <tr>
+                <td class="label">Municipio:</td>
+                <td><span th:text="${hMunicipio}"></span></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- SECCIÓN DE FIRMAS -->
+    <div class="signature-section">
+        <p style="text-align: justify; margin-bottom: 30px; line-height: 1.8;">
+            Yo el CLIENTE, manifiesto que acepto el contenido íntegro de este contrato, así como sus anexos y demás documentos que forman parte de éste, declarando que refleja y contiene la manifestación fiel de mi voluntad y la de AESAL. Hago constar que leí el presente contrato y sus anexos, los cuales fueron explicados por la fuerza de ventas de AESAL en sus partes pertinentes, y consciente de sus contenidos, objeto, validez y efectos legales, lo acepto, ratifico y firmo. En esta fecha he recibido de AESAL, un ejemplar del presente Contrato y sus anexos.
+        </p>
+
+        <div style="margin-top: 30px;">
+            <p><strong>Lugar y Fecha:</strong> San Salvador,<span th:text="${fechaCreacion}"></span></p>
+        </div>
+
+        <div class="signature-container">
+            <div class="signature-box">
+                <div class="signature-area">
+                    <img th:if="${firmaCliente != null}"
+                         th:src="${firmaCliente}"
+                         alt="Firma del Cliente"
+                         class="signature-image"/>
+                </div>
+                <div class="signature-line"></div>
+                <strong style="font-size: 11pt; margin-top: 10px; display: block;">EL CLIENTE</strong>
+                <p style="margin-top: 15px; font-size: 10pt;">Nombre: <strong><span th:text="${nombreTitular}"></span></strong></p>
+                <p style="font-size: 10pt;">DUI: <strong><span th:text="${dui}"></span></strong></p>
+            </div>
+
+            <div class="signature-box">
+                <div class="signature-area"></div>
+                <div class="signature-line"></div>
+                <strong style="font-size: 11pt; margin-top: 10px; display: block;">REPRESENTANTE AESAL</strong>
+                <p style="margin-top: 15px; font-size: 10pt;">Nombre: <strong><span th:text="${afiliadoPor}"></span></strong></p>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- INFORMACIÓN DE CONTACTO -->
+    <div class="contact-info">
+        <h3>INFORMACIÓN DE CONTACTO</h3>
+        <p><strong>Oficinas:</strong> 2200-7000</p>
+        <p><strong>WhatsApp:</strong> 7355-8877</p>
+        <p><strong>Email:</strong> info@asistenciaelsalvador.com</p>
+        <p><strong>Web:</strong> www.asistenciaelsalvador.com</p>
+        <p><strong>Dirección:</strong> Calle y Colonia Roma No 22 A1, San Salvador, El Salvador</p>
+    </div>
+</div>
+</body>
+</html>

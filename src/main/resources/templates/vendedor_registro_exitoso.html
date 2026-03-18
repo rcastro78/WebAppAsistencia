@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud Recibida - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}">
+    <style>
+        /* ── Icono de éxito animado ── */
+        .success-icon-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0 24px;
+        }
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background-color: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #28a745;
+            animation: popIn .45s cubic-bezier(.175,.885,.32,1.275) both;
+        }
+
+        /* ── Badge de estado pendiente ── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff8ec;
+            border: 1px solid #ffd77a;
+            color: #856404;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 7px 16px;
+            border-radius: 999px;
+            margin: 0 auto 28px;
+        }
+
+        /* ── Pasos del proceso ── */
+        .steps-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .steps-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 0.9rem;
+            color: #495057;
+            line-height: 1.5;
+        }
+        .steps-list li:last-child {
+            border-bottom: none;
+        }
+        .step-num {
+            min-width: 28px;
+            height: 28px;
+            background: #1a3a5c;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .step-text strong {
+            display: block;
+            color: #212529;
+            margin-bottom: 2px;
+            font-size: 0.92rem;
+        }
+
+        /* ── Centrado del contenido interno ── */
+        .success-body {
+            text-align: center;
+        }
+        .success-body p.lead {
+            color: #555;
+            font-size: 0.97rem;
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(.5); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <div class="header">
+        <h1><i class="fas fa-check-circle"></i> Solicitud Enviada</h1>
+        <span class="subtitle">Tu registro ha sido recibido correctamente</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>¡Gracias por tu interés!</h2>
+        </div>
+
+        <div class="card-body success-body">
+
+            <!-- Icono animado -->
+            <div class="success-icon-wrapper">
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+
+            <!-- Texto principal -->
+            <p class="lead">
+                Tu solicitud para unirte a la red de vendedores de <strong>Asistencia El Salvador</strong>
+                ha sido registrada exitosamente. Pronto nos pondremos en contacto contigo.
+            </p>
+
+            <!-- Badge de estado -->
+            <div style="display:flex; justify-content:center;">
+                <span class="status-badge">
+                    <i class="fas fa-hourglass-half"></i>
+                    Estado: Pendiente de revisión
+                </span>
+            </div>
+
+            <!-- Pasos a seguir -->
+            <ul class="steps-list">
+                <li>
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong>Revisión de solicitud</strong>
+                        Nuestro equipo revisará la información que proporcionaste en el formulario.
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong>Contacto de AESAL</strong>
+                        Un ejecutivo se comunicará contigo por teléfono o correo para coordinar la entrevista.
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong>Proceso de entrevista</strong>
+                        Completarás una breve entrevista para conocer tu perfil y confirmar la zona de trabajo.
+                    </div>
+                </li>
+                <li>
+                    <div class="step-num">4</div>
+                    <div class="step-text">
+                        <strong>Activación de cuenta</strong>
+                        Una vez aprobado, recibirás tus credenciales de acceso en el correo registrado.
+                    </div>
+                </li>
+            </ul>
+
+            <!-- Botón volver -->
+            <div class="actions" style="justify-content: center;">
+                <a th:href="@{/usuarios/login}" class="btn secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al inicio
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; padding: 15px; color: #666; font-size: 0.9rem;">
+        <i class="fas fa-shield-alt"></i> Sus datos están protegidos y serán utilizados únicamente para procesos internos.
+    </div>
+
+</div>
+</body>
+</html>

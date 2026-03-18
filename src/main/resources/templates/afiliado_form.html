@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Afiliado - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Paso 1. Registro de Afiliado</h1>
+        <span class="subtitle">Completa la información para registrarte como afiliado</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos Personales</h2>
+        </div>
+        <div class="card-body">
+            <form id="afiliadoForm" th:action="@{/afiliado/guardar}" th:object="${afiliado}" method="post" enctype="multipart/form-data">
+
+                <div class="form-grid">
+                    <!-- DUI / NIT -->
+                    <div class="form-group">
+                        <label for="dui">DUI/NIT</label>
+                        <input type="text" th:field="*{dui}" id="dui" class="input" placeholder="00000000-0" pattern="[0-9]{8}-[0-9]" required>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" th:field="*{nombre}" id="nombre" class="input" placeholder="Ingrese el nombre" required>
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="form-group">
+                        <label for="apellido">Apellido</label>
+                        <input type="text" th:field="*{apellido}" id="apellido" class="input" placeholder="Ingrese el apellido" required>
+                    </div>
+
+                    <!-- Fecha de Nacimiento -->
+                    <div class="form-group">
+                        <label for="fechaNacimiento"><i class="fas fa-birthday-cake"></i> Fecha de Nacimiento</label>
+                        <input type="date"
+                               th:field="*{fechaNacimiento}"
+                               id="fechaNacimiento"
+                               class="input"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estadoCivil">Estado Civil</label>
+                        <select id="estadoCivil" th:field="*{estadoCivil}" class="input" required>
+                            <option value="">Seleccione el estado civil</option>
+                            <option th:each="p : ${estados}" th:value="${p.idEstadoCivil}" th:text="${p.nombreEstado}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="form-group full-width">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" th:field="*{direccion}" id="direccion" class="input" placeholder="Ingrese la dirección completa">
+                    </div>
+
+                    <!-- campos ocultos -->
+                    <input type="hidden" name="idEstadoAfiliado" value="0">
+
+                    <!-- Campos hidden para rol y DUI del usuario -->
+                    <input type="hidden" id="ejecutivoRol" th:value="${ejecutivoRol}">
+                    <input type="hidden" id="ejecutivoDUI" th:value="${ejecutivoDUI}">
+
+                    <!-- Campo hidden para createdBy - siempre presente -->
+                    <input type="hidden" name="createdBy" th:value="${ejecutivoDUI}">
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" th:field="*{telefono}" id="telefono" class="input" placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}">
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" th:field="*{email}" id="email" class="input" placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> DUI Frente</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="fotoDUIFrenteFile" accept="image/*" id="duiFrente"
+                                   onchange="updateFileLabel('duiFrente', 'frenteLabel')">
+                            <label for="duiFrente" class="file-input-label" id="frenteLabel">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Subir imagen del DUI (frente)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Campo para DUI Reverso -->
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> DUI Reverso</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="fotoDUIVueltoFile" accept="image/*" id="duiReverso"
+                                   onchange="updateFileLabel('duiReverso', 'reversoLabel')">
+                            <label for="duiReverso" class="file-input-label" id="reversoLabel">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Subir imagen del DUI (reverso)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lugarTrabajo">Lugar de trabajo</label>
+                        <input type="tel" th:field="*{lugarTrabajo}" id="lugarTrabajo" class="input">
+                    </div>
+
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telTrabajo">Teléfono de trabajo</label>
+                        <input type="tel" th:field="*{telTrabajo}" id="telTrabajo" class="input" placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}">
+                    </div>
+
+
+
+                    <!-- Institución -->
+                    <div class="form-group">
+                        <label for="institucion">Institución</label>
+                        <select id="institucion" th:field="*{institucion}" class="input" required>
+                            <option value="">Seleccione una institución</option>
+                            <option th:each="p : ${instituciones}" th:value="${p.id}" th:text="${p.nombreInstitucion}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Ejecutivo - Solo visible si NO es vendedor (rol != 2) -->
+                    <div class="form-group" id="ejecutivoGroup" th:if="${session.rol==1}">
+                        <label for="ejecutivo">Ejecutivo a cargo</label>
+                        <select id="ejecutivo" th:field="*{ejecutivoAsignado}" class="input" required>
+                            <option value="">Seleccione el ejecutivo a cargo</option>
+                            <option th:each="ejecutivo : ${ejecutivos}"
+                                    th:value="${ejecutivo.dui}"
+                                    th:text="${ejecutivo.nombre + ' ' + ejecutivo.apellido + ' (' + ejecutivo.dui + ')'}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Campo hidden para ejecutivoAsignado cuando es vendedor -->
+                    <input type="hidden" id="ejecutivoHidden" th:value="${ejecutivoDUI}">
+
+                    <!-- País -->
+                    <div class="form-group">
+                        <label for="pais">País</label>
+                        <select id="pais" th:field="*{idPais}" class="input" onchange="loadDepartamentos(this.value)" required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}" th:value="${p.idPais}" th:text="${p.nombrePais}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Departamento -->
+                    <div class="form-group">
+                        <label for="departamento">Departamento</label>
+                        <select id="departamento" th:field="*{idDepto}" class="input" onchange="loadMunicipios(this.value)" required>
+                            <option value="">Seleccione un departamento</option>
+                        </select>
+                    </div>
+
+                    <!-- Municipio -->
+                    <div class="form-group">
+                        <label for="municipio">Municipio</label>
+                        <select id="municipio" th:field="*{idMunicipio}" class="input" required>
+                            <option value="">Seleccione un municipio</option>
+                        </select>
+                    </div>
+
+                    <!-- Tipo Cliente -->
+                    <div class="form-group">
+                        <label><i class="fas fa-users"></i> Tipo Cliente</label>
+                        <select id="tiposCliente" th:field="*{idTipoCliente}" class="input" required>
+                            <option value="">Seleccione un tipo de cliente</option>
+                            <option th:each="p : ${tiposCliente}" th:value="${p.idTipo}" th:text="${p.tipo}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha Afiliación -->
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Fecha Afiliación</label>
+                        <input type="date" th:field="*{fechaAfiliacion}" class="input" required>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <a th:href="@{/usuarios/login}" class="btn secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+
+    // Validar edad mínima (18 años)
+    document.getElementById('fechaNacimiento').addEventListener('change', function() {
+        const fechaNac = new Date(this.value);
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - fechaNac.getFullYear();
+        const mes = hoy.getMonth() - fechaNac.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+            edad--;
+        }
+
+        if (edad < 18) {
+            alert('El titular 2 debe ser mayor de 18 años.');
+            this.value = '';
+        }
+    });
+
+    // Establecer fecha máxima (18 años atrás desde hoy)
+    const hoy = new Date();
+    const fechaMax = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate());
+    document.getElementById('fechaNacimiento').setAttribute('max', fechaMax.toISOString().split('T')[0]);
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // ========== SINCRONIZACIÓN DE FECHAS ==========
+        const createdAtInput = document.querySelector("[name='createdAt']");
+        const fechaAfiliacionInput = document.querySelector("[name='fechaAfiliacion']");
+
+        if (createdAtInput && fechaAfiliacionInput) {
+            createdAtInput.addEventListener("change", function() {
+                fechaAfiliacionInput.value = createdAtInput.value;
+            });
+        }
+
+        // ========== VALIDACIÓN AUTOMÁTICA DEL DUI ==========
+        const duiInput = document.getElementById('dui');
+        if (duiInput) {
+            duiInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 8) {
+                    value = value.substring(0, 8) + '-' + value.substring(8, 9);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // ========== VALIDACIÓN AUTOMÁTICA DEL TELÉFONO ==========
+        const telInput = document.getElementById('telefono');
+        if (telInput) {
+            telInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+            });
+        }
+
+        const telInputTrab = document.getElementById('telTrabajo');
+        if (telInputTrab) {
+            telInputTrab.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // ========== MEJORAR EXPERIENCIA DE FILE INPUTS ==========
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function(e) {
+                const label = document.querySelector(`label[for="${this.id}"]`);
+                const fileName = e.target.files[0]?.name;
+
+                if (fileName) {
+                    label.innerHTML = `<i class="fas fa-check-circle"></i> ${fileName}`;
+                    label.style.color = '#28a745';
+                    label.style.borderColor = '#28a745';
+                }
+            });
+        });
+    });
+
+    // ========== FUNCIONES GLOBALES ==========
+    function updateFileLabel(inputId, labelId) {
+        const input = document.getElementById(inputId);
+        const label = document.getElementById(labelId);
+
+        if (input.files && input.files.length > 0) {
+            const fileName = input.files[0].name;
+            label.innerHTML = '<i class="fas fa-check"></i> ' + fileName;
+            label.classList.add('file-selected');
+        } else {
+            const originalText = inputId === 'duiFrente' ?
+                'Subir imagen del DUI (frente)' :
+                'Subir imagen del DUI (reverso)';
+            label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> ' + originalText;
+            label.classList.remove('file-selected');
+        }
+    }
+
+    // Función mejorada para cargar departamentos
+    function loadDepartamentos(idPais) {
+        const deptoSelect = document.getElementById("departamento");
+        const municipioSelect = document.getElementById("municipio");
+
+        if (!idPais) {
+            deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        deptoSelect.classList.add('loading');
+
+        fetch(`/api/departamentos/pais/${idPais}`)
+            .then(response => response.json())
+            .then(data => {
+                deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+                data.forEach(depto => {
+                    deptoSelect.innerHTML += `<option value="${depto.idDepto}">${depto.nombreDepartamento}</option>`;
+                });
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            })
+            .catch(error => {
+                console.error('Error cargando departamentos:', error);
+                deptoSelect.innerHTML = "<option value=''>Error al cargar departamentos</option>";
+            })
+            .finally(() => {
+                deptoSelect.classList.remove('loading');
+            });
+    }
+
+    // Función mejorada para cargar municipios
+    function loadMunicipios(idDepto) {
+        const municipioSelect = document.getElementById("municipio");
+
+        if (!idDepto) {
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        municipioSelect.classList.add('loading');
+
+        fetch(`/api/municipios/departamento/${idDepto}`)
+            .then(response => response.json())
+            .then(data => {
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+                data.forEach(muni => {
+                    municipioSelect.innerHTML += `<option value="${muni.idMunicipio}">${muni.munNombre}</option>`;
+                });
+            })
+            .catch(error => {
+                console.error('Error cargando municipios:', error);
+                municipioSelect.innerHTML = "<option value=''>Error al cargar municipios</option>";
+            })
+            .finally(() => {
+                municipioSelect.classList.remove('loading');
+            });
+    }
+</script>
+
+<script>
+    // Configuración del ejecutivo para vendedores (rol 2)
+    (function() {
+        const ejecutivoRol = document.getElementById('ejecutivoRol')?.value;
+        const ejecutivoDUI = document.getElementById('ejecutivoDUI')?.value;
+        const ejecutivoSelect = document.getElementById('ejecutivo');
+        const ejecutivoHidden = document.getElementById('ejecutivoHidden');
+
+        if ((ejecutivoRol === '2' || ejecutivoRol === 2) && ejecutivoDUI && ejecutivoSelect) {
+            ejecutivoSelect.value = ejecutivoDUI;
+            ejecutivoSelect.disabled = true;
+            ejecutivoSelect.style.backgroundColor = '#f5f5f5';
+            ejecutivoSelect.style.cursor = 'not-allowed';
+            ejecutivoSelect.style.opacity = '0.7';
+
+            if (ejecutivoHidden) {
+                ejecutivoHidden.setAttribute('name', 'ejecutivoAsignado');
+            }
+        }
+    })();
+</script>
+</body>
+</html>

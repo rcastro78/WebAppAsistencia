@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beneficios - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .sidebar-nav {
+            margin-top: 30px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .breadcrumb a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 10px;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box i {
+            color: #7f8c8d;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .btn-nuevo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-nuevo:hover {
+            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Table Container */
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .stats-info {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .stats-info span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stats-info i {
+            color: #4A90E2;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .proveedor-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .proveedor-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .proveedor-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .proveedor-logo i {
+            font-size: 24px;
+            color: #4A90E2;
+        }
+
+        .proveedor-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .proveedor-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .proveedor-plan {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .monto {
+            font-weight: 600;
+            color: #27ae60;
+            font-size: 16px;
+        }
+
+        .estado {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .estado.activo {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .estado.inactivo {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .btn-editar {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-editar:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-eliminar {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-eliminar:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <img th:src="@{/images/asistencia.jpeg}" style="width: 224px; height: 64px;" alt="Logo">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <img src="https://via.placeholder.com/60x60/4A90E2/FFFFFF?text=HM" alt="Profile">
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|"></h3>
+            <p class="tutor-id" th:text="|DUI Afiliado: ${session.dui}|">Afiliado ID: 135246</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/afiliado/nuevo/patrocinio}" class="nav-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Patrocina a alguien</span>
+            </a>
+
+            <a th:href="@{/comerciosAfiliados}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios afiliados</span>
+
+            </a>
+
+            <a th:href="@{/usuarios/dashboard/}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a th:href="@{/proveedores/serviciosProveedor/lista(idPlan=${session.idPlan})}" class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span>Servicios de mi plan</span>
+            </a>
+
+
+            <a th:href="@{/afiliado/historial/{dui}(dui=${session.dui})}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+            <a th:href="@{/afiliado/miTarjeta}" class="nav-item">
+                <i class="fas fa-id-card"></i>
+                <span>Mi tarjeta</span>
+            </a>
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+
+        <div class="profile-completion">
+            <div class="completion-circle">
+                <svg class="progress-ring" width="60" height="60">
+                    <circle class="progress-ring-circle" stroke="#e6e6e6" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+                    <circle class="progress-ring-circle progress" stroke="#4A90E2" stroke-width="4" fill="transparent" r="26" cx="30" cy="30" style="stroke-dasharray: 163.36; stroke-dashoffset: 61.67;"/>
+                </svg>
+                <span class="percentage">23%</span>
+            </div>
+            <p>Perfil Completado: 23%</p>
+
+            <div class="completion-steps">
+                <div class="step completed">
+                    <i class="fas fa-check"></i>
+                    <span>Información Personal</span>
+                </div>
+                <div class="step completed">
+                    <i class="fas fa-check"></i>
+                    <span>Documentación</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Datos Médicos</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Beneficiarios</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Evaluación</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Beneficios de mi plan</h1>
+            <!--<div class="breadcrumb">
+                <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Inicio</a>
+                <i class="fas fa-chevron-right"></i>
+                <a th:href="@{/proveedores}">Proveedores</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Beneficios</span>
+            </div>-->
+        </div>
+
+        <!-- Mensajes de alerta -->
+        <div th:if="${mensaje}" class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <span th:text="${mensaje}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Buscar beneficios..." id="searchInput">
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Listado de Beneficios</h2>
+                <div class="stats-info">
+                    <span>
+                        <i class="fas fa-box"></i>
+                        <strong th:text="${#lists.size(beneficios)}">0</strong> beneficios
+                    </span>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${#lists.isEmpty(beneficios)}" class="empty-state">
+                <i class="fas fa-box-open"></i>
+                <h3>No hay beneficios para tu plan</h3>
+            </div>
+
+            <!-- Table -->
+            <table th:if="${!#lists.isEmpty(beneficios)}" id="serviciosTable">
+                <thead>
+                <tr>
+                    <th>Empresa / Plan</th>
+                    <th>Nombre del Beneficio</th>
+                    <th>Monto</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="beneficio : ${beneficios}" th:data-nombre="${beneficio.nombreServicio}">
+
+                    <td>
+                        <div class="proveedor-info">
+                            <div class="proveedor-logo">
+                                <img th:if="${beneficio.imagenUrl != null && !beneficio.imagenUrl.isEmpty()}"
+                                     th:src="${beneficio.imagenUrl}"
+                                     th:alt="${beneficio.nombreEmpresa}"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-building" style="display: none;"></i>
+                            </div>
+                            <div class="proveedor-details">
+                                <span class="proveedor-name" th:text="${beneficio.nombreEmpresa}">Nombre Empresa</span>
+                                <span class="proveedor-plan" th:text="${beneficio.nombrePlan}">Nombre Plan</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td th:text="${beneficio.nombreServicio}">Beneficio</td>
+                    <td>
+                        <span class="monto" th:text="'$' + ${#numbers.formatDecimal(beneficio.monto, 1, 2)}">$0.00</span>
+                    </td>
+
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Datos del servidor
+    const serviciosData = /*[[${beneficios}]]*/ [];
+    const idNITActual = /*[[${nit}]]*/ 0;
+
+    // Elementos del DOM
+    const searchInput = document.getElementById('searchInput');
+    const serviciosTable = document.getElementById('serviciosTable');
+
+    // Función de búsqueda
+    function filterServicios() {
+        if (!serviciosTable) return;
+
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const rows = serviciosTable.querySelectorAll('tbody tr');
+
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const nombre = row.getAttribute('data-nombre').toLowerCase();
+            const allText = row.textContent.toLowerCase();
+
+            if (nombre.includes(searchTerm) || allText.includes(searchTerm)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        console.log(`Mostrando ${visibleCount} de ${rows.length} servicios`);
+    }
+
+    // Función para confirmar eliminación
+    function confirmarEliminacion(idServicio, nombreServicio) {
+        if (confirm(`¿Está seguro que desea eliminar el servicio "${nombreServicio}"?\n\nEsta acción no se puede deshacer.`)) {
+            eliminarServicio(idServicio);
+        }
+    }
+
+    // Función para eliminar servicio
+    function eliminarServicio(idServicio) {
+        // Mostrar loading
+        showNotification('Eliminando servicio...', 'info');
+
+        // Hacer petición al servidor
+        fetch(`/api/servicios/${idServicio}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('Servicio eliminado exitosamente', 'success');
+                    // Recargar la página después de 1 segundo
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error('Error al eliminar el servicio');
+                }
+            })
+            .catch(error => {
+                showNotification('Error al eliminar el servicio: ' + error.message, 'error');
+                console.error('Error:', error);
+            });
+    }
+
+    // Función para mostrar notificaciones
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            animation: slideInRight 0.3s ease-out;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        `;
+
+        const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+        notification.innerHTML = `<span style="font-size: 18px;">${icon}</span> ${message}`;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-out';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    // Event listeners
+    if (searchInput) {
+        searchInput.addEventListener('input', filterServicios);
+    }
+
+    // Agregar animaciones CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Servicios cargados:', serviciosData.length);
+        console.log('Proveedor actual:', idProveedorActual);
+    });
+</script>
+</body>
+</html>

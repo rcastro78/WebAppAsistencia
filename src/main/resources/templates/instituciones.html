@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Instituciones - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 25px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-header h2 {
+            color: #333;
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .card-header h2::before {
+            content: '\f19c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #e67e22;
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+            color: white;
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 25px rgba(230, 126, 34, 0.4);
+            color: white;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        /* Tabla moderna */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .modern-table thead {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+        }
+
+        .modern-table thead th {
+            padding: 18px 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: left;
+            border: none;
+            position: relative;
+        }
+
+        .modern-table thead th:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 25%;
+            height: 50%;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modern-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modern-table tbody tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.001);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .modern-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .modern-table td {
+            padding: 16px 20px;
+            color: #333;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        /* Estado activo/inactivo */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        /* Acciones */
+        .action-icons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .action-btn.edit {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+        }
+
+        .action-btn.edit:hover {
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .action-btn.delete:hover {
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+            color: white;
+        }
+
+        /* Paginación moderna */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-item {
+            display: flex;
+        }
+
+        .page-link {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .page-link:hover {
+            background: #e9ecef;
+            color: #333;
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, #e67e22, #f39c12);
+            color: white;
+            box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+        }
+
+        .page-item.disabled .page-link {
+            background: #f0f0f0;
+            color: #ccc;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Estados vacíos */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .card-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .modern-table thead th {
+                padding: 12px 15px;
+                font-size: 0.85rem;
+            }
+
+            .modern-table td {
+                padding: 12px 15px;
+                font-size: 0.85rem;
+            }
+
+            .action-icons {
+                gap: 6px;
+            }
+
+            .action-btn {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .modern-table {
+                font-size: 0.8rem;
+            }
+
+            .modern-table thead th,
+            .modern-table td {
+                padding: 10px 12px;
+            }
+
+            /* Tabla scroll horizontal en móviles */
+            .table-container {
+                margin: -10px;
+                padding: 10px;
+            }
+
+            .pagination {
+                gap: 4px;
+            }
+
+            .page-link {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                min-width: 36px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .card-header {
+                padding: 20px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-row {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        /* Tooltip personalizado */
+        .action-btn {
+            position: relative;
+        }
+
+        .action-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            margin-bottom: 5px;
+        }
+
+        .action-btn:hover::after {
+            opacity: 1;
+        }
+
+        /* Badge para ID */
+        .id-badge {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Nombre de institución */
+        .institution-name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Gestión de Instituciones</h1>
+        <span class="subtitle">Administra todas las instituciones del sistema</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Listado de Instituciones</h2>
+            <a th:href="@{/instituciones/nuevo}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nueva Institución
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <!-- Tabla con datos -->
+                <table class="modern-table" th:if="${not #lists.isEmpty(instituciones)}">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag"></i> ID</th>
+                        <th><i class="fas fa-university"></i> Nombre Institución</th>
+                        <th><i class="fas fa-email"></i> Correo</th>
+                        <th><i class="fas fa-toggle-on"></i> Estado</th>
+
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="institucion, iterStat : ${instituciones}" class="fade-in-row" th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+                        <td>
+                            <span class="id-badge" th:text="${institucion.id}"></span>
+                        </td>
+                        <td>
+                            <span class="institution-name" th:text="${institucion.nombreInstitucion}"></span>
+                        </td>
+
+                        <td>
+                            <span class="institution-name" th:text="${institucion.email}"></span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-active" th:if="${institucion.estado == 1}">
+                                <i class="fas fa-check-circle"></i> Activo
+                            </span>
+                            <span class="status-badge status-inactive" th:if="${institucion.estado == 0}">
+                                <i class="fas fa-times-circle"></i> Inactivo
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-icons">
+                                <!-- Editar -->
+                                <a th:href="@{/instituciones/editar/{id}(id=${institucion.id})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- Eliminar -->
+                                <a th:href="@{/institucion/eliminar/{id}(id=${institucion.id})}"
+                                   class="action-btn delete"
+                                   data-tooltip="Eliminar"
+                                   onclick="return confirm('¿Está seguro que desea eliminar esta institución?\n\nEsta acción no se puede deshacer.');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Estado vacío -->
+                <div class="empty-state" th:if="${#lists.isEmpty(instituciones)}">
+                    <i class="fas fa-university"></i>
+                    <h3>No hay instituciones registradas</h3>
+                    <p>Comience agregando la primera institución al sistema</p>
+                    <a th:href="@{/institucion/nueva}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Registrar Primera Institución
+                    </a>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-container" th:if="${totalPaginas > 1}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/instituciones(page=${paginaActual-1})}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas-1)}"
+                        th:classappend="${i == paginaActual} ? 'active'">
+                        <a class="page-link" th:href="@{/instituciones(page=${i})}" th:text="${i+1}"></a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${paginaActual == totalPaginas-1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/instituciones(page=${paginaActual+1})}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Animación secuencial de las filas
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('.fade-in-row');
+
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                row.style.transition = 'all 0.4s ease-out';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Mejorar la confirmación de eliminación
+        const deleteButtons = document.querySelectorAll('.action-btn.delete');
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const confirmation = confirm(
+                    '⚠️ ADVERTENCIA ⚠️\n\n' +
+                    '¿Está completamente seguro que desea eliminar esta institución?\n\n' +
+                    '• Esta acción no se puede deshacer\n' +
+                    '• Se perderán todos los datos asociados\n' +
+                    '• El proceso es irreversible\n\n' +
+                    'Escriba "CONFIRMAR" si está seguro:'
+                );
+
+                if (confirmation) {
+                    const userInput = prompt('Para confirmar, escriba: CONFIRMAR');
+                    if (userInput === 'CONFIRMAR') {
+                        window.location.href = this.href;
+                    } else {
+                        alert('Eliminación cancelada. El texto ingresado no coincide.');
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

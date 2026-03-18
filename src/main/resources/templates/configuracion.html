@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Sistema de Seguros</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/configuracion.css}">
+    <style>
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 0.5rem;
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .pagination-info {
+            padding: 0.5rem 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .device-icon-large {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 0.5rem;
+        }
+
+        .access-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .access-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .access-card.success {
+            border-left-color: #28a745;
+        }
+
+        .access-card.failed {
+            border-left-color: #E74C3C;
+        }
+
+        .access-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .device-info-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .access-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .access-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .access-detail-item i {
+            color: #3498db;
+            width: 20px;
+        }
+
+        .filter-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-item label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .filter-item select,
+        .filter-item input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-shield-halved"></i>
+            <span style="font-size: 1.2rem; font-weight: 600; color: #333;">Asistencia SV</span>
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar" th:text="${#strings.substring(session.nombre, 0, 1) + #strings.substring(session.apellido, 0, 1)}">JO</div>
+            <h3 th:text="${session.nombre + ' ' + session.apellido}">Jorge Orellana</h3>
+            <p th:text="${session.email}">jorge.orellana@asistenciaelsalvador.com</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/plan}" class="nav-item">
+                <i class="fas fa-list-check"></i>
+                <span>Planes</span>
+            </a>
+            <a th:href="@{/proveedores/}" class="nav-item">
+                <i class="fas fa-truck-fast"></i>
+                <span>Proveedores de servicios</span>
+            </a>
+            <a th:href="@{/clientesCorporativos/}" class="nav-item">
+                <i class="fas fa-suitcase"></i>
+                <span>Clientes Corporativos</span>
+            </a>
+            <a th:href="@{/asistencia/todas}" class="nav-item">
+                <i class="fas fa-circle-info"></i>
+                <span>Solicitudes de servicios</span>
+            </a>
+            <a th:href="@{/comerciosAfiliados/}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios Afiliados</span>
+            </a>
+            <a th:href="@{/afiliado/carga-masiva}" class="nav-item">
+                <i class="fas fa-file-arrow-up"></i>
+                <span>Carga masiva</span>
+            </a>
+            <a th:href="@{/admin/dashboard/pagosAfiliados}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+            <a th:href="@{/admin/configuracion/}" class="nav-item active">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <a th:href="@{/reportes}" class="nav-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reportes</span>
+            </a>
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Mensajes Flash -->
+        <div th:if="${success}" class="alert alert-success" style="margin: 2rem; border-radius: 12px; padding: 1rem; background: #d4edda; border-left: 4px solid #28a745; color: #155724;">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}"></span>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger" style="margin: 2rem; border-radius: 12px; padding: 1rem; background: #f8d7da; border-left: 4px solid #E74C3C; color: #721c24;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>Configuración</h1>
+                <p>Gestiona tu cuenta, seguridad, notificaciones y preferencias del sistema</p>
+            </div>
+        </div>
+
+        <!-- Settings Container -->
+        <div class="settings-container">
+            <!-- Settings Sidebar Navigation -->
+            <div class="settings-sidebar">
+                <div class="settings-nav-section">
+                    <div class="settings-nav-title">Mi Cuenta</div>
+                    <a class="settings-nav-item" data-section="datos-personales">
+                        <i class="fas fa-user"></i>
+                        <span>Datos personales</span>
+                    </a>
+                    <a class="settings-nav-item" data-section="cambiar-contrasena">
+                        <i class="fas fa-key"></i>
+                        <span>Cambiar contraseña</span>
+                    </a>
+                    <a class="settings-nav-item" data-section="seguridad">
+                        <i class="fas fa-shield-halved"></i>
+                        <span>Seguridad</span>
+                    </a>
+                    <a class="settings-nav-item" data-section="preferencias">
+                        <i class="fas fa-sliders"></i>
+                        <span>Preferencias</span>
+                    </a>
+                </div>
+
+                <div class="settings-nav-section">
+                    <div class="settings-nav-title">Seguridad Avanzada</div>
+                    <a class="settings-nav-item" data-section="doble-factor">
+                        <i class="fas fa-mobile-screen"></i>
+                        <span>Doble factor (2FA)</span>
+                    </a>
+                    <a class="settings-nav-item" data-section="sesiones-activas">
+                        <i class="fas fa-laptop"></i>
+                        <span>Sesiones activas</span>
+                    </a>
+                    <a class="settings-nav-item active" data-section="historial-accesos">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Historial de accesos</span>
+                    </a>
+                </div>
+
+                <div class="settings-nav-section">
+                    <div class="settings-nav-title">Notificaciones</div>
+                    <a class="settings-nav-item" data-section="notif-email">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email</span>
+                    </a>
+                    <a class="settings-nav-item" data-section="notif-whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                    <a class="settings-nav-item" data-section="notif-push">
+                        <i class="fas fa-bell"></i>
+                        <span>Push</span>
+                    </a>
+                </div>
+
+                <div class="settings-nav-section">
+                    <div class="settings-nav-title">Pólizas</div>
+                    <a class="settings-nav-item" data-section="polizas-vencimiento">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Recordatorios</span>
+                    </a>
+                    <a class="settings-nav-item" data-section="polizas-pdf">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Descarga PDF</span>
+                    </a>
+                    <a class="settings-nav-item" data-section="polizas-coberturas">
+                        <i class="fas fa-list-check"></i>
+                        <span>Coberturas detalladas</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="settings-content">
+                <!-- Datos Personales -->
+                <div class="settings-section" id="datos-personales">
+                    <div class="section-header">
+                        <h2>Datos Personales</h2>
+                        <p>Actualiza tu información personal y de contacto</p>
+                    </div>
+
+                    <form th:action="@{/admin/configuracion/datos-personales}" method="post">
+                        <div class="settings-group">
+                            <div class="form-group">
+                                <label class="form-label">Nombre completo</label>
+                                <input type="text"
+                                       name="nombre"
+                                       class="form-input"
+                                       th:value="${session.nombre + ' ' + session.apellido}"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Correo electrónico</label>
+                                <input type="email"
+                                       name="email"
+                                       class="form-input"
+                                       th:value="${session.email}"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel"
+                                       name="telefono"
+                                       class="form-input"
+                                       th:value="${session.telefono}"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Cargo</label>
+                                <input type="text"
+                                       name="cargo"
+                                       class="form-input"
+                                       th:value="${session.rol}"
+                                       readonly>
+                            </div>
+
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                                <button type="button" class="btn btn-secondary" onclick="window.location.reload()">Cancelar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Cambiar Contraseña -->
+                <div class="settings-section" id="cambiar-contrasena">
+                    <div class="section-header">
+                        <h2>Cambiar Contraseña</h2>
+                        <p>Actualiza tu contraseña para mantener tu cuenta segura</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Recomendaciones de seguridad:</strong> Usa al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos.
+                        </div>
+                    </div>
+
+                    <form th:action="@{/admin/configuracion/editarPassword/{dui}(dui=${session.dui})}" method="post">
+                        <div class="settings-group">
+                            <div class="form-group">
+                                <label class="form-label">Contraseña actual</label>
+                                <input type="password"
+                                       name="contrasenaActual"
+                                       id="contrasenaActual"
+                                       class="form-input"
+                                       placeholder="Ingresa tu contraseña actual"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Nueva contraseña</label>
+                                <input type="password"
+                                       name="contrasena"
+                                       id="nuevaContrasena"
+                                       class="form-input"
+                                       placeholder="Ingresa tu nueva contraseña"
+                                       minlength="8"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Confirmar nueva contraseña</label>
+                                <input type="password"
+                                       name="confirmarContrasena"
+                                       id="confirmarContrasena"
+                                       class="form-input"
+                                       placeholder="Confirma tu nueva contraseña"
+                                       minlength="8"
+                                       required>
+                            </div>
+
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
+                                <button type="button" class="btn btn-secondary" onclick="limpiarFormulario()">Cancelar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Seguridad -->
+                <div class="settings-section" id="seguridad">
+                    <div class="section-header">
+                        <h2>Seguridad</h2>
+                        <p>Configura las opciones de seguridad de tu cuenta</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Opciones de seguridad</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Autenticación de dos factores (2FA)</div>
+                                <div class="setting-description">Agrega una capa adicional de seguridad a tu cuenta</div>
+                            </div>
+                            <div class="toggle-switch" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Alertas de inicio de sesión</div>
+                                <div class="setting-description">Recibe notificaciones cuando alguien inicie sesión en tu cuenta</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Verificación de dispositivo</div>
+                                <div class="setting-description">Requiere verificación al iniciar sesión desde un dispositivo nuevo</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferencias -->
+                <div class="settings-section" id="preferencias">
+                    <div class="section-header">
+                        <h2>Preferencias</h2>
+                        <p>Personaliza tu experiencia en el sistema</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Apariencia</div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tema</label>
+                            <select class="form-select">
+                                <option>Claro</option>
+                                <option>Oscuro</option>
+                                <option>Automático</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Idioma</label>
+                            <select class="form-select">
+                                <option>Español</option>
+                                <option>Inglés</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Dashboard</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Mostrar estadísticas avanzadas</div>
+                                <div class="setting-description">Visualiza métricas detalladas en el dashboard principal</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Auto-actualización de datos</div>
+                                <div class="setting-description">Actualiza automáticamente la información cada 5 minutos</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doble Factor -->
+                <div class="settings-section" id="doble-factor">
+                    <div class="section-header">
+                        <h2>Autenticación de Dos Factores (2FA)</h2>
+                        <p>Protege tu cuenta con una capa adicional de seguridad</p>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Importante:</strong> La autenticación de dos factores actualmente está desactivada. Te recomendamos activarla para mayor seguridad.
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Configuración 2FA</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Activar 2FA</div>
+                                <div class="setting-description">Usa una aplicación de autenticación para generar códigos de verificación</div>
+                            </div>
+                            <button class="btn btn-primary">Configurar 2FA</button>
+                        </div>
+
+                        <div class="security-card">
+                            <div class="security-card-header">
+                                <div class="security-card-title">Aplicaciones recomendadas</div>
+                            </div>
+                            <div class="session-info">
+                                <p><i class="fas fa-mobile-screen"></i> Google Authenticator</p>
+                                <p><i class="fas fa-mobile-screen"></i> Microsoft Authenticator</p>
+                                <p><i class="fas fa-mobile-screen"></i> Authy</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sesiones Activas -->
+                <div class="settings-section" id="sesiones-activas">
+                    <div class="section-header">
+                        <h2>Sesiones Activas</h2>
+                        <p>Revisa y administra los dispositivos donde tu cuenta está activa</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="security-card">
+                            <div class="security-card-header">
+                                <div class="security-card-title">Dispositivo actual</div>
+                                <span class="badge badge-success">Activo</span>
+                            </div>
+                            <div class="session-info">
+                                <p><i class="fas fa-laptop"></i> Windows 11 - Chrome 120</p>
+                                <p><i class="fas fa-location-dot"></i> San Salvador, El Salvador</p>
+                                <p><i class="fas fa-clock"></i> Última actividad: Hace 5 minutos</p>
+                            </div>
+                        </div>
+
+                        <div class="security-card">
+                            <div class="security-card-header">
+                                <div class="security-card-title">iPhone 14 Pro</div>
+                                <span class="badge badge-warning">Inactivo</span>
+                            </div>
+                            <div class="session-info">
+                                <p><i class="fas fa-mobile"></i> iOS 17 - Safari</p>
+                                <p><i class="fas fa-location-dot"></i> San Salvador, El Salvador</p>
+                                <p><i class="fas fa-clock"></i> Última actividad: Hace 2 días</p>
+                            </div>
+                            <div class="btn-group" style="margin-top: 1rem;">
+                                <button class="btn btn-danger">Cerrar sesión en este dispositivo</button>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-danger" style="margin-top: 1rem;">Cerrar todas las sesiones (excepto ésta)</button>
+                    </div>
+                </div>
+
+                <!-- Historial de Accesos -->
+                <div class="settings-section active" id="historial-accesos">
+                    <div class="section-header">
+                        <h2>Historial de Accesos</h2>
+                        <p>Revisa el historial de inicios de sesión en tu cuenta</p>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="filter-container">
+                        <div class="filter-row">
+                            <div class="filter-item">
+                                <label>Filtrar por estado</label>
+                                <select id="filterStatus" onchange="filterAccessLogs()">
+                                    <option value="all">Todos los accesos</option>
+                                    <option value="success">Exitosos</option>
+                                    <option value="failed">Fallidos</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Filtrar por dispositivo</label>
+                                <select id="filterDevice" onchange="filterAccessLogs()">
+                                    <option value="all">Todos los dispositivos</option>
+                                    <option value="desktop">Computadora</option>
+                                    <option value="mobile">Móvil</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Buscar</label>
+                                <input type="text" id="searchInput" placeholder="IP, ubicación, navegador..." oninput="filterAccessLogs()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group" id="accessLogsContainer">
+                        <!-- Los registros se mostrarán aquí dinámicamente -->
+                        <div th:each="log : ${accessLog}"
+                             class="access-card"
+                             th:classappend="${log.success} ? 'success' : 'failed'"
+                             th:attr="data-success=${log.success}, data-device=${log.device}">
+
+                            <div class="access-card-header">
+                                <div class="device-info-container">
+                                    <div>
+                                        <i class="device-icon-large fas"
+                                           th:classappend="${#strings.containsIgnoreCase(log.device, 'mobile') or #strings.containsIgnoreCase(log.device, 'iphone') or #strings.containsIgnoreCase(log.device, 'android')} ? 'fa-mobile-screen-button' : 'fa-desktop'"></i>
+                                    </div>
+                                    <div>
+                                        <div class="security-card-title" th:text="${#temporals.format(log.loginAt, 'dd MMM yyyy - HH:mm')}">22 Dic 2025 - 14:30</div>
+                                        <div style="color: #666; font-size: 0.9rem; margin-top: 0.25rem;" th:text="${log.username}">Usuario</div>
+                                    </div>
+                                </div>
+                                <span class="badge"
+                                      th:classappend="${log.success} ? 'badge-success' : 'badge-danger'"
+                                      th:text="${log.success} ? 'Exitoso' : 'Fallido'">Exitoso</span>
+                            </div>
+
+                            <div class="access-details">
+                                <div class="access-detail-item">
+                                    <i th:class="${#strings.containsIgnoreCase(log.device, 'mobile') or #strings.containsIgnoreCase(log.device, 'iphone') or #strings.containsIgnoreCase(log.device, 'android')} ? 'fas fa-mobile-screen-button' : 'fas fa-desktop'"></i>
+                                    <span th:text="${log.device + ' - ' + log.os}">Windows 11 - Chrome</span>
+                                </div>
+
+                                <div class="access-detail-item">
+                                    <i class="fas fa-network-wired"></i>
+                                    <span th:text="'IP: ' + ${log.ipAddress}">IP: 192.168.1.1</span>
+                                </div>
+
+                                <div class="access-detail-item" th:if="${log.twoFactorVerified}">
+                                    <i class="fas fa-shield-halved"></i>
+                                    <span style="color: #28a745;">2FA Verificado</span>
+                                </div>
+
+                                <div class="access-detail-item" th:if="${!log.success}">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span style="color: #E74C3C;">Intento de acceso fallido</span>
+                                </div>
+                            </div>
+
+                            <div th:if="${log.userAgent}" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+                                <div class="access-detail-item">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span style="font-size: 0.85rem; color: #999;" th:text="${log.userAgent}">User Agent</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado vacío -->
+                    <div id="emptyState" class="empty-state" style="display: none;">
+                        <i class="fas fa-inbox"></i>
+                        <p>No se encontraron registros de acceso</p>
+                    </div>
+
+                    <!-- Paginación -->
+                    <div class="pagination-container" id="paginationContainer">
+                        <button class="pagination-btn" id="prevBtn" onclick="changePage(-1)">
+                            <i class="fas fa-chevron-left"></i> Anterior
+                        </button>
+
+                        <div id="pageNumbers"></div>
+
+                        <button class="pagination-btn" id="nextBtn" onclick="changePage(1)">
+                            Siguiente <i class="fas fa-chevron-right"></i>
+                        </button>
+
+                        <div class="pagination-info" id="paginationInfo"></div>
+                    </div>
+                </div>
+
+                <!-- Notificaciones Email -->
+                <div class="settings-section" id="notif-email">
+                    <div class="section-header">
+                        <h2>Notificaciones por Email</h2>
+                        <p>Configura qué notificaciones deseas recibir por correo electrónico</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Alertas del sistema</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Nuevos afiliados registrados</div>
+                                <div class="setting-description">Recibe notificación cuando se registre un nuevo afiliado</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Solicitudes de servicio</div>
+                                <div class="setting-description">Notificaciones sobre nuevas solicitudes de servicios</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Pagos recibidos</div>
+                                <div class="setting-description">Notificación cuando se procese un pago</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Reportes automáticos</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Reporte diario</div>
+                                <div class="setting-description">Resumen de actividad del día anterior</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Reporte semanal</div>
+                                <div class="setting-description">Resumen semanal cada lunes</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Reporte mensual</div>
+                                <div class="setting-description">Estadísticas mensuales completas</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notificaciones WhatsApp -->
+                <div class="settings-section" id="notif-whatsapp">
+                    <div class="section-header">
+                        <h2>Notificaciones por WhatsApp</h2>
+                        <p>Recibe alertas importantes directamente en WhatsApp</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <strong>Número configurado:</strong> <span th:text="${session.telefono}">+503 7777-8888</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Alertas urgentes</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Emergencias de servicio</div>
+                                <div class="setting-description">Notificación inmediata de solicitudes urgentes</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Alertas de seguridad</div>
+                                <div class="setting-description">Notificación de intentos de acceso sospechosos</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Pagos grandes</div>
+                                <div class="setting-description">Alerta cuando se reciba un pago mayor a $1,000</div>
+                            </div>
+                            <div class="toggle-switch" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notificaciones Push -->
+                <div class="settings-section" id="notif-push">
+                    <div class="section-header">
+                        <h2>Notificaciones Push</h2>
+                        <p>Configura las notificaciones en el navegador y aplicaciones móviles</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Notificaciones del navegador</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Habilitar notificaciones push</div>
+                                <div class="setting-description">Permite que el sistema envíe notificaciones al navegador</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Sonido de notificación</div>
+                                <div class="setting-description">Reproduce un sonido al recibir notificaciones</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Notificaciones en escritorio</div>
+                                <div class="setting-description">Muestra notificaciones incluso cuando el navegador esté minimizado</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pólizas Vencimiento -->
+                <div class="settings-section" id="polizas-vencimiento">
+                    <div class="section-header">
+                        <h2>Recordatorios de Vencimiento</h2>
+                        <p>Configura cuándo recibir recordatorios sobre pólizas próximas a vencer</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Frecuencia de recordatorios</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">30 días antes del vencimiento</div>
+                                <div class="setting-description">Primera alerta un mes antes</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">15 días antes del vencimiento</div>
+                                <div class="setting-description">Segunda alerta dos semanas antes</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">7 días antes del vencimiento</div>
+                                <div class="setting-description">Alerta una semana antes</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Día del vencimiento</div>
+                                <div class="setting-description">Alerta final el día del vencimiento</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Canales de notificación</div>
+
+                        <div class="form-group">
+                            <label class="form-label">Enviar recordatorios por</label>
+                            <select class="form-select">
+                                <option>Email y WhatsApp</option>
+                                <option>Solo Email</option>
+                                <option>Solo WhatsApp</option>
+                                <option>Email, WhatsApp y Push</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pólizas PDF -->
+                <div class="settings-section" id="polizas-pdf">
+                    <div class="section-header">
+                        <h2>Descarga Automática de PDF</h2>
+                        <p>Configura la generación y descarga automática de pólizas en PDF</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Opciones de descarga</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Generar PDF automáticamente</div>
+                                <div class="setting-description">Crea el PDF de la póliza al momento de la emisión</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Enviar PDF por email</div>
+                                <div class="setting-description">Envía automáticamente el PDF al afiliado por correo</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Almacenar en la nube</div>
+                                <div class="setting-description">Guarda una copia del PDF en almacenamiento en la nube</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Formato del PDF</div>
+
+                        <div class="form-group">
+                            <label class="form-label">Incluir en el PDF</label>
+                            <select class="form-select">
+                                <option>Datos completos y coberturas detalladas</option>
+                                <option>Solo datos básicos</option>
+                                <option>Resumen ejecutivo</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Incluir código QR</div>
+                                <div class="setting-description">Añade un código QR para verificación de la póliza</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Marca de agua de seguridad</div>
+                                <div class="setting-description">Añade marca de agua para prevenir falsificaciones</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pólizas Coberturas -->
+                <div class="settings-section" id="polizas-coberturas">
+                    <div class="section-header">
+                        <h2>Coberturas Detalladas</h2>
+                        <p>Configura cómo se muestran las coberturas en el sistema</p>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Visualización</div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Mostrar coberturas completas</div>
+                                <div class="setting-description">Muestra todos los detalles de cobertura por defecto</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Resaltar exclusiones</div>
+                                <div class="setting-description">Destaca visualmente las exclusiones de cobertura</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Mostrar límites monetarios</div>
+                                <div class="setting-description">Incluye los montos máximos de cobertura</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Comparación de planes</div>
+                                <div class="setting-description">Permite comparar coberturas entre diferentes planes</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <div class="group-title">Idioma y formato</div>
+
+                        <div class="form-group">
+                            <label class="form-label">Mostrar coberturas en</label>
+                            <select class="form-select">
+                                <option>Español</option>
+                                <option>Inglés</option>
+                                <option>Ambos idiomas</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Términos técnicos simplificados</div>
+                                <div class="setting-description">Usa lenguaje simplificado para facilitar la comprensión</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="this.classList.toggle('active')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables globales para paginación y filtrado
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let allAccessLogs = [];
+    let filteredLogs = [];
+
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener todos los registros de acceso
+        const accessCards = document.querySelectorAll('.access-card');
+        allAccessLogs = Array.from(accessCards);
+        filteredLogs = [...allAccessLogs];
+
+        // Inicializar paginación
+        displayPage(currentPage);
+        updatePagination();
+    });
+
+    // Función para mostrar página específica
+    function displayPage(page) {
+        currentPage = page;
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+
+        // Ocultar todos los registros
+        allAccessLogs.forEach(log => {
+            log.style.display = 'none';
+        });
+
+        // Mostrar solo los de la página actual
+        const logsToShow = filteredLogs.slice(startIndex, endIndex);
+        logsToShow.forEach(log => {
+            log.style.display = 'block';
+        });
+
+        // Mostrar mensaje si no hay resultados
+        const emptyState = document.getElementById('emptyState');
+        if (filteredLogs.length === 0) {
+            emptyState.style.display = 'block';
+            document.getElementById('paginationContainer').style.display = 'none';
+        } else {
+            emptyState.style.display = 'none';
+            document.getElementById('paginationContainer').style.display = 'flex';
+        }
+
+        updatePagination();
+    }
+
+    // Función para actualizar los controles de paginación
+    function updatePagination() {
+        const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+        const pageNumbers = document.getElementById('pageNumbers');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const paginationInfo = document.getElementById('paginationInfo');
+
+        // Actualizar botones anterior/siguiente
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+
+        // Generar números de página
+        pageNumbers.innerHTML = '';
+
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // Botón primera página
+        if (startPage > 1) {
+            const firstBtn = createPageButton(1, '1');
+            pageNumbers.appendChild(firstBtn);
+            if (startPage > 2) {
+                const dots = document.createElement('span');
+                dots.className = 'pagination-info';
+                dots.textContent = '...';
+                pageNumbers.appendChild(dots);
+            }
+        }
+
+        // Páginas numeradas
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = createPageButton(i, i.toString());
+            if (i === currentPage) {
+                pageBtn.classList.add('active');
+            }
+            pageNumbers.appendChild(pageBtn);
+        }
+
+        // Botón última página
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const dots = document.createElement('span');
+                dots.className = 'pagination-info';
+                dots.textContent = '...';
+                pageNumbers.appendChild(dots);
+            }
+            const lastBtn = createPageButton(totalPages, totalPages.toString());
+            pageNumbers.appendChild(lastBtn);
+        }
+
+        // Actualizar información de registros
+        const startRecord = (currentPage - 1) * itemsPerPage + 1;
+        const endRecord = Math.min(currentPage * itemsPerPage, filteredLogs.length);
+        paginationInfo.textContent = `Mostrando ${startRecord}-${endRecord} de ${filteredLogs.length}`;
+    }
+
+    // Función auxiliar para crear botón de página
+    function createPageButton(pageNum, text) {
+        const btn = document.createElement('button');
+        btn.className = 'pagination-btn';
+        btn.textContent = text;
+        btn.onclick = () => displayPage(pageNum);
+        return btn;
+    }
+
+    // Función para cambiar de página
+    function changePage(direction) {
+        const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+        const newPage = currentPage + direction;
+
+        if (newPage >= 1 && newPage <= totalPages) {
+            displayPage(newPage);
+        }
+    }
+
+    // Función para filtrar registros de acceso
+    function filterAccessLogs() {
+        const statusFilter = document.getElementById('filterStatus').value;
+        const deviceFilter = document.getElementById('filterDevice').value;
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+        filteredLogs = allAccessLogs.filter(log => {
+            // Filtro por estado
+            const isSuccess = log.getAttribute('data-success') === 'true';
+            if (statusFilter === 'success' && !isSuccess) return false;
+            if (statusFilter === 'failed' && isSuccess) return false;
+
+            // Filtro por dispositivo
+            const device = log.getAttribute('data-device').toLowerCase();
+            if (deviceFilter === 'mobile' && !(device.includes('mobile') || device.includes('iphone') || device.includes('android'))) {
+                return false;
+            }
+            if (deviceFilter === 'desktop' && (device.includes('mobile') || device.includes('iphone') || device.includes('android'))) {
+                return false;
+            }
+
+            // Filtro por búsqueda de texto
+            if (searchText) {
+                const logText = log.textContent.toLowerCase();
+                if (!logText.includes(searchText)) return false;
+            }
+
+            return true;
+        });
+
+        // Reiniciar a la primera página
+        currentPage = 1;
+        displayPage(currentPage);
+    }
+
+    // Validación de contraseñas coincidentes
+    document.querySelector('form[action*="editarPassword"]')?.addEventListener('submit', function(e) {
+        const nuevaContrasena = document.getElementById('nuevaContrasena').value;
+        const confirmarContrasena = document.getElementById('confirmarContrasena').value;
+
+        if (nuevaContrasena !== confirmarContrasena) {
+            e.preventDefault();
+            alert('Las contraseñas no coinciden. Por favor, verifica e intenta nuevamente.');
+            return false;
+        }
+
+        if (nuevaContrasena.length < 8) {
+            e.preventDefault();
+            alert('La contraseña debe tener al menos 8 caracteres.');
+            return false;
+        }
+    });
+
+    function limpiarFormulario() {
+        document.getElementById('contrasenaActual').value = '';
+        document.getElementById('nuevaContrasena').value = '';
+        document.getElementById('confirmarContrasena').value = '';
+    }
+
+    // Navegación entre secciones de configuración
+    document.querySelectorAll('.settings-nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Remover clase activa de todos los items
+            document.querySelectorAll('.settings-nav-item').forEach(nav => {
+                nav.classList.remove('active');
+            });
+
+            // Agregar clase activa al item clickeado
+            this.classList.add('active');
+
+            // Ocultar todas las secciones
+            document.querySelectorAll('.settings-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Mostrar sección seleccionada
+            const sectionId = this.getAttribute('data-section');
+            document.getElementById(sectionId).classList.add('active');
+
+            // Scroll al inicio del contenido
+            document.querySelector('.settings-content').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+</body>
+</html>

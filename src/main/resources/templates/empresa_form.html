@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Comercio Afiliado - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/empresa.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Nuevo Comercio Afiliado</h1>
+        <span class="subtitle">Completa la información para registrar un nuevo comercio</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos del comercio</h2>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/comercios/guardar}" th:object="${empresaAfiliada}" method="post" enctype="multipart/form-data" id="empresaForm">
+
+                <div class="form-grid">
+                    <!-- NIT -->
+                    <div class="form-group">
+                        <label for="nit">NIT</label>
+                        <input type="text" th:field="*{nit}" id="nit" class="input" placeholder="0000-000000-000-0" pattern="[0-9]{4}-[0-9]{6}-[0-9]{3}-[0-9]" required>
+                    </div>
+
+
+                    <!-- Nombre Empresa -->
+                    <div class="form-group">
+                        <label for="nombreEmpresa">Nombre del comercio</label>
+                        <input type="text" th:field="*{nombreEmpresa}" id="nombreEmpresa" class="input" placeholder="Ingrese el nombre del comercio" required>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="form-group full-width">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" th:field="*{direccion}" id="direccion" class="input" placeholder="Ingrese la dirección completa de la empresa" required>
+                    </div>
+
+                    <!-- País -->
+                    <div class="form-group">
+                        <label for="pais">País</label>
+                        <select id="pais" th:field="*{idPais}" class="input" required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}" th:value="${p.idPais}" th:text="${p.nombrePais}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" th:field="*{telefono}" id="telefono" class="input" placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" th:field="*{email}" id="email" class="input" placeholder="correo@empresa.com" required>
+                    </div>
+
+                    <!-- Representante Legal -->
+                    <div class="form-group">
+                        <label for="repreLegalNombre">Representante Legal</label>
+                        <input type="text" th:field="*{repreLegalNombre}" id="repreLegalNombre" class="input" placeholder="Nombre del representante legal" required>
+                    </div>
+
+                    <!-- Categoría Empresa -->
+                    <div class="form-group">
+                        <label for="categoriaEmpresa">Categoría de Empresa</label>
+                        <select id="categoriaEmpresa" th:field="*{idCategoriaEmpresa}" class="input" required>
+                            <option value="">Seleccione una categoría</option>
+                            <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.catNombre}"></option>
+                        </select>
+                    </div>
+
+
+                    <!-- Rubro Empresa -->
+                    <div class="form-group">
+                        <label for="rubroEmpresa">Rubro de Empresa</label>
+                        <select id="rubroEmpresa" th:field="*{rubro}" class="input" required>
+                            <option value="">Seleccione una rubro</option>
+                            <option th:each="r : ${rubros}" th:value="${r.idRubro}" th:text="${r.nombreRubro}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="form-group">
+                        <label><i class="fas fa-toggle-on"></i> Estado</label>
+                        <select th:field="*{estado}" class="input" required>
+                            <option value="">Seleccione el estado</option>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <!-- Logo/Imagen de la Empresa -->
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-image"></i> Logo de la Empresa</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="imagenFile" accept="image/*" id="imagenEmpresa"
+                                   onchange="updateFileLabel('imagenEmpresa', 'imagenLabel')">
+                            <label for="imagenEmpresa" class="file-input-label" id="imagenLabel">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Subir logo o imagen de la empresa
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <a th:href="@{/comerciosAfiliados}" class="btn secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateFileLabel(inputId, labelId) {
+        const input = document.getElementById(inputId);
+        const label = document.getElementById(labelId);
+
+        if (input.files && input.files.length > 0) {
+            const fileName = input.files[0].name;
+            label.innerHTML = '<i class="fas fa-check"></i> ' + fileName;
+            label.classList.add('file-selected');
+        } else {
+            label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Subir logo o imagen de la empresa';
+            label.classList.remove('file-selected');
+        }
+    }
+
+    // Validación del formulario antes de enviar
+    document.getElementById('empresaForm').addEventListener('submit', function(e) {
+        const imagenInput = document.getElementById('imagenEmpresa');
+
+        // Verificar tamaño de archivo (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (imagenInput.files && imagenInput.files.length > 0) {
+            if (imagenInput.files[0].size > maxSize) {
+                alert('La imagen es demasiado grande. Máximo 5MB.');
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Validación automática del NIT
+        const nitInput = document.getElementById('nit');
+        if (nitInput) {
+            nitInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 0) {
+                    let formatted = '';
+                    if (value.length >= 4) {
+                        formatted = value.substring(0, 4) + '-';
+                        if (value.length >= 10) {
+                            formatted += value.substring(4, 10) + '-';
+                            if (value.length >= 13) {
+                                formatted += value.substring(10, 13) + '-';
+                                formatted += value.substring(13, 14);
+                            } else {
+                                formatted += value.substring(10);
+                            }
+                        } else {
+                            formatted += value.substring(4);
+                        }
+                    } else {
+                        formatted = value;
+                    }
+                    e.target.value = formatted;
+                }
+            });
+        }
+
+        // Validación automática del teléfono
+        const telInput = document.getElementById('telefono');
+        if (telInput) {
+            telInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Mejorar la experiencia del file input
+        const fileInput = document.getElementById('imagenEmpresa');
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const label = document.getElementById('imagenLabel');
+                const fileName = e.target.files[0]?.name;
+
+                if (fileName) {
+                    label.innerHTML = `<i class="fas fa-check-circle"></i> ${fileName}`;
+                    label.classList.add('file-selected');
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

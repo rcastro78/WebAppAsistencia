@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago Registrado - Panel Administrativo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app {
+            max-width: 900px;
+            width: 100%;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        /* Success Header */
+        .success-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: scaleIn 0.5s ease-out 0.2s both;
+        }
+
+        .success-icon i {
+            font-size: 3.5rem;
+            animation: checkmark 0.5s ease-out 0.4s both;
+        }
+
+        .success-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .success-header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        /* Admin Badge */
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        /* Card Body */
+        .card-body {
+            padding: 40px 30px;
+        }
+
+        /* Transaction Summary */
+        .transaction-summary {
+            background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 165, 0, 0.1));
+            border-left: 4px solid #FF8C00;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-title i {
+            color: #FF8C00;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .summary-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary-value.amount {
+            font-size: 2rem;
+            color: #28a745;
+            font-weight: 700;
+        }
+
+        .summary-value.reference {
+            font-family: 'Courier New', monospace;
+            color: #FF8C00;
+            font-weight: 700;
+        }
+
+        /* Admin Info Section */
+        .admin-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .admin-info h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+
+        .admin-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .admin-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .admin-detail-item i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        /* Client Info */
+        .client-info {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .client-info h3 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .client-info h3 i {
+            color: #FF8C00;
+        }
+
+        .client-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .client-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .client-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .client-label {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .client-value {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Actions for Admin */
+        .admin-actions {
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.1), rgba(13, 110, 253, 0.1));
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .admin-actions h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-actions h3 i {
+            color: #17a2b8;
+        }
+
+        .action-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .action-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .action-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #17a2b8;
+            font-size: 0.9rem;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .status-badge.pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .quick-action-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .quick-action-card:hover {
+            border-color: #FF8C00;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-action-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 12px;
+        }
+
+        .quick-action-card h4 {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .quick-action-card p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-width: 180px;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .btn.primary:hover {
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.4);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn.secondary:hover {
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn.success:hover {
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn.outline {
+            background: white;
+            border: 2px solid #e9ecef;
+            color: #555;
+        }
+
+        .btn.outline:hover {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        /* Notification Options */
+        .notification-options {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .notification-options h4 {
+            color: #856404;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification-checkboxes {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            color: #666;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 30px 20px;
+            }
+
+            .success-header {
+                padding: 30px 20px;
+            }
+
+            .success-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .success-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .success-icon i {
+                font-size: 2.5rem;
+            }
+
+            .summary-grid,
+            .admin-details,
+            .client-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .summary-value.amount {
+                font-size: 1.8rem;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes checkmark {
+            from {
+                transform: scale(0) rotate(-45deg);
+            }
+            to {
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .actions,
+            .quick-actions,
+            .notification-options,
+            .admin-actions {
+                display: none;
+            }
+
+            .card {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="card">
+        <!-- Success Header -->
+        <div class="success-header">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h1>¡Pago Registrado Exitosamente!</h1>
+            <p>La cuota ha sido procesada y registrada en el sistema</p>
+            <div class="admin-badge">
+                <i class="fas fa-user-shield"></i>
+                Panel Administrativo
+            </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body">
+            <!-- Admin Info -->
+            <div class="admin-info">
+                <h4>
+                    <i class="fas fa-user-tie"></i>
+                    Registrado por
+                </h4>
+                <div class="admin-details">
+                    <div class="admin-detail-item">
+                        <i class="fas fa-user"></i>
+                        <span><strong>Administrador:</strong> <span th:text="${usuario != null ? usuario.nombre : 'Administrador'}">Jorge Orellana</span></span>
+                    </div>
+                    <div class="admin-detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span><strong>Fecha/Hora:</strong> <span th:text="${fechaHoraRegistro}">19/11/2025 14:30</span></span>
+                    </div>
+                    <div class="admin-detail-item">
+                        <i class="fas fa-desktop"></i>
+                        <span><strong>Terminal:</strong> Admin-PC-01</span>
+                    </div>
+                    <div class="admin-detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><strong>Oficina:</strong> Oficina Central</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Summary -->
+            <div class="transaction-summary">
+                <div class="summary-title">
+                    <i class="fas fa-receipt"></i>
+                    Detalles del Pago
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-item full-width">
+                        <span class="summary-label">Monto Pagado</span>
+                        <span class="summary-value amount">$<span th:text="${pago != null ? pago.cantidadPagada : '0.00'}">1.99</span></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">N° de Referencia</span>
+                        <span class="summary-value reference" th:text="${numeroReferencia}">REF-2025-00123456</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Método de Pago</span>
+                        <span class="summary-value">
+                            <span th:text="${formaPagoNombre}">Efectivo</span>
+                        </span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Tipo de Cuota</span>
+                        <span class="summary-value"><span th:text="${tipoCuota}"></span></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Período</span>
+                        <span class="summary-value" th:text="${periodo}">Noviembre 2025</span>
+                    </div>
+                    <div class="summary-item full-width">
+                        <span class="summary-label">Estado de Póliza</span>
+                        <span class="status-badge active">
+                            <i class="fas fa-check-circle"></i> Activa
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client Info -->
+            <div class="client-info">
+                <h3>
+                    <i class="fas fa-user-circle"></i>
+                    Información del Afiliado
+                </h3>
+                <div class="client-grid">
+                    <div class="client-item">
+                        <span class="client-label">Nombre Completo</span>
+                        <span class="client-value" th:text="${afiliado != null ? afiliado.nombre : 'N/A'}">Rafael Castro</span>
+                    </div>
+                    <div class="client-item">
+                        <span class="client-label">DUI</span>
+                        <span class="client-value" th:text="${pago != null ? pago.duiAfiliado : 'N/A'}">01624438-7</span>
+                    </div>
+                    <div class="client-item">
+                        <span class="client-label">Plan Contratado</span>
+                        <span class="client-value" th:text="${afiliado != null ? afiliado.nombrePlan : 'N/A'}">Plan Blue</span>
+                    </div>
+                    <div class="client-item">
+                        <span class="client-label">Teléfono</span>
+                        <span class="client-value" th:text="${afiliado != null ? afiliado.telefono : 'N/A'}">7123-4567</span>
+                    </div>
+                    <div class="client-item full-width">
+                        <span class="client-label">Correo Electrónico</span>
+                        <span class="client-value" th:text="${afiliado != null ? afiliado.email : 'N/A'}">rafael.castro@email.com</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Options -->
+            <div class="notification-options">
+                <h4>
+                    <i class="fas fa-bell"></i>
+                    Notificaciones al Cliente
+                </h4>
+                <div class="notification-checkboxes">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="sendEmail" checked>
+                        <label for="sendEmail">Enviar comprobante por correo electrónico</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="sendSMS" checked>
+                        <label for="sendSMS">Enviar notificación por SMS</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="sendWhatsApp">
+                        <label for="sendWhatsApp">Enviar confirmación por WhatsApp</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="#" onclick="window.print(); return false;" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-print"></i>
+                    </div>
+                    <h4>Imprimir</h4>
+                    <p>Comprobante de pago</p>
+                </a>
+
+                <a th:href="@{'/pagos/nuevo/' + ${pago != null ? pago.duiAfiliado : ''}}" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h4>Historial</h4>
+                    <p>Pagos del afiliado</p>
+                </a>
+
+                <a href="#" class="quick-action-card">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h4>Generar PDF</h4>
+                    <p>Recibo oficial</p>
+                </a>
+            </div>
+
+            <!-- Admin Actions -->
+            <div class="admin-actions">
+                <h3>
+                    <i class="fas fa-clipboard-check"></i>
+                    Acciones Completadas Automáticamente
+                </h3>
+                <ul class="action-list">
+                    <li>Pago registrado en el sistema contable</li>
+                    <li>Póliza actualizada y renovada automáticamente</li>
+                    <li>Fecha de vigencia extendida hasta <strong th:text="${fechaVigencia}">19/12/2025</strong></li>
+                    <li>Notificaciones programadas para envío al cliente</li>
+                    <li>Carnet digital actualizado y disponible</li>
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <a th:href="@{'/pagos/nuevo/' + ${pago != null ? pago.duiAfiliado : ''}}" class="btn success">
+                    <i class="fas fa-plus-circle"></i> Registrar Otro Pago
+                </a>
+                <a th:href="@{'/pagos/nuevo/' + ${pago != null ? pago.duiAfiliado : ''}}" class="btn secondary">
+                <i class="fas fa-list"></i> Ver Todos los Pagos
+                </a>
+                <a th:href="@{/admin/dashboard}" class="btn outline">
+                    <i class="fas fa-home"></i> Panel Principal
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-enviar notificaciones según checkboxes seleccionados
+    document.querySelectorAll('.notification-checkboxes input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const notificationType = this.id.replace('send', '').toLowerCase();
+            if (this.checked) {
+                console.log(`Enviando notificación por ${notificationType}...`);
+                // Aquí iría la llamada AJAX para enviar la notificación
+            }
+        });
+    });
+
+    // Mensaje de confirmación temporal
+    setTimeout(() => {
+        console.log('Pago registrado correctamente en el sistema');
+    }, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promociones - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+
+        .btn-action {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .btn-editar {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-editar:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .profile-section {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #4A90E2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        .profile-section h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .profile-section p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sidebar-nav {
+            margin-top: 30px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .breadcrumb a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 10px;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box i {
+            color: #7f8c8d;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .status-filter {
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            font-size: 14px;
+            color: #495057;
+            cursor: pointer;
+            outline: none;
+            min-width: 200px;
+        }
+
+        .status-filter:focus {
+            border-color: #4A90E2;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-nueva-promocion {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-nueva-promocion:hover {
+            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .view-btn {
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            color: #7f8c8d;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            background: white;
+        }
+
+        .view-btn.active {
+            background: white;
+            color: #4A90E2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-summary {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-item i {
+            color: #4A90E2;
+            font-size: 20px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-item span:last-child {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        /* Promociones Container */
+        .promociones-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .list-header-section {
+            margin-bottom: 20px;
+        }
+
+        .list-header-section h2 {
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        /* Promociones Grid */
+        .promociones-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .promocion-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .promocion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #4A90E2;
+        }
+
+        .card-header {
+            height: 180px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header.activa {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .card-header.proxima {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .card-header.vencida {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .card-decoration {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+        }
+
+        .promocion-icon {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .status-badge.activa {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.proxima {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.vencida {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .promocion-nombre {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .promocion-detalle {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            min-height: 45px;
+        }
+
+        .promocion-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-row i {
+            color: #4A90E2;
+            font-size: 16px;
+            min-width: 20px;
+        }
+
+        .info-row strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .monto-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .monto-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        .monto-valor {
+            font-size: 24px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .plan-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .fechas-container {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+        }
+
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #357ABD 0%, #2868A8 100%);
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #e9ecef;
+        }
+
+        .action-btn.secondary:hover {
+            background: #e9ecef;
+        }
+
+        .action-btn.danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+        }
+
+        .action-btn.danger:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-left {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .status-filter {
+                width: 100%;
+            }
+
+            .promociones-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-summary {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .btn-nueva-promocion {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <span th:text="${#strings.substring(session.nombre, 0, 1) + #strings.substring(session.apellido, 0, 1)}">CM</span>
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|">Comercio</h3>
+            <p class="tutor-id" th:text="|NIT: ${nit}|">NIT: 000000000</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/comerciosAfiliados}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios</span>
+            </a>
+
+            <a th:href="@{/promociones(nit=${nit})}" class="nav-item active">
+                <i class="fas fa-tags"></i>
+                <span>Promociones</span>
+            </a>
+
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Promociones de <span th:text="${comercio}">Comercio</span></h1>
+            <p>Administra y gestiona todas las promociones activas y próximas</p>
+            <div class="breadcrumb">
+                <a th:href="@{/usuarios/dashboard}"><i class="fas fa-home"></i> Inicio</a>
+                <i class="fas fa-chevron-right"></i>
+                <a th:href="@{/comerciosAfiliados}">Comercios</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Promociones</span>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar promociones..." id="searchInput">
+                </div>
+                <select class="status-filter" id="statusFilter">
+                    <option value="all">Todos los estados</option>
+                    <option value="activa">Activas</option>
+                    <option value="proxima">Próximas</option>
+                    <option value="vencida">Vencidas</option>
+                </select>
+            </div>
+            <div class="toolbar-right">
+                <a th:href="@{/comerciosAfiliados/promociones/nueva(nit=${nit})}" class="btn-nueva-promocion">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Nueva Promoción</span>
+                </a>
+                <div class="view-toggle">
+                    <button class="view-btn active" id="gridView" title="Vista en mosaico">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" id="listView" title="Vista en lista">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+                <div class="stats-summary">
+                    <div class="stat-item">
+                        <i class="fas fa-tags"></i>
+                        <span class="stat-number" th:text="${#lists.size(promociones)}">0</span>
+                        <span>Promociones</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promociones Container -->
+        <div class="promociones-container">
+            <div class="list-header-section">
+                <h2>Listado de Promociones</h2>
+            </div>
+
+            <!-- Empty State cuando no hay promociones -->
+            <div th:if="${#lists.isEmpty(promociones)}" class="empty-state">
+                <i class="fas fa-tags"></i>
+                <h3>No hay promociones disponibles</h3>
+                <p>Comienza creando tu primera promoción para tus clientes.</p>
+            </div>
+
+            <!-- Promociones Grid -->
+            <div class="promociones-grid" id="promocionesContainer" th:if="${!#lists.isEmpty(promociones)}">
+                <div class="promocion-card"
+                     th:each="promo : ${promociones}"
+                     th:data-nombre="${promo.nombrePromo}"
+                     th:data-estado="${promo.estado}">
+
+                    <div class="card-header"
+                         th:with="hoy=${#temporals.createToday()}"
+                         th:classappend="${promo.fechaInicio.isAfter(hoy) ? 'proxima' : (promo.fechaFin.isBefore(hoy) ? 'vencida' : 'activa')}">
+                        <div class="promocion-icon">
+                            🎁
+                        </div>
+                        <div class="card-decoration"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <span class="status-badge"
+                              th:with="hoy=${#temporals.createToday()}"
+                              th:classappend="${promo.fechaInicio.isAfter(hoy) ? 'proxima' : (promo.fechaFin.isBefore(hoy) ? 'vencida' : 'activa')}">
+                            <i class="fas fa-circle"></i>
+                            <span th:with="hoy=${#temporals.createToday()}"
+                                  th:text="${promo.fechaInicio.isAfter(hoy) ? 'Próxima' : (promo.fechaFin.isBefore(hoy) ? 'Vencida' : 'Activa')}">Estado</span>
+                        </span>
+
+                        <h3 class="promocion-nombre" th:text="${promo.nombrePromo}">Nombre de la Promoción</h3>
+
+                        <p class="promocion-detalle" th:text="${promo.detalle != null && !promo.detalle.isEmpty() ? promo.detalle : 'Sin descripción disponible'}">Descripción de la promoción</p>
+
+                        <div class="fechas-container">
+                            <div class="info-row">
+                                <i class="fas fa-calendar-start"></i>
+                                <span><strong>Inicio:</strong> <span th:text="${#temporals.format(promo.fechaInicio, 'dd/MM/yyyy')}">01/01/2024</span></span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-calendar-xmark"></i>
+                                <span><strong>Fin:</strong> <span th:text="${#temporals.format(promo.fechaFin, 'dd/MM/yyyy')}">31/12/2024</span></span>
+                            </div>
+                        </div>
+
+                        <div class="monto-info" th:if="${promo.monto != null && promo.monto > 0}">
+                            <span class="monto-label">Monto de descuento</span>
+                            <span class="monto-valor" th:text="'$' + ${#numbers.formatDecimal(promo.monto, 1, 2)}">$0.00</span>
+                        </div>
+
+                        <div class="plan-badge" th:if="${promo.idPlan != null && promo.idPlan > 0}">
+                            <i class="fas fa-shield-alt"></i>
+                            <span th:text="'Plan: ' + ${nombrePlan}">Plan</span>
+                        </div>
+
+                        <div class="card-actions">
+                            <a th:href="@{/comerciosAfiliados/promociones/editar/{id}(id=${promo.idPromocion})}" class="btn-action btn-editar">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a th:href="@{/comerciosAfiliados/promociones/eliminar/{id}(id=${promo.idPromocion})}"
+                               class="action-btn danger"
+                               onclick="return confirm('¿Estás seguro de que deseas eliminar esta promoción?');">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Datos del servidor
+    const promocionesData = /*[[${promociones}]]*/ [];
+    const nitComercio = /*[[${nit}]]*/ '';
+
+    // Elementos del DOM
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const promocionesContainer = document.getElementById('promocionesContainer');
+    const gridViewBtn = document.getElementById('gridView');
+    const listViewBtn = document.getElementById('listView');
+
+    // Función de búsqueda y filtrado
+    function filterPromociones() {
+        if (!promocionesContainer) return;
+
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedStatus = statusFilter.value;
+        const cards = promocionesContainer.querySelectorAll('.promocion-card');
+
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const nombre = card.getAttribute('data-nombre').toLowerCase();
+            const cardStatusBadge = card.querySelector('.status-badge');
+            let cardStatus = 'activa';
+
+            if (cardStatusBadge) {
+                if (cardStatusBadge.classList.contains('proxima')) cardStatus = 'proxima';
+                else if (cardStatusBadge.classList.contains('vencida')) cardStatus = 'vencida';
+            }
+
+            const matchesSearch = nombre.includes(searchTerm);
+            const matchesStatus = selectedStatus === 'all' || cardStatus === selectedStatus;
+
+            if (matchesSearch && matchesStatus) {
+                card.style.display = 'block';
+                card.style.animation = 'fadeInUp 0.3s ease-out';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        console.log(`Mostrando ${visibleCount} de ${cards.length} promociones`);
+    }
+
+    // Función para cambiar vista
+    function toggleView(viewType) {
+        if (viewType === 'list') {
+            promocionesContainer.style.gridTemplateColumns = '1fr';
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+        } else {
+            promocionesContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(350px, 1fr))';
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+        }
+    }
+
+    // Event listeners
+    if (searchInput) {
+        searchInput.addEventListener('input', filterPromociones);
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterPromociones);
+    }
+
+    if (gridViewBtn) {
+        gridViewBtn.addEventListener('click', () => toggleView('grid'));
+    }
+
+    if (listViewBtn) {
+        listViewBtn.addEventListener('click', () => toggleView('list'));
+    }
+
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Promociones cargadas:', promocionesData.length);
+        console.log('NIT del comercio:', nitComercio);
+    });
+</script>
+</body>
+</html>

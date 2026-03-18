@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Vendedor - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}">
+</head>
+<body>
+<div class="app">
+
+    <div class="header">
+        <h1><i class="fas fa-user-tie"></i> Registro de Vendedor</h1>
+        <span class="subtitle">Completa el formulario para solicitar tu incorporación como vendedor</span>
+    </div>
+
+    <!-- Banner informativo -->
+    <div class="info-banner">
+        <h3><i class="fas fa-info-circle"></i> Información Importante</h3>
+        <p>
+            Tu solicitud será revisada por nuestro equipo. Un ejecutivo de AESAL se pondrá en contacto
+            contigo para coordinar el proceso de entrevista. Una vez aprobado, recibirás tus credenciales
+            de acceso en el correo registrado.
+        </p>
+    </div>
+
+    <!-- Mensaje de éxito -->
+    <div th:if="${success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}"></span>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div th:if="${error}" class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos del Vendedor</h2>
+            <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #666;">
+                Los campos marcados con <span style="color: #dc3545;">*</span> son obligatorios
+            </p>
+        </div>
+
+        <div class="breadcrumb">
+            <a th:href="@{/usuarios/login}"><i class="fas fa-home"></i> Inicio</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Registro de Vendedor</span>
+        </div>
+
+        <div class="card-body">
+            <form id="vendedorForm"
+                  th:action="@{/admin/vendedores/registro}"
+                  th:object="${vendedor}"
+                  method="post">
+
+                <div class="form-grid">
+
+                    <!-- DUI -->
+                    <div class="form-group">
+                        <label for="dui" class="required-field">
+                            <i class="fas fa-id-card"></i> DUI
+                        </label>
+                        <input type="text"
+                               th:field="*{dui}"
+                               id="dui"
+                               class="input"
+                               placeholder="00000000-0"
+                               maxlength="10"
+                               required>
+                        <small style="color: #666;">Formato: 12345678-9</small>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label for="nombre" class="required-field">
+                            <i class="fas fa-user"></i> Nombre
+                        </label>
+                        <input type="text"
+                               th:field="*{nombre}"
+                               id="nombre"
+                               class="input"
+                               placeholder="Ingrese su nombre"
+                               minlength="2"
+                               maxlength="100"
+                               required>
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="form-group">
+                        <label for="apellido" class="required-field">
+                            <i class="fas fa-user-tag"></i> Apellido
+                        </label>
+                        <input type="text"
+                               th:field="*{apellido}"
+                               id="apellido"
+                               class="input"
+                               placeholder="Ingrese su apellido"
+                               minlength="2"
+                               maxlength="100"
+                               required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email" class="required-field">
+                            <i class="fas fa-envelope"></i> Correo Electrónico
+                        </label>
+                        <input type="email"
+                               th:field="*{email}"
+                               id="email"
+                               class="input"
+                               placeholder="correo@ejemplo.com"
+                               maxlength="100"
+                               required>
+                        <small style="color: #666;">Recibirás notificaciones en este correo</small>
+                    </div>
+
+                    <!-- Confirmar Email -->
+                    <div class="form-group">
+                        <label for="confirmarEmail" class="required-field">
+                            <i class="fas fa-envelope"></i> Confirmar Correo
+                        </label>
+                        <input type="email"
+                               id="confirmarEmail"
+                               class="input"
+                               placeholder="Repita su correo electrónico"
+                               maxlength="100"
+                               required>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telefono" class="required-field">
+                            <i class="fas fa-phone"></i> Teléfono
+                        </label>
+                        <input type="tel"
+                               th:field="*{telefono}"
+                               id="telefono"
+                               class="input"
+                               placeholder="0000-0000"
+                               maxlength="9"
+                               required>
+                        <small style="color: #666;">Formato: 7890-1234</small>
+                    </div>
+
+                    <!-- Zona -->
+                    <div class="form-group">
+                        <label for="zona" class="required-field">
+                            <i class="fas fa-map-marker-alt"></i> Zona de Trabajo
+                        </label>
+                        <input type="text"
+                               th:field="*{zona}"
+                               id="zona"
+                               class="input"
+                               placeholder="Ej: Norte, Oriente, Metropolitana..."
+                               maxlength="50"
+                               required>
+                        <small style="color: #666;">La zona puede ajustarse durante la entrevista</small>
+                    </div>
+
+                </div><!-- /form-grid -->
+
+                <!-- Términos y Condiciones -->
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terminos" name="aceptaTerminos" required>
+                    <label for="terminos">
+                        He leído y acepto los <a href="#" target="_blank">términos y condiciones</a> para
+                        vendedores y la <a href="#" target="_blank">política de privacidad</a> de AESAL.
+                        Entiendo que mi solicitud será revisada antes de activar mi acceso.
+                    </label>
+                </div>
+
+                <!-- Campos ocultos -->
+                <input type="hidden" name="activo" value="0">
+                <input type="hidden" name="createdBy" value="AUTOREGISTRO">
+
+                <!-- Botones -->
+                <div class="actions">
+                    <button type="submit" class="btn" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                    </button>
+                    <a th:href="@{/usuarios/login}" class="btn secondary">
+                        <i class="fas fa-arrow-left"></i> Volver al Login
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; padding: 15px; color: #666; font-size: 0.9rem;">
+        <i class="fas fa-shield-alt"></i> Sus datos están protegidos y serán utilizados únicamente para procesos internos.
+    </div>
+
+</div><!-- /app -->
+
+<script>
+    // ── FORMATO AUTOMÁTICO DUI (00000000-0) ─────────────────────────────
+    document.getElementById('dui').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 8) {
+            value = value.substring(0, 8) + '-' + value.substring(8, 9);
+        }
+        e.target.value = value;
+    });
+
+    // ── FORMATO AUTOMÁTICO TELÉFONO (0000-0000) ─────────────────────────
+    document.getElementById('telefono').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 4) {
+            value = value.substring(0, 4) + '-' + value.substring(4, 8);
+        }
+        e.target.value = value;
+    });
+
+    // ── SOLO LETRAS EN NOMBRE Y APELLIDO ────────────────────────────────
+    ['nombre', 'apellido'].forEach(function (id) {
+        document.getElementById(id).addEventListener('input', function () {
+            this.value = this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+        });
+    });
+
+    // ── VALIDACIÓN CONFIRMACIÓN DE EMAIL ────────────────────────────────
+    const emailInput          = document.getElementById('email');
+    const confirmarEmailInput = document.getElementById('confirmarEmail');
+
+    confirmarEmailInput.addEventListener('blur', function () {
+        if (this.value && this.value !== emailInput.value) {
+            alert('Los correos electrónicos no coinciden.');
+            this.value = '';
+            this.focus();
+        }
+    });
+
+    // ── VALIDACIÓN Y PREVENCIÓN DE DOBLE ENVÍO ──────────────────────────
+    const form      = document.getElementById('vendedorForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function (e) {
+
+        // Validar formato DUI
+        const dui = document.getElementById('dui').value.trim();
+        if (!/^\d{8}-\d$/.test(dui)) {
+            e.preventDefault();
+            alert('El DUI debe tener el formato 00000000-0');
+            document.getElementById('dui').focus();
+            return;
+        }
+
+        // Validar que los emails coincidan
+        if (confirmarEmailInput.value !== emailInput.value) {
+            e.preventDefault();
+            alert('Los correos electrónicos no coinciden.');
+            confirmarEmailInput.focus();
+            return;
+        }
+
+        if (!form.checkValidity()) return;
+
+        // Prevenir doble envío
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+        setTimeout(function () {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Solicitud';
+        }, 10000);
+    });
+</script>
+</body>
+</html>

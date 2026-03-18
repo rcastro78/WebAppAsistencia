@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Listado de Casas - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/afiliados.css}">
+    <style>
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .breadcrumb a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .id-casa-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #2c7a4b, #3da96b);
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            font-family: monospace;
+        }
+        .habitaciones-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #eaf4fb;
+            color: #1a6fa0;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Alertas flash -->
+<div th:if="${success}" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    <span th:text="${success}"></span>
+</div>
+<div th:if="${error}" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span th:text="${error}"></span>
+</div>
+
+<div class="app">
+    <div class="header">
+        <h1>Gestión de Casas Afiliadas</h1>
+        <span class="subtitle">Administra las casas registradas por afiliado</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Listado de Casas</h2>
+            <a th:href="@{/casas/nueva}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nueva Casa
+            </a>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a th:href="${rol == 2} ? @{/admin/ventas/dashboard} : @{/admin/dashboard}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Casas Afiliadas</span>
+        </div>
+
+        <div class="card-body">
+            <div class="table-container">
+
+                <!-- Tabla con datos -->
+                <table class="modern-table" th:if="${not #lists.isEmpty(casas)}">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag"></i> ID Casa</th>
+                        <th><i class="fas fa-id-card"></i> DUI Afiliado</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Dirección</th>
+                        <th><i class="fas fa-bed"></i> Habitaciones</th>
+                        <th><i class="fas fa-map"></i> Depto / Mun / Dist</th>
+                        <th><i class="fas fa-calendar-plus"></i> Registro</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="casa, iterStat : ${casas}"
+                        class="fade-in-row"
+                        th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+
+                        <!-- ID Casa -->
+                        <td>
+                            <span class="id-casa-badge" th:text="${casa.idCasa}"></span>
+                        </td>
+
+                        <!-- DUI -->
+                        <td>
+                            <span class="id-badge" th:text="${casa.duiUsuario}"></span>
+                        </td>
+
+                        <!-- Dirección -->
+                        <td th:text="${casa.direccion}"
+                            style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                            th:title="${casa.direccion}">
+                        </td>
+
+                        <!-- Habitaciones -->
+                        <td>
+                            <span class="habitaciones-badge">
+                                <i class="fas fa-bed"></i>
+                                <span th:text="${casa.numHabitaciones}"></span>
+                            </span>
+                        </td>
+
+                        <!-- Depto / Municipio / Distrito -->
+                        <td>
+                            <span th:text="'D:' + ${casa.idDepto} + ' / M:' + ${casa.idMunicipio} + ' / Di:' + ${casa.idDistrito}"
+                                  style="font-size: 12px; color: #555;"></span>
+                        </td>
+
+                        <!-- Fecha de registro -->
+                        <td>
+                            <span th:if="${casa.createdAt != null}"
+                                  th:text="${#temporals.format(casa.createdAt, 'dd/MM/yyyy')}"></span>
+                            <span th:if="${casa.createdAt == null}" style="color:#aaa;">—</span>
+                        </td>
+
+                        <!-- Acciones -->
+                        <td>
+                            <div class="action-icons">
+
+                                <!-- Editar -->
+                                <a th:href="@{/casas/editar/{id}(id=${casa.idCasa})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- Eliminar -->
+                                <a href="#"
+                                   class="action-btn delete"
+                                   data-tooltip="Eliminar"
+                                   th:data-id="${casa.idCasa}"
+                                   th:data-info="${'Casa #' + casa.idCasa + ' – ' + casa.direccion}"
+                                   onclick="confirmarEliminacion(event, this)">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+
+                                <!-- Formulario oculto para eliminar -->
+                                <form th:id="'deleteForm-' + ${casa.idCasa}"
+                                      th:action="@{/casas/delete/{id}(id=${casa.idCasa})}"
+                                      method="post"
+                                      style="display: none;">
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Estado vacío -->
+                <div class="empty-state" th:if="${#lists.isEmpty(casas)}">
+                    <i class="fas fa-house-user"></i>
+                    <h3>No hay casas registradas</h3>
+                    <p>Comience registrando la primera casa afiliada en el sistema</p>
+                    <a th:href="@{/casas/nueva}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Registrar Casa
+                    </a>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-container" th:if="${totalPaginas > 1}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/casas(page=${paginaActual - 1})}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+                        th:classappend="${i == paginaActual} ? 'active'">
+                        <a class="page-link" th:href="@{/casas(page=${i})}" th:text="${i + 1}"></a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${paginaActual == totalPaginas - 1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/casas(page=${paginaActual + 1})}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Confirmación de eliminación ────────────────────────────────────────────
+    function confirmarEliminacion(event, element) {
+        event.preventDefault();
+        const id   = element.dataset.id;
+        const info = element.dataset.info;
+
+        const ok = confirm(
+            '⚠️ ADVERTENCIA ⚠️\n\n' +
+            `¿Está seguro que desea eliminar:\n${info}?\n\n` +
+            '• Esta acción no se puede deshacer\n' +
+            '• Se perderán todos los datos asociados\n\n' +
+            '¿Desea continuar?'
+        );
+
+        if (ok) {
+            const input = prompt('Para confirmar, escriba: CONFIRMAR');
+            if (input === 'CONFIRMAR') {
+                document.getElementById('deleteForm-' + id).submit();
+            } else {
+                alert('❌ Eliminación cancelada. El texto ingresado no coincide.');
+            }
+        }
+    }
+
+    // ── Animación secuencial de filas ─────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('.fade-in-row');
+        rows.forEach((row, index) => {
+            row.style.opacity   = '0';
+            row.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                row.style.transition = 'all 0.4s ease-out';
+                row.style.opacity    = '1';
+                row.style.transform  = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Historial de Pagos - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/mis_pagos.css}">
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="header-title">
+                <h1>
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    Mi Historial de Pagos
+                </h1>
+                <p>Consulta y gestiona todos tus pagos realizados</p>
+            </div>
+            <div class="header-actions">
+                <a href="#" class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Imprimir
+                </a>
+                <a th:href="${linkPago}" class="btn btn-primary" target="_blank">
+                    <i class="fas fa-money-bill-transfer"></i> Pagar mi cuota
+                </a>
+                <a th:href="@{/afiliado/plan}" th:if="${session.rol==1}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-receipt"></i>
+            </div>
+            <div class="stat-label">Total de Pagos</div>
+            <div class="stat-value" th:text="${totalPagos}">0</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-label">Monto Total Pagado</div>
+            <div class="stat-value">$<span th:text="${#numbers.formatDecimal(totalMonto, 1, 2)}">0.00</span></div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-label">Último Pago</div>
+            <div class="stat-value" th:text="${ultimoPago != null ? ultimoPago : 'N/A'}">N/A</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="stat-label">Plan Actual</div>
+            <div class="stat-value" style="font-size: 1.3rem;" th:text="${nombrePlan}">Plan Familiar</div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters">
+        <div class="filters-title">
+            <i class="fas fa-filter"></i>
+            Filtrar Pagos
+        </div>
+        <form th:action="@{/pagos/historial}" method="get">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="anioFiltro">Año</label>
+                    <select id="anioFiltro" name="anio" onchange="this.form.submit()">
+                        <option value="">Todos los años</option>
+                        <option th:each="anio : ${aniosDisponibles}"
+                                th:value="${anio}"
+                                th:text="${anio}"
+                                th:selected="${anio == anioSeleccionado}">2024</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="mesFiltro">Mes</label>
+                    <select id="mesFiltro" name="mes" onchange="this.form.submit()">
+                        <option value="">Todos los meses</option>
+                        <option value="1" th:selected="${mesSeleccionado == 1}">Enero</option>
+                        <option value="2" th:selected="${mesSeleccionado == 2}">Febrero</option>
+                        <option value="3" th:selected="${mesSeleccionado == 3}">Marzo</option>
+                        <option value="4" th:selected="${mesSeleccionado == 4}">Abril</option>
+                        <option value="5" th:selected="${mesSeleccionado == 5}">Mayo</option>
+                        <option value="6" th:selected="${mesSeleccionado == 6}">Junio</option>
+                        <option value="7" th:selected="${mesSeleccionado == 7}">Julio</option>
+                        <option value="8" th:selected="${mesSeleccionado == 8}">Agosto</option>
+                        <option value="9" th:selected="${mesSeleccionado == 9}">Septiembre</option>
+                        <option value="10" th:selected="${mesSeleccionado == 10}">Octubre</option>
+                        <option value="11" th:selected="${mesSeleccionado == 11}">Noviembre</option>
+                        <option value="12" th:selected="${mesSeleccionado == 12}">Diciembre</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="formaPagoFiltro">Forma de Pago</label>
+                    <select id="formaPagoFiltro" name="formaPago" onchange="this.form.submit()">
+                        <option value="">Todas las formas</option>
+                        <option value="tarjeta" th:selected="${formaPagoSeleccionada == 'tarjeta'}">Tarjeta</option>
+                        <option value="transferencia" th:selected="${formaPagoSeleccionada == 'transferencia'}">Transferencia</option>
+                        <option value="efectivo" th:selected="${formaPagoSeleccionada == 'efectivo'}">Efectivo</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>&nbsp;</label>
+                    <button type="button" class="btn btn-secondary" onclick="limpiarFiltros()" style="width: 100%;">
+                        <i class="fas fa-redo"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de Pagos -->
+    <div class="payments-card">
+        <div class="payments-header">
+            <h2 class="payments-title">Pagos Realizados</h2>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar..." onkeyup="filtrarTabla()">
+                <i class="fas fa-search"></i>
+            </div>
+            <button class="export-btn" onclick="exportarExcel()">
+                <i class="fas fa-file-excel"></i> Exportar a Excel
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table id="pagosTable">
+                <thead>
+                <tr>
+                    <th>Periodo</th>
+                    <th>Plan</th>
+                    <th>Monto</th>
+                    <th>Forma de Pago</th>
+                    <th>Fecha de Pago</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${pagos == null || pagos.isEmpty()}">
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>No hay pagos registrados</h3>
+                            <p>Aún no has realizado ningún pago. Comienza a pagar tu plan ahora.</p>
+                            <a th:href="@{/pago/nuevo}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Realizar Pago
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:each="pago : ${pagos}">
+                    <td>
+                        <strong th:text="${periodosFormateados.get(pago.dui + '_' + pago.mes + '_' + pago.anio)}">Enero 2024</strong>
+                    </td>
+                    <td th:text="${pago.nombrePlan}">Plan Familiar</td>
+                    <td class="amount">$<span th:text="${#numbers.formatDecimal(pago.cantidadPagada, 1, 2)}">25.00</span></td>
+                    <td>
+        <span class="badge"
+              th:classappend="${pago.formaPagoNombre.toLowerCase().contains('tarjeta') ? 'badge-tarjeta' :
+                               (pago.formaPagoNombre.toLowerCase().contains('transferencia') ? 'badge-transferencia' : 'badge-efectivo')}"
+              th:text="${pago.formaPagoNombre}">Tarjeta</span>
+                    </td>
+                    <td th:text="${#temporals.format(pago.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación (si es necesario) -->
+        <div class="pagination" th:if="${totalPaginas > 1}">
+            <button th:disabled="${paginaActual == 0}"
+                    th:onclick="'window.location.href=\'/pagos/historial?page=' + ${paginaActual - 1} + '\''">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <button th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+                    th:classappend="${i == paginaActual ? 'active' : ''}"
+                    th:onclick="'window.location.href=\'/pagos/historial?page=' + ${i} + '\''"
+                    th:text="${i + 1}">1</button>
+
+            <button th:disabled="${paginaActual == totalPaginas - 1}"
+                    th:onclick="'window.location.href=\'/pagos/historial?page=' + ${paginaActual + 1} + '\''">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    function filtrarTabla() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('pagosTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const td = tr[i].getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    const txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            tr[i].style.display = found ? '' : 'none';
+        }
+    }
+
+    function limpiarFiltros() {
+        window.location.href = '/pagos/historial';
+    }
+
+    function exportarExcel() {
+        const table = document.getElementById('pagosTable');
+        let csv = [];
+
+        // Headers
+        const headers = ['Periodo', 'Plan', 'Monto', 'Forma de Pago', 'Fecha de Pago'];
+        csv.push(headers.join(','));
+
+        // Rows
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const cols = row.querySelectorAll('td');
+            if (cols.length > 1) { // Evitar la fila de "no hay pagos"
+                const rowData = [];
+                cols.forEach(col => {
+                    let text = col.textContent.trim().replace(/,/g, '');
+                    rowData.push('"' + text + '"');
+                });
+                csv.push(rowData.join(','));
+            }
+        });
+
+        // Descargar
+        const csvContent = csv.join('\n');
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'historial_pagos_' + new Date().getTime() + '.csv');
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Animación de entrada
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.stat-card, .filters, .payments-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.5s ease';
+
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 50);
+            }, index * 100);
+        });
+    });
+</script>
+</body>
+</html>

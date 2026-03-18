@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${usuario.dui != null ? 'Editar Usuario' : 'Registro de Usuario'} + ' - Asistencia El Salvador'">Usuario - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/usuarios.css}">
+    <link rel="stylesheet" th:href="@{/css/nuevo_user.css}">
+    <style>
+        .password-info {
+            background-color: #e8f4f8;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #1976D2;
+        }
+        .password-info i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1 th:text="${usuario.dui != null ? 'Editar Usuario del Comercio' : 'Registro de Usuario del Comercio'}">Usuario del Comercio</h1>
+        <span class="subtitle" th:text="${usuario.dui != null ? 'Modifica los datos del usuario afiliado' : 'Agrega un nuevo usuario afiliado al comercio'}">Gestión de usuario</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 th:text="${usuario.dui != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Usuario</h2>
+        </div>
+
+        <div class="breadcrumb">
+            <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <a th:href="@{/comerciosAfiliados/usuariosComercio/(nit=${usuario.nit != null ? usuario.nit : nit})}">
+                <i class="fas fa-users"></i> Usuarios
+            </a>
+            <i class="fas fa-chevron-right"></i>
+            <span th:text="${usuario.dui != null ? 'Editar Usuario' : 'Nuevo Usuario'}">Usuario</span>
+        </div>
+
+        <div class="card-body">
+            <!-- Mensajes de éxito/error -->
+            <div class="alert alert-success" th:if="${mensaje}">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${mensaje}"></span>
+            </div>
+
+            <div class="alert alert-error" th:if="${error}">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Formulario -->
+            <form th:action="@{/comerciosAfiliados/usuariosComercio/guardar}" method="post" th:object="${usuario}" id="userForm">
+
+                <!-- Hidden fields para edición -->
+                <input type="hidden" th:field="*{createdAt}" th:if="${usuario.createdAt != null}">
+
+                <div class="form-grid">
+                    <!-- NIT -->
+                    <div class="form-group">
+                        <label class="required">
+                            <i class="fas fa-building"></i> NIT del Comercio
+                        </label>
+                        <input type="text"
+                               th:field="*{nit}"
+                               th:value="${usuario.nit != null ? usuario.nit : nit}"
+                               readonly
+                               required>
+                        <span class="info-text">
+                            El NIT no puede ser modificado
+                        </span>
+                    </div>
+
+                    <!-- DUI -->
+                    <div class="form-group">
+                        <label class="required">
+                            <i class="fas fa-id-card"></i> DUI
+                        </label>
+                        <input type="text"
+                               th:field="*{dui}"
+                               placeholder="00000000-0"
+                               maxlength="10"
+                               pattern="\d{8}-\d"
+                               th:readonly="${usuario.dui != null}"
+                               required>
+                        <span class="info-text" th:if="${usuario.dui != null}">
+                            El DUI no puede ser modificado
+                        </span>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label class="required">
+                            <i class="fas fa-user"></i> Nombre
+                        </label>
+                        <input type="text"
+                               th:field="*{nombre}"
+                               placeholder="Ingrese el nombre"
+                               maxlength="45"
+                               required>
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="form-group">
+                        <label class="required">
+                            <i class="fas fa-user-tag"></i> Apellido
+                        </label>
+                        <input type="text"
+                               th:field="*{apellido}"
+                               placeholder="Ingrese el apellido"
+                               maxlength="45"
+                               required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label class="required">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input type="email"
+                               th:field="*{emailAsociado}"
+                               placeholder="usuario@ejemplo.com"
+                               maxlength="45"
+                               required>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-phone"></i> Teléfono
+                        </label>
+                        <input type="tel"
+                               th:field="*{telefono}"
+                               placeholder="0000-0000"
+                               maxlength="45">
+                    </div>
+
+                    <!-- Contraseña (solo visible en edición) -->
+                    <div class="form-group" th:if="${usuario.dui != null}">
+                        <label>
+                            <i class="fas fa-lock"></i> Contraseña
+                        </label>
+                        <div class="password-toggle">
+                            <input type="password"
+                                   id="passwordField"
+                                   th:field="*{claveCifrada}"
+                                   placeholder="Ingrese nueva contraseña (opcional)"
+                                   minlength="8"
+                                   maxlength="100">
+                            <button type="button" class="password-toggle-btn" onclick="togglePassword()">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        <span class="info-text">
+                            Dejar en blanco para mantener la contraseña actual
+                        </span>
+                    </div>
+
+                    <!-- Campo oculto para contraseña en modo creación -->
+                    <input type="hidden"
+                           id="hiddenPassword"
+                           th:field="*{claveCifrada}"
+                           th:if="${usuario.dui == null}">
+
+                    <!-- Estado -->
+                    <div class="form-group">
+                        <label class="required">
+                            <i class="fas fa-toggle-on"></i> Estado
+                        </label>
+                        <select th:field="*{estado}" required>
+                            <option value="">Seleccione...</option>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Mensaje informativo sobre contraseña automática (solo en creación) -->
+                <div class="password-info" th:if="${usuario.dui == null}">
+                    <i class="fas fa-shield-alt"></i>
+                    <strong>Contraseña automática:</strong> Se generará una contraseña segura de 8 caracteres que será enviada al correo electrónico del usuario.
+                </div>
+
+                <!-- Información adicional en modo edición -->
+                <div class="form-grid" th:if="${usuario.createdAt != null}">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-calendar-plus"></i> Fecha de Creación
+                        </label>
+                        <input type="text"
+                               th:value="${#temporals.format(usuario.createdAt, 'dd/MM/yyyy HH:mm')}"
+                               readonly>
+                    </div>
+
+                    <div class="form-group" th:if="${usuario.deletedAt != null}">
+                        <label>
+                            <i class="fas fa-calendar-times"></i> Fecha de Eliminación
+                        </label>
+                        <input type="text"
+                               th:value="${#temporals.format(usuario.deletedAt, 'dd/MM/yyyy HH:mm')}"
+                               readonly>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="form-actions">
+                    <a th:href="@{/comerciosAfiliados/usuariosComercio/(nit=${usuario.nit != null ? usuario.nit : nit})}"
+                       class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i th:class="${usuario.dui != null ? 'fas fa-edit' : 'fas fa-save'}"></i>
+                        <span th:text="${usuario.dui != null ? 'Actualizar Usuario' : 'Guardar Usuario'}">Guardar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const esEdicion = /*[[${usuario.dui != null}]]*/ false;
+    /*]]>*/
+
+    // Función para generar contraseña segura
+    function generarPasswordSegura() {
+        const mayusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const minusculas = 'abcdefghijklmnopqrstuvwxyz';
+        const numeros = '0123456789';
+        const especiales = '!@#$%&*';
+
+        const todosLosCaracteres = mayusculas + minusculas + numeros + especiales;
+
+        let password = '';
+
+        // Garantizar al menos un carácter de cada tipo
+        password += mayusculas[Math.floor(Math.random() * mayusculas.length)];
+        password += minusculas[Math.floor(Math.random() * minusculas.length)];
+        password += numeros[Math.floor(Math.random() * numeros.length)];
+        password += especiales[Math.floor(Math.random() * especiales.length)];
+
+        // Completar hasta 8 caracteres con caracteres aleatorios
+        for (let i = password.length; i < 8; i++) {
+            password += todosLosCaracteres[Math.floor(Math.random() * todosLosCaracteres.length)];
+        }
+
+        // Mezclar los caracteres para que no estén en orden predecible
+        password = password.split('').sort(() => Math.random() - 0.5).join('');
+
+        return password;
+    }
+
+    // Formatear DUI mientras se escribe (solo en modo creación)
+    const duiInput = document.querySelector('input[name="dui"]');
+    if (duiInput && !duiInput.readOnly) {
+        duiInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 8) {
+                value = value.substring(0, 8) + '-' + value.substring(8, 9);
+            }
+            e.target.value = value;
+        });
+    }
+
+    // Toggle password visibility (solo para edición)
+    function togglePassword() {
+        const passwordField = document.getElementById('passwordField');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    }
+
+    // Generar contraseña automáticamente antes de enviar el formulario (solo en creación)
+    const userForm = document.getElementById('userForm');
+
+    if (!esEdicion) {
+        userForm.addEventListener('submit', function(e) {
+            // Generar contraseña segura
+            const passwordSegura = generarPasswordSegura();
+
+            // Asignar al campo oculto
+            const hiddenPassword = document.getElementById('hiddenPassword');
+            if (hiddenPassword) {
+                hiddenPassword.value = passwordSegura;
+            }
+
+            // El formulario se envía normalmente con la contraseña ya asignada
+        });
+    }
+</script>
+</body>
+</html>

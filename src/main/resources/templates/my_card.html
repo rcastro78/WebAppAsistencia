@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarjetas de Asistencia - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/my_card.css}">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <img th:src="@{/images/asistencia.jpeg}" style="width: 224px; height: 64px;" alt="Logo">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <img src="https://via.placeholder.com/60x60/4A90E2/FFFFFF?text=HM" alt="Profile">
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|"></h3>
+            <p class="tutor-id" th:text="|DUI Afiliado: ${session.dui}|">Afiliado ID: 135246</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/afiliado/nuevo/patrocinio}" class="nav-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Patrocina a alguien</span>
+            </a>
+
+            <a th:href="@{/comerciosAfiliados}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios afiliados</span>
+
+            </a>
+
+            <a th:href="@{/planesCobertura(idPlan=${session.idPlan})}"  class="nav-item">
+                <i class="fas fa-face-smile"></i>
+                <span>Beneficios de mi plan</span>
+            </a>
+
+            <a th:href="@{/proveedores/serviciosProveedor/lista(idPlan=${session.idPlan})}" class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span>Servicios de mi plan</span>
+            </a>
+
+
+            <a th:href="@{/afiliado/historial/{dui}(dui=${session.dui})}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+            <a th:href="@{/usuarios/dashboard}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+
+        <div class="profile-completion">
+            <div class="completion-circle">
+                <svg class="progress-ring" width="60" height="60">
+                    <circle class="progress-ring-circle" stroke="#e6e6e6" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+                    <circle class="progress-ring-circle progress" stroke="#4A90E2" stroke-width="4" fill="transparent" r="26" cx="30" cy="30" style="stroke-dasharray: 163.36; stroke-dashoffset: 61.67;"/>
+                </svg>
+                <span class="percentage">23%</span>
+            </div>
+            <p>Perfil Completado: 23%</p>
+
+            <div class="completion-steps">
+                <div class="step completed">
+                    <i class="fas fa-check"></i>
+                    <span>Información Personal</span>
+                </div>
+                <div class="step completed">
+                    <i class="fas fa-check"></i>
+                    <span>Documentación</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Datos Médicos</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Beneficiarios</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Evaluación</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>Mis Tarjetas de Afiliado</h1>
+                <p>Gestiona tus tarjetas de afiliado, revisa tu información de membresía y controla tus pagos de forma segura y sencilla.</p>
+            </div>
+            <div class="header-right">
+                <div class="user-menu">
+                    <span th:text="|${afiliado.nombre} ${afiliado.apellido}|"></span>
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="header-illustration">
+                    <img src="https://via.placeholder.com/150x120/4A90E2/FFFFFF?text=Cards" alt="Cards Illustration">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjetas Section -->
+        <div class="cards-section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-credit-card"></i>
+                    Tarjetas Activas
+                </h2>
+                <!--<a th:href="@{/afiliado/afiliado_plan/{dui}(dui=${session.dui})}" style="text-decoration: none;" class="add-card-btn">
+                    <i class="fas fa-plus"></i>
+                    Adquirir otro plan
+                </a>-->
+            </div>
+
+            <!-- Tarjeta de Débito -->
+            <div class="debit-card"
+                 th:classappend="${session.idPlan == 1 ? 'plan-orange' :
+                                  (session.idPlan == 2 ? 'plan-blue' :
+                                  (session.idPlan == 3 ? 'plan-black' :
+                                  (session.idPlan == 4 ? 'plan-silver' :
+                                  (session.idPlan == 5 ? 'plan-gold' : 'plan-default'))))}">
+
+            <div class="card-header">
+                    <div class="card-logo">
+                        <div class="logo-icon">
+
+                            <div>
+                                <img th:src="@{/images/manos.png}" alt="Logo" style="width: 92px; height: 64px; margin-right: 32px; margin-left: 48px; margin-top: 12px;">
+                            </div>
+                        </div>
+                        <div class="company-name" style="margin-left: 24px;">
+                            <div class="company-main">Asistencia®</div>
+                            <div class="company-sub">El Salvador</div>
+                        </div>
+                    </div>
+                    <div class="card-level"><span th:text="${nombrePlan}"></span></div>
+                </div>
+
+                <div class="card-number" style="margin-top: 12px;"><span th:text="${numTarjeta}">xxxx</span></div>
+
+                <div class="card-info">
+                    <div class="card-holder">
+                        <div class="card-holder-label">Titular</div>
+                        <div class="card-holder-name"><span th:text="|${afiliado.nombre} ${afiliado.apellido}|">Rafael Castro</span></div>
+                    </div>
+                    <div class="card-expiry">
+                        <div class="card-expiry-label">Vence</div>
+                        <div class="card-expiry-date">12/26</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles de la Tarjeta -->
+            <div class="card-details">
+                <h3 style="margin-bottom: 20px; color: #333;">Información de la Tarjeta</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">DUI</div>
+                        <div class="detail-value"><span th:text="${session.dui}">dui</span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Nombre Completo</div>
+                        <div class="detail-value"><span th:text="|${session.nombre} ${session.apellido}|"></span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Número de Tarjeta</div>
+                        <div class="detail-value"><span th:text="${numTarjeta}"></span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Fecha de Vencimiento</div>
+                        <div class="detail-value">12/26</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Nivel de Membresía</div>
+                        <div class="detail-value"><span th:text="${nombrePlan}"></span></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Estado</div>
+                        <div class="detail-value" style="color: #4CAF50;">
+                            <i class="fas fa-check-circle"></i> Activa
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de Membresía -->
+                <div class="membership-info">
+                    <div class="membership-item">
+                        <div class="membership-price"><span th:text="|$${planAfiliado.precioPlanMensual}|">$0.00</span></div>
+                        <div class="membership-label">Membresía Mensual</div>
+                    </div>
+                    <div class="membership-item">
+                        <div class="membership-price"><span th:text="|$${planAfiliado.precioPlanAnual}|">$0.00</span></div>
+                        <div class="membership-label">Membresía Anual</div>
+                    </div>
+                    <div class="membership-item">
+                        <div class="membership-price" style="color: #4CAF50;">17% Dcto.</div>
+                        <div class="membership-label">Ahorro Anual</div>
+                    </div>
+                </div>
+
+                <!-- Acciones de la Tarjeta -->
+                <div class="card-actions">
+
+                    <button class="action-btn secondary">
+                        <i class="fas fa-download"></i>
+                        Descargar Estado
+                    </button>
+                    <button class="action-btn secondary">
+                        <i class="fas fa-lock"></i>
+                        Bloquear Tarjeta
+                    </button>
+                    <button class="action-btn secondary">
+                        <i class="fas fa-cog"></i>
+                        Configurar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Uso -->
+        <div class="cards-section">
+            <h3 style="margin-bottom: 20px; color: #333;">Resumen de Actividad</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Último Pago</div>
+                    <div class="detail-value"><span th:text="${ultimoPago}"></span></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Próximo Vencimiento</div>
+                    <div class="detail-value"><span th:text="${siguientePago}"></span></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

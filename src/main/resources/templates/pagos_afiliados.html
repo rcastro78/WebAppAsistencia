@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagos de Afiliados - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/solicitud_asistencia.css}">
+    <style>
+        /* Contenedor de tabla */
+.table-responsive {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 0;
+}
+
+/* Tabla */
+#pagosTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+/* Encabezado sticky */
+#pagosTable thead th {
+    background: #667eea;
+    color: white;
+    padding: 14px 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    text-align: left;
+    font-weight: 600;
+}
+
+/* Filas pares: zebra */
+#pagosTable tbody tr:nth-child(even) {
+    background: #f7f9ff;
+}
+
+/* Filas */
+#pagosTable tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+/* Hover */
+#pagosTable tbody tr:hover {
+    background: #eef2ff;
+    transition: .2s;
+}
+
+/* Íconos dentro de tabla */
+#pagosTable i {
+    color: #667eea;
+    margin-right: 4px;
+}
+
+/* Empty state mejorado */
+.empty-state {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #a5b4fc;
+}
+
+/* Botones de acción */
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-info {
+    background: #e0e7ff;
+    color: #475ad2;
+}
+
+.btn-info:hover {
+    background: #c3d0ff;
+}
+
+.btn-edit {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.btn-edit:hover {
+    background: #fde68a;
+}
+
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar para Administrador -->
+    <div class="sidebar">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <span>AD</span>
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|">Administrador</h3>
+            <p th:text="${session.email}">admin@asistencia.com</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/plan}" class="nav-item">
+                <i class="fas fa-list-check"></i>
+                <span>Planes</span>
+            </a>
+            <a th:href="@{/proveedores/}" class="nav-item">
+                <i class="fas fa-truck-fast"></i>
+                <span>Proveedores de servicios</span>
+            </a>
+            <a th:href="@{/asistencia/solicitudes_todas}" class="nav-item">
+                <i class="fas fa-file-medical"></i>
+                <span>Solicitudes de Asistencia</span>
+            </a>
+            <a th:href="@{/afiliado/carga-masiva}" class="nav-item">
+                <i class="fas fa-file-arrow-up"></i>
+                <span>Carga masiva</span>
+            </a>
+            <a th:href="@{/pagosAfiliados}" class="nav-item active">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reportes</span>
+            </a>
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <div class="page-title">
+                    <h1>
+                        <i class="fas fa-credit-card"></i>
+                        <span>Gestión de Pagos de Afiliados</span>
+                    </h1>
+                    <p>Administra y consulta los pagos realizados por los afiliados</p>
+                </div>
+                <div class="page-actions">
+                    <a th:href="@{/admin/dashboard}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas -->
+        <div th:if="${mensaje}" class="alert" th:classappend="${tipo == 'success' ? 'alert-success' : 'alert-error'}">
+            <i th:class="${tipo == 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'}"></i>
+            <span th:text="${mensaje}">Mensaje</span>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Total Pagos</div>
+                    <div class="stat-value" th:text="${pagos != null ? pagos.size() : 0}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon completada">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Monto Total</div>
+                    <div class="stat-value">
+                        <span th:text="${montoTotal != null ? '$' + #numbers.formatDecimal(montoTotal, 1, 2) : '$0.00'}">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon proceso">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Afiliados Únicos</div>
+                    <div class="stat-value">
+                        <span th:text="${afiliadosUnicos != null ? afiliadosUnicos : 0}">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon pendiente">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Mes Actual</div>
+                    <div class="stat-value" th:text="${#temporals.format(#temporals.createNow(), 'MM/yyyy')}">12/2024</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listado de Pagos -->
+        <!-- Tabla unificada dentro del contenedor Listado de Pagos -->
+        <div class="solicitudes-card">
+            <div class="solicitudes-header">
+                <div class="solicitudes-header-content">
+                    <h2 class="solicitudes-title">
+                        <i class="fas fa-list"></i>
+                        <span>Listado de Pagos</span>
+                    </h2>
+                    <div class="header-controls">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Buscar por nombre, DUI o plan..." onkeyup="filtrarTabla()">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="filter-group">
+                            <select id="mesFiltro" onchange="aplicarFiltros()">
+                                <option value="">Todos los meses</option>
+                                <option value="1">Enero</option>
+                                <option value="2">Febrero</option>
+                                <option value="3">Marzo</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Mayo</option>
+                                <option value="6">Junio</option>
+                                <option value="7">Julio</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Septiembre</option>
+                                <option value="10">Octubre</option>
+                                <option value="11">Noviembre</option>
+                                <option value="12">Diciembre</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <select id="anioFiltro" onchange="aplicarFiltros()">
+                                <option value="">Todos los años</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="pagosTable" class="styled-table">
+                    <thead>
+                    <tr>
+                        <th>DUI</th>
+                        <th>Nombre Completo</th>
+                        <th>Plan</th>
+                        <th>Periodo</th>
+                        <th>Monto</th>
+                        <th>Forma de Pago</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${pagos == null || pagos.isEmpty()}">
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No hay pagos registrados</h3>
+                                <p>No se han encontrado pagos en el sistema.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:each="pago : ${pagos}" th:attr="data-mes=${pago.mes}, data-anio=${pago.anio}">
+                        <td>
+                            <strong th:text="${pago.dui}">000000000</strong>
+                        </td>
+                        <td>
+                            <div class="tipo-asistencia">
+                                <i class="fas fa-user"></i>
+                                <span th:text="${pago.nombreCompleto}">Nombre Completo</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tipo-asistencia">
+                                <i class="fas fa-file-contract"></i>
+                                <span th:text="${pago.nombrePlan}">Plan Básico</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fecha-hora">
+                                <i class="fas fa-calendar"></i>
+                                <span th:switch="${pago.mes}">
+                            <span th:case="1">Enero</span>
+                            <span th:case="2">Febrero</span>
+                            <span th:case="3">Marzo</span>
+                            <span th:case="4">Abril</span>
+                            <span th:case="5">Mayo</span>
+                            <span th:case="6">Junio</span>
+                            <span th:case="7">Julio</span>
+                            <span th:case="8">Agosto</span>
+                            <span th:case="9">Septiembre</span>
+                            <span th:case="10">Octubre</span>
+                            <span th:case="11">Noviembre</span>
+                            <span th:case="12">Diciembre</span>
+                            <span th:case="*">-</span>
+                        </span>
+                                <span th:text="' ' + ${pago.anio}"> 2024</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tipo-asistencia">
+                                <i class="fas fa-coins"></i>
+                                <strong th:text="${pago.moneda} + ' ' + ${#numbers.formatDecimal(pago.cantidadPagada, 1, 2)}">$0.00</strong>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-proceso" th:text="${pago.formaPagoNombre}">Efectivo</span>
+                        </td>
+                        <td th:text="${pago.createdAt != null ? #temporals.format(pago.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">01/01/2024 10:30</td>
+                        <td>
+                            <div class="actions">
+                                <a th:if="${pago.voucherURL != null and !#strings.isEmpty(pago.voucherURL)}"
+                                   th:href="${pago.voucherURL}"
+                                   target="_blank"
+                                   class="btn-action btn-info"
+                                   title="Ver voucher">
+                                    <i class="fas fa-file-invoice"></i>
+                                </a>
+                                <a th:href="@{/afiliado/historial/{dui}(dui=${pago.dui})}"
+                                   class="btn-action btn-edit"
+                                   title="Ver historial">
+                                    <i class="fas fa-history"></i>
+                                </a>
+                                <button class="btn-action btn-info"
+                                        onclick="verDetalles(this)"
+                                        th:attr="data-dui=${pago.dui},
+                                         data-nombre=${pago.nombreCompleto},
+                                         data-plan=${pago.nombrePlan},
+                                         data-mes=${pago.mes},
+                                         data-anio=${pago.anio},
+                                         data-monto=${pago.cantidadPagada},
+                                         data-moneda=${pago.moneda},
+                                         data-forma=${pago.formaPagoNombre},
+                                         data-pais=${pago.nombrePais},
+                                         data-ejecutivo=${pago.ejecutivoAsignado},
+                                         data-fecha=${pago.createdAt}"
+                                        title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal para detalles del pago -->
+<div id="modalDetalles" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="margin: 0; color: #667eea;">
+                <i class="fas fa-receipt"></i> Detalles del Pago
+            </h2>
+            <button onclick="cerrarModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="contenidoModal" style="line-height: 2;">
+            <!-- Se llenará dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Filtrar tabla por búsqueda
+    function filtrarTabla() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('pagosTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const td = tr[i].getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    const txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            tr[i].style.display = found ? '' : 'none';
+        }
+    }
+
+    // Aplicar filtros combinados
+    function aplicarFiltros() {
+        const mes = document.getElementById('mesFiltro').value;
+        const anio = document.getElementById('anioFiltro').value;
+        const table = document.getElementById('pagosTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const dataMes = tr[i].getAttribute('data-mes');
+            const dataAnio = tr[i].getAttribute('data-anio');
+
+            const mesMatch = !mes || dataMes === mes;
+            const anioMatch = !anio || dataAnio === anio;
+
+            tr[i].style.display = (mesMatch && anioMatch) ? '' : 'none';
+        }
+    }
+
+    // Ver detalles del pago en modal
+    function verDetalles(btn) {
+        const dui = btn.getAttribute('data-dui');
+        const nombre = btn.getAttribute('data-nombre');
+        const plan = btn.getAttribute('data-plan');
+        const mes = parseInt(btn.getAttribute('data-mes'));
+        const anio = btn.getAttribute('data-anio');
+        const monto = btn.getAttribute('data-monto');
+        const moneda = btn.getAttribute('data-moneda');
+        const forma = btn.getAttribute('data-forma');
+        const pais = btn.getAttribute('data-pais');
+        const ejecutivo = btn.getAttribute('data-ejecutivo');
+        const fecha = btn.getAttribute('data-fecha');
+
+        const meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const nombreMes = meses[mes] || 'N/A';
+
+        const contenido = `
+            <div style="display: grid; gap: 1rem;">
+                <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                    <strong style="color: #667eea;"><i class="fas fa-id-card"></i> DUI:</strong>
+                    <span>${dui}</span>
+                </div>
+                <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                    <strong style="color: #667eea;"><i class="fas fa-user"></i> Nombre:</strong>
+                    <span>${nombre}</span>
+                </div>
+                <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                    <strong style="color: #667eea;"><i class="fas fa-file-contract"></i> Plan:</strong>
+                    <span>${plan}</span>
+                </div>
+                <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                    <strong style="color: #667eea;"><i class="fas fa-calendar"></i> Periodo:</strong>
+                    <span>${nombreMes} ${anio}</span>
+                </div>
+                <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                    <strong style="color: #667eea;"><i class="fas fa-dollar-sign"></i> Monto:</strong>
+                    <span style="font-size: 1.2rem; font-weight: bold; color: #10b981;">${moneda} ${parseFloat(monto).toFixed(2)}</span>
+                </div>
+                <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                    <strong style="color: #667eea;"><i class="fas fa-credit-card"></i> Forma de Pago:</strong>
+                    <span>${forma}</span>
+                </div>
+                <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                    <strong style="color: #667eea;"><i class="fas fa-globe"></i> País:</strong>
+                    <span>${pais}</span>
+                </div>
+                <div style="border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem;">
+                    <strong style="color: #667eea;"><i class="fas fa-user-tie"></i> Ejecutivo:</strong>
+                    <span>${ejecutivo || 'N/A'}</span>
+                </div>
+                <div>
+                    <strong style="color: #667eea;"><i class="fas fa-clock"></i> Fecha de Registro:</strong>
+                    <span>${fecha ? new Date(fecha).toLocaleString('es-SV') : 'N/A'}</span>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('contenidoModal').innerHTML = contenido;
+        document.getElementById('modalDetalles').style.display = 'flex';
+    }
+
+    // Cerrar modal
+    function cerrarModal() {
+        document.getElementById('modalDetalles').style.display = 'none';
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('modalDetalles').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModal();
+        }
+    });
+
+    // Auto-ocultar alertas después de 5 segundos
+    const alert = document.querySelector('.alert');
+    if (alert) {
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    }
+
+    // Animación de entrada
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.stat-card, .solicitudes-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+
+    // Toggle sidebar en móvil
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    // Agregar botón de menú para móvil si no existe
+    if (window.innerWidth <= 768) {
+        const menuButton = document.createElement('button');
+        menuButton.innerHTML = '<i class="fas fa-bars"></i>';
+        menuButton.style.cssText = `
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #667eea;
+        `;
+        menuButton.onclick = toggleSidebar;
+        document.body.appendChild(menuButton);
+    }
+</script>
+</body>
+</html>

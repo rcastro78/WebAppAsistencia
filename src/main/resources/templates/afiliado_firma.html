@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firma de Afiliación - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app {
+            max-width: 700px;
+            width: 100%;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 25px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card-header h2 {
+            color: #333;
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .card-header h2::before {
+            content: '\f304';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #FF8C00;
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 40px 30px;
+        }
+
+        .signature-container {
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background: #fafafa;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .signature-container:hover {
+            border-color: #FF8C00;
+            background: white;
+        }
+
+        .signature-pad {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: crosshair;
+            display: block;
+            margin: 15px auto;
+            max-width: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .signature-label {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+
+        .signature-label::before {
+            content: '\f304';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #FF8C00;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:not(.secondary) {
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .btn:not(.secondary):hover {
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.4);
+        }
+
+        .btn.secondary {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #555;
+            padding: 10px 28px;
+        }
+
+        .btn.secondary:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card-body {
+                padding: 30px 20px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .signature-pad {
+                width: 100%;
+                height: 200px;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Firma de Afiliación</h1>
+        <span class="subtitle">Por favor, firme en el recuadro para aceptar los términos</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Firma del Cliente</h2>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/firmar/guardar}" method="post">
+                <!-- Campo oculto para enviar datos necesarios -->
+                <input type="hidden" name="dui" th:value="${dui}">
+
+                <!-- Firma -->
+                <div class="signature-container">
+                    <div class="signature-label">Firme aquí</div>
+                    <canvas id="signaturePad" class="signature-pad" width="600" height="250"></canvas>
+                    <input type="hidden" name="firma" id="signatureData">
+                    <div style="margin-top: 15px;">
+                        <button type="button" onclick="clearSignature()" class="btn secondary">
+                            <i class="fas fa-eraser"></i> Limpiar Firma
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="actions">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-check"></i> Aceptar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Funcionalidad del canvas de firma
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
+    const signatureData = document.getElementById('signatureData');
+    let isDrawing = false;
+
+    // Configurar canvas
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+
+    // Eventos de mouse
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    // Eventos táctiles
+    canvas.addEventListener('touchstart', handleTouch);
+    canvas.addEventListener('touchmove', handleTouch);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    function startDrawing(e) {
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        ctx.beginPath();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+
+        // Guardar datos de la firma
+        signatureData.value = canvas.toDataURL();
+    }
+
+    function stopDrawing() {
+        if (isDrawing) {
+            isDrawing = false;
+            signatureData.value = canvas.toDataURL();
+        }
+    }
+
+    function handleTouch(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' :
+                                         e.type === 'touchmove' ? 'mousemove' : 'mouseup', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        canvas.dispatchEvent(mouseEvent);
+    }
+
+    function clearSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        signatureData.value = '';
+    }
+
+    // Validar que haya firma antes de enviar
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if (!signatureData.value) {
+            e.preventDefault();
+            alert('Por favor, firme en el recuadro antes de continuar.');
+        }
+    });
+</script>
+
+</body>
+</html>

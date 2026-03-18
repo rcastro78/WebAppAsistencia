@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Afiliado - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/afiliado_edit.css}">
+
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Editar Afiliado</h1>
+        <span class="subtitle">Modifica la información del afiliado</span>
+    </div>
+
+    <!-- Estado del afiliado -->
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <strong>Estado actual:</strong>
+          <span th:text="${afiliado.idEstadoAfiliado == 1 ? 'Activo' : (afiliado.idEstadoAfiliado == 0 ? 'Inactivo' : 'Pendiente')}">Pendiente</span>
+            <br>
+            <small>ID del afiliado: <span th:text="${afiliado.dui}">001</span></small>
+        </div>
+    </div>
+
+
+    <div class="alert alert-info">
+        <i class="fas fa-square-parking"></i>
+        <div>
+            <strong>Plan actual:</strong>
+            <small>Plan: <span th:text="${planAfiliado.nombrePlan}">001</span></small><br/>
+            <small>Precio plan mensual: <span th:text="|${moneda} ${planAfiliado.precioPlanMensual}|">$0.00</span></small><br>
+            <small>Precio plan anual: <span th:text="|${moneda} ${planAfiliado.precioPlanAnual}|">$0.00</span></small><br>
+            <br/>
+            <button type="submit" class="btn">
+                <i class="fas fa-circle-up"></i> Mejorar Plan
+            </button>
+        </div>
+    </div>
+
+
+
+
+
+    <!-- Imágenes actuales -->
+    <div class="card">
+        <div class="card-header">
+            <h2 style="--fa-content: '\f03e';">Documentos Actuales</h2>
+        </div>
+        <div class="card-body">
+            <div class="current-images">
+                <div class="image-preview">
+                    <h4><i class="fas fa-id-card"></i> DUI Frente</h4>
+                    <div th:if="${afiliado.fotoDUIFrenteURL}">
+                        <img th:src="${afiliado.fotoDUIFrenteURL}"
+                             alt="DUI Frente"
+                             onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><br>Imagen no disponible</div>'">
+                    </div>
+                    <div th:unless="${afiliado.fotoDUIFrenteURL}" class="no-image">
+                        <i class="fas fa-image"></i><br>
+                        No hay imagen
+                    </div>
+                </div>
+
+                <div class="image-preview">
+                    <h4><i class="fas fa-id-card"></i> DUI Reverso</h4>
+                    <div th:if="${afiliado.fotoDUIVueltoURL}">
+                        <img th:src="${afiliado.fotoDUIVueltoURL}"
+                             alt="DUI Reverso"
+                             onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><br>Imagen no disponible</div>'">
+                    </div>
+                    <div th:unless="${afiliado.fotoDUIVueltoURL}" class="no-image">
+                        <i class="fas fa-image"></i><br>
+                        No hay imagen
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <div style="text-align: center;">
+                        <a th:href="@{/afiliado/imprimir-documentos/{dui}(dui=${afiliado.dui})}"
+                           class="btn"
+                           target="_blank">
+                            <i class="fas fa-print"></i> Imprimir docs
+                        </a>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- tarjeta -->
+
+    <div class="cards-section">
+        <!-- Tarjeta de Débito con QR -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Tarjeta actual</h2>
+            </div>
+            <div class="card-body">
+                <div class="card-container-with-qr">
+                    <!-- Tarjeta de débito (lado izquierdo) -->
+                    <div class="debit-card" th:classappend="${nombrePlan}">
+                        <!-- Estado de la tarjeta -->
+                        <div class="card-status">
+                            <div class="status-dot"></div>
+                            <span>ACTIVA</span>
+                        </div>
+
+                        <!-- Logo y nombre de la empresa -->
+                        <div class="card-logo">
+                            <div class="logo-icon">
+                                <img th:src="@{/images/manos.png}"
+                                     alt="Logo"
+                                     style="width: 92px; height: 64px; margin-right: 32px; margin-left: 48px; margin-top: 12px;">
+                            </div>
+
+                            <div class="company-name" style="margin-left: 24px;">
+                                <div class="company-main">Asistencia®</div>
+                                <div class="company-sub">El Salvador</div>
+                            </div>
+                        </div>
+                        <p/>
+                        <!-- Información de la tarjeta -->
+                        <div class="card-info">
+                            <div class="card-holder">
+                                <div class="card-holder-label">Titular</div>
+                                <div class="card-holder-name"><span th:text="|${afiliado.nombre} ${afiliado.apellido}|">Titular</span></div>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-number" style="margin-top: 12px;">
+                                <span th:text="${planAfiliado.numTarjeta}">xxxx</span>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+                    <!-- Código QR (lado derecho) -->
+
+                    <div class="qr-section">
+                        <div class="qr-container">
+                            <img th:src="${qrImage}"
+                                 alt="QR Code"
+                                 class="qr-image">
+                        </div>
+
+                        <!-- Botón de descarga -->
+                        <div style="text-align: center; margin-top: 15px;">
+                            <button onclick="descargarQR()" class="btn" style="background: linear-gradient(135deg, #FF8C00, #FFA500); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">
+                                <i class="fas fa-download"></i> Descargar QR
+                            </button>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de edición -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos Personales</h2>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/afiliado/actualizar}" th:object="${afiliado}" method="post" enctype="multipart/form-data" id="editarAfiliadoForm">
+                <div class="form-grid">
+                    <!-- DUI / NIT -->
+                    <div class="form-group">
+                        <label for="dui">DUI/NIT</label>
+                        <input type="text" th:field="*{dui}" id="dui" class="input" placeholder="00000000-0" pattern="[0-9]{8}-[0-9]" required>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" th:field="*{nombre}" id="nombre" class="input" placeholder="Ingrese el nombre" required>
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="form-group">
+                        <label for="apellido">Apellido</label>
+                        <input type="text" th:field="*{apellido}" id="apellido" class="input" placeholder="Ingrese el apellido" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fechaNacimiento"><i class="fas fa-birthday-cake"></i> Fecha de Nacimiento</label>
+                        <input type="date"
+                               name="fechaNacimiento"
+                               th:value="${#temporals.format(afiliado.fechaNacimiento, 'yyyy-MM-dd')}"
+                               id="fechaNacimiento"
+                               class="input"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estadoCivil">Estado Civil</label>
+                        <select id="estadoCivil" th:field="*{estadoCivil}" class="input" required>
+                            <option value="">Seleccione un estado</option>
+                            <option th:each="p : ${estados}"
+                                    th:value="${p.idEstadoCivil}"
+                                    th:text="${p.nombreEstado}"
+                                    th:selected="${p.idEstadoCivil == afiliado.estadoCivil}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="form-group full-width">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" th:field="*{direccion}" id="direccion" class="input" placeholder="Ingrese la dirección completa">
+                    </div>
+
+                    <!-- Estado del afiliado -->
+                    <input type="hidden" th:field="*{idEstadoAfiliado}">
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" th:field="*{telefono}" id="telefono" class="input" placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}">
+                    </div>
+
+
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" th:field="*{email}" id="email" class="input" placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <!-- Campo para DUI Frente -->
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> DUI Frente (Opcional)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="fotoDUIFrenteFile" accept="image/*" id="duiFrente"
+                                   onchange="updateFileLabel('duiFrente', 'frenteLabel')">
+                            <label for="duiFrente" class="file-input-label" id="frenteLabel">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Cambiar imagen del DUI (frente)
+                            </label>
+                        </div>
+                        <small style="color: #666; margin-top: 5px; display: block;">
+                            Deja vacío para mantener la imagen actual
+                        </small>
+                    </div>
+
+                    <!-- Campo para DUI Reverso -->
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> DUI Reverso (Opcional)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="fotoDUIVueltoFile" accept="image/*" id="duiReverso"
+                                   onchange="updateFileLabel('duiReverso', 'reversoLabel')">
+                            <label for="duiReverso" class="file-input-label" id="reversoLabel">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Cambiar imagen del DUI (reverso)
+                            </label>
+                        </div>
+                        <small style="color: #666; margin-top: 5px; display: block;">
+                            Deja vacío para mantener la imagen actual
+                        </small>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="lugarTrabajo">Lugar de trabajo</label>
+                        <input type="tel" th:field="*{lugarTrabajo}" id="lugarTrabajo" class="input">
+                    </div>
+
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telTrabajo">Teléfono de trabajo</label>
+                        <input type="tel" th:field="*{telTrabajo}" id="telTrabajo" class="input" placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}">
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="estadoContrato">Estado del contrato</label>
+                        <select id="estadoContrato" th:field="*{estadoContrato}" class="input" required>
+                            <option value="">Seleccione un estado</option>
+                            <option th:each="p : ${estadosContrato}"
+                                    th:value="${p.idEstadoContrato}"
+                                    th:text="${p.nombreEstado}"
+                                    th:selected="${p.idEstadoContrato == afiliado.estadoContrato}"></option>
+                        </select>
+                    </div>
+
+
+                    <!-- Institución -->
+                    <div class="form-group">
+                        <label for="institucion">Institución</label>
+                        <select id="institucion" th:field="*{institucion}" class="input" required>
+                            <option value="">Seleccione una institución</option>
+                            <option th:each="p : ${instituciones}"
+                                    th:value="${p.id}"
+                                    th:text="${p.nombreInstitucion}"
+                                    th:selected="${p.id == afiliado.institucion}"></option>
+                        </select>
+                    </div>
+
+                    <!-- País -->
+                    <div class="form-group">
+                        <label for="pais">País</label>
+                        <select id="pais" th:field="*{idPais}" class="input" onchange="loadDepartamentos(this.value)" required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}"
+                                    th:value="${p.idPais}"
+                                    th:text="${p.nombrePais}"
+                                    th:selected="${p.idPais == afiliado.idPais}"></option>
+                        </select>
+                    </div>
+
+
+                    <!-- Ejecutivo a cargo -->
+                    <div class="form-group">
+                        <label for="ejecutivos">Ejecutivo a cargo</label>
+                        <select id="ejecutivos" th:field="*{ejecutivoAsignado}" class="input" required>
+                            <option value="">Seleccione un ejecutivo</option>
+                            <option th:each="p : ${ejecutivos}"
+                                    th:value="${p.dui}"
+                                    th:text="${p.nombre + ' ' + p.apellido + ' (' + p.dui + ')'}"
+                                    th:selected="${p.dui == afiliado.ejecutivoAsignado}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Departamento -->
+                    <div class="form-group">
+                        <label for="departamento">Departamento</label>
+                        <select id="departamento" th:field="*{idDepto}" class="input" onchange="loadMunicipios(this.value)" required>
+                            <option value="">Seleccione un departamento</option>
+                            <option th:each="d : ${departamentos}"
+                                    th:value="${d.idDepto}"
+                                    th:text="${d.nombreDepartamento}"
+                                    th:selected="${d.idDepto == afiliado.idDepto}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Municipio -->
+                    <div class="form-group">
+                        <label for="municipio">Municipio</label>
+                        <select id="municipio" th:field="*{idMunicipio}" class="input" required>
+                            <option value="">Seleccione un municipio</option>
+                            <option th:each="m : ${municipios}"
+                                    th:value="${m.idMunicipio}"
+                                    th:text="${m.munNombre}"
+                                    th:selected="${m.idMunicipio == afiliado.idMunicipio}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Tipo Cliente -->
+                    <div class="form-group">
+                        <label><i class="fas fa-users"></i> Tipo Cliente</label>
+                        <select id="tiposCliente" th:field="*{idTipoCliente}" class="input" required>
+                            <option value="">Seleccione un tipo de cliente</option>
+                            <option th:each="p : ${tiposCliente}"
+                                    th:value="${p.idTipo}"
+                                    th:text="${p.tipo}"
+                                    th:selected="${p.idTipo == afiliado.idTipoCliente}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha Afiliación -->
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Fecha Afiliación</label>
+                        <input type="date" th:field="*{fechaAfiliacion}" class="input" required readonly>
+                        <small style="color: #666; margin-top: 5px; display: block;">
+                            La fecha de afiliación no puede ser modificada
+                        </small>
+                    </div>
+
+                </div>
+
+                <div class="actions">
+                    <a th:href="@{/afiliado}" class="btn secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Actualizar
+                    </button>
+
+                    <a id="whatsapp-link" href="#"
+                       class="action-btn print"
+                       data-tooltip="Enviar WhatsApp"
+                       target="_blank">
+                        <img th:src="@{/images/whatsapp.png}" alt="WhatsApp" style="width: 42px; height: 42px;">
+                    </a>
+
+                    <button type="button" class="btn danger" onclick="confirmarEliminacion()">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+
+
+
+                    <a th:href="@{/afiliado/contactos-emergencia/editar/{dui}(dui=${afiliado.dui})}" class="btn secondary">
+                        <i class="fas fa-arrow-right"></i> Siguiente
+                    </a>
+                </div>
+            </form>
+        </div>
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-header">
+                <h2><i class="fas fa-calendar-plus"></i> Gestión de Cuotas</h2>
+            </div>
+            <div class="card-body">
+                <p style="margin-bottom: 15px; color: #666;">
+                    Genere automáticamente las 12 cuotas mensuales del año actual para este afiliado.
+                </p>
+                <form th:action="@{/afiliado/generar-cuotas/{dui}(dui=${afiliado.dui})}" method="post" style="display: inline;">
+                    <button type="submit"
+                            class="btn"
+                            style="background: linear-gradient(135deg, #28a745, #20c997);"
+                            onclick="return confirm('¿Está seguro de generar las 12 cuotas anuales para este afiliado?');">
+                        <i class="fas fa-calendar-plus"></i> Generar Cuotas del Año Actual
+                    </button>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminación -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%;">
+        <div style="text-align: center;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc3545; margin-bottom: 20px;"></i>
+            <h3 style="margin-bottom: 15px; color: #333;">¿Confirmar eliminación?</h3>
+            <p style="color: #666; margin-bottom: 25px;">Esta acción no se puede deshacer. El afiliado será eliminado permanentemente.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="eliminarAfiliado()" class="btn danger" style="min-width: 100px;">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+                <button onclick="cerrarModal()" class="btn secondary" style="min-width: 100px;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    document.getElementById('whatsapp-link').addEventListener('click', function(e) {
+    e.preventDefault();
+    const telefono = document.getElementById('telefono').value.replace('-', '');
+    const nombre = document.getElementById('nombre').value || '';
+    const apellido = document.getElementById('apellido').value || '';
+    const url = `https://wa.me/503${telefono}`;
+    window.open(url, '_blank');
+});
+
+    document.getElementById('formGenerarCuotas').addEventListener('submit', function(e) {
+    if (!confirm('¿Está seguro de generar las 12 cuotas anuales para este afiliado?')) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+    // Cargar departamentos al inicializar la página
+    document.addEventListener("DOMContentLoaded", function() {
+        const paisSelect = document.getElementById('pais');
+        const deptoSelect = document.getElementById('departamento');
+
+        // Si hay un país seleccionado y no hay departamentos cargados, cargarlos
+        if (paisSelect.value && deptoSelect.options.length <= 1) {
+            loadDepartamentos(paisSelect.value);
+        }
+
+        // Si hay un departamento seleccionado y no hay municipios cargados, cargarlos
+        setTimeout(() => {
+            const municipioSelect = document.getElementById('municipio');
+            if (deptoSelect.value && municipioSelect.options.length <= 1) {
+                loadMunicipios(deptoSelect.value);
+            }
+        }, 500);
+    });
+
+    function updateFileLabel(inputId, labelId) {
+        const input = document.getElementById(inputId);
+        const label = document.getElementById(labelId);
+
+        if (input.files && input.files.length > 0) {
+            const fileName = input.files[0].name;
+            label.innerHTML = '<i class="fas fa-check"></i> ' + fileName;
+            label.classList.add('file-selected');
+        } else {
+            const originalText = inputId === 'duiFrente' ?
+                'Cambiar imagen del DUI (frente)' :
+                'Cambiar imagen del DUI (reverso)';
+            label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> ' + originalText;
+            label.classList.remove('file-selected');
+        }
+    }
+
+    // Validación del formulario antes de enviar
+    document.getElementById('editarAfiliadoForm').addEventListener('submit', function(e) {
+        const duiFrente = document.getElementById('duiFrente');
+        const duiReverso = document.getElementById('duiReverso');
+
+        // Verificar tamaño de archivos si se seleccionaron nuevos (max 5MB cada uno)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (duiFrente.files && duiFrente.files.length > 0) {
+            if (duiFrente.files[0].size > maxSize) {
+                alert('La imagen del DUI frente es demasiado grande. Máximo 5MB.');
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        if (duiReverso.files && duiReverso.files.length > 0) {
+            if (duiReverso.files[0].size > maxSize) {
+                alert('La imagen del DUI reverso es demasiado grande. Máximo 5MB.');
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    // Función para cargar departamentos
+    function loadDepartamentos(idPais) {
+        const deptoSelect = document.getElementById("departamento");
+        const municipioSelect = document.getElementById("municipio");
+        const currentDepto = deptoSelect.dataset.currentValue || '';
+
+        if (!idPais) {
+            deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        // Agregar clase loading
+        deptoSelect.classList.add('loading');
+
+        fetch(`/api/departamentos/pais/${idPais}`)
+            .then(response => response.json())
+            .then(data => {
+                deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+                data.forEach(depto => {
+                    const selected = depto.idDepto == currentDepto ? 'selected' : '';
+                    deptoSelect.innerHTML += `<option value="${depto.idDepto}" ${selected}>${depto.nombreDepartamento}</option>`;
+                });
+
+                // Si había un departamento seleccionado, cargar sus municipios
+                if (currentDepto) {
+                    setTimeout(() => loadMunicipios(currentDepto), 100);
+                } else {
+                    municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+                }
+            })
+            .catch(error => {
+                console.error('Error cargando departamentos:', error);
+                deptoSelect.innerHTML = "<option value=''>Error al cargar departamentos</option>";
+            })
+            .finally(() => {
+                deptoSelect.classList.remove('loading');
+            });
+    }
+
+    // Función para cargar municipios
+    function loadMunicipios(idDepto) {
+        const municipioSelect = document.getElementById("municipio");
+        const currentMunicipio = municipioSelect.dataset.currentValue || '';
+
+        if (!idDepto) {
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        // Agregar clase loading
+        municipioSelect.classList.add('loading');
+
+        fetch(`/api/municipios/departamento/${idDepto}`)
+            .then(response => response.json())
+            .then(data => {
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+                data.forEach(muni => {
+                    const selected = muni.idMunicipio == currentMunicipio ? 'selected' : '';
+                    municipioSelect.innerHTML += `<option value="${muni.idMunicipio}" ${selected}>${muni.munNombre}</option>`;
+                });
+            })
+            .catch(error => {
+                console.error('Error cargando municipios:', error);
+                municipioSelect.innerHTML = "<option value=''>Error al cargar municipios</option>";
+            })
+            .finally(() => {
+                municipioSelect.classList.remove('loading');
+            });
+    }
+
+    // Funciones para el modal de eliminación
+    function confirmarEliminacion() {
+        document.getElementById('deleteModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function eliminarAfiliado() {
+        const afiliadoId = document.querySelector('input[name="idAfiliado"]').value;
+
+        // Crear formulario para enviar DELETE request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/afiliado/delete/${dui}`;
+
+        // Agregar token CSRF si es necesario
+        const csrfToken = document.querySelector('meta[name="_csrf"]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_csrf';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
+
+        // Agregar método DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModal();
+        }
+    });
+
+    // Mejorar la experiencia de los file inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        const deptoSelect = document.getElementById("departamento");
+        const municipioSelect = document.getElementById("municipio");
+
+        // Guardar valores actuales para la recarga de selects
+        if (deptoSelect.value) {
+            deptoSelect.dataset.currentValue = deptoSelect.value;
+        }
+        if (municipioSelect.value) {
+            municipioSelect.dataset.currentValue = municipioSelect.value;
+        }
+
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function(e) {
+                const label = document.querySelector(`label[for="${this.id}"]`);
+                const fileName = e.target.files[0]?.name;
+
+                if (fileName) {
+                    label.innerHTML = `<i class="fas fa-check-circle"></i> ${fileName}`;
+                    label.style.color = '#28a745';
+                    label.style.borderColor = '#28a745';
+                }
+            });
+        });
+
+        // Validación automática del DUI
+        const duiInput = document.getElementById('dui');
+        if (duiInput) {
+            duiInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 8) {
+                    value = value.substring(0, 8) + '-' + value.substring(8, 9);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Validación automática del teléfono
+        const telInput = document.getElementById('telefono');
+        if (telInput) {
+            telInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+            });
+        }
+    });
+
+    // Confirmación antes de salir si hay cambios no guardados
+    let formChanged = false;
+    const form = document.getElementById('editarAfiliadoForm');
+    const originalData = new FormData(form);
+
+    form.addEventListener('input', function() {
+        formChanged = true;
+    });
+
+    window.addEventListener('beforeunload', function(e) {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+
+    // Remover la confirmación al enviar el formulario
+    form.addEventListener('submit', function() {
+        formChanged = false;
+    });
+
+    function descargarQR() {
+    const imgElement = document.querySelector('.qr-section img');
+
+    if (!imgElement) {
+        alert('No se encontró la imagen');
+        return;
+    }
+
+    // Crear un canvas temporal
+    const canvas = document.createElement('canvas');
+    canvas.width = imgElement.naturalWidth || imgElement.width;
+    canvas.height = imgElement.naturalHeight || imgElement.height;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(imgElement, 0, 0);
+
+    // Convertir a blob y descargar
+    canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'tarjeta-qr.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }, 'image/png');
+}
+</script>
+</body>
+</html>

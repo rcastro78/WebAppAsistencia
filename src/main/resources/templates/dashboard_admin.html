@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Seguros</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+            color: #4A90E2;
+        }
+
+        .logo img {
+            max-height: 40px;
+            width: auto;
+        }
+
+        .profile-section {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-section h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .profile-section p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .tutor-id {
+            color: #4A90E2 !important;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f8f9ff;
+            color: #4A90E2;
+        }
+
+        .nav-item.active {
+            background: #f8f9ff;
+            color: #4A90E2;
+            border-left-color: #4A90E2;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: #f8fafc;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            margin: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-left p {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #f8f9ff;
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-details h4 {
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-details p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 0 2rem 2rem 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-color);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.blue {
+            --card-color: linear-gradient(135deg, #4A90E2, #357ABD);
+        }
+
+        .stat-card.green {
+            --card-color: linear-gradient(135deg, #2ECC71, #27AE60);
+        }
+
+        .stat-card.orange {
+            --card-color: linear-gradient(135deg, #F39C12, #E67E22);
+        }
+
+        .stat-card.red {
+            --card-color: linear-gradient(135deg, #E74C3C, #C0392B);
+        }
+
+        .stat-card.purple {
+            --card-color: linear-gradient(135deg, #9B59B6, #8E44AD);
+        }
+
+        .stat-card.teal {
+            --card-color: linear-gradient(135deg, #1ABC9C, #16A085);
+        }
+
+        .stat-card.gray {
+            --card-color: linear-gradient(135deg, #95A5A6, #7F8C8D);
+        }
+
+        .stat-card.yellow {
+            --card-color: linear-gradient(135deg, #F1C40F, #F39C12);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--card-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .stat-icon-transparent {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit; /* Hereda el color del elemento padre */
+    font-size: 1.2rem;
+}
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .stat-change.positive {
+            color: #2ECC71;
+        }
+
+        .stat-change.negative {
+            color: #E74C3C;
+        }
+
+        .stat-change.neutral {
+            color: #666;
+        }
+
+        /* Content Sections */
+        .content-sections {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            padding: 0 2rem 2rem 2rem;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .notification-icon.user {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+        }
+
+        .notification-icon.payment {
+            background: linear-gradient(135deg, #F39C12, #E67E22);
+        }
+
+        .notification-content p {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .notification-time {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+
+        .schedule-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .schedule-details h4 {
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+
+        .schedule-details p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .schedule-time {
+            text-align: right;
+            color: #4A90E2;
+            font-size: 0.85rem;
+            margin-left: auto;
+        }
+
+        .schedule-time i {
+            margin-right: 0.5rem;
+        }
+
+        .stat-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.stat-card-link:hover .stat-card {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+
+            .main-content {
+                order: 1;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                JO
+            </div>
+            <h3>Jorge Orellana</h3>
+            <p>jorge.orellana@asistenciaelsalvador.com</p>
+
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a th:href="@{/plan}" class="nav-item">
+                <i class="fas fa-list-check"></i>
+                <span>Planes</span>
+            </a>
+
+            <a th:href="@{/proveedores/}" class="nav-item">
+                <i class="fas fa-truck-fast"></i>
+                <span>Proveedores de servicios</span>
+            </a>
+
+            <a th:href="@{/clientesCorporativos/}" class="nav-item">
+                <i class="fas fa-suitcase"></i>
+                <span>Clientes Corporativos</span>
+            </a>
+
+            <a th:href="@{/asistencia/todas}" class="nav-item">
+                <i class="fas fa-circle-info"></i>
+                <span>Solicitudes de servicios</span>
+            </a>
+
+            <a th:href="@{/comerciosAfiliados/}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios Afiliados</span>
+            </a>
+
+            <a th:href="@{/vehiculos}" class="nav-item">
+                <i class="fas fa-car"></i>
+                <span>Vehículos Afiliados</span>
+            </a>
+
+            <a th:href="@{/casas}" class="nav-item">
+                <i class="fas fa-house"></i>
+                <span>Casas Afiliadas</span>
+            </a>
+
+            <a th:href="@{/medicos/listar}" class="nav-item">
+                <i class="fas fa-user-doctor"></i>
+                <span>Médicos Afiliados</span>
+            </a>
+
+
+            <a th:href="@{/afiliado/carga-masiva}" class="nav-item">
+                <i class="fas fa-file-arrow-up"></i>
+                <span>Carga masiva</span>
+            </a>
+            <a th:href="@{/admin/dashboard/pagosAfiliados}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+
+            <a th:href="@{/admin/vendedores/}" class="nav-item">
+                <i class="fas fa-business-time"></i>
+                <span>Vendedores</span>
+            </a>
+
+
+            <a th:href="@{/admin/configuracion/}" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <a th:href="@{/reportes}" class="nav-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reportes</span>
+            </a>
+
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>Hola, Jorge</h1>
+                <p>Bienvenido a tu panel de administración. Aquí puedes gestionar afiliados, planes, pólizas, reportes, vendedores</p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">JO</div>
+                <div class="user-details">
+                    <h4>Jorge Orellana Ferman</h4>
+                    <p>SuperAdmin</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <!-- Authorization Cards -->
+            <div class="stat-card orange">
+                <div class="stat-header">
+                    <div class="stat-title">Autorizar Vendedores</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${vendedoresAutorizar}">0</div>
+                <div class="stat-label">vendedor(es) requieren autorización</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-clock"></i>
+                    <span>Pendientes</span>
+                </div>
+            </div>
+            <a th:href="@{/usuarios/}" class="stat-card-link">
+            <div class="stat-card blue">
+                <div class="stat-header">
+                    <div class="stat-title">Usuarios del sistema</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${usuariosActivos}">0</div>
+                <div class="stat-label">usuario activos</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-clock"></i>
+                    <span>En espera</span>
+                </div>
+            </div>
+            </a>
+            <div class="stat-card teal">
+                <div class="stat-header">
+                    <div class="stat-title">Total Vendedores</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${vendedoresActivos}">0</div>
+                <div class="stat-label">(Activos)</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Activos</span>
+                </div>
+            </div>
+
+            <div class="stat-card gray">
+                <div class="stat-header">
+                    <div class="stat-title">Total Planes</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${planesActivos}">0</div>
+                <div class="stat-label">(Mensuales & Anuales)</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-equals"></i>
+                    <span>Estables</span>
+                </div>
+            </div>
+            <a th:href="@{/instituciones/}" class="stat-card-link">
+            <div class="stat-card purple">
+                <div class="stat-header">
+                    <div class="stat-title">Total Instituciones</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${institucionesActivas}">0</div>
+                <div class="stat-label">Instituciones registradas</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Creciendo</span>
+                </div>
+            </div>
+            </a>
+
+            <a th:href="@{/afiliado/}" class="stat-card-link">
+                <div class="stat-card blue">
+                    <div class="stat-header">
+                        <div class="stat-title">Total de Afiliados</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-number" th:text="${totalAfiliados}">632</div>
+                    <div class="stat-label">Afiliados totales</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+12% este mes</span>
+                    </div>
+                </div>
+            </a>
+
+            <div class="stat-card green">
+                <div class="stat-header">
+                    <div class="stat-title">El Salvador</div>
+                    <div class="stat-icon">
+                        <span class="flag-icon flag-icon-sv"></span>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${totalAfiliadosSV}">632</div>
+                <div class="stat-label">Afiliados en El Salvador</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>País principal</span>
+                </div>
+            </div>
+
+            <div class="stat-card yellow">
+                <div class="stat-header">
+                    <div class="stat-title">Guatemala</div>
+                    <div class="stat-icon">
+                        <span class="flag-icon flag-icon-gt"></span>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${totalAfiliadosGT}">0</div>
+                <div class="stat-label">Afiliados en Guatemala</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-minus"></i>
+
+                </div>
+            </div>
+
+            <div class="stat-card red">
+                <div class="stat-header">
+                    <div class="stat-title">Honduras</div>
+                    <div class="stat-icon">
+                        <span class="flag-icon flag-icon-hn"></span>
+                    </div>
+                </div>
+                <div class="stat-number" th:text="${totalAfiliadosHN}">0</div>
+                <div class="stat-label">Afiliados en Honduras</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-minus"></i>
+
+                </div>
+            </div>
+
+            <!-- En tu tarjeta -->
+            <div class="stat-card gray">
+                <div class="stat-header">
+                    <div class="stat-title">Nicaragua</div>
+                    <div class="stat-icon">
+                        <span class="flag-icon flag-icon-ni"></span>
+                    </div>
+                </div>
+                <div class="stat-number">0</div>
+                <div class="stat-label">Afiliados en Nicaragua</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-minus"></i>
+                </div>
+            </div>
+
+            <div class="stat-card gray">
+                <div class="stat-header">
+                    <div class="stat-title">Costa Rica</div>
+                    <div class="stat-icon">
+                        <span class="flag-icon flag-icon-cr"></span>
+                    </div>
+                </div>
+                <div class="stat-number">0</div>
+                <div class="stat-label">Afiliados en Costa Rica</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-minus"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Sections -->
+        <div class="content-sections">
+            <div class="content-card">
+                <h3 class="section-title">Notificaciones Recientes</h3>
+                <div class="notifications">
+                    <div class="notification-item">
+                        <div class="notification-icon user">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p>Nuevo vendedor registrado pendiente de autorización</p>
+                            <span class="notification-time">Hace 2 horas</span>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon payment">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p>Sistema de pagos actualizado exitosamente</p>
+                            <span class="notification-time">Hace 4 horas</span>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon user">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p>12 nuevos afiliados registrados hoy</p>
+                            <span class="notification-time">Hace 6 horas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3 class="section-title">Actividad del Sistema</h3>
+                <div class="schedules">
+                    <div class="schedule-item">
+                        <div class="schedule-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="schedule-details">
+                            <h4>Reporte Mensual</h4>
+                            <p>Generación automática de estadísticas</p>
+                            <p>Estado: Completado</p>
+                        </div>
+                        <div class="schedule-time">
+                            <i class="fas fa-clock"></i>
+                            <span>08:00 AM</span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-item">
+                        <div class="schedule-icon">
+                            <i class="fas fa-backup"></i>
+                        </div>
+                        <div class="schedule-details">
+                            <h4>Respaldo de Datos</h4>
+                            <p>Backup automático del sistema</p>
+                            <p>Estado: En progreso</p>
+                        </div>
+                        <div class="schedule-time">
+                            <i class="fas fa-clock"></i>
+                            <span>10:30 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

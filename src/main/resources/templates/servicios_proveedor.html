@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .profile-section {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #4A90E2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        .profile-section h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .profile-section p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sidebar-nav {
+            margin-top: 30px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 30px;
+            width: calc(100% - 280px);
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .breadcrumb a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 10px;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box i {
+            color: #7f8c8d;
+        }
+
+        .search-box input {
+            border: none;
+            background: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .category-filter {
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            font-size: 14px;
+            color: #495057;
+            cursor: pointer;
+            outline: none;
+            min-width: 200px;
+        }
+
+        .category-filter:focus {
+            border-color: #4A90E2;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-ver-solicitudes {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-ver-solicitudes:hover {
+            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            background: #f8f9fa;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .view-btn {
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            color: #7f8c8d;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn:hover {
+            background: white;
+        }
+
+        .view-btn.active {
+            background: white;
+            color: #4A90E2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-summary {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-item i {
+            color: #4A90E2;
+            font-size: 20px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-item span:last-child {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        /* Proveedores Container */
+        .proveedores-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .list-header-section {
+            margin-bottom: 20px;
+        }
+
+        .list-header-section h2 {
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        /* Proveedores Grid */
+        .proveedores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .proveedor-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .proveedor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-decoration {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+        }
+
+        .proveedor-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: #4A90E2;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .proveedor-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .proveedor-logo i {
+            font-size: 40px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .proveedor-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .proveedor-cobertura {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .proveedor-cobertura i {
+            font-size: 12px;
+        }
+
+        .proveedor-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-row i {
+            color: #4A90E2;
+            font-size: 14px;
+            min-width: 16px;
+        }
+
+        .tarifa-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .tarifa-label {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .tarifa-monto {
+            font-size: 20px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .plan-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+        }
+
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #357ABD 0%, #2868A8 100%);
+            box-shadow: 0 6px 15px rgba(74, 144, 226, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #e9ecef;
+        }
+
+        .action-btn.secondary:hover {
+            background: #e9ecef;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 80px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: #7f8c8d;
+        }
+
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4A90E2;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .toolbar-left {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .category-filter {
+                width: 100%;
+            }
+
+            .proveedores-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-summary {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .btn-ver-solicitudes {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar para rol 3 (Afiliado) -->
+    <div class="sidebar">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <span th:text="${#strings.substring(session.nombre, 0, 1) + #strings.substring(session.apellido, 0, 1)}">HM</span>
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|">Usuario</h3>
+            <p class="tutor-id" th:text="|DUI Afiliado: ${session.dui}|">Afiliado ID: 135246</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/afiliado/nuevo/patrocinio}" class="nav-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Patrocina a alguien</span>
+            </a>
+
+            <a th:href="@{/comerciosAfiliados}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios afiliados</span>
+            </a>
+
+            <a th:href="@{/empresa/beneficios/lista(idPlan=${session.idPlan})}" class="nav-item">
+                <i class="fas fa-face-smile"></i>
+                <span>Beneficios de mi plan</span>
+            </a>
+
+            <a th:href="@{/proveedores/serviciosProveedor/lista(idPlan=${session.idPlan})}" class="nav-item active">
+                <i class="fas fa-truck"></i>
+                <span>Servicios de mi plan</span>
+            </a>
+
+            <a th:href="@{/afiliado/historial/{dui}(dui=${session.dui})}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+
+            <a th:href="@{/afiliado/miTarjeta}" class="nav-item">
+                <i class="fas fa-id-card"></i>
+                <span>Mi tarjeta</span>
+            </a>
+
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <h1>Servicios del proveedor</h1>
+            <p>Explora los proveedores y servicios disponibles según tu plan de asistencia</p>
+            <div class="breadcrumb">
+                <a th:href="@{/usuarios/dashboard}"><i class="fas fa-home"></i> Inicio</a>
+                <i class="fas fa-chevron-right"></i>
+                <span>Proveedores</span>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar proveedores..." id="searchInput">
+                </div>
+                <select class="category-filter" id="coberturaFilter">
+                    <option value="all">Todas las coberturas</option>
+                    <option th:each="cobertura : ${coberturas}"
+                            th:value="${cobertura.nombreCobertura}"
+                            th:text="${cobertura.nombreCobertura}"></option>
+                </select>
+            </div>
+            <div class="toolbar-right">
+                <a th:href="@{/asistencia/solicitudes}" class="btn-ver-solicitudes" th:if="${session.rol==3}">
+                    <i class="fas fa-list-check"></i>
+                    <span>Ver Mis Solicitudes</span>
+                </a>
+
+                <a th:href="@{/proveedores/serviciosProveedor/nuevo/{idProveedor}(idProveedor=${idProveedor})}"
+                   class="btn-ver-solicitudes"
+                   th:if="${session.rol==1}">
+                    Nuevo Servicio
+                </a>
+                <div class="view-toggle">
+                    <button class="view-btn active" id="gridView" title="Vista en mosaico">
+                        <i class="fas fa-th"></i>
+                    </button>
+                    <button class="view-btn" id="listView" title="Vista en lista">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+                <div class="stats-summary">
+                    <div class="stat-item">
+                        <i class="fas fa-truck-fast"></i>
+                        <span class="stat-number" th:text="${#lists.size(servicios)}">0</span>
+                        <span>Servicios</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proveedores Container -->
+        <div class="proveedores-container">
+            <div class="list-header-section">
+                <h2>Listado de Servicios</h2>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading-state" id="loadingState" style="display: none;">
+                <div class="spinner"></div>
+                <span>Cargando proveedores...</span>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-truck-slash"></i>
+                <h3>No se encontraron proveedores</h3>
+                <p>Intenta ajustar los filtros de búsqueda o selecciona una cobertura diferente.</p>
+            </div>
+
+            <!-- Proveedores Grid -->
+            <div class="proveedores-grid" id="proveedoresContainer" th:if="${!#lists.isEmpty(servicios)}">
+                <div class="proveedor-card"
+                     th:each="servicio : ${servicios}"
+                     th:data-nombre="${servicio.nombreProveedor}"
+                     th:data-cobertura="${servicio.nombreCobertura}">
+
+                    <div class="card-header">
+                        <div class="proveedor-logo">
+                            <img th:if="${servicio.imagenURL != null && !servicio.imagenURL.isEmpty()}"
+                                 th:src="${servicio.imagenURL}"
+                                 th:alt="${servicio.nombreProveedor}"
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-building\'></i>';">
+                            <i th:if="${servicio.imagenURL == null || servicio.imagenURL.isEmpty()}"
+                               class="fas fa-building"></i>
+                        </div>
+                        <div class="card-decoration"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="plan-badge">
+                            <i class="fas fa-shield-alt"></i>
+                            <span th:text="${servicio.nombrePlan}">Plan</span>
+                        </div>
+
+                        <h3 class="proveedor-name" th:text="${servicio.nombreProveedor}">Nombre Proveedor</h3>
+
+                        <div class="proveedor-cobertura">
+                            <i class="fas fa-umbrella"></i>
+                            <span th:text="${servicio.nombreServicio}" th:if="${session.rol==1}">Tipo de Cobertura</span>
+                            <span th:text="${servicio.nombreCobertura}" th:if="${session.rol==3}">Tipo de Cobertura</span>
+                        </div>
+
+                        <div class="tarifa-info">
+                            <span class="tarifa-label">Cobertura máxima</span>
+                            <span class="tarifa-monto" th:if="${session.rol==1}"  th:text="'$' + ${#numbers.formatDecimal(servicio.monto, 1, 2)}">$0.00</span>
+                            <span class="tarifa-monto" th:if="${session.rol==3}"  th:text="'$' + ${#numbers.formatDecimal(servicio.tarifa, 1, 2)}">$0.00</span>
+                        </div>
+
+                        <div class="card-actions" th:if="${session.rol==3}">
+                            <a th:href="@{/asistencia/nueva(idProveedor=${servicio.idProveedor},idCobertura=${servicio.idCobertura})}"
+                               class="action-btn primary">
+                                <i class="fas fa-hand-holding-medical"></i> Solicitar Asistencia
+                            </a>
+                        </div>
+
+                        <div class="card-actions" th:if="${session.rol==1}">
+                            <a th:href="@{/proveedores/serviciosProveedor/editar/{idProveedor}/{idServicio}(idProveedor=${servicio.idProveedor}, idServicio=${servicio.idServicio})}"
+                               class="action-btn primary">
+                                <i class="fas fa-hand-holding-medical"></i> Editar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State cuando no hay servicios -->
+            <div th:if="${#lists.isEmpty(servicios)}" class="empty-state">
+                <i class="fas fa-truck-slash"></i>
+                <h3>No hay proveedores disponibles</h3>
+                <p>No se encontraron proveedores para tu plan actual.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    // Datos del servidor
+    const serviciosData = /*[[${servicios}]]*/ [];
+    const coberturasData = /*[[${coberturas}]]*/ [];
+    const idPlanActual = /*[[${idPlan}]]*/ 0;
+
+    // Elementos del DOM
+    const searchInput = document.getElementById('searchInput');
+    const coberturaFilter = document.getElementById('coberturaFilter');
+    const proveedoresContainer = document.getElementById('proveedoresContainer');
+    const emptyState = document.getElementById('emptyState');
+    const gridViewBtn = document.getElementById('gridView');
+    const listViewBtn = document.getElementById('listView');
+
+    // Función de búsqueda y filtrado
+    function filterProveedores() {
+        if (!proveedoresContainer) return;
+
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedCobertura = coberturaFilter.value;
+        const cards = proveedoresContainer.querySelectorAll('.proveedor-card');
+
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const nombre = card.getAttribute('data-nombre').toLowerCase();
+            const cobertura = card.getAttribute('data-cobertura');
+
+            const matchesSearch = nombre.includes(searchTerm);
+            const matchesCobertura = selectedCobertura === 'all' || cobertura === selectedCobertura;
+
+            if (matchesSearch && matchesCobertura) {
+                card.style.display = 'block';
+                card.style.animation = 'fadeInUp 0.3s ease-out';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Mostrar estado vacío si no hay resultados
+        if (visibleCount === 0 && proveedoresContainer) {
+            emptyState.style.display = 'flex';
+            proveedoresContainer.style.display = 'none';
+        } else if (proveedoresContainer) {
+            emptyState.style.display = 'none';
+            proveedoresContainer.style.display = 'grid';
+        }
+
+        console.log(`Mostrando ${visibleCount} de ${cards.length} proveedores`);
+    }
+
+    // Función para cambiar vista
+    function toggleView(viewType) {
+        if (viewType === 'list') {
+            proveedoresContainer.style.gridTemplateColumns = '1fr';
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+        } else {
+            proveedoresContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+        }
+    }
+
+    // Event listeners
+    if (searchInput) {
+        searchInput.addEventListener('input', filterProveedores);
+    }
+
+    if (coberturaFilter) {
+        coberturaFilter.addEventListener('change', filterProveedores);
+    }
+
+    if (gridViewBtn) {
+        gridViewBtn.addEventListener('click', () => toggleView('grid'));
+    }
+
+    if (listViewBtn) {
+        listViewBtn.addEventListener('click', () => toggleView('list'));
+    }
+
+    // Inicializar la aplicación
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Proveedores cargados:', serviciosData.length);
+        console.log('Plan actual:', idPlanActual);
+    });
+</script>
+</body>
+</html>

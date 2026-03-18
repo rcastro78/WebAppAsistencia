@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuario - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/editar_usuario.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Editar Usuario</h1>
+        <span class="subtitle">Modifica la información del usuario</span>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos del Usuario</h2>
+        </div>
+        <div class="card-body">
+            <div class="info-alert">
+                <i class="fas fa-info-circle"></i>
+                <span>Usuario logueado: <strong th:text="${session.nombre + ' ' + session.apellido}">Juan Pérez</strong></span>
+            </div>
+
+            <form th:action="@{/usuarios/editar/{dui}(dui=${usuario.dui})}" th:object="${usuario}" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dui"><i class="fas fa-id-card"></i> DUI</label>
+                        <input type="text" th:field="*{dui}" id="dui" class="input"
+                               placeholder="00000000-0" pattern="[0-9]{8}-[0-9]" title="Formato: 12345678-9" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
+                        <input type="tel" th:field="*{telefono}" id="telefono" class="input"
+                               placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}" title="Formato: 1234-5678">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre"><i class="fas fa-user"></i> Nombre</label>
+                        <input type="text" th:field="*{nombre}" id="nombre" class="input"
+                               placeholder="Ingrese su nombre" maxlength="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido"><i class="fas fa-user"></i> Apellido</label>
+                        <input type="text" th:field="*{apellido}" id="apellido" class="input"
+                               placeholder="Ingrese su apellido" maxlength="100" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" th:field="*{email}" id="email" class="input"
+                               placeholder="correo@ejemplo.com" maxlength="100" required>
+                    </div>
+
+                    <!-- Rol del usuario -->
+                    <div class="form-group">
+                        <label for="rol"><i class="fas fa-user-tag"></i> Rol del Usuario</label>
+                        <select th:field="*{rol}" id="rol" class="input" required>
+                            <option value="">Seleccione un rol...</option>
+                            <option value="1">Administrador</option>
+                            <option value="2">Vendedor</option>
+                        </select>
+                    </div>
+
+                    <!-- Estado activo -->
+                    <div class="form-group">
+                        <label for="activo"><i class="fas fa-toggle-on"></i> Estado</label>
+                        <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+                            <label class="toggle-switch">
+                                <input type="checkbox" th:field="*{activo}" id="activo">
+                                <span class="slider"></span>
+                            </label>
+                            <span id="status-text" style="font-weight: 600;"
+                                  th:style="'font-weight: 600; color: ' + (${usuario.activo} ? '#28a745' : '#dc3545')"
+                                  th:text="${usuario.activo} ? 'Activo' : 'Inactivo'">Estado</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de cambio de contraseña -->
+                <div class="password-section">
+                    <h3><i class="fas fa-key"></i> Cambiar Contraseña</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="changePassword" onchange="togglePasswordSection()">
+                        <label for="changePassword">Cambiar contraseña del usuario</label>
+                    </div>
+
+                    <div id="passwordFields" style="display: none;">
+                        <div class="form-grid">
+                            <!-- Nueva contraseña -->
+                            <div class="form-group full-width">
+                                <label for="nuevaContrasena"><i class="fas fa-lock"></i> Nueva Contraseña</label>
+                                <div class="password-toggle">
+                                    <input type="password" name="nuevaContrasena" id="nuevaContrasena"
+                                           class="input" placeholder="Ingrese la nueva contraseña" maxlength="255">
+                                    <button type="button" class="password-toggle-btn" onclick="togglePassword('nuevaContrasena')">
+                                        <i class="fas fa-eye" id="eye-nuevaContrasena"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Confirmar nueva contraseña -->
+                            <div class="form-group full-width">
+                                <label for="confirmarNuevaContrasena"><i class="fas fa-lock"></i> Repetir Nueva Contraseña</label>
+                                <div class="password-toggle">
+                                    <input type="password" id="confirmarNuevaContrasena" class="input"
+                                           placeholder="Repita la nueva contraseña" maxlength="255">
+                                    <button type="button" class="password-toggle-btn" onclick="togglePassword('confirmarNuevaContrasena')">
+                                        <i class="fas fa-eye" id="eye-confirmarNuevaContrasena"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Requisitos -->
+                        <div id="password-requirements" style="display:none; margin-top:15px;">
+                            <p><strong>La contraseña debe incluir:</strong></p>
+                            <ul>
+                                <li id="req-length" class="invalid"><i class="fas fa-times"></i> Al menos 8 caracteres</li>
+                                <li id="req-uppercase" class="invalid"><i class="fas fa-times"></i> Una letra mayúscula</li>
+                                <li id="req-lowercase" class="invalid"><i class="fas fa-times"></i> Una letra minúscula</li>
+                                <li id="req-number" class="invalid"><i class="fas fa-times"></i> Un número</li>
+                                <li id="req-symbol" class="invalid"><i class="fas fa-times"></i> Un símbolo (@$!%*?&)</li>
+                            </ul>
+                        </div>
+                        <!-- Barra de fuerza -->
+                        <div id="password-strength" class="password-strength" style="display:none; margin-top:15px;">
+                            <div style="background:#e1e5e9; height:8px; border-radius:4px; overflow:hidden;">
+                                <div id="strength-bar" style="width:0%; height:8px; background:#dc3545; transition:width .3s;"></div>
+                            </div>
+                            <p id="strength-text" style="margin-top:5px; font-size:0.9rem; color:#333;">Fortaleza: Muy débil</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn"><i class="fas fa-save"></i> Guardar Cambios</button>
+                    <a th:href="@{/admin/dashboard}" class="btn secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+                    <button type="button" class="btn danger" onclick="confirmarEliminar()">
+                        <i class="fas fa-trash"></i> Eliminar Usuario
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mostrar/ocultar contraseña
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const eyeIcon = document.getElementById('eye-' + fieldId);
+        if (field.type === 'password') {
+            field.type = 'text';
+            eyeIcon.classList.replace('fa-eye','fa-eye-slash');
+        } else {
+            field.type = 'password';
+            eyeIcon.classList.replace('fa-eye-slash','fa-eye');
+        }
+    }
+
+    // Toggle para mostrar/ocultar sección de cambio de contraseña
+    function togglePasswordSection() {
+        const checkbox = document.getElementById('changePassword');
+        const passwordFields = document.getElementById('passwordFields');
+        const nuevaContrasena = document.getElementById('nuevaContrasena');
+        const confirmarNuevaContrasena = document.getElementById('confirmarNuevaContrasena');
+
+        if (checkbox.checked) {
+            passwordFields.style.display = 'block';
+            nuevaContrasena.required = true;
+            confirmarNuevaContrasena.required = true;
+        } else {
+            passwordFields.style.display = 'none';
+            nuevaContrasena.required = false;
+            confirmarNuevaContrasena.required = false;
+            nuevaContrasena.value = '';
+            confirmarNuevaContrasena.value = '';
+            // Ocultar requisitos y barra de fuerza
+            document.getElementById('password-requirements').style.display = 'none';
+            document.getElementById('password-strength').style.display = 'none';
+        }
+    }
+
+    // Actualizar texto del estado activo
+    function updateStatusText() {
+        const checkbox = document.getElementById('activo');
+        const statusText = document.getElementById('status-text');
+
+        if (checkbox.checked) {
+            statusText.textContent = 'Activo';
+            statusText.style.color = '#28a745';
+        } else {
+            statusText.textContent = 'Inactivo';
+            statusText.style.color = '#dc3545';
+        }
+    }
+
+    // Confirmar eliminación
+    function confirmarEliminar() {
+        if (confirm('¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer.')) {
+            // Obtener el DUI del campo del formulario
+            const duiField = document.getElementById('dui');
+            const dui = duiField.value;
+
+            // Crear formulario para eliminación
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/usuarios/eliminar/' + dui;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initPasswordValidation();
+        updateStatusText();
+
+        // Event listener para el toggle del estado
+        document.getElementById('activo').addEventListener('change', updateStatusText);
+    });
+
+    function initPasswordValidation() {
+        const form = document.querySelector('form');
+        const nuevaContrasena = document.getElementById('nuevaContrasena');
+        const confirmarNuevaContrasena = document.getElementById('confirmarNuevaContrasena');
+        const requirements = document.getElementById('password-requirements');
+        const strengthMeter = document.getElementById('password-strength');
+        const rolSelect = document.getElementById('rol');
+        const changePasswordCheckbox = document.getElementById('changePassword');
+
+        nuevaContrasena.addEventListener('focus', () => {
+            if (changePasswordCheckbox.checked) {
+                requirements.style.display = 'block';
+                strengthMeter.style.display = 'block';
+            }
+        });
+
+        nuevaContrasena.addEventListener('input', () => {
+            const password = nuevaContrasena.value;
+            if (changePasswordCheckbox.checked) {
+                validatePasswordRequirements(password);
+                updatePasswordStrength(password);
+                validarContrasenas();
+            }
+        });
+
+        confirmarNuevaContrasena.addEventListener('input', validarContrasenas);
+
+        // Validación del rol
+        rolSelect.addEventListener('change', function() {
+            if (this.value === '') {
+                this.style.borderColor = '#dc3545';
+            } else {
+                this.style.borderColor = '#e1e5e9';
+            }
+        });
+
+        form.addEventListener('submit', e => {
+            const rol = rolSelect.value;
+
+            // Validar que se haya seleccionado un rol
+            if (rol === '') {
+                e.preventDefault();
+                alert('Por favor, seleccione un rol para el usuario.');
+                rolSelect.style.borderColor = '#dc3545';
+                rolSelect.focus();
+                return;
+            }
+
+            // Si se va a cambiar la contraseña, validarla
+            if (changePasswordCheckbox.checked) {
+                const password = nuevaContrasena.value;
+
+                if (!isPasswordValid(password)) {
+                    e.preventDefault();
+                    alert('La nueva contraseña no cumple con los requisitos de seguridad.');
+                    return;
+                }
+
+                if (nuevaContrasena.value !== confirmarNuevaContrasena.value) {
+                    e.preventDefault();
+                    alert('Las contraseñas no coinciden. Por favor, verifique.');
+                    return;
+                }
+            }
+        });
+
+        function validarContrasenas() {
+            if (!changePasswordCheckbox.checked || confirmarNuevaContrasena.value === '') return;
+
+            if (nuevaContrasena.value !== confirmarNuevaContrasena.value) {
+                confirmarNuevaContrasena.setCustomValidity('Las contraseñas no coinciden');
+                confirmarNuevaContrasena.style.borderColor = '#dc3545';
+            } else {
+                confirmarNuevaContrasena.setCustomValidity('');
+                confirmarNuevaContrasena.style.borderColor = '#28a745';
+            }
+        }
+    }
+
+    function validatePasswordRequirements(password) {
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /\d/.test(password),
+            symbol: /[@$!%*?&]/.test(password)
+        };
+        Object.keys(requirements).forEach(req => {
+            const element = document.getElementById('req-' + req);
+            const icon = element.querySelector('i');
+            if (requirements[req]) {
+                element.classList.replace('invalid','valid');
+                icon.className = 'fas fa-check';
+            } else {
+                element.classList.replace('valid','invalid');
+                icon.className = 'fas fa-times';
+            }
+        });
+    }
+
+    function isPasswordValid(password) {
+        return password.length >= 8 &&
+               /[A-Z]/.test(password) &&
+               /[a-z]/.test(password) &&
+               /\d/.test(password) &&
+               /[@$!%*?&]/.test(password);
+    }
+
+    function updatePasswordStrength(password) {
+        const bar = document.getElementById('strength-bar');
+        const text = document.getElementById('strength-text');
+        const container = bar.parentElement.parentElement;
+        let strength = 0;
+        container.className = 'password-strength';
+
+        if (password.length >= 8) strength += 20;
+        if (password.length >= 12) strength += 10;
+        if (/[a-z]/.test(password)) strength += 15;
+        if (/[A-Z]/.test(password)) strength += 15;
+        if (/\d/.test(password)) strength += 15;
+        if (/[@$!%*?&]/.test(password)) strength += 15;
+        if (password.length >= 16) strength += 10;
+
+        let label = 'Muy débil';
+        if (strength < 30) { label = 'Muy débil'; container.classList.add('strength-weak'); }
+        else if (strength < 60) { label = 'Débil'; container.classList.add('strength-fair'); }
+        else if (strength < 80) { label = 'Buena'; container.classList.add('strength-good'); }
+        else { label = 'Fuerte'; container.classList.add('strength-strong'); }
+
+        bar.style.width = strength + '%';
+        text.textContent = 'Fortaleza: ' + label;
+    }
+</script>
+</body>
+</html>

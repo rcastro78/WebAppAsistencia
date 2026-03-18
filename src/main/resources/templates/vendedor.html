@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo} + ' - Asistencia El Salvador'">Vendedor - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}">
+</head>
+<body>
+<div class="app">
+
+    <div class="header">
+        <h1 th:text="${titulo}">Vendedor</h1>
+        <span class="subtitle"
+              th:text="${modo == 'editar'} ? 'Actualiza los datos del vendedor' : 'Completa la información para registrar un nuevo vendedor'">
+        </span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos del Vendedor</h2>
+        </div>
+
+        <div class="breadcrumb">
+            <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <a th:href="@{/vendedores/}">Vendedores</a>
+            <i class="fas fa-chevron-right"></i>
+            <span th:text="${titulo}"></span>
+        </div>
+
+        <!-- Mensajes de error -->
+        <div th:if="${error}" class="alert alert-danger" style="margin: 1rem 1.5rem;">
+            <i class="fas fa-exclamation-circle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="card-body">
+            <form id="vendedorForm"
+                  th:action="@{/admin/vendedores/guardar}"
+                  th:object="${vendedor}"
+                  method="post">
+
+                <!-- ── FLAG DE MODO (crear / editar) ─────────────────────── -->
+                <input type="hidden" name="modo" th:value="${modo}">
+
+                <div class="form-grid">
+
+                    <!-- DUI -->
+                    <div class="form-group">
+                        <label for="dui"><i class="fas fa-id-card"></i> DUI</label>
+                        <input type="text"
+                               th:field="*{dui}"
+                               id="dui"
+                               class="input"
+                               placeholder="00000000-0"
+                               maxlength="10"
+                               th:readonly="${modo == 'editar'}"
+                               th:classappend="${modo == 'editar'} ? 'input-readonly'"
+                               required>
+                        <small th:if="${modo == 'editar'}" style="color:#888;">
+                            <i class="fas fa-lock"></i> El DUI no puede modificarse
+                        </small>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label for="nombre"><i class="fas fa-user"></i> Nombre</label>
+                        <input type="text"
+                               th:field="*{nombre}"
+                               id="nombre"
+                               class="input"
+                               placeholder="Ingrese el nombre"
+                               required>
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="form-group">
+                        <label for="apellido"><i class="fas fa-user-tag"></i> Apellido</label>
+                        <input type="text"
+                               th:field="*{apellido}"
+                               id="apellido"
+                               class="input"
+                               placeholder="Ingrese el apellido"
+                               required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> Correo electrónico</label>
+                        <input type="email"
+                               th:field="*{email}"
+                               id="email"
+                               class="input"
+                               placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
+                        <input type="tel"
+                               th:field="*{telefono}"
+                               id="telefono"
+                               class="input"
+                               placeholder="0000-0000"
+                               maxlength="9">
+                    </div>
+
+                    <!-- Zona -->
+                    <div class="form-group">
+                        <label for="zona"><i class="fas fa-map-marker-alt"></i> Zona</label>
+                        <input type="text"
+                               th:field="*{zona}"
+                               id="zona"
+                               class="input"
+                               placeholder="Ej: Norte, Oriente, Metropolitana...">
+                    </div>
+
+                    <!-- Estado (activo) — solo visible en modo editar -->
+                    <div class="form-group" th:if="${modo == 'editar'}">
+                        <label for="activo"><i class="fas fa-toggle-on"></i> Estado</label>
+                        <select id="activo" th:field="*{activo}" class="input">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <!-- ── BOTONES ────────────────────────────────────────────── -->
+                <div class="actions">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i>
+                        <span th:text="${modo == 'editar'} ? 'Actualizar' : 'Guardar'">Guardar</span>
+                    </button>
+                    <a th:href="@{/vendedores/}" class="btn secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // ── FORMATO AUTOMÁTICO DUI (00000000-0) ───────────────────────────
+        const duiInput = document.getElementById('dui');
+        if (duiInput && !duiInput.readOnly) {
+            duiInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 8) {
+                    value = value.substring(0, 8) + '-' + value.substring(8, 9);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // ── FORMATO AUTOMÁTICO TELÉFONO (0000-0000) ───────────────────────
+        const telInput = document.getElementById('telefono');
+        if (telInput) {
+            telInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // ── VALIDACIÓN ANTES DE ENVIAR ────────────────────────────────────
+        const form = document.getElementById('vendedorForm');
+        form.addEventListener('submit', function (e) {
+            const dui    = document.getElementById('dui').value.trim();
+            const nombre = document.getElementById('nombre').value.trim();
+            const apellido = document.getElementById('apellido').value.trim();
+
+            // Validar formato DUI
+            const duiRegex = /^\d{8}-\d$/;
+            if (!duiRegex.test(dui)) {
+                e.preventDefault();
+                mostrarError('El DUI debe tener el formato 00000000-0');
+                document.getElementById('dui').focus();
+                return;
+            }
+
+            if (!nombre) {
+                e.preventDefault();
+                mostrarError('El nombre es obligatorio.');
+                document.getElementById('nombre').focus();
+                return;
+            }
+
+            if (!apellido) {
+                e.preventDefault();
+                mostrarError('El apellido es obligatorio.');
+                document.getElementById('apellido').focus();
+                return;
+            }
+        });
+    });
+
+    function mostrarError(mensaje) {
+        // Reutilizar alerta existente o crear una nueva
+        let alerta = document.querySelector('.alert.alert-danger');
+        if (!alerta) {
+            alerta = document.createElement('div');
+            alerta.className = 'alert alert-danger';
+            alerta.style.margin = '1rem 1.5rem';
+            const cardBody = document.querySelector('.card-body');
+            cardBody.insertBefore(alerta, cardBody.firstChild);
+        }
+        alerta.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + mensaje;
+        alerta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+</script>
+</body>
+</html>

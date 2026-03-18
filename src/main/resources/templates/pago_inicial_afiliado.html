@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completar Pago - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .success-icon i {
+            font-size: 2.5rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .card-header p {
+            opacity: 0.9;
+            font-size: 1.05rem;
+        }
+
+        .card-body {
+            padding: 40px 30px;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            border-left: 4px solid #FF8C00;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .price-section {
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .price-label {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .price-amount {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .price-period {
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions ol {
+            color: #856404;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        .payment-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .payment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .payment-btn i {
+            font-size: 1.3rem;
+        }
+
+        .security-note {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .security-note i {
+            color: #28a745;
+        }
+
+        .wompi-logo {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .wompi-logo p {
+            color: #999;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .wompi-badge {
+            display: inline-block;
+            background: #f8f9fa;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            color: #FF8C00;
+            font-size: 1.1rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card-body {
+                padding: 25px 20px;
+            }
+
+            .price-amount {
+                font-size: 2.8rem;
+            }
+
+            .payment-btn {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>¡Registro Exitoso!</h1>
+        <p class="subtitle">Un paso más para activar tu plan</p>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <p>Ahora completa tu pago para activar tu plan</p>
+        </div>
+
+        <div class="card-body">
+            <!-- Información del Afiliado -->
+            <div class="info-section">
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-user"></i> Afiliado:</span>
+                    <span class="info-value" th:text="|${afiliado.nombre} ${afiliado.apellido}|">Rafael Castro</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-id-card"></i> DUI:</span>
+                    <span class="info-value" th:text="${afiliado.dui}">01624438-7</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-envelope"></i> Email:</span>
+                    <span class="info-value" th:text="${afiliado.email}">rafael@email.com</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label"><i class="fas fa-star"></i> Plan Seleccionado:</span>
+                    <span class="info-value" th:text="${plan.nombrePlan}">Plan Familiar</span>
+                </div>
+            </div>
+
+            <!-- Precio a Pagar -->
+            <div class="price-section">
+                <div class="price-label">Total a Pagar</div>
+                <div class="price-amount">$<span th:text="${plan.costoPlan}">15.00</span></div>
+                <div class="price-period">Pago mensual</div>
+            </div>
+
+            <!-- Instrucciones -->
+            <div class="instructions">
+                <h3><i class="fas fa-info-circle"></i> Instrucciones de Pago</h3>
+                <ol>
+                    <li>Haz clic en el botón "Pagar con Wompi"</li>
+                    <li>Serás redirigido a la plataforma de pago segura</li>
+                    <li>Completa tu pago con tarjeta o transferencia</li>
+                    <li>Una vez confirmado, tu plan se activará automáticamente</li>
+                    <li>Recibirás un correo con tus credenciales de acceso</li>
+                </ol>
+            </div>
+
+            <!-- Botón de Pago -->
+            <form th:action="${linkPago}" method="get" target="_blank">
+                <button type="submit" class="payment-btn">
+                    <i class="fas fa-credit-card"></i>
+                    Pagar con Wompi
+                </button>
+            </form>
+
+            <!-- Nota de Seguridad -->
+            <div class="security-note">
+                <i class="fas fa-shield-alt"></i>
+                <span>Pago 100% seguro y encriptado. No olvides enviar tu comprobante de pago a <a href="mailto:pagos@asistenciaelsalvador.com" style="color: #FF8C00; font-weight: 600; text-decoration: underline;">jorellana@asistenciaelsalvador.com</a></span>
+            </div>
+
+            <!-- Logo Wompi -->
+            <div class="wompi-logo">
+                <p>Procesado por</p>
+                <span class="wompi-badge">
+                        <i class="fas fa-bolt"></i> Wompi
+                    </span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

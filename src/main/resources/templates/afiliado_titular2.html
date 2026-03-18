@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esEdicion ? 'Editar Titular 2' : 'Datos del Titular 2'} + ' - Asistencia El Salvador'">Datos del Titular 2 - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/afiliado2.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1 th:text="${esEdicion ? 'Editar Datos del Titular 2' : 'Datos del Titular 2, paso 5'}">Datos del Titular 2, paso 5</h1>
+        <span class="subtitle" th:text="${esEdicion ? 'Actualiza la información del segundo titular' : 'Complete la información del segundo titular (opcional)'}">Complete la información del segundo titular (opcional)</span>
+    </div>
+
+    <!-- Progress indicator (solo mostrar en modo creación) -->
+    <div class="progress-indicator" th:if="${!esEdicion}">
+        <div class="progress-step completed"><i class="fas fa-check"></i></div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step completed"><i class="fas fa-check"></i></div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step completed"><i class="fas fa-check"></i></div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step completed"><i class="fas fa-check"></i></div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step active">5</div>
+    </div>
+
+    <!-- Alert informativo -->
+    <div class="alert">
+        <i class="fas fa-info-circle"></i>
+        <span th:if="${!esEdicion}"><strong>Nota:</strong> Esta información es opcional. Complete solo si desea agregar un segundo titular a la cuenta.</span>
+        <span th:if="${esEdicion}"><strong>Nota:</strong> Esta función está disponible solo para planes premium. Actualice o elimine la información del segundo titular.</span>
+    </div>
+
+    <!-- Mensaje de éxito/error -->
+    <div th:if="${mensaje}" class="message success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${mensaje}"></span>
+    </div>
+
+    <div th:if="${error}" class="message error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <form th:action="@{/afiliado/titular2/guardar}" th:object="${afiliadoTitular}" method="post">
+        <!-- Campos ocultos -->
+        <input type="hidden" th:field="*{duiAfiliado}" th:value="${dui}">
+        <input type="hidden" name="esEdicion" th:value="${esEdicion}">
+        <input type="hidden" th:field="*{duiAfiliado2}" th:if="${esEdicion && afiliadoTitular.duiAfiliado2 != null}">
+
+        <!-- Datos Personales -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-user"></i> Datos Personales</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <!-- DUI Titular 2 -->
+                    <div class="form-group">
+                        <label for="duiAfiliado2">
+                            DUI del Titular 2
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text"
+                               id="duiAfiliado2"
+                               th:field="*{duiAfiliado2}"
+                               class="input"
+                               placeholder="Ej: 12345678-9"
+                               required
+                               maxlength="10"
+                               pattern="[0-9]{8}-[0-9]{1}">
+                        <span class="help-text">Documento único de identidad</span>
+                    </div>
+
+                    <!-- Nombre Completo -->
+                    <div class="form-group">
+                        <label for="nombreTitular">
+                            Nombre Completo
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text"
+                               id="nombreTitular"
+                               th:field="*{nombreTitular}"
+                               class="input"
+                               placeholder="Ej: María José García López"
+                               required
+                               maxlength="100">
+                        <span class="help-text">Nombre según DUI</span>
+                    </div>
+
+                    <!-- Fecha de Nacimiento -->
+                    <div class="form-group">
+                        <label for="fechaNacimiento">
+                            Fecha de Nacimiento
+                            <span class="required">*</span>
+                        </label>
+                        <input type="date"
+                               id="fechaNacimiento"
+                               th:field="*{fechaNacimiento}"
+                               class="input"
+                               required>
+                        <span class="help-text">Fecha según DUI</span>
+                    </div>
+
+                    <!-- Estado Civil -->
+                    <div class="form-group">
+                        <label for="edoCivil">
+                            Estado Civil
+                            <span class="required">*</span>
+                        </label>
+                        <select id="edoCivil" th:field="*{edoCivil}" class="input" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Soltero(a)">Soltero(a)</option>
+                            <option value="Casado(a)">Casado(a)</option>
+                            <option value="Divorciado(a)">Divorciado(a)</option>
+                            <option value="Viudo(a)">Viudo(a)</option>
+                            <option value="Unión Libre">Unión Libre</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos de Contacto -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-address-book"></i> Datos de Contacto</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">
+                            Correo Electrónico
+                            <span class="required">*</span>
+                        </label>
+                        <input type="email"
+                               id="email"
+                               th:field="*{email}"
+                               class="input"
+                               placeholder="Ej: maria.garcia@email.com"
+                               required
+                               maxlength="45">
+                        <span class="help-text">Email principal de contacto</span>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telefono">
+                            Teléfono
+                            <span class="required">*</span>
+                        </label>
+                        <input type="tel"
+                               id="telefono"
+                               th:field="*{telefono}"
+                               class="input"
+                               placeholder="Ej: 7890-1234"
+                               required
+                               maxlength="20"
+                               pattern="[0-9]{4}-[0-9]{4}">
+                        <span class="help-text">Teléfono celular</span>
+                    </div>
+
+                    <!-- Teléfono de Trabajo -->
+                    <div class="form-group">
+                        <label for="telefTrabajo">
+                            Teléfono de Trabajo
+                        </label>
+                        <input type="tel"
+                               id="telefTrabajo"
+                               th:field="*{telefTrabajo}"
+                               class="input"
+                               placeholder="Ej: 2222-3333"
+                               maxlength="20"
+                               pattern="[0-9]{4}-[0-9]{4}">
+                        <span class="help-text">Opcional</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ubicación -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-map-marker-alt"></i> Ubicación</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <!-- País -->
+                    <div class="form-group">
+                        <label for="pais">País <span class="required">*</span></label>
+                        <select id="pais" th:field="*{idPais}" class="input" onchange="loadDepartamentos(this.value)" required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}"
+                                    th:value="${p.idPais}"
+                                    th:text="${p.nombrePais}"
+                                    th:selected="${p.idPais == afiliadoTitular.idPais}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Departamento -->
+                    <div class="form-group">
+                        <label for="departamento">Departamento <span class="required">*</span></label>
+                        <select id="departamento" th:field="*{idDepto}" class="input" onchange="loadMunicipios(this.value)" required>
+                            <option value="">Seleccione un departamento</option>
+                            <option th:each="d : ${departamentos}"
+                                    th:value="${d.idDepto}"
+                                    th:text="${d.nombreDepartamento}"
+                                    th:selected="${d.idDepto == afiliadoTitular.idDepto}"
+                                    th:if="${departamentos != null}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Municipio -->
+                    <div class="form-group">
+                        <label for="municipio">Municipio <span class="required">*</span></label>
+                        <select id="municipio" th:field="*{idMunicipio}" class="input" required>
+                            <option value="">Seleccione un municipio</option>
+                            <option th:each="m : ${municipios}"
+                                    th:value="${m.idMunicipio}"
+                                    th:text="${m.munNombre}"
+                                    th:selected="${m.idMunicipio == afiliadoTitular.idMunicipio}"
+                                    th:if="${municipios != null}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="form-group full-width">
+                        <label for="direccion">
+                            Dirección Completa
+                            <span class="required">*</span>
+                        </label>
+                        <textarea id="direccion"
+                                  th:field="*{direccion}"
+                                  class="input"
+                                  placeholder="Ej: Col. Escalón, Calle Principal #123"
+                                  required
+                                  maxlength="200"
+                                  rows="3"></textarea>
+                        <span class="help-text">Dirección detallada de residencia</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos Laborales -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-briefcase"></i> Datos Laborales</h2>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <!-- Ocupación -->
+                    <div class="form-group">
+                        <label for="ocupacion">
+                            Ocupación
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text"
+                               id="ocupacion"
+                               th:field="*{ocupacion}"
+                               class="input"
+                               placeholder="Ej: Contador(a)"
+                               required
+                               maxlength="100">
+                        <span class="help-text">Profesión u oficio</span>
+                    </div>
+
+                    <!-- Lugar de Trabajo -->
+                    <div class="form-group">
+                        <label for="lugarDeTrabajo">
+                            Lugar de Trabajo
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text"
+                               id="lugarDeTrabajo"
+                               th:field="*{lugarDeTrabajo}"
+                               class="input"
+                               placeholder="Ej: Empresa ABC S.A. de C.V."
+                               required
+                               maxlength="145">
+                        <span class="help-text">Nombre de la empresa o institución</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="actions">
+            <button type="submit" class="btn">
+                <i class="fas fa-save"></i>
+                <span th:text="${esEdicion ? 'Actualizar Titular 2' : 'Guardar Titular 2'}">Guardar Titular 2</span>
+            </button>
+
+
+
+
+
+            <!-- Botón para eliminar (solo en modo edición y si existe el titular 2) -->
+            <button type="button"
+                    th:if="${esEdicion && afiliadoTitular.duiAfiliado2 != null}"
+                    class="btn danger"
+                    onclick="confirmarEliminacion()">
+                <i class="fas fa-trash"></i> Eliminar Titular 2
+            </button>
+
+            <a th:href="${esEdicion ? '/afiliado/editar/' + dui : '/afiliado/vehiculo/nuevo/' + dui}"
+               class="btn secondary">
+                <i class="fas fa-arrow-left"></i>
+                <span th:text="${esEdicion ? 'Cancelar' : 'Omitir este paso'}">Omitir este paso</span>
+            </a>
+
+            <a th:href="@{/afiliado/info-empleo/editar/{dui}(dui=${dui})}" class="btn secondary">
+                <i class="fas fa-arrow-right"></i> Siguiente
+            </a>
+
+
+        </div>
+    </form>
+</div>
+
+<!-- Modal de confirmación para eliminación -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%;">
+        <div style="text-align: center;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc3545; margin-bottom: 20px;"></i>
+            <h3 style="margin-bottom: 15px; color: #333;">¿Confirmar eliminación?</h3>
+            <p style="color: #666; margin-bottom: 25px;">Esta acción eliminará permanentemente la información del Titular 2.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="eliminarTitular2()" class="btn danger" style="min-width: 100px;">
+                    <i class="fas fa-trash"></i> Eliminar
+                </button>
+                <button onclick="cerrarModal()" class="btn secondary" style="min-width: 100px;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Cargar departamentos y municipios al inicializar (para edición)
+    document.addEventListener("DOMContentLoaded", function() {
+        const paisSelect = document.getElementById('pais');
+        const deptoSelect = document.getElementById('departamento');
+
+        if (paisSelect.value && deptoSelect.options.length <= 1) {
+            loadDepartamentos(paisSelect.value);
+        }
+
+        setTimeout(() => {
+            const municipioSelect = document.getElementById('municipio');
+            if (deptoSelect.value && municipioSelect.options.length <= 1) {
+                loadMunicipios(deptoSelect.value);
+            }
+        }, 500);
+    });
+
+    // Función para cargar departamentos
+    function loadDepartamentos(idPais) {
+        const deptoSelect = document.getElementById("departamento");
+        const municipioSelect = document.getElementById("municipio");
+
+        if (!idPais) {
+            deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        deptoSelect.classList.add('loading');
+
+        fetch(`/api/departamentos/pais/${idPais}`)
+            .then(response => response.json())
+            .then(data => {
+                deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+                data.forEach(depto => {
+                    deptoSelect.innerHTML += `<option value="${depto.idDepto}">${depto.nombreDepartamento}</option>`;
+                });
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            })
+            .catch(error => {
+                console.error('Error cargando departamentos:', error);
+                deptoSelect.innerHTML = "<option value=''>Error al cargar departamentos</option>";
+            })
+            .finally(() => {
+                deptoSelect.classList.remove('loading');
+            });
+    }
+
+    // Función para cargar municipios
+    function loadMunicipios(idDepto) {
+        const municipioSelect = document.getElementById("municipio");
+
+        if (!idDepto) {
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        municipioSelect.classList.add('loading');
+
+        fetch(`/api/municipios/departamento/${idDepto}`)
+            .then(response => response.json())
+            .then(data => {
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+                data.forEach(muni => {
+                    municipioSelect.innerHTML += `<option value="${muni.idMunicipio}">${muni.munNombre}</option>`;
+                });
+            })
+            .catch(error => {
+                console.error('Error cargando municipios:', error);
+                municipioSelect.innerHTML = "<option value=''>Error al cargar municipios</option>";
+            })
+            .finally(() => {
+                municipioSelect.classList.remove('loading');
+            });
+    }
+
+    // Formatear DUI automáticamente
+    document.getElementById('duiAfiliado2').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 8) {
+            value = value.substring(0, 8) + '-' + value.substring(8, 9);
+        }
+        e.target.value = value;
+    });
+
+    // Formatear teléfonos automáticamente
+    function formatPhone(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 4) {
+            value = value.substring(0, 4) + '-' + value.substring(4, 8);
+        }
+        input.value = value;
+    }
+
+    document.getElementById('telefono').addEventListener('input', function() {
+        formatPhone(this);
+    });
+
+    document.getElementById('telefTrabajo').addEventListener('input', function() {
+        formatPhone(this);
+    });
+
+    // Validar edad mínima (18 años)
+    document.getElementById('fechaNacimiento').addEventListener('change', function() {
+        const fechaNac = new Date(this.value);
+        const hoy = new Date();
+        let edad = hoy.getFullYear() - fechaNac.getFullYear();
+        const mes = hoy.getMonth() - fechaNac.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+            edad--;
+        }
+
+        if (edad < 18) {
+            alert('El titular 2 debe ser mayor de 18 años.');
+            this.value = '';
+        }
+    });
+
+    // Establecer fecha máxima (18 años atrás desde hoy)
+    const hoy = new Date();
+    const fechaMax = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate());
+    document.getElementById('fechaNacimiento').setAttribute('max', fechaMax.toISOString().split('T')[0]);
+
+    // Auto-ocultar mensajes después de 5 segundos
+    const messages = document.querySelectorAll('.message');
+    messages.forEach(message => {
+        setTimeout(() => {
+            message.style.opacity = '0';
+            setTimeout(() => message.remove(), 300);
+        }, 5000);
+    });
+
+    // Validación del formulario antes de enviar
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const email = document.getElementById('email').value;
+
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            e.preventDefault();
+            alert('Por favor, ingrese un correo electrónico válido.');
+            return false;
+        }
+    });
+
+    // Funciones para el modal de eliminación
+    function confirmarEliminacion() {
+        document.getElementById('deleteModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function eliminarTitular2() {
+        const dui = document.querySelector('input[name="duiAfiliado"]').value;
+
+        // Crear formulario para enviar POST de eliminación
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/afiliado/titular2/eliminar/${dui}`;
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            cerrarModal();
+        }
+    });
+</script>
+</body>
+</html>

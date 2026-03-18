@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error en el Pago - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+        }
+
+        .error-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            animation: shake 0.5s ease-out 0.2s both;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        .error-icon i {
+            color: white;
+            font-size: 3rem;
+        }
+
+        .error-title {
+            font-size: 2.2rem;
+            color: #dc3545;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .error-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .error-message h4 {
+            color: #721c24;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .error-message h4 i {
+            font-size: 1.2rem;
+        }
+
+        .error-message p {
+            color: #721c24;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+
+        .error-code {
+            background: #e9ecef;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #495057;
+            margin: 10px 0;
+        }
+
+        .attempted-details {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #e8ecff;
+            text-align: left;
+        }
+
+        .attempted-details h4 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-label i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .solutions-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .solutions-box h4 {
+            color: #0c5460;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .solutions-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .solutions-box li {
+            color: #0c5460;
+            padding: 10px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.5;
+        }
+
+        .solutions-box li i {
+            color: #17a2b8;
+            margin-top: 3px;
+            font-size: 1.1rem;
+        }
+
+        .contact-support {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .contact-support h4 {
+            color: #856404;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contact-support p {
+            color: #856404;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .contact-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .contact-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .contact-item i {
+            color: #667eea;
+            font-size: 1.5rem;
+        }
+
+        .contact-info {
+            text-align: left;
+        }
+
+        .contact-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .contact-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .common-errors {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .common-errors h4 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #667eea;
+        }
+
+        .error-item-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-item-title i {
+            color: #667eea;
+        }
+
+        .error-item-text {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .error-card {
+                padding: 30px 20px;
+            }
+
+            .error-title {
+                font-size: 1.8rem;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .contact-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="error-card">
+        <!-- Icono de error -->
+        <div class="error-icon">
+            <i class="fas fa-times"></i>
+        </div>
+
+        <!-- Título -->
+        <h1 class="error-title">Error en el Pago</h1>
+        <p class="error-subtitle">No se pudo procesar tu pago. Por favor, intenta nuevamente.</p>
+
+        <!-- Mensaje de error -->
+        <div class="error-message">
+            <h4><i class="fas fa-exclamation-triangle"></i> Detalles del Error</h4>
+            <p th:if="${error}" th:text="${error}">
+                No se pudo completar la transacción. Por favor verifica tu información e intenta de nuevo.
+            </p>
+            <p th:unless="${error}">
+                Ocurrió un error inesperado al procesar tu pago. Por favor intenta nuevamente.
+            </p>
+
+            <div class="error-code" th:if="${errorCode}">
+                Código de error: <span th:text="${errorCode}">ERR_500</span>
+            </div>
+        </div>
+
+        <!-- Detalles del intento de pago (si existen) -->
+        <div class="attempted-details" th:if="${pago}">
+            <h4><i class="fas fa-info-circle"></i> Intento de Pago</h4>
+
+            <div class="detail-row" th:if="${afiliado}">
+                <span class="detail-label">
+                    <i class="fas fa-user"></i> Beneficiario
+                </span>
+                <span class="detail-value" th:text="|${afiliado.nombre} ${afiliado.apellido}|">Juan Pérez</span>
+            </div>
+
+            <div class="detail-row" th:if="${afiliado}">
+                <span class="detail-label">
+                    <i class="fas fa-id-card"></i> DUI
+                </span>
+                <span class="detail-value" th:text="${afiliado.dui}">00000000-0</span>
+            </div>
+
+            <div class="detail-row" th:if="${pago.mes && pago.anio}">
+                <span class="detail-label">
+                    <i class="fas fa-calendar-alt"></i> Periodo
+                </span>
+                <span class="detail-value">
+                    <span th:text="${pago.mes}">10</span>/<span th:text="${pago.anio}">2025</span>
+                </span>
+            </div>
+
+            <div class="detail-row" th:if="${pago.cantidadPagada}">
+                <span class="detail-label">
+                    <i class="fas fa-dollar-sign"></i> Monto
+                </span>
+                <span class="detail-value">$<span th:text="${pago.cantidadPagada}">25.00</span></span>
+            </div>
+
+            <div class="detail-row" th:if="${pago.formaPago}">
+                <span class="detail-label">
+                    <i class="fas fa-credit-card"></i> Método de Pago
+                </span>
+                <span class="detail-value">
+                    <span th:if="${pago.formaPago == 1}">Tarjeta de Crédito/Débito</span>
+                    <span th:if="${pago.formaPago == 2}">Transferencia Bancaria</span>
+                    <span th:if="${pago.formaPago == 3}">Efectivo en Oficina</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Soluciones sugeridas -->
+        <div class="solutions-box">
+            <h4><i class="fas fa-lightbulb"></i> ¿Qué puedes hacer?</h4>
+            <ul>
+                <li>
+                    <i class="fas fa-redo"></i>
+                    <span><strong>Intenta nuevamente:</strong> Verifica tu información y vuelve a intentar el pago</span>
+                </li>
+                <li>
+                    <i class="fas fa-exchange-alt"></i>
+                    <span><strong>Prueba otro método de pago:</strong> Si usaste tarjeta, intenta con transferencia o efectivo</span>
+                </li>
+                <li>
+                    <i class="fas fa-check-double"></i>
+                    <span><strong>Verifica tus datos:</strong> Asegúrate de que toda la información sea correcta</span>
+                </li>
+                <li>
+                    <i class="fas fa-wifi"></i>
+                    <span><strong>Revisa tu conexión:</strong> Una conexión inestable puede causar errores</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Errores comunes -->
+        <div class="common-errors">
+            <h4><i class="fas fa-list-ul"></i> Problemas Comunes</h4>
+
+            <div class="error-item">
+                <div class="error-item-title">
+                    <i class="fas fa-ban"></i> Pago Duplicado
+                </div>
+                <div class="error-item-text">
+                    Si ya realizaste un pago para este mes, no es necesario volver a pagar. Verifica tu historial de pagos.
+                </div>
+            </div>
+
+            <div class="error-item">
+                <div class="error-item-title">
+                    <i class="fas fa-credit-card"></i> Tarjeta Rechazada
+                </div>
+                <div class="error-item-text">
+                    Verifica con tu banco que la tarjeta tenga fondos suficientes y esté habilitada para compras en línea.
+                </div>
+            </div>
+
+            <div class="error-item">
+                <div class="error-item-title">
+                    <i class="fas fa-server"></i> Error del Sistema
+                </div>
+                <div class="error-item-text">
+                    Si el error persiste, nuestro sistema podría estar en mantenimiento. Intenta más tarde o contacta soporte.
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacto de soporte -->
+        <div class="contact-support">
+            <h4><i class="fas fa-headset"></i> ¿Necesitas Ayuda?</h4>
+            <p>Nuestro equipo de soporte está disponible para asistirte</p>
+
+            <div class="contact-methods">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <div class="contact-info">
+                        <div class="contact-label">Teléfono</div>
+                        <div class="contact-value">7123-4567</div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fas fa-whatsapp"></i>
+                    <div class="contact-info">
+                        <div class="contact-label">WhatsApp</div>
+                        <div class="contact-value">7123-4567</div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <div class="contact-info">
+                        <div class="contact-label">Email</div>
+                        <div class="contact-value">info@asistencia.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="actions">
+            <a th:href="@{/pagos/nuevo/{dui}(dui=${afiliado != null ? afiliado.dui : ''})}"
+               th:if="${afiliado}"
+               class="btn btn-primary">
+                <i class="fas fa-redo"></i> Intentar de Nuevo
+            </a>
+            <a th:href="@{/afiliado/plan}" class="btn btn-secondary">
+                <i class="fas fa-home"></i> Volver al Inicio
+            </a>
+            <a href="tel:71234567" class="btn btn-danger">
+                <i class="fas fa-phone"></i> Llamar a Soporte
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Página de error cargada');
+
+        // Auto-scroll al inicio
+        window.scrollTo(0, 0);
+
+        // Log del error para debugging
+        const errorMessage = document.querySelector('.error-message p');
+        if (errorMessage) {
+            console.error('Error de pago:', errorMessage.textContent);
+        }
+    });
+</script>
+</body>
+</html>

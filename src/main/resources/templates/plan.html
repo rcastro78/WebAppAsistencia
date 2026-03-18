@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esEdicion ? 'Editar Plan' : 'Nuevo Plan'} + ' - Asistencia El Salvador'">Plan - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/plan.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1 th:text="${esEdicion ? 'Editar Plan' : 'Nuevo Plan'}">Plan</h1>
+        <span class="subtitle" th:text="${esEdicion ? 'Modifica la información del plan de suscripción' : 'Crea un nuevo plan de suscripción para el sistema'}"></span>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a th:href="@{/plan}">
+            <i class="fas fa-clipboard-list"></i> Planes
+        </a>
+        <span>/</span>
+        <span class="current" th:text="${esEdicion ? 'Editar Plan' : 'Nuevo Plan'}">Plan</span>
+    </nav>
+
+    <div class="card fade-in">
+        <div class="card-header">
+            <h2 th:text="${esEdicion ? 'Editar Plan' : 'Crear Plan'}">Plan</h2>
+            <a th:href="@{/plan}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Listado
+            </a>
+        </div>
+
+        <div class="card-body">
+            <!-- Mensajes de éxito -->
+            <div class="alert alert-success" th:if="${mensaje}">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${mensaje}"></span>
+            </div>
+
+            <!-- Mensajes de error -->
+            <div class="alert alert-danger" th:if="${error}">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Formulario -->
+            <form th:action="@{${esEdicion ? '/plan/editar?id=' + plan.idPlan : '/plan/guardar'}}"
+                  th:object="${plan}"
+                  method="post"
+                  class="form"
+                  novalidate>
+
+                <!-- Campo oculto para el ID en modo edición -->
+                <input type="hidden" th:if="${esEdicion}" th:field="*{idPlan}">
+
+                <div class="form-row">
+                    <!-- Nombre del Plan -->
+                    <div class="form-group">
+                        <label for="nombrePlan" class="form-label required">
+                            <i class="fas fa-tags"></i> Nombre del Plan
+                        </label>
+                        <input type="hidden" th:field="*{estado}" value="true"/>
+                        <input type="text"
+                               class="form-control"
+                               th:field="*{nombrePlan}"
+                               th:classappend="${#fields.hasErrors('nombrePlan')} ? 'is-invalid'"
+                               id="nombrePlan"
+                               placeholder="Ej: Plan Básico, Plan Premium..."
+                               maxlength="200"
+                               required>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nombrePlan')}" th:errors="*{nombrePlan}"></div>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Ingrese un nombre descriptivo para el plan (máximo 200 caracteres)
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="costoPlan" class="form-label required">
+                            <i class="fas fa-coins"></i> Costo del Plan
+                        </label>
+                        <div class="input-with-icon" style="position: relative;">
+                            <span id="simboloMoneda" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #6c757d; pointer-events: none;"></span>
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{costoPlan}"
+                                   th:classappend="${#fields.hasErrors('costoPlan')} ? 'is-invalid'"
+                                   id="costoPlan"
+                                   placeholder="0.00"
+                                   style="padding-left: 30px;"
+                                   pattern="^\d+(\.\d{1,2})?$"
+                                   title="Ingrese un número válido (ej: 100.50)"
+                                   required>
+                        </div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('costoPlan')}" th:errors="*{costoPlan}"></div>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            <span id="costoInfo">Seleccione un país para ver la moneda</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="costoPlanAnual" class="form-label required">
+                            <i class="fas fa-coins"></i> Costo del Plan (Anual)
+                        </label>
+                        <div class="input-with-icon" style="position: relative;">
+                            <span id="simboloMonedaA" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: bold; color: #6c757d; pointer-events: none;"></span>
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{costoPlanAnual}"
+                                   th:classappend="${#fields.hasErrors('costoPlanAnual')} ? 'is-invalid'"
+                                   id="costoPlanAnual"
+                                   placeholder="0.00"
+                                   style="padding-left: 30px;"
+                                   pattern="^\d+(\.\d{1,2})?$"
+                                   title="Ingrese un número válido (ej: 100.50)"
+                                   required>
+                        </div>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('costoPlanAnual')}" th:errors="*{costoPlanAnual}"></div>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            <span id="costoInfoA">Seleccione un país para ver la moneda</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <!-- Campo País -->
+                    <div class="form-group">
+                        <label for="pais" class="form-label required">
+                            <i class="fas fa-globe"></i> País
+                        </label>
+                        <select id="pais"
+                                name="idPais"
+                                class="form-control"
+                                th:classappend="${#fields.hasErrors('idPais')} ? 'is-invalid'"
+                                required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}"
+                                    th:value="${p.idPais}"
+                                    th:text="${p.nombrePais}"
+                                    th:attr="data-moneda=${p.moneda}"
+                                    th:selected="${esEdicion && plan.idPais != null && plan.idPais > 0 && p.idPais == plan.idPais}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('idPais')}" th:errors="*{idPais}"></div>
+                        <div class="form-help" id="paisInfo">
+                            <i class="fas fa-info-circle"></i>
+                            Seleccione el país donde aplica este plan
+                        </div>
+                    </div>
+
+                    <!-- Campo Moneda (visible, readonly) -->
+                    <div class="form-group">
+                        <label for="monedaDisplay" class="form-label">
+                            <i class="fas fa-money-bill-wave"></i> Moneda
+                        </label>
+                        <input type="text"
+                               id="monedaDisplay"
+                               class="form-control"
+                               placeholder="Seleccione un país"
+                               th:value="${esEdicion && plan.moneda != null ? plan.moneda : ''}"
+                               readonly
+                               style="background-color: #f8f9fa; cursor: not-allowed;">
+                        <input type="hidden" name="moneda" id="moneda" th:value="${esEdicion && plan.moneda != null ? plan.moneda : ''}"/>
+                        <div class="form-help" id="monedaInfo">
+                            <i class="fas fa-info-circle"></i>
+                            La moneda se asigna automáticamente según el país
+                        </div>
+                    </div>
+                </div>
+
+                <br/>
+                <!-- Link de Pago -->
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="linkPago" class="form-label">
+                            <i class="fas fa-link"></i> Link de Pago (Mensual)
+                        </label>
+                        <input type="url"
+                               class="form-control"
+                               th:field="*{linkPago}"
+                               th:classappend="${#fields.hasErrors('linkPago')} ? 'is-invalid'"
+                               id="linkPago"
+                               placeholder="https://ejemplo.com/pago"
+                               maxlength="500">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('linkPago')}" th:errors="*{linkPago}"></div>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            URL completa donde los usuarios pueden realizar el pago del plan
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Link de Pago (Anual) -->
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="linkPagoAnual" class="form-label">
+                            <i class="fas fa-link"></i> Link de Pago (Anual)
+                        </label>
+                        <input type="url"
+                               class="form-control"
+                               th:field="*{linkPagoAnual}"
+                               th:classappend="${#fields.hasErrors('linkPagoAnual')} ? 'is-invalid'"
+                               id="linkPagoAnual"
+                               placeholder="https://ejemplo.com/pago"
+                               maxlength="500">
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('linkPagoAnual')}" th:errors="*{linkPagoAnual}"></div>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            URL completa donde los usuarios pueden realizar el pago del plan (anual)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="form-actions">
+                    <a th:href="@{/plan}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success" id="submitBtn">
+                        <i th:class="${esEdicion ? 'fas fa-edit' : 'fas fa-save'}"></i>
+                        <span th:text="${esEdicion ? 'Actualizar Plan' : 'Guardar Plan'}">Guardar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const esEdicion = /*[[${esEdicion}]]*/ false;
+    const monedaInicial = /*[[${esEdicion && plan.moneda != null ? plan.moneda : ''}]]*/ '';
+    const paisInicial = /*[[${esEdicion && plan.idPais != null ? plan.idPais : 0}]]*/ 0;
+    /*]]>*/
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.form');
+        const submitBtn = document.getElementById('submitBtn');
+        const nombreInput = document.getElementById('nombrePlan');
+        const costoInput = document.getElementById('costoPlan');
+        const costoAnualInput = document.getElementById('costoPlanAnual');
+        const linkPagoInput = document.getElementById('linkPago');
+        const paisSelect = document.getElementById('pais');
+        const monedaInput = document.getElementById('moneda');
+        const monedaDisplay = document.getElementById('monedaDisplay');
+        const monedaInfo = document.getElementById('monedaInfo');
+        const simboloMoneda = document.getElementById('simboloMoneda');
+        const simboloMonedaA = document.getElementById('simboloMonedaA');
+        const costoInfo = document.getElementById('costoInfo');
+        const costoInfoA = document.getElementById('costoInfoA');
+
+        // Mapeo de códigos de moneda a símbolos
+        const simbolosMoneda = {
+            'HNL': 'L',
+            'USD': '$',
+            'GTQ': 'Q',
+            'CRC': '₡',
+            'MXN': '$',
+            'NIO': 'C$',
+            'PAB': 'B/.',
+            'DOP': 'RD$',
+            'EUR': '€'
+        };
+
+        // Si estamos en modo edición, inicializar los símbolos de moneda y seleccionar el país
+        if (esEdicion) {
+            // Establecer el país seleccionado
+            if (paisInicial > 0) {
+                paisSelect.value = paisInicial;
+            }
+
+            // Inicializar la moneda
+            if (monedaInicial) {
+                const simbolo = simbolosMoneda[monedaInicial] || monedaInicial;
+                simboloMoneda.textContent = simbolo;
+                simboloMonedaA.textContent = simbolo;
+                simboloMoneda.style.color = '#28a745';
+                simboloMonedaA.style.color = '#28a745';
+
+                monedaDisplay.style.backgroundColor = '#e8f5e9';
+                monedaDisplay.style.color = '#2e7d32';
+                monedaDisplay.style.fontWeight = 'bold';
+
+                costoInfo.innerHTML = `<i class="fas fa-info-circle"></i> Ingrese el precio en <strong>${monedaInicial}</strong> (formato: 0.00)`;
+                costoInfoA.innerHTML = `<i class="fas fa-info-circle"></i> Ingrese el precio anual en <strong>${monedaInicial}</strong> (formato: 0.00)`;
+                monedaInfo.innerHTML = `<i class="fas fa-check-circle"></i> Moneda establecida: <strong>${monedaInicial}</strong>`;
+                monedaInfo.style.color = '#28a745';
+            }
+        }
+
+        // ========== EVENTO CHANGE DEL SELECT DE PAÍS ==========
+        paisSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const moneda = selectedOption.getAttribute('data-moneda');
+
+            if (moneda && this.value !== '') {
+                monedaInput.value = moneda;
+                monedaDisplay.value = moneda;
+                monedaDisplay.style.backgroundColor = '#e8f5e9';
+                monedaDisplay.style.color = '#2e7d32';
+                monedaDisplay.style.fontWeight = 'bold';
+
+                const simbolo = simbolosMoneda[moneda] || moneda;
+                simboloMoneda.textContent = simbolo;
+                simboloMonedaA.textContent = simbolo;
+                simboloMoneda.style.color = '#28a745';
+                simboloMonedaA.style.color = '#28a745';
+
+                monedaInfo.innerHTML = `<i class="fas fa-check-circle"></i> Moneda establecida: <strong>${moneda}</strong>`;
+                monedaInfo.style.color = '#28a745';
+
+                costoInfo.innerHTML = `<i class="fas fa-info-circle"></i> Ingrese el precio en <strong>${moneda}</strong> (formato: 0.00)`;
+                costoInfoA.innerHTML = `<i class="fas fa-info-circle"></i> Ingrese el precio anual en <strong>${moneda}</strong> (formato: 0.00)`;
+            } else {
+                monedaInput.value = '';
+                monedaDisplay.value = '';
+                monedaDisplay.style.backgroundColor = '#f8f9fa';
+                monedaDisplay.style.color = '';
+                monedaDisplay.style.fontWeight = '';
+
+                simboloMoneda.textContent = '';
+                simboloMonedaA.textContent = '';
+
+                monedaInfo.innerHTML = '<i class="fas fa-info-circle"></i> La moneda se asigna automáticamente según el país';
+                monedaInfo.style.color = '#6c757d';
+
+                costoInfo.innerHTML = '<i class="fas fa-info-circle"></i> Seleccione un país para ver la moneda';
+                costoInfoA.innerHTML = '<i class="fas fa-info-circle"></i> Seleccione un país para ver la moneda';
+            }
+        });
+
+        // Función para formatear input de dinero
+        function formatCurrencyInput(input) {
+            input.addEventListener('input', function(e) {
+                let value = this.value;
+                value = value.replace(/[^0-9.]/g, '');
+
+                const parts = value.split('.');
+                if (parts.length > 2) {
+                    value = parts[0] + '.' + parts.slice(1).join('');
+                }
+
+                if (parts[1] && parts[1].length > 2) {
+                    value = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+
+                this.value = value;
+            });
+
+            input.addEventListener('blur', function() {
+                if (this.value && this.value !== '.' && this.value !== '') {
+                    const num = parseFloat(this.value);
+                    if (!isNaN(num)) {
+                        this.value = num.toFixed(2);
+                    }
+                }
+            });
+        }
+
+        // Aplicar formateo a ambos inputs de costo
+        formatCurrencyInput(costoInput);
+        formatCurrencyInput(costoAnualInput);
+
+        // Validación del formulario
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let isValid = true;
+            const nombre = nombreInput.value.trim();
+            const costo = parseFloat(costoInput.value);
+            const costoAnual = parseFloat(costoAnualInput.value);
+            const paisId = paisSelect.value;
+            const moneda = monedaInput.value;
+
+            if (!nombre || nombre.length < 3) {
+                nombreInput.classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (isNaN(costo) || costo < 0) {
+                costoInput.classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (isNaN(costoAnual) || costoAnual < 0) {
+                costoAnualInput.classList.add('is-invalid');
+                isValid = false;
+            }
+
+            if (!paisId) {
+                paisSelect.classList.add('is-invalid');
+                alert('Por favor, seleccione un país.');
+                isValid = false;
+            }
+
+            if (!moneda || moneda.trim() === '') {
+                paisSelect.classList.add('is-invalid');
+                alert('Por favor, seleccione un país válido para establecer la moneda.');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                alert('Por favor, corrija los errores en el formulario antes de continuar.');
+                return;
+            }
+
+            // Mostrar loading
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+            // Enviar formulario
+            setTimeout(() => {
+                this.submit();
+            }, 500);
+        });
+
+        // Ocultar alertas después de 5 segundos
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 5000);
+        });
+    });
+</script>
+</body>
+</html>

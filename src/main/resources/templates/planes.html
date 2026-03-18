@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Planes - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/planes.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Gestión de Planes</h1>
+        <span class="subtitle">Administra todos los planes de suscripción del sistema</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Listado de Planes</h2>
+            <a th:href="@{/plan/nuevo}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Plan
+            </a>
+        </div>
+        <div class="breadcrumb">
+            <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Planes</span>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <!-- Tabla con datos -->
+                <table class="modern-table" th:if="${not #lists.isEmpty(planes)}">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag"></i> ID</th>
+                        <th><i class="fas fa-tags"></i> Nombre del Plan</th>
+                        <th><i class="fas fa-dollar-sign"></i> Costo Mensual</th>
+                        <th><i class="fas fa-dollar-sign"></i> Costo Anual</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="plan, iterStat : ${planes}" class="fade-in-row" th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+                        <td>
+                            <span class="id-badge" th:text="${plan.idPlan}"></span>
+                        </td>
+                        <td>
+                            <span class="plan-name" th:text="${plan.nombrePlan}"></span>
+                        </td>
+                        <td>
+                            <span class="plan-cost" th:text="|${plan.simboloMoneda} ${plan.costoPlan}|"></span>
+                        </td>
+                        <td>
+                            <span class="plan-cost" th:text="|${plan.simboloMoneda} ${plan.costoPlanAnual}|"></span>
+                        </td>
+                        <td>
+                            <div class="action-icons">
+                                <!-- Editar -->
+                                <a th:href="@{/plan/editar(id=${plan.idPlan})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- coberturas -->
+                                <a th:href="@{/planesCobertura(idPlan=${plan.idPlan})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Coberturas">
+                                    <i class="fas fa-umbrella"></i>
+                                </a>
+
+                                <!-- Eliminar -->
+                                <a th:href="@{/cobertura/eliminar(id=${plan.idPlan})}"
+                                   class="action-btn delete"
+                                   data-tooltip="Eliminar"
+                                   onclick="return confirm('¿Está seguro que desea eliminar este plan?\n\nEsta acción no se puede deshacer.');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Estado vacío -->
+                <div class="empty-state" th:if="${#lists.isEmpty(planes)}">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No hay planes registrados</h3>
+                    <p>Comience agregando el primer plan de suscripción al sistema</p>
+                    <a th:href="@{/planes/nuevo}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Registrar Primer Plan
+                    </a>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-container" th:if="${totalPaginas > 1}">
+                <ul class="pagination">
+                    <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+                        <a class="page-link" th:href="@{/planes(page=${paginaActual-1})}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas-1)}"
+                        th:classappend="${i == paginaActual} ? 'active'">
+                        <a class="page-link" th:href="@{/planes(page=${i})}" th:text="${i+1}"></a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${paginaActual == totalPaginas-1} ? 'disabled'">
+                        <a class="page-link" th:href="@{/planes(page=${paginaActual+1})}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Animación secuencial de las filas
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('.fade-in-row');
+
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                row.style.transition = 'all 0.4s ease-out';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Mejorar la confirmación de eliminación
+        const deleteButtons = document.querySelectorAll('.action-btn.delete');
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                const confirmation = confirm(
+                    '⚠️ ADVERTENCIA ⚠️\n\n' +
+                    '¿Está completamente seguro que desea eliminar este plan?\n\n' +
+                    '• Esta acción no se puede deshacer\n' +
+                    '• Se perderán todos los datos asociados\n' +
+                    '• Los usuarios suscritos podrían verse afectados\n' +
+                    '• El proceso es irreversible\n\n' +
+                    'Escriba "CONFIRMAR" si está seguro:'
+                );
+
+                if (confirmation) {
+                    const userInput = prompt('Para confirmar, escriba: CONFIRMAR');
+                    if (userInput === 'CONFIRMAR') {
+                        window.location.href = this.href;
+                    } else {
+                        alert('Eliminación cancelada. El texto ingresado no coincide.');
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

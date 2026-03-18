@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen de Afiliación - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app {
+            max-width: 1000px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 25px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card-header h2 {
+            color: #333;
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 i {
+            color: #28a745;
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .success-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #FF8C00;
+        }
+
+        .info-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-section h3 i {
+            color: #FF8C00;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .photos-section {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .photos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .photo-item {
+            text-align: center;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .photo-item img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-label {
+            margin-top: 10px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .no-photo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            background: #f1f3f4;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            color: #999;
+        }
+
+        .no-photo i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .payment-section {
+            background: linear-gradient(135deg, #fff3cd, #ffffff);
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .payment-section h3 {
+            color: #856404;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .payment-option:hover {
+            border-color: #ffc107;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
+        }
+
+        .payment-option.selected {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, #fff3cd, #ffffff);
+        }
+
+        .payment-option i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #ffc107;
+        }
+
+        .payment-option h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .payment-option p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .plan-pricing {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .price-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #28a745;
+        }
+
+        .price-label {
+            color: #666;
+        }
+
+        .price-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #ffca2c);
+            color: #856404;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-warning:hover {
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .info-grid, .photos-grid, .payment-options {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>¡Afiliación Exitosa!</h1>
+        <span class="subtitle">Revisa tu información y procede con el pago</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2><i class="fas fa-check-circle"></i> Resumen de Afiliación</h2>
+        </div>
+        <div class="card-body">
+            <div class="success-badge">
+                <i class="fas fa-user-check"></i>
+                Afiliado registrado exitosamente
+            </div>
+
+            <div class="info-grid">
+                <!-- Información Personal -->
+                <div class="info-section">
+                    <h3><i class="fas fa-user"></i> Información Personal</h3>
+                    <div class="info-item">
+                        <span class="info-label">DUI:</span>
+                        <span class="info-value" th:text="${afiliado.dui}">12345678-9</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Nombre:</span>
+                        <span class="info-value" th:text="${afiliado.nombre + ' ' + afiliado.apellido}">Juan Pérez</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value" th:text="${afiliado.email}">juan@email.com</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Teléfono:</span>
+                        <span class="info-value" th:text="${afiliado.telefono}">7777-7777</span>
+                    </div>
+                </div>
+
+                <!-- Información de Ubicación -->
+                <div class="info-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Ubicación</h3>
+                    <div class="info-item">
+                        <span class="info-label">Dirección:</span>
+                        <span class="info-value" th:text="${afiliado.direccion}">Col. Ejemplo</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">País:</span>
+                        <span class="info-value" th:text="${pais}">El Salvador</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Departamento:</span>
+                        <span class="info-value"  th:text="${departamento}">San Salvador</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Municipio:</span>
+                        <span class="info-value"  th:text="${municipio}">San Salvador</span>
+                    </div>
+                </div>
+
+                <!-- Información de Afiliación -->
+                <div class="info-section">
+                    <h3><i class="fas fa-calendar-alt"></i> Datos de Afiliación</h3>
+                    <div class="info-item">
+                        <span class="info-label">Fecha de Afiliación:</span>
+                        <span class="info-value"  th:text="${afiliado.fechaAfiliacion}">17/09/2025</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Estado:</span>
+                        <span class="info-value">Inactivo</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Tipo Cliente:</span>
+                        <span class="info-value" th:text="${tipoCliente}">Individual</span>
+                    </div>
+                    <!--
+                    <div class="info-item" th:if="${afiliado.patrocinadorDUI}">
+                        <span class="info-label">Patrocinador:</span>
+                        <span class="info-value" th:text="${afiliado.patrocinadorDUI}">Patrocinador</span>
+                    </div>
+                    -->
+                </div>
+
+                <!-- Plan y Precios -->
+                <div class="info-section">
+                    <h3><i class="fas fa-tags"></i> Plan Seleccionado: <span th:text="${planSeleccionado}"></span></h3>
+                    <div class="info-item">
+                        <span class="info-label">Plan Mensual:</span>
+                        <span class="info-value" th:text="${moneda}+${afiliado.precioPlanMensual ?: '25.00'}">$25.00</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Plan Anual:</span>
+                        <span class="info-value" th:text="${moneda} + ${afiliado.precioPlanAnual ?: '250.00'}">$250.00</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Descuento Anual:</span>
+                        <span class="info-value" style="color: #28a745;">17% OFF</span>
+                    </div>
+                </div>
+
+                <!-- Documentos DUI -->
+                <div class="photos-section">
+                    <h3><i class="fas fa-id-card"></i> Documento de Identidad</h3>
+                    <div class="photos-grid">
+                        <div class="photo-item">
+                            <!-- Si existe foto -->
+                            <!--<img src="http://localhost:7070/uploads/dui_frente_01624439-3_3e87987e.jpg" alt="Foto DUI Frente"/>-->
+                            <img th:src="${afiliado.fotoDUIFrenteURL}" alt="Foto DUI Frente"/>
+                            <div th:unless="${afiliado.fotoDUIFrenteURL}" class="no-photo">
+                                <i class="fas fa-image"></i>
+                                <span>No hay imagen</span>
+                            </div>
+                            <div class="photo-label">DUI - Frente</div>
+                        </div>
+                        <div class="photo-item">
+                            <!-- Si existe foto -->
+                            <img th:src="${afiliado.fotoDUIVueltoURL}" alt="Foto DUI Vuelto"/>
+
+                            <!-- Si NO existe foto -->
+                            <div th:unless="${afiliado.fotoDUIVueltoURL}" class="no-photo">
+                                <i class="fas fa-image"></i>
+                                <span>No hay imagen</span>
+                            </div>
+
+                            <div class="photo-label">DUI - Reverso</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Pago -->
+            <div class="payment-section">
+                <h3><i class="fas fa-credit-card"></i> Selecciona tu método de pago</h3>
+
+                <div class="plan-pricing">
+                    <div class="price-item">
+                        <span class="price-label">Plan Mensual:</span>
+                        <span class="price-value" th:text="${moneda} + ${afiliado.precioPlanMensual ?: '25.00'}">$25.00</span>
+                    </div>
+                    <div class="price-item">
+                        <span class="price-label">Plan Anual (15% descuento):</span>
+                        <span class="price-value" th:text="${moneda} + ${afiliado.precioPlanAnual ?: '250.00'}">$250.00</span>
+                    </div>
+                    <div class="price-item">
+                        <span class="price-label">Ahorro anual:</span>
+                        <span class="savings-percent" style="color: #28a745;"
+                              th:text="${((afiliado.precioPlanMensual ?: 1.99) * 12 - (afiliado.precioPlanAnual ?: 19.90))
+               / ((afiliado.precioPlanMensual ?: 1.99) * 12) * 100} + '%'">0%</span>
+                    </div>
+                </div>
+
+                <div class="payment-options">
+                    <div class="payment-option" onclick="selectPayment('card')">
+                        <i class="fas fa-credit-card"></i>
+                        <h4>Tarjeta de Crédito/Débito</h4>
+                        <p>Visa, MasterCard, American Express</p>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('bank')">
+                        <i class="fas fa-university"></i>
+                        <h4>Transferencia Bancaria</h4>
+                        <p>Pago directo desde tu banco</p>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('cash')">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h4>Pago en Efectivo</h4>
+                        <p>En nuestras oficinas autorizadas</p>
+                    </div>
+                    <div class="payment-option" onclick="selectPayment('other')">
+                        <i class="fas fa-ellipsis-h"></i>
+                        <h4>Otro Método</h4>
+                        <p>PayPal, Bitcoin, etc.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a th:href="@{/pagos/nuevo/{dui}(dui=${afiliado.dui})}" class="btn btn-primary" >
+                    <i class="fas fa-credit-card"></i> Proceder al Pago
+                </a>
+                <a th:href="@{/pdf/contrato/{dui}(dui=${afiliado.dui})}" class="btn btn-primary" >
+                    <i class="fas fa-print"></i> Descargar contrato
+                </a>
+                <a th:href="@{/admin/dashboard}" class="btn btn-warning" >
+                    <i class="fas fa-clock"></i> Pagar Después
+                </a>
+                <a th:href="@{/afiliado/}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedPaymentMethod = null;
+
+    function selectPayment(method) {
+        // Remover selección previa
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+
+        // Agregar selección a la opción actual
+        event.currentTarget.classList.add('selected');
+        selectedPaymentMethod = method;
+    }
+
+    function proceedToPayment() {
+        if (!selectedPaymentMethod) {
+            alert('Por favor selecciona un método de pago');
+            return;
+        }
+
+        // Obtener el DUI del afiliado para construir la URL
+        const dui = document.querySelector('[th\\:text="${afiliado.dui}"]')?.textContent || 'unknown';
+
+        switch(selectedPaymentMethod) {
+            case 'card':
+                // Redirigir a pasarela de pago con tarjeta
+                window.location.href = `/pago/tarjeta/${dui}`;
+                break;
+            case 'bank':
+                // Redirigir a información de transferencia bancaria
+                window.location.href = `/pago/transferencia/${dui}`;
+                break;
+            case 'cash':
+                // Redirigir a información de pago en efectivo
+                window.location.href = `/pago/efectivo/${dui}`;
+                break;
+            case 'other':
+                // Redirigir a otros métodos de pago
+                window.location.href = `/pago/otros/${dui}`;
+                break;
+        }
+    }
+
+    function payLater() {
+        const dui = document.querySelector('[th\\:text="${afiliado.dui}"]')?.textContent || 'unknown';
+
+        if (confirm('¿Deseas pagar más tarde? Recibirás un recordatorio por email.')) {
+            // Guardar como pago pendiente y redirigir
+            window.location.href = `/afiliado/`;
+        }
+    }
+
+    // Preseleccionar método de tarjeta por defecto
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('.payment-option').click();
+    });
+</script>
+</body>
+</html>

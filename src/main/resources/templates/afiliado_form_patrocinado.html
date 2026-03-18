@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Afiliado - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app {
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 25px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .card-header h2 {
+            color: #333;
+            font-size: 1.6rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2::before {
+            content: '\f007';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #FF8C00;
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            color: #333;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .input:focus, select:focus {
+            border-color: #FF8C00;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
+            background: white;
+        }
+
+        .input::placeholder {
+            color: #aaa;
+            font-weight: 400;
+        }
+
+        /* Iconos para los labels */
+        label[for="dui"]::before { content: '\f2c2'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+        label[for="nombre"]::before { content: '\f007'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+        label[for="apellido"]::before { content: '\f007'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+        label[for="direccion"]::before { content: '\f3c5'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+        label[for="telefono"]::before { content: '\f095'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+        label[for="email"]::before { content: '\f0e0'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+        label[for="pais"]::before { content: '\f57d'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+        label[for="departamento"]::before { content: '\f279'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+        label[for="municipio"]::before { content: '\f041'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #FF8C00; }
+
+        /* File inputs especiales */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border: 2px dashed #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .file-input-label:hover {
+            background: #e9ecef;
+            border-color: #FF8C00;
+            color: #FF8C00;
+        }
+
+        .file-input-label i {
+            font-size: 1.2rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:not(.secondary) {
+            background: linear-gradient(135deg, #FF8C00, #FFA500);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .btn:not(.secondary):hover {
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.4);
+        }
+
+        .btn.secondary {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #555;
+        }
+
+        .btn.secondary:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            margin: auto;
+            border: 2px solid transparent;
+            border-top-color: #FF8C00;
+            border-radius: 50%;
+            animation: spin 1s ease infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .card-header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Validación visual */
+        .input:invalid:not(:focus):not(:placeholder-shown) {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .input:valid:not(:focus):not(:placeholder-shown) {
+            border-color: #28a745;
+            background: #f8fff8;
+        }
+
+        /* Select styling */
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+            appearance: none;
+        }
+
+        select:focus {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23FF8C00' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Registrate Afiliado, paso 1</h1>
+        <span class="subtitle">Completa la información para registrarte como afiliado</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos Personales</h2>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/afiliado/guardar}" th:object="${afiliado}" method="post" enctype="multipart/form-data">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dui">DUI/NIT</label>
+                        <input type="text" th:field="*{dui}" id="dui" class="input" placeholder="00000000-0" pattern="[0-9]{8}-[0-9]" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patrocinadorDUI">DUI Patrocinador</label>
+                        <input type="text" id="patrocinadorDUI" th:field="*{patrocinadorDUI}" class="input" readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" th:field="*{nombre}" id="nombre" class="input" placeholder="Ingrese el nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apellido">Apellido</label>
+                        <input type="text" th:field="*{apellido}" id="apellido" class="input" placeholder="Ingrese el apellido" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" th:field="*{direccion}" id="direccion" class="input" placeholder="Ingrese la dirección completa">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" th:field="*{telefono}" id="telefono" class="input" placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" th:field="*{email}" id="email" class="input" placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> DUI Frente</label>
+                        <div class="file-input-wrapper">
+                            <!-- CAMBIADO: usar name="fotoDUIFrenteFile" en lugar de th:field -->
+                            <input type="file" name="fotoDUIFrenteFile" accept="image/*" id="duiFrente">
+                            <label for="duiFrente" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Subir imagen del DUI (frente)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> DUI Reverso</label>
+                        <div class="file-input-wrapper">
+                            <!-- CAMBIADO: usar name="fotoDUIVueltoFile" en lugar de th:field -->
+                            <input type="file" name="fotoDUIVueltoFile" accept="image/*" id="duiReverso">
+                            <label for="duiReverso" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Subir imagen del DUI (reverso)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="institucion">Institución</label>
+                        <select id="institucion" th:field="*{institucion}" class="input" required>
+                            <option value="">Seleccione una institucion</option>
+                            <option th:each="p : ${instituciones}" th:value="${p.id}" th:text="${p.nombreInstitucion}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pais">País</label>
+                        <select id="pais" th:field="*{idPais}" class="input" onchange="loadDepartamentos(this.value)" required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}" th:value="${p.idPais}" th:text="${p.nombrePais}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="departamento">Departamento</label>
+                        <select id="departamento" th:field="*{idDepto}" class="input" onchange="loadMunicipios(this.value)" required>
+                            <option value="">Seleccione un departamento</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="municipio">Municipio</label>
+                        <select id="municipio" th:field="*{idMunicipio}" class="input" required>
+                            <option value="">Seleccione un municipio</option>
+                        </select>
+                    </div>
+
+                   <!--
+                    <div class="form-group">
+                        <label><i class="fas fa-user-check"></i> Estado Afiliado</label>
+                        <select id="estadoAfiliacion" th:field="*{idEstadoAfiliado}" class="input" required>
+                            <option value="">Seleccione un estado</option>
+                            <option th:each="p : ${estadosAfiliacion}" th:value="${p.idEstadoAfiliado}" th:text="${p.estadoNombre}"></option>
+                        </select>
+                    </div>
+                    -->
+                    <div class="form-group">
+                        <label><i class="fas fa-users"></i> Tipo Cliente</label>
+                        <select id="tiposCliente" th:field="*{idTipoCliente}" class="input" required>
+                            <option value="">Seleccione un tipo de cliente</option>
+                            <option th:each="p : ${tiposCliente}" th:value="${p.idTipo}" th:text="${p.tipo}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Fecha Afiliación</label>
+                        <input type="date" th:field="*{createdAt}" class="input" required>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <a th:href="@{/usuarios/login}" class="btn secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función mejorada para cargar departamentos
+    function loadDepartamentos(idPais) {
+        const deptoSelect = document.getElementById("departamento");
+        const municipioSelect = document.getElementById("municipio");
+
+        if (!idPais) {
+            deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        // Agregar clase loading
+        deptoSelect.classList.add('loading');
+
+        fetch(`/api/departamentos/pais/${idPais}`)
+            .then(response => response.json())
+            .then(data => {
+                deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+                data.forEach(depto => {
+                    deptoSelect.innerHTML += `<option value="${depto.idDepto}">${depto.nombreDepartamento}</option>`;
+                });
+
+                // Limpiar municipios al cambiar de país
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            })
+            .catch(error => {
+                console.error('Error cargando departamentos:', error);
+                deptoSelect.innerHTML = "<option value=''>Error al cargar departamentos</option>";
+            })
+            .finally(() => {
+                deptoSelect.classList.remove('loading');
+            });
+    }
+
+    // Función mejorada para cargar municipios
+    function loadMunicipios(idDepto) {
+        const municipioSelect = document.getElementById("municipio");
+
+        if (!idDepto) {
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        // Agregar clase loading
+        municipioSelect.classList.add('loading');
+
+        fetch(`/api/municipios/departamento/${idDepto}`)
+            .then(response => response.json())
+            .then(data => {
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+                data.forEach(muni => {
+                    municipioSelect.innerHTML += `<option value="${muni.idMunicipio}">${muni.munNombre}</option>`;
+                });
+            })
+            .catch(error => {
+                console.error('Error cargando municipios:', error);
+                municipioSelect.innerHTML = "<option value=''>Error al cargar municipios</option>";
+            })
+            .finally(() => {
+                municipioSelect.classList.remove('loading');
+            });
+    }
+
+    // Mejorar la experiencia de los file inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+
+        fileInputs.forEach(input => {
+            input.addEventListener('change', function(e) {
+                const label = document.querySelector(`label[for="${this.id}"]`);
+                const fileName = e.target.files[0]?.name;
+
+                if (fileName) {
+                    label.innerHTML = `<i class="fas fa-check-circle"></i> ${fileName}`;
+                    label.style.color = '#28a745';
+                    label.style.borderColor = '#28a745';
+                }
+            });
+        });
+
+        // Validación automática del DUI
+        const duiInput = document.getElementById('dui');
+        if (duiInput) {
+            duiInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 8) {
+                    value = value.substring(0, 8) + '-' + value.substring(8, 9);
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Validación automática del teléfono
+        const telInput = document.getElementById('telefono');
+        if (telInput) {
+            telInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+            });
+        }
+    });
+</script>
+</body>
+</html>

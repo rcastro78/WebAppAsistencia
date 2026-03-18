@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Afiliado - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}">
+    <link rel="stylesheet" th:href="@{/css/autoregistro.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1><i class="fas fa-user-plus"></i> Registro de Nuevo Afiliado</h1>
+        <span class="subtitle">Complete el formulario para solicitar su afiliación</span>
+    </div>
+
+    <div class="info-banner">
+        <h3><i class="fas fa-info-circle"></i> Información Importante</h3>
+        <p>
+            Su solicitud será revisada por nuestro equipo. Recibirá un correo electrónico con sus credenciales
+            de acceso una vez que su cuenta sea activada. Por favor, asegúrese de proporcionar información válida
+            y legible en las imágenes del DUI.
+        </p>
+    </div>
+
+    <!-- Mensaje de éxito/error -->
+    <div th:if="${success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}"></span>
+    </div>
+
+    <div th:if="${error}" class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos Personales</h2>
+            <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #666;">
+                Los campos marcados con <span style="color: #dc3545;">*</span> son obligatorios
+            </p>
+        </div>
+        <div class="card-body">
+            <form id="afiliadoForm" th:action="@{/afiliado/registro-publico}" th:object="${afiliado}"
+                  method="post" enctype="multipart/form-data">
+
+                <div class="form-grid">
+                    <!-- DUI -->
+                    <div class="form-group">
+                        <label for="dui" class="required-field">DUI</label>
+                        <input type="text"
+                               th:field="*{dui}"
+                               id="dui"
+                               class="input"
+                               placeholder="00000000-0"
+                               pattern="[0-9]{8}-[0-9]"
+                               maxlength="10"
+                               required>
+                        <small style="color: #666;">Formato: 12345678-9</small>
+                    </div>
+
+                    <!-- Nombre -->
+                    <div class="form-group">
+                        <label for="nombre" class="required-field">Nombre</label>
+                        <input type="text"
+                               th:field="*{nombre}"
+                               id="nombre"
+                               class="input"
+                               placeholder="Ingrese su nombre completo"
+                               minlength="2"
+                               maxlength="100"
+                               pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                               required>
+                    </div>
+
+                    <!-- Apellido -->
+                    <div class="form-group">
+                        <label for="apellido" class="required-field">Apellido</label>
+                        <input type="text"
+                               th:field="*{apellido}"
+                               id="apellido"
+                               class="input"
+                               placeholder="Ingrese su apellido completo"
+                               minlength="2"
+                               maxlength="100"
+                               pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+"
+                               required>
+                    </div>
+
+                    <!-- Fecha de Nacimiento -->
+                    <div class="form-group">
+                        <label for="fechaNacimiento" class="required-field">
+                            <i class="fas fa-birthday-cake"></i> Fecha de Nacimiento
+                        </label>
+                        <input type="date"
+                               th:field="*{fechaNacimiento}"
+                               id="fechaNacimiento"
+                               class="input"
+                               required>
+                        <small style="color: #666;">Debe ser mayor de 18 años</small>
+                    </div>
+
+                    <!-- Estado Civil -->
+                    <div class="form-group">
+                        <label for="estadoCivil" class="required-field">Estado Civil</label>
+                        <select id="estadoCivil" th:field="*{estadoCivil}" class="input" required>
+                            <option value="">Seleccione su estado civil</option>
+                            <option th:each="p : ${estados}"
+                                    th:value="${p.idEstadoCivil}"
+                                    th:text="${p.nombreEstado}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="form-group">
+                        <label for="telefono" class="required-field">Teléfono</label>
+                        <input type="tel"
+                               th:field="*{telefono}"
+                               id="telefono"
+                               class="input"
+                               placeholder="0000-0000"
+                               pattern="[0-9]{4}-[0-9]{4}"
+                               maxlength="9"
+                               required>
+                        <small style="color: #666;">Formato: 7890-1234</small>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email" class="required-field">Email</label>
+                        <input type="email"
+                               th:field="*{email}"
+                               id="email"
+                               class="input"
+                               placeholder="correo@ejemplo.com"
+                               maxlength="100"
+                               required>
+                        <small style="color: #666;">Recibirá sus credenciales en este correo</small>
+                    </div>
+
+                    <!-- Confirmar Email -->
+                    <div class="form-group">
+                        <label for="confirmarEmail" class="required-field">Confirmar Email</label>
+                        <input type="email"
+                               id="confirmarEmail"
+                               class="input"
+                               placeholder="correo@ejemplo.com"
+                               maxlength="100"
+                               required>
+                    </div>
+
+                    <!-- Dirección -->
+                    <div class="form-group full-width">
+                        <label for="direccion" class="required-field">Dirección Completa</label>
+                        <input type="text"
+                               th:field="*{direccion}"
+                               id="direccion"
+                               class="input"
+                               placeholder="Calle, Colonia, Ciudad"
+                               minlength="10"
+                               maxlength="200"
+                               required>
+                    </div>
+
+                    <!-- País -->
+                    <div class="form-group">
+                        <label for="pais" class="required-field">País</label>
+                        <select id="pais" th:field="*{idPais}" class="input" onchange="loadDepartamentos(this.value)" required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}" th:value="${p.idPais}" th:text="${p.nombrePais}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Departamento -->
+                    <div class="form-group">
+                        <label for="departamento" class="required-field">Departamento</label>
+                        <select id="departamento" th:field="*{idDepto}" class="input" onchange="loadMunicipios(this.value)" required>
+                            <option value="">Seleccione un departamento</option>
+                        </select>
+                    </div>
+
+                    <!-- Municipio -->
+                    <div class="form-group">
+                        <label for="municipio" class="required-field">Municipio</label>
+                        <select id="municipio" th:field="*{idMunicipio}" class="input" required>
+                            <option value="">Seleccione un municipio</option>
+                        </select>
+                    </div>
+
+                    <!-- Lugar de Trabajo -->
+                    <div class="form-group">
+                        <label for="lugarTrabajo">Lugar de Trabajo</label>
+                        <input type="text"
+                               th:field="*{lugarTrabajo}"
+                               id="lugarTrabajo"
+                               class="input"
+                               placeholder="Nombre de la empresa (opcional)"
+                               maxlength="150">
+                    </div>
+
+                    <!-- Teléfono de Trabajo -->
+                    <div class="form-group">
+                        <label for="telTrabajo">Teléfono de Trabajo</label>
+                        <input type="tel"
+                               th:field="*{telTrabajo}"
+                               id="telTrabajo"
+                               class="input"
+                               placeholder="0000-0000"
+                               pattern="[0-9]{4}-[0-9]{4}"
+                               maxlength="9">
+                    </div>
+
+                    <!-- Institución -->
+                    <div class="form-group">
+                        <label for="institucion" class="required-field">Institución/Empresa</label>
+                        <select id="institucion" th:field="*{institucion}" class="input" required>
+                            <option value="">Seleccione una institución</option>
+                            <option th:each="p : ${instituciones}"
+                                    th:value="${p.id}"
+                                    th:text="${p.nombreInstitucion}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Tipo Cliente -->
+                    <div class="form-group">
+                        <label for="tiposCliente" class="required-field">
+                            <i class="fas fa-users"></i> Tipo de Cliente
+                        </label>
+                        <select id="tiposCliente" th:field="*{idTipoCliente}" class="input" required>
+                            <option value="">Seleccione un tipo</option>
+                            <option th:each="p : ${tiposCliente}"
+                                    th:value="${p.idTipo}"
+                                    th:text="${p.tipo}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Plan de Interés -->
+                    <div class="form-group">
+                        <label for="planInteres" class="required-field">
+                            <i class="fas fa-clipboard-list"></i> Plan de Interés
+                        </label>
+                        <select id="planInteres" name="planInteres" class="input" required>
+                            <option value="">Seleccione el plan de su interés</option>
+                            <option th:each="plan : ${planes}"
+                                    th:value="${plan.idPlan}"
+                                    th:text="${plan.nombrePlan + ' - $' + plan.costoPlan}">
+                            </option>
+                        </select>
+                        <small style="color: #666;">Seleccione el plan que desea contratar</small>
+                    </div>
+
+                    <!-- Fecha Afiliación (READ-ONLY) -->
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-calendar-check"></i> Fecha de Solicitud
+                        </label>
+                        <input type="date"
+                               th:field="*{fechaAfiliacion}"
+                               id="fechaAfiliacion"
+                               class="input read-only-field"
+                               readonly
+                               required>
+                        <small style="color: #666;">Se asignará automáticamente</small>
+                    </div>
+
+                    <!-- NUEVO: Duración del Servicio -->
+                    <div class="form-group full-width">
+                        <label class="required-field">
+                            <i class="fas fa-clock"></i> Duración del Servicio
+                        </label>
+                        <div class="duration-options">
+                            <div class="duration-option">
+                                <input type="radio" name="duracionMeses" id="duracion1" value="1" required>
+                                <label for="duracion1" class="duration-label">
+                                    <div class="duration-months">1</div>
+                                    <div class="duration-text">Mes</div>
+                                    <div class="duration-badge">Mensual</div>
+                                </label>
+                            </div>
+
+                            <div class="duration-option">
+                                <input type="radio" name="duracionMeses" id="duracion12" value="12">
+                                <label for="duracion12" class="duration-label">
+                                    <div class="duration-months">12</div>
+                                    <div class="duration-text">Meses</div>
+                                    <div class="duration-badge">Anual</div>
+                                </label>
+                            </div>
+                        </div>
+                        <small style="color: #666; display: block; margin-top: 10px;">
+                            <i class="fas fa-info-circle"></i> Seleccione la duración de su contrato
+                        </small>
+                    </div>
+
+                    <!-- DUI Frente -->
+                    <div class="form-group">
+                        <label class="required-field">
+                            <i class="fas fa-id-card"></i> DUI Frente
+                        </label>
+                        <div class="file-input-wrapper">
+                            <input type="file"
+                                   name="fotoDUIFrenteFile"
+                                   accept="image/jpeg,image/jpg,image/png"
+                                   id="duiFrente"
+                                   onchange="updateFileLabel('duiFrente', 'frenteLabel')"
+                                   required>
+                            <label for="duiFrente" class="file-input-label" id="frenteLabel">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Subir imagen del DUI (frente)
+                            </label>
+                        </div>
+                        <div class="file-requirements">
+                            <i class="fas fa-info-circle"></i> Formato: JPG, PNG. Máx. 5MB. Imagen clara y legible.
+                        </div>
+                    </div>
+
+                    <!-- DUI Reverso -->
+                    <div class="form-group">
+                        <label class="required-field">
+                            <i class="fas fa-id-card"></i> DUI Reverso
+                        </label>
+                        <div class="file-input-wrapper">
+                            <input type="file"
+                                   name="fotoDUIVueltoFile"
+                                   accept="image/jpeg,image/jpg,image/png"
+                                   id="duiReverso"
+                                   onchange="updateFileLabel('duiReverso', 'reversoLabel')"
+                                   required>
+                            <label for="duiReverso" class="file-input-label" id="reversoLabel">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Subir imagen del DUI (reverso)
+                            </label>
+                        </div>
+                        <div class="file-requirements">
+                            <i class="fas fa-info-circle"></i> Formato: JPG, PNG. Máx. 5MB. Imagen clara y legible.
+                        </div>
+                    </div>
+
+                    <!-- NUEVO: Firma Digital -->
+                    <div class="form-group full-width">
+                        <label class="required-field">
+                            <i class="fas fa-signature"></i> Firma Digital
+                        </label>
+                        <div class="signature-container">
+                            <canvas id="signaturePad" class="signature-pad"></canvas>
+                            <div class="signature-controls">
+                                <button type="button" class="btn-clear-signature" onclick="clearSignature()">
+                                    <i class="fas fa-eraser"></i> Limpiar Firma
+                                </button>
+                            </div>
+                            <div id="signatureStatus" class="signature-status signature-empty">
+                                <i class="fas fa-pen"></i> Por favor, firme en el recuadro arriba
+                            </div>
+                        </div>
+                        <input type="hidden" name="firmaBase64" id="firmaBase64" required>
+                        <small style="color: #666; display: block; margin-top: 10px;">
+                            <i class="fas fa-info-circle"></i> Use el mouse o su dedo (en dispositivos táctiles) para firmar
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Términos y Condiciones -->
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terminos" name="aceptaTerminos" required>
+                    <label for="terminos">
+                        Acepto los <a href="#" target="_blank">términos y condiciones</a> y la
+                        <a href="#" target="_blank">política de privacidad</a>. Autorizo el tratamiento
+                        de mis datos personales conforme a la normativa vigente.
+                    </label>
+                </div>
+
+                <!-- Campos ocultos -->
+                <input type="hidden" name="idEstadoAfiliado" value="0">
+                <input type="hidden" name="createdBy" value="REGISTRO_PUBLICO">
+                <input type="hidden" name="ejecutivoAsignado" value="">
+
+                <!-- Botones -->
+                <div class="actions">
+                    <button type="submit" class="btn" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Enviar Solicitud
+                    </button>
+                    <a th:href="@{/usuarios/login}" class="btn secondary">
+                        <i class="fas fa-arrow-left"></i> Volver al Login
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 20px; padding: 15px; color: #666; font-size: 0.9rem;">
+        <i class="fas fa-shield-alt"></i> Sus datos están protegidos y serán utilizados únicamente para procesos internos.
+    </div>
+</div>
+
+<script>
+    // ========== SIGNATURE PAD IMPLEMENTATION ==========
+    let canvas, ctx, isDrawing = false, lastX = 0, lastY = 0;
+    let signatureEmpty = true;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        canvas = document.getElementById('signaturePad');
+        ctx = canvas.getContext('2d');
+
+        // Ajustar el canvas al tamaño del contenedor
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Configurar el estilo de la firma
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Eventos para mouse
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Eventos para touch (móviles)
+        canvas.addEventListener('touchstart', handleTouchStart, {passive: false});
+        canvas.addEventListener('touchmove', handleTouchMove, {passive: false});
+        canvas.addEventListener('touchend', stopDrawing);
+    });
+
+    function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
+        // Reconfigurar el estilo después de resize
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+    }
+
+    function startDrawing(e) {
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        lastX = e.clientX - rect.left;
+        lastY = e.clientY - rect.top;
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+
+        lastX = x;
+        lastY = y;
+
+        signatureEmpty = false;
+        updateSignatureStatus();
+    }
+
+    function stopDrawing() {
+        if (isDrawing) {
+            isDrawing = false;
+            saveSignature();
+        }
+    }
+
+    function handleTouchStart(e) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        lastX = touch.clientX - rect.left;
+        lastY = touch.clientY - rect.top;
+        isDrawing = true;
+    }
+
+    function handleTouchMove(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+
+        lastX = x;
+        lastY = y;
+
+        signatureEmpty = false;
+        updateSignatureStatus();
+    }
+
+    function clearSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById('firmaBase64').value = '';
+        signatureEmpty = true;
+        updateSignatureStatus();
+    }
+
+    function saveSignature() {
+        const dataURL = canvas.toDataURL('image/png');
+        document.getElementById('firmaBase64').value = dataURL;
+    }
+
+    function updateSignatureStatus() {
+        const statusDiv = document.getElementById('signatureStatus');
+        if (signatureEmpty) {
+            statusDiv.className = 'signature-status signature-empty';
+            statusDiv.innerHTML = '<i class="fas fa-pen"></i> Por favor, firme en el recuadro arriba';
+        } else {
+            statusDiv.className = 'signature-status signature-filled';
+            statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> Firma capturada correctamente';
+        }
+    }
+
+    // ========== CONFIGURAR FECHA DE HOY (NO EDITABLE) ==========
+    document.addEventListener("DOMContentLoaded", function() {
+        const fechaAfiliacion = document.getElementById('fechaAfiliacion');
+        const hoy = new Date().toISOString().split('T')[0];
+        fechaAfiliacion.value = hoy;
+    });
+
+    // ========== VALIDACIÓN DE EDAD MÍNIMA (18 AÑOS) ==========
+    const fechaNacInput = document.getElementById('fechaNacimiento');
+    const hoy = new Date();
+    const fechaMax = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate());
+    fechaNacInput.setAttribute('max', fechaMax.toISOString().split('T')[0]);
+
+    fechaNacInput.addEventListener('change', function() {
+        const fechaNac = new Date(this.value);
+        let edad = hoy.getFullYear() - fechaNac.getFullYear();
+        const mes = hoy.getMonth() - fechaNac.getMonth();
+
+        if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+            edad--;
+        }
+
+        if (edad < 18) {
+            alert('Debe ser mayor de 18 años para registrarse.');
+            this.value = '';
+        }
+    });
+
+    // ========== VALIDACIÓN DE CONFIRMACIÓN DE EMAIL ==========
+    const emailInput = document.getElementById('email');
+    const confirmarEmailInput = document.getElementById('confirmarEmail');
+
+    confirmarEmailInput.addEventListener('blur', function() {
+        if (this.value && this.value !== emailInput.value) {
+            alert('Los correos electrónicos no coinciden');
+            this.value = '';
+            this.focus();
+        }
+    });
+
+    // ========== AUTO-FORMATO DUI ==========
+    const duiInput = document.getElementById('dui');
+    duiInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 8) {
+            value = value.substring(0, 8) + '-' + value.substring(8, 9);
+        }
+        e.target.value = value;
+    });
+
+    // ========== AUTO-FORMATO TELÉFONOS ==========
+    function formatearTelefono(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+            });
+        }
+    }
+    formatearTelefono('telefono');
+    formatearTelefono('telTrabajo');
+
+    // ========== VALIDACIÓN DE TAMAÑO DE ARCHIVOS ==========
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+    function validarArchivo(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+
+            if (file.size > MAX_FILE_SIZE) {
+                alert('El archivo es demasiado grande. El tamaño máximo es 5MB.');
+                input.value = '';
+                return false;
+            }
+
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Formato de archivo no válido. Use JPG o PNG.');
+                input.value = '';
+                return false;
+            }
+            return true;
+        }
+    }
+
+    document.getElementById('duiFrente').addEventListener('change', function() {
+        validarArchivo(this);
+    });
+
+    document.getElementById('duiReverso').addEventListener('change', function() {
+        validarArchivo(this);
+    });
+
+    // ========== ACTUALIZAR LABELS DE ARCHIVOS ==========
+    function updateFileLabel(inputId, labelId) {
+        const input = document.getElementById(inputId);
+        const label = document.getElementById(labelId);
+
+        if (input.files && input.files.length > 0) {
+            const fileName = input.files[0].name;
+            label.innerHTML = '<i class="fas fa-check-circle"></i> ' + fileName;
+            label.style.color = '#28a745';
+            label.style.borderColor = '#28a745';
+        }
+    }
+
+    // ========== PREVENIR DOBLE SUBMIT Y VALIDAR FIRMA ==========
+    const form = document.getElementById('afiliadoForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function(e) {
+        // Validar que haya firma
+        const firmaBase64 = document.getElementById('firmaBase64').value;
+        if (!firmaBase64 || firmaBase64 === '' || firmaBase64 === 'data:,') {
+            e.preventDefault();
+            alert('Por favor, firme el formulario antes de enviarlo.');
+            document.getElementById('signaturePad').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+
+        // Validar que se seleccionó duración
+        const duracionSeleccionada = document.querySelector('input[name="duracionMeses"]:checked');
+        if (!duracionSeleccionada) {
+            e.preventDefault();
+            alert('Por favor, seleccione la duración del servicio.');
+            return false;
+        }
+
+        if (!form.checkValidity()) {
+            return;
+        }
+
+        // Guardar firma una última vez por si acaso
+        saveSignature();
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+        // Re-habilitar después de 10 segundos por si falla
+        setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Solicitud';
+        }, 10000);
+    });
+
+    // ========== CARGAR DEPARTAMENTOS ==========
+    function loadDepartamentos(idPais) {
+        const deptoSelect = document.getElementById("departamento");
+        const municipioSelect = document.getElementById("municipio");
+
+        if (!idPais) {
+            deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        fetch(`/api/departamentos/pais/${idPais}`)
+            .then(response => response.json())
+            .then(data => {
+                deptoSelect.innerHTML = "<option value=''>Seleccione un departamento</option>";
+                data.forEach(depto => {
+                    deptoSelect.innerHTML += `<option value="${depto.idDepto}">${depto.nombreDepartamento}</option>`;
+                });
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                deptoSelect.innerHTML = "<option value=''>Error al cargar</option>";
+            });
+    }
+
+    // ========== CARGAR MUNICIPIOS ==========
+    function loadMunicipios(idDepto) {
+        const municipioSelect = document.getElementById("municipio");
+
+        if (!idDepto) {
+            municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+            return;
+        }
+
+        fetch(`/api/municipios/departamento/${idDepto}`)
+            .then(response => response.json())
+            .then(data => {
+                municipioSelect.innerHTML = "<option value=''>Seleccione un municipio</option>";
+                data.forEach(muni => {
+                    municipioSelect.innerHTML += `<option value="${muni.idMunicipio}">${muni.munNombre}</option>`;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                municipioSelect.innerHTML = "<option value=''>Error al cargar</option>";
+            });
+    }
+
+    // ========== VALIDAR SOLO LETRAS EN NOMBRE Y APELLIDO ==========
+    document.getElementById('nombre').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+    });
+
+    document.getElementById('apellido').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^A-Za-záéíóúÁÉÍÓÚñÑ\s]/g, '');
+    });
+</script>
+</body>
+</html>

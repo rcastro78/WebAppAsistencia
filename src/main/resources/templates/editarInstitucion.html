@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Institución - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/institucion.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Editar Institución</h1>
+        <span class="subtitle">Modifica la información de la institución seleccionada</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos de la Institución</h2>
+        </div>
+        <div class="card-body">
+            <!-- Nota: th:object carga la entidad Institucion ya existente -->
+            <form th:action="@{/instituciones/editar}" th:object="${institucion}" method="post">
+            <!-- Hack para permitir PUT -->
+                <input type="hidden" name="_method" value="put"/>
+                <input type="hidden" th:field="*{id}"/>
+
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label for="nombreInstitucion"><i class="fas fa-university"></i> Nombre de la Institución</label>
+                        <input type="text" th:field="*{nombreInstitucion}" id="nombreInstitucion"
+                               class="input" placeholder="Ingrese el nombre de la institución" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
+                        <input type="tel" th:field="*{telefono}" id="telefono"
+                               class="input" placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" th:field="*{email}" id="email"
+                               class="input" placeholder="correo@ejemplo.com">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="direccion"><i class="fas fa-map-marker-alt"></i> Dirección</label>
+                        <input type="text" th:field="*{direccion}" id="direccion"
+                               class="input" placeholder="Ingrese la dirección completa">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="observaciones"><i class="fas fa-sticky-note"></i> Observaciones</label>
+                        <textarea th:field="*{observaciones}" id="observaciones"
+                                  class="input" placeholder="Notas u observaciones adicionales" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pais"><i class="fas fa-globe"></i> País</label>
+                        <select id="pais" th:field="*{idPais}" class="input" required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}" th:value="${p.idPais}" th:text="${p.nombrePais}"></option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estado"><i class="fas fa-check-circle"></i> Estado</label>
+                        <select id="estado" th:field="*{estado}" class="input" required>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> Actualizar
+                    </button>
+                    <a th:href="@{/instituciones}" class="btn secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Autoformato de teléfono
+    document.addEventListener('DOMContentLoaded', function() {
+        const telInput = document.getElementById('telefono');
+        if (telInput) {
+            telInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 4) {
+                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
+                }
+                e.target.value = value;
+            });
+        }
+    });
+</script>
+</body>
+</html>

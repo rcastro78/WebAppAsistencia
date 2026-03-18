@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard del Afiliado</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Progress Indicator Container */
+.progress-container {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto 20px;
+    text-align: center;
+    width: 100%;
+}
+
+/* SVG del círculo de progreso */
+.progress-ring {
+    transform: rotate(-90deg);
+    display: block;
+    margin: 0 auto;
+}
+
+/* Círculos del progreso */
+.progress-ring-circle {
+    transition: stroke-dashoffset 0.5s ease;
+    stroke-linecap: round;
+}
+
+/* Porcentaje en el centro del círculo */
+.percentage {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    font-weight: bold;
+    color: #4A90E2;
+}
+
+/* Texto debajo del círculo */
+.progress-container p {
+    margin-top: 10px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Porcentaje en el texto */
+.text-pct {
+    font-weight: bold;
+    color: #4A90E2;
+}
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <img th:src="@{/images/asistencia.jpeg}" style="width: 224px; height: 64px;" alt="Logo">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <img src="https://via.placeholder.com/60x60/4A90E2/FFFFFF?text=HM" alt="Profile">
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|"></h3>
+            <p class="tutor-id" th:text="|DUI Afiliado: ${session.dui}|">Afiliado ID: 135246</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/afiliado/nuevo/patrocinio}" class="nav-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Patrocina a alguien</span>
+            </a>
+
+            <a th:href="@{/comerciosAfiliados}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios afiliados</span>
+            </a>
+
+            <a th:href="@{/planesCobertura(idPlan=${session.idPlan})}"  class="nav-item">
+                <i class="fas fa-face-smile"></i>
+                <span>Beneficios de mi plan</span>
+            </a>
+
+            <a th:href="@{/proveedores/serviciosProveedor/lista(idPlan=${session.idPlan})}" class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span>Servicios de mi plan</span>
+            </a>
+
+            <a th:href="@{/afiliado/historial/{dui}(dui=${session.dui})}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+            <a th:href="@{/afiliado/miTarjeta}" class="nav-item">
+                <i class="fas fa-id-card"></i>
+                <span>Mi tarjeta</span>
+            </a>
+
+            <a th:href="@{/afiliado/patrocinados/}" class="nav-item">
+                <i class="fas fa-user-group"></i>
+                <span>Mis patrocinados</span>
+            </a>
+
+            <a th:href="@{/telemedicina/consulta/solicitar}" class="nav-item">
+                <i class="fas fa-hospital"></i>
+                <span>Solicitar consulta de emergencia</span>
+            </a>
+
+
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+
+        <div class="profile-completion">
+            <div class="progress-container" th:data-pct="${pct}">
+                <svg class="progress-ring" width="60" height="60">
+                    <circle class="progress-ring-circle" stroke="#e6e6e6" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+                    <circle class="progress-ring-circle progress" stroke="#4A90E2" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+                </svg>
+                <span class="percentage"></span>
+                <p>Perfil Completado: <span class="text-pct" th:text="${porcentaje} + '%'"></span></p>
+            </div>
+
+            <div class="completion-steps">
+                <div class="step completed">
+                    <i class="fas fa-check"></i>
+                    <span>Información Personal</span>
+                </div>
+                <div class="step completed">
+                    <i class="fas fa-check"></i>
+                    <span>Documentación</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Datos Médicos</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Beneficiarios</span>
+                </div>
+                <div class="step">
+                    <i class="fas fa-circle"></i>
+                    <span>Evaluación</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1 th:text="|Hola, ${session.nombre}|"></h1>
+                <p>Bienvenido a tu panel de control de Afiliado. Aquí puedes gestionar tus pólizas, revisar coberturas y mantener tu información actualizada.</p>
+            </div>
+            <div class="header-right">
+                <div class="user-menu">
+                    <span th:text="|${session.nombre} ${session.apellido}|"></span>
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="header-illustration">
+                    <img src="https://via.placeholder.com/150x120/4A90E2/FFFFFF?text=Insurance" alt="Insurance Illustration">
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="stat-card blue">
+                <div class="stat-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 th:text="${session.porcentaje} + '%'">83%</h3>
+                    <p>Tu perfil está <span th:text="${session.porcentaje} + '%'">83%</span> completo</p>
+                    <a href="#" class="stat-link">Completar Perfil <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="stat-card teal">
+                <div class="stat-icon">
+                    <i class="fas fa-shield-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Verificar</h3>
+                    <p>Necesitas verificar tu identidad</p>
+                    <a href="#" class="stat-link">Verificación <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="stat-card orange">
+                <div class="stat-icon">
+                    PLAN
+                </div>
+                <div class="stat-info">
+                    <h3><span th:text="|Plan ${session.nombrePlan} ($${session.precioPlanMensual})|"></span></h3>
+                    <p class="job-id"><span th:text="|Número de tarjeta: ${numTarjeta}|"></span></p>
+                    <a href="#" class="stat-link">Pagar Ahora <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Notifications -->
+            <div class="content-section">
+                <h3>Notificaciones</h3>
+
+                <div class="notifications">
+                    <!-- Si hay notificaciones -->
+                    <div th:if="${notificaciones != null and notificaciones.size() > 0}">
+                        <div th:each="notif : ${notificaciones}" class="notification-item">
+                            <div class="notification-icon"
+                                 th:classappend="${notif.tipo == 'PAGO'} ? ' payment' : ' user'">
+                                <i th:class="${notif.tipo == 'PAGO'} ? 'fas fa-file-invoice-dollar' : 'fas fa-user'"></i>
+                            </div>
+
+                            <div class="notification-content">
+                                <p th:text="${notif.textoNotificacion}">Texto de la notificación</p>
+                                <span class="time"
+                                      th:text="${#temporals.format(notif.createdAt, 'dd/MM/yyyy HH:mm')}">Hace un momento</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Si no hay notificaciones -->
+                    <div th:if="${notificaciones == null or notificaciones.size() == 0}">
+                        <p>No tienes notificaciones por el momento.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nearby Services and Full Report -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3>Servicios Cercanos</h3>
+                    <a href="#" class="view-full-report">Ver Reporte Completo</a>
+                </div>
+
+                <div class="map-container">
+                    <div class="map-placeholder">
+                        <div class="map-pins">
+                            <div class="pin pin-1"></div>
+                            <div class="pin pin-2"></div>
+                            <div class="pin pin-3"></div>
+                            <div class="pin pin-4"></div>
+                            <div class="pin pin-5"></div>
+                        </div>
+                    </div>
+
+                    <div class="location-list">
+                        <div class="location-item">
+                            <div class="location-bar brasil"></div>
+                            <span>Brasil</span>
+                        </div>
+                        <div class="location-item">
+                            <div class="location-bar mongolia"></div>
+                            <span>Mongolia</span>
+                        </div>
+                        <div class="location-item">
+                            <div class="location-bar puerto-rico"></div>
+                            <span>Puerto Rico</span>
+                        </div>
+                        <div class="location-item">
+                            <div class="location-bar malta"></div>
+                            <span>Malta</span>
+                        </div>
+                        <div class="location-item">
+                            <div class="location-bar grenada"></div>
+                            <span>Granada</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Schedules -->
+        <div class="content-section">
+            <h3>Próximas Citas</h3>
+            <div class="schedules">
+                <div class="schedule-item">
+                    <div class="schedule-icon">
+                        <img src="https://via.placeholder.com/50x50/4A90E2/FFFFFF?text=MT" alt="Medical Test">
+                    </div>
+                    <div class="schedule-info">
+                        <p class="schedule-id">Cita ID: 68415</p>
+                        <h4>Examen Médico:</h4>
+                        <p>Evaluación de Salud 12.2</p>
+                        <p>Preguntas 5 to 10</p>
+                    </div>
+                    <div class="schedule-time">
+                        <i class="fas fa-clock"></i>
+                        <span>4:30 PM</span>
+                        <span>Domingo</span>
+                        <span>Nov 23 2019</span>
+                    </div>
+                </div>
+
+                <div class="schedule-item">
+                    <div class="schedule-icon">
+                        <img src="https://via.placeholder.com/50x50/20B2AA/FFFFFF?text=CF" alt="Coverage Review">
+                    </div>
+                    <div class="schedule-info">
+                        <p class="schedule-id">Cita ID: 68416</p>
+                        <h4>Revisión de Cobertura:</h4>
+                        <p>Análisis de Póliza 12.2</p>
+                        <p>Preguntas 5 to 10</p>
+                    </div>
+                    <div class="schedule-time">
+                        <i class="fas fa-clock"></i>
+                        <span>4:30 PM</span>
+                        <span>Domingo</span>
+                        <span>Nov 23 2019</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .progress-container {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+
+    .progress-ring-circle {
+        transition: stroke-dashoffset 0.5s ease;
+    }
+
+    .percentage {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 14px;
+        font-weight: bold;
+        color: #4A90E2;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const container = document.querySelector('.progress-container');
+        const pctData = container.dataset.pct;
+
+        // Validar que el valor existe
+        if (!pctData) {
+            console.error('No se encontró el valor de porcentaje');
+            return;
+        }
+
+        const pct = parseFloat(pctData);
+
+        // Validar que es un número válido
+        if (isNaN(pct)) {
+            console.error('El porcentaje no es un número válido:', pctData);
+            return;
+        }
+
+        const circle = container.querySelector('.progress');
+        const percentageText = container.querySelector('.percentage');
+
+        const radius = 26;
+        const circumference = 2 * Math.PI * radius; // ≈ 163.36
+
+        // Configurar el círculo
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+
+        // Calcular el offset (invertido para que vaya en sentido horario)
+        const offset = circumference - (pct / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+
+        // Mostrar el porcentaje en el centro del círculo
+        const pctFormatted = `${Math.round(pct)}%`;
+        percentageText.textContent = pctFormatted;
+
+        // Debug
+        console.log('Porcentaje:', pct);
+        console.log('Circumference:', circumference);
+        console.log('Offset:', offset);
+    });
+</script>
+</body>
+</html>

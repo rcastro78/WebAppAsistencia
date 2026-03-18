@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitudes de Asistencia - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/solicitud_asistencia.css}">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar para Administrador -->
+    <div class="sidebar" th:if="${session.rol == 1}">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <span th:text="${#strings.substring(session.nombre,0,1) + #strings.substring(session.apellido,0,1)}">JO</span>
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|">Administrador</h3>
+            <p th:text="${session.email}">admin@asistencia.com</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/plan}" class="nav-item">
+                <i class="fas fa-list-check"></i>
+                <span>Planes</span>
+            </a>
+            <a th:href="@{/proveedores/}" class="nav-item">
+                <i class="fas fa-truck-fast"></i>
+                <span>Proveedores de servicios</span>
+            </a>
+            <a th:href="@{/asistencia/solicitudes_todas}" class="nav-item active">
+                <i class="fas fa-file-medical"></i>
+                <span>Solicitudes de Asistencia</span>
+            </a>
+            <a th:href="@{/afiliado/carga-masiva}" class="nav-item">
+                <i class="fas fa-file-arrow-up"></i>
+                <span>Carga masiva</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reportes</span>
+            </a>
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Sidebar para Afiliado -->
+    <div class="sidebar" th:if="${session.rol == 3}">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador" style="max-width: 200px;">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <span th:text="${#strings.substring(session.nombre,0,1) + #strings.substring(session.apellido,0,1)}">AF</span>
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|">Afiliado</h3>
+            <p th:text="|DUI: ${session.dui}|">DUI: 000000000</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/afiliado/plan}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Mi Plan</span>
+            </a>
+            <a th:href="@{/afiliado/nuevo/patrocinio}" class="nav-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Patrocina a alguien</span>
+            </a>
+            <a th:href="@{/comerciosAfiliados}" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios afiliados</span>
+            </a>
+            <a th:href="@{/empresa/beneficios/lista(idPlan=${session.idPlan})}" class="nav-item">
+                <i class="fas fa-face-smile"></i>
+                <span>Beneficios de mi plan</span>
+            </a>
+            <a th:href="@{/proveedores/serviciosProveedor/lista(idPlan=${session.idPlan})}" class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span>Servicios de mi plan</span>
+            </a>
+            <a th:href="@{/asistencia/solicitudes_todas}" class="nav-item active">
+                <i class="fas fa-file-medical"></i>
+                <span>Mis Solicitudes</span>
+            </a>
+            <a th:href="@{/afiliado/historial/{dui}(dui=${session.dui})}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+            <a th:href="@{/afiliado/miTarjeta}" class="nav-item">
+                <i class="fas fa-id-card"></i>
+                <span>Mi tarjeta</span>
+            </a>
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <div class="page-title">
+                    <h1>
+                        <i class="fas fa-file-medical"></i>
+                        <span th:text="${session.rol == 1 ? 'Gestión de Solicitudes de Asistencia' : 'Mis Solicitudes de Asistencia'}">Solicitudes</span>
+                    </h1>
+                    <p th:text="${session.rol == 1 ? 'Administra todas las solicitudes del sistema' : 'Consulta y gestiona tus solicitudes de servicios'}">Gestiona solicitudes</p>
+                </div>
+                <div class="page-actions">
+                    <a th:href="@{/asistencia/nueva}" class="btn btn-primary" th:if="${session.rol == 3}">
+                        <i class="fas fa-plus"></i> Nueva Solicitud
+                    </a>
+                    <a th:href="@{${session.rol == 1 ? '/admin/dashboard' : '/afiliado/plan'}}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas -->
+        <div th:if="${mensaje}" class="alert" th:classappend="${tipo == 'success' ? 'alert-success' : 'alert-error'}">
+            <i th:class="${tipo == 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'}"></i>
+            <span th:text="${mensaje}">Mensaje</span>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Total Solicitudes</div>
+                    <div class="stat-value" th:text="${totalSolicitudes}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon pendiente">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Pendientes</div>
+                    <div class="stat-value" th:text="${pendientes}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon proceso">
+                    <i class="fas fa-spinner"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">En Proceso</div>
+                    <div class="stat-value" th:text="${enProceso}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon completada">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Completadas</div>
+                    <div class="stat-value" th:text="${completadas}">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Listado de Solicitudes -->
+        <div class="solicitudes-card">
+            <div class="solicitudes-header">
+                <div class="solicitudes-header-content">
+                    <h2 class="solicitudes-title">
+                        <i class="fas fa-list"></i>
+                        <span th:text="${session.rol == 1 ? 'Todas las Solicitudes' : 'Mis Solicitudes'}">Listado</span>
+                    </h2>
+                    <div class="header-controls">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Buscar solicitud..." onkeyup="filtrarTabla()">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="filter-group">
+                            <select id="estadoFiltro" onchange="filtrarPorEstado()">
+                                <option value="">Todos los estados</option>
+                                <option value="0">Solicitada</option>
+                                <option value="1">Completada</option>
+                                <option value="2">Observación</option>
+                                <option value="3">En Proceso</option>
+                                <option value="4">Pendiente</option>
+                                <option value="5">Rechazada</option>
+                                <option value="5">Suspendida</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="solicitudesTable">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th th:if="${session.rol == 1}">Nombre Afiliado</th>
+                        <th>Tipo Asistencia</th>
+                        <th>Proveedor</th>
+                        <th>Fecha Asistencia</th>
+                        <th>Tarifa aplicada</th>
+                        <th>Estado</th>
+                        <th>Fecha Registro</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${solicitudes == null || solicitudes.isEmpty()}">
+                        <td th:colspan="${session.rol == 1 ? '9' : '8'}">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No hay solicitudes registradas</h3>
+                                <p th:text="${session.rol == 1 ? 'No se han encontrado solicitudes en el sistema.' : 'Comienza creando tu primera solicitud de asistencia.'}">Sin solicitudes</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr th:each="sol : ${solicitudes}" th:attr="data-estado=${sol.estado}">
+                        <td><strong th:text="'#' + ${sol.id}">001</strong></td>
+                        <td th:if="${session.rol == 1}">
+                            <div class="tipo-asistencia">
+                                <i class="fas fa-user"></i>
+                                <span th:text="${sol.nombreCompleto}">Nombre Completo</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tipo-asistencia">
+                                <i class="fas fa-hands-helping"></i>
+                                <span th:text="${sol.nombreCobertura}">Médica</span>
+                            </div>
+                        </td>
+                        <td th:text="${sol.nombreProveedor}">PROV001</td>
+                        <td>
+                            <div class="fecha-hora">
+                                <div><i class="fas fa-calendar"></i> <span th:text="${#temporals.format(sol.fechaAsistencia, 'dd/MM/yyyy')}">01/01/2024</span></div>
+                                <div><i class="fas fa-clock"></i> <span th:text="${#temporals.format(sol.horaAsistencia, 'HH:mm')}">10:00</span></div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tipo-asistencia">
+                                <i class="fas fa-coins"></i>
+                                <span th:text="'$' + ${sol.tarifaAplicada}">$0</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${sol.estado.toString() == '0' ? 'badge-pendiente' :
+               (sol.estado.toString() == '1' ? 'badge-proceso' :
+               (sol.estado.toString() == '2' ? 'badge-completada' : 'badge-cancelada'))}"
+                                  th:text="${estadosMap[sol.estado.toString()]}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(sol.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</td>
+                        <td>
+                            <div class="actions">
+                                <!-- Botones para Admin: siempre visibles -->
+                                <a th:if="${session.rol == 1}"
+                                   th:href="@{/asistencia/editar/{id}(id=${sol.id})}"
+                                   class="btn-action btn-info"
+                                   title="Ver detalle">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:if="${session.rol == 1}"
+                                   th:href="@{/asistencia/editar/{id}(id=${sol.id})}"
+                                   class="btn-action btn-edit"
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:if="${session.rol == 1}"
+                                   th:href="@{/asistencia/eliminar/{id}(id=${sol.id})}"
+                                   class="btn-action btn-delete"
+                                   title="Eliminar"
+                                   onclick="return confirm('¿Está seguro de eliminar esta solicitud?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+
+                                <!-- Botones para Afiliado: solo si estado == 0 (Pendiente) -->
+
+                                <a th:if="${session.rol == 3 && sol.estado == '0'}"
+                                   th:href="@{/asistencia/editar/{id}(id=${sol.id})}"
+                                   class="btn-action btn-edit"
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:if="${session.rol == 3 && sol.estado == '0'}"
+                                   th:href="@{/asistencia/eliminar/{id}(id=${sol.id})}"
+                                   class="btn-action btn-delete"
+                                   title="Eliminar"
+                                   onclick="return confirm('¿Está seguro de eliminar esta solicitud?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+
+                                <!-- Mensaje cuando afiliado no puede editar -->
+                                <div th:if="${session.rol == 3 && sol.estado != '0'}" class="rating-container">
+                                    <span class="rating-label">Calificar servicio</span>
+                                    <div class="stars" th:attr="data-id=${sol.id}, data-rating=${sol.calificacion != null ? sol.calificacion : 0}">
+                                        <i class="fas fa-star star" data-value="1"></i>
+                                        <i class="fas fa-star star" data-value="2"></i>
+                                        <i class="fas fa-star star" data-value="3"></i>
+                                        <i class="fas fa-star star" data-value="4"></i>
+                                        <i class="fas fa-star star" data-value="5"></i>
+                                    </div>
+                                    <span class="rating-text">Sin calificar</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Filtrar tabla por búsqueda
+    function filtrarTabla() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('solicitudesTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const td = tr[i].getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    const txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            tr[i].style.display = found ? '' : 'none';
+        }
+    }
+
+    // Filtrar por estado
+    function filtrarPorEstado() {
+        const select = document.getElementById('estadoFiltro');
+        const estado = select.value;
+        const table = document.getElementById('solicitudesTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const dataEstado = tr[i].getAttribute('data-estado');
+
+            if (!estado || dataEstado === estado) {
+                tr[i].style.display = '';
+            } else {
+                tr[i].style.display = 'none';
+            }
+        }
+    }
+
+    // Auto-ocultar alertas después de 5 segundos
+    const alert = document.querySelector('.alert');
+    if (alert) {
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    }
+
+    // Animación de entrada
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.stat-card, .solicitudes-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+
+    // Toggle sidebar en móvil
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    // Agregar botón de menú para móvil si no existe
+    if (window.innerWidth <= 768) {
+        const menuButton = document.createElement('button');
+        menuButton.innerHTML = '<i class="fas fa-bars"></i>';
+        menuButton.style.cssText = `
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #667eea;
+        `;
+        menuButton.onclick = toggleSidebar;
+        document.body.appendChild(menuButton);
+    }
+
+    document.querySelectorAll('.stars').forEach(container => {
+    const stars = container.querySelectorAll('.star');
+    const ratingText = container.nextElementSibling;
+    const labels = ['', 'Malo', 'Regular', 'Bueno', 'Muy bueno', 'Excelente'];
+    let selectedValue = 0;
+
+    stars.forEach(star => {
+        // Hover
+        star.addEventListener('mouseenter', () => {
+            const val = parseInt(star.dataset.value);
+            stars.forEach(s => {
+                s.classList.toggle('active', parseInt(s.dataset.value) <= val);
+            });
+            ratingText.textContent = labels[val];
+        });
+
+        // Mouse leave: volver a la seleccionada
+        container.addEventListener('mouseleave', () => {
+            stars.forEach(s => {
+                s.classList.toggle('active', parseInt(s.dataset.value) <= selectedValue);
+            });
+            ratingText.textContent = selectedValue ? labels[selectedValue] : 'Sin calificar';
+        });
+
+        // Click: guardar calificación
+        star.addEventListener('click', () => {
+            selectedValue = parseInt(star.dataset.value);
+            const solicitudId = container.dataset.id;
+
+            ratingText.textContent = `✓ ${labels[selectedValue]}`;
+            ratingText.style.color = '#f5a623';
+
+            // Llamada al backend
+            fetch(`/asistencia/solicitudes/${solicitudId}/calificar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ calificacion: selectedValue })
+            });
+        });
+    });
+});
+
+    document.querySelectorAll('.stars').forEach(container => {
+    const stars = container.querySelectorAll('.star');
+    const ratingText = container.nextElementSibling;
+    const labels = ['', 'Malo', 'Regular', 'Bueno', 'Muy bueno', 'Excelente'];
+
+    // ✅ Recuperar calificación guardada (double → redondeamos al entero más cercano)
+    let selectedValue = Math.round(parseFloat(container.dataset.rating) || 0);
+
+    // ✅ Mostrar estrellas iniciales
+    stars.forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.value) <= selectedValue);
+    });
+    if (selectedValue > 0) {
+        ratingText.textContent = `✓ ${labels[selectedValue]}`;
+        ratingText.style.color = '#f5a623';
+    }
+
+    stars.forEach(star => {
+        star.addEventListener('mouseenter', () => {
+            const val = parseInt(star.dataset.value);
+            stars.forEach(s => {
+                s.classList.toggle('active', parseInt(s.dataset.value) <= val);
+            });
+            ratingText.textContent = labels[val];
+        });
+
+        container.addEventListener('mouseleave', () => {
+            stars.forEach(s => {
+                s.classList.toggle('active', parseInt(s.dataset.value) <= selectedValue);
+            });
+            ratingText.textContent = selectedValue ? `✓ ${labels[selectedValue]}` : 'Sin calificar';
+            ratingText.style.color = selectedValue ? '#f5a623' : '#aaa';
+        });
+
+        star.addEventListener('click', () => {
+            selectedValue = parseInt(star.dataset.value);
+            const solicitudId = container.dataset.id;
+
+            ratingText.textContent = `✓ ${labels[selectedValue]}`;
+            ratingText.style.color = '#f5a623';
+
+            fetch(`/asistencia/solicitudes/${solicitudId}/calificar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ calificacion: selectedValue })
+            });
+        });
+    });
+});
+</script>
+</body>
+</html>

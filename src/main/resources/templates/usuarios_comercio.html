@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios del Comercio - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/usuarios.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Gestión de Usuarios del Comercio</h1>
+        <span class="subtitle">Administra todos los usuarios afiliados a este comercio</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Listado de Usuarios</h2>
+            <a th:href="@{/comerciosAfiliados/usuariosComercio/registro(nit=${param.nit})}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Usuario
+            </a>
+        </div>
+        <div class="breadcrumb">
+            <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Usuarios del Comercio</span>
+        </div>
+        <div class="card-body">
+            <div class="table-container">
+                <!-- Tabla con datos -->
+                <table class="modern-table" th:if="${not #lists.isEmpty(usuarios)}">
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-building"></i> NIT</th>
+                        <th><i class="fas fa-id-card"></i> DUI</th>
+                        <th><i class="fas fa-user"></i> Nombre</th>
+                        <th><i class="fas fa-user-tag"></i> Apellido</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-phone"></i> Teléfono</th>
+                        <th><i class="fas fa-toggle-on"></i> Estado</th>
+                        <th><i class="fas fa-calendar-plus"></i> Creado</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="usuario, iterStat : ${usuarios}" class="fade-in-row" th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+                        <td>
+                            <span class="id-badge" th:text="${usuario.nit}"></span>
+                        </td>
+                        <td>
+                            <span class="id-badge" th:text="${usuario.dui}"></span>
+                        </td>
+                        <td>
+                            <strong th:text="${usuario.nombre}"></strong>
+                        </td>
+                        <td th:text="${usuario.apellido}"></td>
+                        <td th:text="${usuario.emailAsociado}"></td>
+                        <td th:text="${usuario.telefono}"></td>
+                        <td>
+                            <span class="status-badge status-active" th:if="${usuario.estado == 1}">
+                                <i class="fas fa-check-circle"></i> Activo
+                            </span>
+                            <span class="status-badge status-inactive" th:if="${usuario.estado == 0}">
+                                <i class="fas fa-times-circle"></i> Inactivo
+                            </span>
+                        </td>
+                        <td>
+                            <span th:text="${#temporals.format(usuario.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        </td>
+                        <td>
+                            <div class="action-icons">
+                                <!-- Editar -->
+                                <a th:href="@{/comerciosAfiliados/usuariosComercio/editar(nit=${usuario.nit},dui=${usuario.dui})}"
+                                   class="action-btn edit"
+                                   data-tooltip="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <!-- Eliminar -->
+                                <a th:href="@{/comerciosAfiliados/usuariosComercio/eliminar(nit=${usuario.nit},dui=${usuario.dui})}"
+                                   class="action-btn delete"
+                                   data-tooltip="Eliminar"
+                                   onclick="return confirm('¿Está seguro que desea eliminar este usuario?\n\nEsta acción no se puede deshacer.');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <!-- Estado vacío -->
+                <div class="empty-state" th:if="${#lists.isEmpty(usuarios)}">
+                    <i class="fas fa-user-friends"></i>
+                    <h3>No hay usuarios registrados para este comercio</h3>
+                    <p>Comienza creando un nuevo usuario afiliado al comercio</p>
+                    <a th:href="@{/comerciosAfiliados/usuariosComercio/registro(nit=${param.nit})}" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

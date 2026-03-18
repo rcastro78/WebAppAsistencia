@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Solicitud de Asistencia - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1 th:text="${solicitud.id != null ? 'Editar Solicitud de Asistencia' : 'Nueva Solicitud de Asistencia'}">Nueva Solicitud de Asistencia</h1>
+        <span class="subtitle">Completa la información para registrar la solicitud de servicio</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Datos de la Solicitud</h2>
+        </div>
+        <div class="card-body">
+
+            <form id="solicitudForm"
+                  th:action="@{/asistencia/guardar}"
+                  th:object="${solicitud}"
+                  method="post">
+
+                <!-- ID hidden para edición -->
+                <input type="hidden" th:field="*{id}" th:if="${solicitud.id != null}">
+                <!-- ID del plan para el filtrado dinámico -->
+                <input type="hidden" id="idPlanHidden" name="idPlanSesion" th:value="${idPlanSesion}">
+
+                <!-- Valores preseleccionados (si vienen) -->
+                <input type="hidden" id="idCoberturaPreseleccionada" th:value="${idCoberturaPreseleccionada}">
+                <input type="hidden" id="idProveedorPreseleccionado" th:value="${idProveedorPreseleccionado}">
+
+                <div class="form-grid">
+                    <!-- DUI Afiliado -->
+                    <div class="form-group" th:classappend="${session.rol == 1 ? '' : 'full-width'}">
+                        <label for="duiAfiliado"><i class="fas fa-id-card"></i> DUI Afiliado</label>
+                        <input type="text"
+                               th:field="*{duiAfiliado}"
+                               id="duiAfiliado"
+                               class="input"
+                               placeholder="00000000-0"
+                               pattern="[0-9]{8}-[0-9]"
+                               required
+                               th:readonly="${session.rol == 3}"
+                               th:style="${session.rol == 3 ? 'background-color: #f5f5f5;' : ''}">
+                    </div>
+
+                    <!-- Nombre Afiliado (solo Admin) -->
+                    <div class="form-group" th:if="${session.rol == 1}">
+                        <label for="nombreAfiliado"><i class="fas fa-user"></i> Nombre Afiliado</label>
+                        <input type="text"
+                               id="nombreAfiliado"
+                               th:value="${nombreAfiliado}"
+                               class="input"
+                               readonly
+                               style="background-color: #f5f5f5;">
+                    </div>
+
+                    <!-- Plan -->
+                    <div class="form-group">
+                        <label for="nombrePlan"><i class="fas fa-clipboard-list"></i> Plan del afiliado</label>
+                        <input type="text"
+                               id="nombrePlan"
+                               th:value="${nombrePlan}"
+                               class="input"
+                               readonly
+                               style="background-color: #f5f5f5;">
+                    </div>
+
+                    <!-- Tipo de Asistencia -->
+                    <div class="form-group">
+                        <label for="idAsistencia"><i class="fas fa-hands-helping"></i> Tipo de Asistencia</label>
+                        <select id="idAsistencia"
+                                th:field="*{idAsistencia}"
+                                class="input"
+                                required
+                                th:disabled="${(solicitud.id != null && session.rol == 1) || (solicitud.id !=null && session.rol==3 && solicitud.estado!=0)}">
+                            <option value="">Seleccione tipo de asistencia</option>
+                            <option th:each="asist : ${tiposAsistencia}"
+                                    th:value="${asist.idCobertura}"
+                                    th:text="${asist.nombreCobertura}"
+                                    th:selected="${asist.idCobertura == idCoberturaPreseleccionada}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Proveedor -->
+                    <div class="form-group">
+                        <label for="idProveedor"><i class="fas fa-building"></i> Proveedores que la ofrecen</label>
+                        <select id="idProveedor"
+                                th:field="*{idProveedor}"
+                                class="input"
+                                required
+                                th:disabled="${(solicitud.id != null && session.rol == 1) || (solicitud.id !=null && session.rol==3 && solicitud.estado!=0)}">
+                            <option value="">Primero seleccione tipo de asistencia</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha de Asistencia -->
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Fecha de asistencia</label>
+                        <input type="date"
+                               th:value="${#temporals.format(solicitud.fechaAsistencia, 'yyyy-MM-dd')}"
+                               name="fechaAsistencia"
+                               class="input"
+                               required
+                               >
+                    </div>
+
+                    <!-- Hora de Asistencia -->
+                    <div class="form-group">
+                        <label for="horaAsistencia"><i class="fas fa-clock"></i> Hora de Asistencia</label>
+                        <input type="time"
+                               th:field="*{horaAsistencia}"
+                               id="horaAsistencia"
+                               class="input"
+                               required
+                               th:readonly="${solicitud.id != null && solicitud.estado != '0' && session.rol != 1}">
+                    </div>
+
+                    <!-- Tarifa Aplicada (solo Admin) -->
+                    <div class="form-group" th:if="${session.rol == 1}">
+                        <label for="tarifaAplicada"><i class="fas fa-dollar-sign"></i> Tarifa Aplicada</label>
+                        <input type="number"
+                               th:field="*{tarifaAplicada}"
+                               id="tarifaAplicada"
+                               class="input"
+                               placeholder="0.00"
+                               step="0.01"
+                               min="0"
+                               value="0">
+                    </div>
+
+                    <!-- Costos Extra (solo Admin) -->
+                    <div class="form-group" th:if="${session.rol == 1}">
+                        <label for="costosExtra"><i class="fas fa-money-bill-wave"></i> Costos Extra</label>
+                        <input type="number"
+                               th:field="*{costosExtra}"
+                               id="costosExtra"
+                               class="input"
+                               placeholder="0.00"
+                               step="0.01"
+                               min="0"
+                               value="0">
+                    </div>
+
+                    <!-- Total (solo Admin - calculado automáticamente) -->
+                    <div class="form-group" th:if="${session.rol == 1}">
+                        <label for="totalCosto"><i class="fas fa-calculator"></i> Total</label>
+                        <input type="text"
+                               id="totalCosto"
+                               class="input"
+                               readonly
+                               style="background-color: #e3f2fd; font-weight: bold; color: #1976d2;"
+                               value="$0.00">
+                    </div>
+
+                    <!-- Detalle -->
+                    <div class="form-group full-width">
+                        <label for="detalle"><i class="fas fa-align-left"></i> Detalle de la Solicitud</label>
+                        <textarea id="detalle"
+                                  th:field="*{detalle}"
+                                  class="input"
+                                  rows="4"
+                                  placeholder="Describa el motivo de la solicitud..."
+                                  th:readonly="${solicitud.id != null && solicitud.estado != '0' && session.rol != 1}"
+                                  required></textarea>
+                    </div>
+
+                    <!-- Observación (visible en edición o para admin) -->
+                    <div class="form-group full-width" th:if="${solicitud.id != null || session.rol == 1}">
+                        <label for="observacion"><i class="fas fa-comment"></i> Observación</label>
+                        <textarea id="observacion"
+                                  th:field="*{observacion}"
+                                  class="input"
+                                  rows="3"
+                                  placeholder="Observaciones adicionales..."></textarea>
+                    </div>
+
+                    <!-- Estado (solo visible en edición) -->
+                    <div class="form-group" th:if="${solicitud.id != null}">
+                        <label for="estado"><i class="fas fa-info-circle"></i> Estado</label>
+
+                        <!--
+                        <select id="pais" th:field="*{idPais}" class="input" onchange="loadDepartamentos(this.value)" required>
+                            <option value="">Seleccione un país</option>
+                            <option th:each="p : ${paises}"
+                                    th:value="${p.idPais}"
+                                    th:text="${p.nombrePais}"
+                                    th:selected="${p.idPais == afiliado.idPais}"></option>
+                        </select>
+                        -->
+
+
+                        <select id="estado"
+                                th:field="*{estado}"
+                                class="input"
+                                th:disabled="${session.rol == 3}"
+                                required>
+                            <option value="">Solicitada</option>
+                            <option th:each="est : ${estadosSolicitud}"
+                                    th:value="${est.idEstado}"
+                                    th:text="${est.nombreEstado}"
+                                    th:selected="${solicitud.estado == est.idEstado.toString()}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Campos hidden -->
+                    <input type="hidden" name="registradoPor" th:value="${session.dui}">
+                    <input type="hidden" th:field="*{createdAt}" th:if="${solicitud.id != null}">
+                </div>
+
+                <div class="actions">
+                    <button type="submit"
+                            class="btn"
+                            th:disabled="${solicitud.id != null && solicitud.estado != '0' && session.rol != 1}">
+                        <i class="fas fa-save"></i>
+                        <span th:text="${solicitud.id != null ? 'Actualizar' : 'Guardar'}">Guardar</span>
+                    </button>
+                    <a th:href="@{${session.rol == 1 ? '/asistencia/solicitudes_todas' : '/asistencia/solicitudes'}}" class="btn secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // ========== VARIABLES GLOBALES ==========
+        const asistenciaSelect = document.getElementById('idAsistencia');
+        const proveedorSelect = document.getElementById('idProveedor');
+        const idPlan = document.getElementById('idPlanHidden').value;
+        const duiInput = document.getElementById('duiAfiliado');
+
+        // Obtener valores preseleccionados
+        const idCoberturaPreseleccionada = document.getElementById('idCoberturaPreseleccionada')?.value;
+        const idProveedorPreseleccionado = document.getElementById('idProveedorPreseleccionado')?.value;
+
+        // ========== CÁLCULO AUTOMÁTICO DE TOTAL (solo Admin) ==========
+        const esAdmin = /*[[${session.rol}]]*/ 3 === 1;
+
+        if (esAdmin) {
+            const tarifaInput = document.getElementById('tarifaAplicada');
+            const costosInput = document.getElementById('costosExtra');
+            const totalInput = document.getElementById('totalCosto');
+
+            function calcularTotal() {
+                const tarifa = parseFloat(tarifaInput.value) || 0;
+                const costos = parseFloat(costosInput.value) || 0;
+                const total = tarifa + costos;
+                totalInput.value = '$' + total.toFixed(2);
+            }
+
+            if (tarifaInput && costosInput) {
+                tarifaInput.addEventListener('input', calcularTotal);
+                costosInput.addEventListener('input', calcularTotal);
+                // Calcular al cargar
+                calcularTotal();
+            }
+        }
+
+        // ========== BÚSQUEDA DE AFILIADO POR DUI (solo Admin) ==========
+        if (esAdmin && duiInput && !duiInput.readOnly) {
+            let timeoutId;
+
+            duiInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 8) {
+                    value = value.substring(0, 8) + '-' + value.substring(8, 9);
+                }
+                e.target.value = value;
+
+                // Buscar afiliado cuando el DUI esté completo
+                if (value.length === 10) {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        buscarAfiliado(value);
+                    }, 500);
+                }
+            });
+        }
+
+        function buscarAfiliado(dui) {
+            const nombreInput = document.getElementById('nombreAfiliado');
+            const planInput = document.getElementById('nombrePlan');
+
+            if (!nombreInput) return;
+
+            nombreInput.value = 'Buscando...';
+
+            fetch(`/afiliado/buscar/${dui}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Afiliado no encontrado');
+                    }
+                    return response.json();
+                })
+                .then(afiliado => {
+                    nombreInput.value = `${afiliado.nombre} ${afiliado.apellido}`;
+                    if (planInput && afiliado.nombrePlan) {
+                        planInput.value = afiliado.nombrePlan;
+                    }
+
+                    // Actualizar el plan hidden si viene en la respuesta
+                    if (afiliado.idPlan) {
+                        document.getElementById('idPlanHidden').value = afiliado.idPlan;
+                        // Recargar tipos de asistencia
+                        cargarTiposAsistencia(afiliado.idPlan);
+                    }
+
+                    duiInput.style.borderColor = '#28a745';
+                    setTimeout(() => duiInput.style.borderColor = '', 2000);
+                })
+                .catch(error => {
+                    nombreInput.value = 'No encontrado';
+                    duiInput.style.borderColor = '#dc3545';
+                    alert('No se encontró un afiliado con ese DUI');
+                });
+        }
+
+        function cargarTiposAsistencia(idPlan) {
+            fetch(`/asistencia/tipos/${idPlan}`)
+                .then(response => response.json())
+                .then(tipos => {
+                    asistenciaSelect.innerHTML = '<option value="">Seleccione tipo de asistencia</option>';
+                    tipos.forEach(tipo => {
+                        const option = document.createElement('option');
+                        option.value = tipo.idCobertura;
+                        option.textContent = tipo.nombreCobertura;
+                        asistenciaSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar tipos de asistencia:', error);
+                });
+        }
+
+        // ========== FUNCIÓN PARA CARGAR PROVEEDORES ==========
+        function cargarProveedores(idCobertura, proveedorASeleccionar = null) {
+            proveedorSelect.innerHTML = '<option value="">Cargando proveedores...</option>';
+            proveedorSelect.disabled = true;
+
+            if (!idCobertura) {
+                proveedorSelect.innerHTML = '<option value="">Primero seleccione tipo de asistencia</option>';
+                return Promise.reject('No hay cobertura seleccionada');
+            }
+
+            return fetch(`/asistencia/proveedores/${idPlan}/${idCobertura}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al cargar proveedores');
+                    }
+                    return response.json();
+                })
+                .then(proveedores => {
+                    proveedorSelect.innerHTML = '<option value="">Seleccione un proveedor</option>';
+
+                    if (proveedores.length === 0) {
+                        proveedorSelect.innerHTML = '<option value="">No hay proveedores disponibles</option>';
+                        proveedorSelect.disabled = true;
+                        return;
+                    }
+
+                    proveedores.forEach(proveedor => {
+                        const option = document.createElement('option');
+                        option.value = proveedor.idProveedor;
+                        option.textContent = proveedor.nombreProveedor;
+
+                        if (proveedorASeleccionar && proveedor.idProveedor == proveedorASeleccionar) {
+                            option.selected = true;
+                        }
+
+                        proveedorSelect.appendChild(option);
+                    });
+
+                    proveedorSelect.disabled = false;
+                    proveedorSelect.style.animation = 'fadeIn 0.3s ease-in';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    proveedorSelect.innerHTML = '<option value="">Error al cargar proveedores</option>';
+                    alert('Hubo un error al cargar los proveedores. Por favor, intente nuevamente.');
+                });
+        }
+
+        // ========== PRESELECCIÓN AUTOMÁTICA AL CARGAR ==========
+        if (idCoberturaPreseleccionada && idCoberturaPreseleccionada !== '') {
+            setTimeout(() => {
+                cargarProveedores(idCoberturaPreseleccionada, idProveedorPreseleccionado)
+                    .then(() => {
+                        asistenciaSelect.style.borderColor = '#28a745';
+                        proveedorSelect.style.borderColor = '#28a745';
+                        setTimeout(() => {
+                            asistenciaSelect.style.borderColor = '';
+                            proveedorSelect.style.borderColor = '';
+                        }, 2000);
+                    });
+            }, 100);
+        }
+
+        // ========== ESCUCHAR CAMBIOS EN TIPO DE ASISTENCIA ==========
+        asistenciaSelect.addEventListener('change', function() {
+            const idCobertura = this.value;
+            cargarProveedores(idCobertura);
+        });
+
+        // ========== VALIDACIÓN DE FECHA MÍNIMA (HOY) ==========
+        const fechaInput = document.getElementById('fechaAsistencia');
+        if (fechaInput && !fechaInput.readOnly) {
+            const hoy = new Date().toISOString().split('T')[0];
+            fechaInput.setAttribute('min', hoy);
+
+            fechaInput.addEventListener('change', function() {
+                if (this.value < hoy) {
+                    alert('La fecha de asistencia no puede ser anterior a hoy.');
+                    this.value = hoy;
+                }
+            });
+        }
+
+        // ========== VALIDACIÓN ANTES DE ENVIAR ==========
+        const form = document.getElementById('solicitudForm');
+        form.addEventListener('submit', function(e) {
+            const dui = duiInput.value;
+            const duiPattern = /^[0-9]{8}-[0-9]$/;
+
+            if (!duiPattern.test(dui)) {
+                e.preventDefault();
+                alert('El formato del DUI debe ser: 00000000-0');
+                return false;
+            }
+
+            const fechaAsistencia = document.getElementById('fechaAsistencia').value;
+            const horaAsistencia = document.getElementById('horaAsistencia').value;
+
+            if (!fechaAsistencia || !horaAsistencia) {
+                e.preventDefault();
+                alert('Por favor complete la fecha y hora de asistencia.');
+                return false;
+            }
+
+            const proveedor = proveedorSelect.value;
+            if (!proveedor) {
+                e.preventDefault();
+                alert('Por favor seleccione un proveedor.');
+                return false;
+            }
+
+            const accion = document.querySelector('[name="id"]')?.value ? 'actualizar' : 'crear';
+            if (!confirm(`¿Está seguro que desea ${accion} esta solicitud?`)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // ========== INDICADOR VISUAL DE ESTADO ==========
+        const estadoSelect = document.getElementById('estado');
+        if (estadoSelect) {
+            estadoSelect.addEventListener('change', function() {
+                const colors = {
+                    '0': '#ffc107',
+                    '1': '#17a2b8',
+                    '2': '#28a745',
+                    '3': '#dc3545'
+                };
+                this.style.borderColor = colors[this.value] || '#ddd';
+                this.style.borderWidth = '2px';
+            });
+            estadoSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+
+<style>
+    textarea.input {
+        resize: vertical;
+        min-height: 80px;
+        font-family: inherit;
+        padding: 12px;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    input:disabled, select:disabled, textarea:disabled {
+        background-color: #f5f5f5 !important;
+        cursor: not-allowed !important;
+        opacity: 0.7;
+    }
+
+    input[readonly] {
+        background-color: #f5f5f5 !important;
+        cursor: not-allowed !important;
+    }
+
+    .form-group label::after {
+        content: ' *';
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+
+    #idProveedor:disabled {
+        background-image: linear-gradient(90deg, #f5f5f5 25%, #e0e0e0 50%, #f5f5f5 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .input {
+        transition: border-color 0.3s ease;
+    }
+
+    /* Estilos especiales para campos de admin */
+    #tarifaAplicada, #costosExtra {
+        border-left: 3px solid #4A90E2;
+    }
+
+    #totalCosto {
+        font-size: 1.1rem;
+    }
+</style>
+</body>
+</html>

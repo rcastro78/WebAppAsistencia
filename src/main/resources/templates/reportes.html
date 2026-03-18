@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/solicitud_asistencia.css}">
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <span th:text="${#strings.substring(session.nombre,0,1) + #strings.substring(session.apellido,0,1)}">AD</span>
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|">Administrador</h3>
+            <p th:text="${session.email}">admin@asistencia.com</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/plan}" class="nav-item">
+                <i class="fas fa-list-check"></i>
+                <span>Planes</span>
+            </a>
+            <a th:href="@{/proveedores/}" class="nav-item">
+                <i class="fas fa-truck-fast"></i>
+                <span>Proveedores de servicios</span>
+            </a>
+            <a th:href="@{/reportes/solicitudServicios/exportar}" class="nav-item">
+                <i class="fas fa-file-medical"></i>
+                <span>Solicitudes de Servicios</span>
+            </a>
+            <a th:href="@{/afiliado/carga-masiva}" class="nav-item">
+                <i class="fas fa-file-arrow-up"></i>
+                <span>Carga masiva</span>
+            </a>
+            <a th:href="@{/reportes/pagosAfiliados/exportar}" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <a th:href="@{/reportes}" class="nav-item active">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reportes</span>
+            </a>
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-header-content">
+                <div class="page-title">
+                    <h1>
+                        <i class="fas fa-file-excel"></i>
+                        <span>Generación de Reportes</span>
+                    </h1>
+                    <p>Genera y descarga reportes en formato Excel</p>
+                </div>
+                <div class="page-actions">
+                    <a th:href="@{/admin/dashboard}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alertas -->
+        <div th:if="${mensaje}" class="alert" th:classappend="${tipo == 'success' ? 'alert-success' : 'alert-error'}">
+            <i th:class="${tipo == 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'}"></i>
+            <span th:text="${mensaje}">Mensaje</span>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-file-excel"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Reportes Disponibles</div>
+                    <div class="stat-value">6</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon proceso">
+                    <i class="fas fa-download"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Descargas Este Mes</div>
+                    <div class="stat-value" th:text="${descargasMes ?: '0'}">0</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon completada">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Último Reporte</div>
+                    <div class="stat-value" style="font-size: 1rem;" th:text="${ultimoReporte ?: 'N/A'}">Hoy</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon pendiente">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Tiempo Promedio</div>
+                    <div class="stat-value" style="font-size: 1.2rem;">2s</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reportes Grid -->
+        <div class="reportes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+
+            <!-- Reporte 1: Solicitudes de Servicios -->
+            <div class="reporte-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                <div class="reporte-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="reporte-icon" style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #2d3748;">Solicitudes de Servicios</h3>
+                        <p style="margin: 0; font-size: 0.85rem; color: #718096;">Reporte completo</p>
+                    </div>
+                </div>
+                <p style="color: #4a5568; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                    Exporta todas las solicitudes de servicios con información detallada: afiliado, tipo de asistencia, proveedor, fechas, tarifas y estados.
+                </p>
+                <div class="reporte-stats" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: #718096; margin-bottom: 0.25rem;">Registros</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #2d3748;" th:text="${totalSolicitudes ?: '0'}">0</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: #718096; margin-bottom: 0.25rem;">Columnas</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #2d3748;">12</div>
+                    </div>
+                </div>
+                <form th:action="@{/reportes/solicitudServicios/exportar}" method="get">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-download"></i> Descargar Excel
+                    </button>
+                </form>
+            </div>
+
+            <!-- Reporte 2: Estado de cuenta -->
+            <div class="reporte-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                <div class="reporte-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="reporte-icon" style="width: 50px; height: 50px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #2d3748;">Estado de cuenta de los afiliados</h3>
+                    </div>
+                </div>
+
+                <form th:action="@{/reportes/cuentasPorCobrar/exportar}" method="get" id="formEstado">
+                    <input type="hidden" name="estado" id="estadoInput">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; gap: 0.5rem;" onclick="document.getElementById('estadoInput').value = document.getElementById('estadoReporte').value;">
+                        <i class="fas fa-download"></i> Descargar Excel
+                    </button>
+                </form>
+            </div>
+
+            <!-- Reporte 3: Solicitudes por Fecha -->
+            <div class="reporte-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                <div class="reporte-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="reporte-icon" style="width: 50px; height: 50px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                        <i class="fas fa-calendar-range"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #2d3748;">Por Rango de Fechas</h3>
+                        <p style="margin: 0; font-size: 0.85rem; color: #718096;">Personaliza el periodo</p>
+                    </div>
+                </div>
+                <p style="color: #4a5568; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                    Filtra solicitudes por rango de fechas personalizado para análisis específicos de periodos.
+                </p>
+                <form th:action="@{/reportes/solicitudes/fechas/excel}" method="get">
+                    <div style="display: grid; gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <label style="display: block; font-size: 0.85rem; color: #4a5568; margin-bottom: 0.5rem; font-weight: 500;">Fecha Inicio</label>
+                            <input type="date" name="fechaInicio" required style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.85rem; color: #4a5568; margin-bottom: 0.5rem; font-weight: 500;">Fecha Fin</label>
+                            <input type="date" name="fechaFin" required style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem;">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-download"></i> Descargar Excel
+                    </button>
+                </form>
+            </div>
+
+            <!-- Reporte 4: Afiliados Activos -->
+            <div class="reporte-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                <div class="reporte-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="reporte-icon" style="width: 50px; height: 50px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #2d3748;">Afiliados Activos</h3>
+                        <p style="margin: 0; font-size: 0.85rem; color: #718096;">Base de datos completa</p>
+                    </div>
+                </div>
+                <p style="color: #4a5568; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                    Lista completa de afiliados activos con información de contacto, plan asignado y estado de membresía.
+                </p>
+                <div class="reporte-stats" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: #718096; margin-bottom: 0.25rem;">Afiliados</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #2d3748;" th:text="${totalAfiliados ?: '0'}">0</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: #718096; margin-bottom: 0.25rem;">Columnas</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #2d3748;">10</div>
+                    </div>
+                </div>
+                <form th:action="@{/reportes/afiliados/excel}" method="get">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-download"></i> Descargar Excel
+                    </button>
+                </form>
+            </div>
+
+            <!-- Reporte 5: Proveedores -->
+            <div class="reporte-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                <div class="reporte-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="reporte-icon" style="width: 50px; height: 50px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #2d3748;">Proveedores de Servicios</h3>
+                        <p style="margin: 0; font-size: 0.85rem; color: #718096;">Catálogo completo</p>
+                    </div>
+                </div>
+                <p style="color: #4a5568; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                    Directorio completo de proveedores con servicios ofrecidos, tarifas, datos de contacto y cobertura.
+                </p>
+                <div class="reporte-stats" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: #718096; margin-bottom: 0.25rem;">Proveedores</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #2d3748;" th:text="${totalProveedores ?: '0'}">0</div>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.75rem; color: #718096; margin-bottom: 0.25rem;">Columnas</div>
+                        <div style="font-size: 1.25rem; font-weight: 600; color: #2d3748;">8</div>
+                    </div>
+                </div>
+                <form th:action="@{/reportes/proveedores/excel}" method="get">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-download"></i> Descargar Excel
+                    </button>
+                </form>
+            </div>
+
+            <!-- Reporte 6: Ingresos por Servicios -->
+            <div class="reporte-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                <div class="reporte-header" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="reporte-icon" style="width: 50px; height: 50px; background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.1rem; color: #2d3748;">Ingresos por Servicios</h3>
+                        <p style="margin: 0; font-size: 0.85rem; color: #718096;">Análisis financiero</p>
+                    </div>
+                </div>
+                <p style="color: #4a5568; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                    Resumen de ingresos generados por servicios, tarifas aplicadas y costos adicionales por periodo.
+                </p>
+                <form th:action="@{/reportes/ingresos/excel}" method="get">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-size: 0.85rem; color: #4a5568; margin-bottom: 0.5rem; font-weight: 500;">Periodo</label>
+                        <select name="periodo" style="width: 100%; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; color: #2d3748;">
+                            <option value="mes_actual">Mes Actual</option>
+                            <option value="mes_anterior">Mes Anterior</option>
+                            <option value="trimestre">Último Trimestre</option>
+                            <option value="anio">Año Actual</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; gap: 0.5rem;">
+                        <i class="fas fa-download"></i> Descargar Excel
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Instrucciones -->
+        <div class="solicitudes-card" style="margin-top: 2rem;">
+            <div class="solicitudes-header">
+                <h2 class="solicitudes-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Información</span>
+                </h2>
+            </div>
+            <div style="padding: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 40px; height: 40px; background: #edf2f7; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #667eea; font-size: 1.2rem;">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 1rem;">1. Selecciona el Reporte</h4>
+                            <p style="margin: 0; color: #718096; font-size: 0.9rem; line-height: 1.6;">Elige el tipo de reporte que deseas generar según tu necesidad de información.</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 40px; height: 40px; background: #edf2f7; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #667eea; font-size: 1.2rem;">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 1rem;">2. Configura Filtros</h4>
+                            <p style="margin: 0; color: #718096; font-size: 0.9rem; line-height: 1.6;">Algunos reportes permiten filtrar por estado, fecha u otros criterios específicos.</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 40px; height: 40px; background: #edf2f7; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #667eea; font-size: 1.2rem;">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div>
+                            <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 1rem;">3. Descarga en Excel</h4>
+                            <p style="margin: 0; color: #718096; font-size: 0.9rem; line-height: 1.6;">Haz clic en "Descargar Excel" y el archivo se generará automáticamente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .reporte-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #e2e8f0;
+        color: #2d3748;
+    }
+
+    .btn-secondary:hover {
+        background: #cbd5e0;
+    }
+
+    @media (max-width: 768px) {
+        .reportes-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<script>
+    // Auto-ocultar alertas después de 5 segundos
+    const alert = document.querySelector('.alert');
+    if (alert) {
+        setTimeout(() => {
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    }
+
+    // Animación de entrada
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.stat-card, .reporte-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
+    });
+
+    // Toggle sidebar en móvil
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+    }
+
+    // Agregar botón de menú para móvil
+    if (window.innerWidth <= 768) {
+        const menuButton = document.createElement('button');
+        menuButton.innerHTML = '<i class="fas fa-bars"></i>';
+        menuButton.style.cssText = `
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #667eea;
+        `;
+        menuButton.onclick = toggleSidebar;
+        document.body.appendChild(menuButton);
+    }
+</script>
+</body>
+</html>

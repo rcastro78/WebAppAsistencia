@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carga Masiva de Afiliados - Sistema</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: #d1edff;
+            border: 1px solid #b6d4fe;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffecb5;
+            color: #856404;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert i {
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .file-upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: #764ba2;
+            background: #e9ecef;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .file-upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .file-upload-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-subtitle {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-selected {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .template-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .template-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .template-section h3 i {
+            color: #667eea;
+        }
+
+        .error-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .error-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .error-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 0.9rem;
+        }
+
+        .error-list li:last-child {
+            border-bottom: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 30px 20px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Carga Masiva de Afiliados</h1>
+        <span class="subtitle">Suba un archivo Excel para registrar múltiples afiliados</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Cargar Archivo Excel</h2>
+        </div>
+        <div class="card-body">
+            <!-- Mensajes de alerta -->
+            <div th:if="${success}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${success}">Mensaje de éxito</span>
+            </div>
+
+            <div th:if="${warning}" class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <div th:text="${warning}">Mensaje de advertencia</div>
+                    <div th:if="${errores}" class="error-list">
+                        <strong>Errores encontrados:</strong>
+                        <ul>
+                            <li th:each="error : ${errores}" th:text="${error}">Error</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${error}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}">Mensaje de error</span>
+            </div>
+
+            <!-- Sección de plantilla -->
+            <div class="template-section">
+                <h3><i class="fas fa-download"></i> Plantilla de Excel</h3>
+                <p>Descargue la plantilla para asegurar el formato correcto de los datos:</p>
+                <div style="margin-top: 15px;">
+                    <a href="/afiliado/plantilla-excel" class="btn btn-secondary">
+                        <i class="fas fa-file-excel"></i> Descargar Plantilla
+                    </a>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+                    <strong>Columnas requeridas:</strong> DUI, Nombre, Apellido, Dirección, Teléfono, Email, Fecha Afiliación, País ID, Departamento ID, Municipio ID, Tipo Cliente ID
+                </div>
+            </div>
+
+            <!-- Formulario de carga -->
+            <form th:action="@{/afiliado/carga-masiva}" method="post" enctype="multipart/form-data" id="uploadForm">
+                <!-- Selector de Institución -->
+                <div class="form-group">
+                    <label for="idInstitucion"><i class="fas fa-building"></i> Cliente corporativo</label>
+                    <select id="idInstitucion" name="idInstitucion" class="form-control" style="padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 1rem; background: #f8f9fa;" required>
+                        <option value="">Seleccione un cliente</option>
+                        <option th:each="c : ${clientes}" th:value="${c.nit}" th:text="${c.nombreCliente}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="idPlan"><i class="fas fa-clipboard-list"></i> Plan</label>
+                    <select id="idPlan" name="idPlan" class="form-control" style="padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 1rem; background: #f8f9fa;" required>
+                        <option value="">Seleccione un plan</option>
+                        <option th:each="plan : ${planes}" th:value="${plan.idPlan}"
+                                th:text="${plan.nombrePlan}"></option>
+
+                    </select>
+
+                </div>
+
+
+
+                <div class="form-group">
+                    <label for="archivo"><i class="fas fa-file-upload"></i> Seleccionar Archivo Excel</label>
+                    <div class="file-upload-area" onclick="document.getElementById('archivo').click()">
+                        <div class="file-upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="file-upload-text">
+                            Haga clic aquí o arrastre el archivo Excel
+                        </div>
+                        <div class="file-upload-subtitle">
+                            Formatos soportados: .xlsx, .xls (Máximo 10MB)
+                        </div>
+                    </div>
+                    <input type="file" id="archivo" name="archivo" class="file-input"
+                           accept=".xlsx,.xls" required>
+                </div>
+
+                <!-- Barra de progreso -->
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <i class="fas fa-upload"></i> Procesar Archivo
+                    </button>
+                    <a th:href="@{/afiliados}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('archivo');
+        const uploadArea = document.querySelector('.file-upload-area');
+        const uploadForm = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                updateFileDisplay(files[0]);
+            }
+        });
+
+        // File input change
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                updateFileDisplay(e.target.files[0]);
+            }
+        });
+
+        // Form submit with progress
+        uploadForm.addEventListener('submit', function(e) {
+            const institucion = document.getElementById('idInstitucion');
+
+            if (!institucion.value) {
+                e.preventDefault();
+                alert('Por favor seleccione una institución');
+                institucion.focus();
+                return;
+            }
+
+            if (!fileInput.files.length) {
+                e.preventDefault();
+                alert('Por favor seleccione un archivo');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const maxSize = 10 * 1024 * 1024; // 10MB
+
+            if (file.size > maxSize) {
+                e.preventDefault();
+                alert('El archivo es demasiado grande. Máximo 10MB permitido.');
+                return;
+            }
+
+            // Show progress bar
+            progressBar.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+
+            // Simulate progress (since we can't track actual upload progress with regular form)
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 500);
+
+            // Clean up after form submission
+            setTimeout(() => {
+                clearInterval(interval);
+                progressFill.style.width = '100%';
+            }, 2000);
+        });
+
+        function updateFileDisplay(file) {
+            const uploadText = uploadArea.querySelector('.file-upload-text');
+            const uploadIcon = uploadArea.querySelector('.file-upload-icon i');
+
+            uploadText.textContent = file.name;
+            uploadText.classList.add('file-selected');
+            uploadIcon.className = 'fas fa-file-excel';
+
+            // Validate file type
+            const validTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+            if (!validTypes.includes(file.type)) {
+                uploadText.textContent = 'Tipo de archivo no válido';
+                uploadText.style.color = '#dc3545';
+                uploadIcon.className = 'fas fa-exclamation-triangle';
+                fileInput.value = '';
+            }
+        }
+    });
+</script>
+</body>
+</html>

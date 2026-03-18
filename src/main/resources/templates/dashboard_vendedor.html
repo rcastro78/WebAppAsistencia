@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Vendedor - Sistema de Afiliaciones</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/ventas.css}">
+    <style>
+        /* Quick Actions Section */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .quick-action-btn {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .quick-action-btn i {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .quick-action-btn span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .quick-action-btn.primary { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .quick-action-btn.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .quick-action-btn.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .quick-action-btn.purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+        /* Pipeline/Funnel Section */
+        .pipeline-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .pipeline-stages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .pipeline-stage {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-stage:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+
+        .pipeline-stage .stage-count {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .pipeline-stage .stage-label {
+            font-size: 13px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .pipeline-stage.new { border-left: 4px solid #3b82f6; }
+        .pipeline-stage.quote { border-left: 4px solid #8b5cf6; }
+        .pipeline-stage.negotiation { border-left: 4px solid #f59e0b; }
+        .pipeline-stage.closing { border-left: 4px solid #10b981; }
+
+        /* Top Performers / Leaderboard */
+        .leaderboard-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: #e0f2fe;
+        }
+
+        .leaderboard-rank {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .leaderboard-rank.gold { background: #f59e0b; }
+        .leaderboard-rank.silver { background: #94a3b8; }
+        .leaderboard-rank.bronze { background: #cd7f32; }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .leaderboard-sales {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .leaderboard-amount {
+            font-weight: bold;
+            color: #3b82f6;
+            font-size: 18px;
+        }
+
+        /* Comisiones Section */
+        .commissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .commission-card {
+            padding: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .commission-amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .commission-label {
+            font-size: 13px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .commission-status {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 12px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Pending Tasks */
+        .tasks-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: #f8fafc;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+
+        .task-meta {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .task-priority {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .task-priority.high { background: #fee2e2; color: #991b1b; }
+        .task-priority.medium { background: #fef3c7; color: #92400e; }
+        .task-priority.low { background: #dbeafe; color: #1e40af; }
+
+        /* Calendar Widget */
+        .calendar-widget {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .calendar-event {
+            padding: 10px;
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .calendar-event-time {
+            font-size: 12px;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+
+        .calendar-event-title {
+            font-size: 14px;
+            color: #1e293b;
+            margin-top: 3px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pipeline-stages {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <!-- Sidebar (mantiene tu estructura actual) -->
+    <div class="sidebar">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" style="width: 224px; height: 64px;" alt="Logo">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <img src="https://via.placeholder.com/70x70/3b82f6/FFFFFF?text=MC" alt="Profile">
+            </div>
+            <h3 th:text="|${session.nombre} ${session.apellido}|">María Castro</h3>
+            <p th:text="${session.email}">maria@example.com</p>
+            <p style="color: #3b82f6; font-weight: 600;">⭐ Vendedor Top</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a th:href="@{/afiliado/vendedor}" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Mis Afiliados</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-user-plus"></i>
+                <span>Nuevo Prospecto</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>Cotizaciones</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-target"></i>
+                <span>Metas</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Comisiones</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Agenda</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Reportes</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-book"></i>
+                <span>Recursos</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <a th:href="@{/usuarios/login}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+
+        <div class="sales-performance">
+            <div class="performance-title">Meta Mensual</div>
+            <div class="performance-circle">
+                <svg class="progress-ring" width="80" height="80">
+                    <circle class="progress-ring-circle" stroke="#334155" stroke-width="6" fill="transparent" r="34" cx="40" cy="40"/>
+                    <circle class="progress-ring-circle progress" stroke="#3b82f6" stroke-width="6" fill="transparent" r="34" cx="40" cy="40" style="stroke-dasharray: 213.6; stroke-dashoffset: 64.08;"/>
+                </svg>
+                <span class="percentage">70%</span>
+            </div>
+            <div class="performance-stats">
+                <div class="performance-stat">
+                    <div class="number">42</div>
+                    <div class="label">Vendidas</div>
+                </div>
+                <div class="performance-stat">
+                    <div class="number">60</div>
+                    <div class="label">Meta</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 12px; color: #64748b;">
+                <i class="fas fa-trophy" style="color: #f59e0b;"></i> Puesto #3 del equipo
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1 th:text="|¡Hola, ${session.nombre}! 👋|">¡Hola, María! 👋</h1>
+                <p>Tienes 5 tareas pendientes y 3 seguimientos programados para hoy. ¡Vamos por esas metas!</p>
+            </div>
+            <div class="header-right">
+                <div class="user-menu">
+                    <button class="notification-btn" style="position: relative; background: none; border: none; cursor: pointer; margin-right: 15px;">
+                        <i class="fas fa-bell" style="font-size: 20px; color: #64748b;"></i>
+                        <span style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; display: flex; align-items: center; justify-content: center;">3</span>
+                    </button>
+                    <span th:text="|${session.nombre} ${session.apellido}|">María Castro</span>
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="quick-action-btn primary" onclick="location.href='/afiliado/vendedor/nuevo'">
+                <i class="fas fa-user-plus"></i>
+                <span>Nuevo Afiliado</span>
+            </button>
+            <button class="quick-action-btn success" onclick="location.href='/cotizaciones/nueva'">
+                <i class="fas fa-calculator"></i>
+                <span>Cotizar</span>
+            </button>
+            <button class="quick-action-btn warning">
+                <i class="fas fa-phone"></i>
+                <span>Registrar Llamada</span>
+            </button>
+            <button class="quick-action-btn purple">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Agendar Cita</span>
+            </button>
+        </div>
+
+        <!-- Stats Cards (mantiene tu estructura pero mejorada) -->
+        <div class="stats-cards">
+            <div class="stat-card sales">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-value" th:text="${totalAfiliados}">127</div>
+                <div class="stat-label">Total Afiliados Activos</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+12 este mes</span>
+                </div>
+                <div class="stat-progress">
+                    <div class="stat-progress-bar" style="width: 85%"></div>
+                </div>
+            </div>
+
+            <div class="stat-card revenue">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-value"><span th:text="${pagoTotalRecibidoMes}">$8,450</span></div>
+                <div class="stat-label">Ingresos del Mes</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+22% vs mes anterior</span>
+                </div>
+                <div class="stat-progress">
+                    <div class="stat-progress-bar" style="width: 70%"></div>
+                </div>
+            </div>
+
+            <div class="stat-card pending">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                </div>
+                <div class="stat-value"><span th:text="${pendientesPago}">8</span></div>
+                <div class="stat-label">Seguimientos Pendientes</div>
+                <div class="stat-change" style="color: #f59e0b;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Requieren atención</span>
+                </div>
+                <div class="stat-progress">
+                    <div class="stat-progress-bar" style="background: #f59e0b;" th:style="'width:' + ${porcentajeNoPagaron}"></div>
+                </div>
+            </div>
+
+            <div class="stat-card conversion">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-value"><span th:text="${porcentajePagaron}">73%</span></div>
+                <div class="stat-label">Tasa de Conversión</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+5% este mes</span>
+                </div>
+                <div class="stat-progress">
+                    <div class="stat-progress-bar" th:style="'width:' + ${porcentajePagaron}"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pipeline de Ventas -->
+        <div class="pipeline-section">
+            <h3 style="margin-bottom: 10px;"><i class="fas fa-funnel-dollar"></i> Pipeline de Ventas</h3>
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">Gestiona tus prospectos a través del embudo de ventas</p>
+
+            <div class="pipeline-stages">
+                <div class="pipeline-stage new">
+                    <div class="stage-count">15</div>
+                    <div class="stage-label">Nuevos Leads</div>
+                </div>
+                <div class="pipeline-stage quote">
+                    <div class="stage-count">8</div>
+                    <div class="stage-label">En Cotización</div>
+                </div>
+                <div class="pipeline-stage negotiation">
+                    <div class="stage-count">5</div>
+                    <div class="stage-label">Negociación</div>
+                </div>
+                <div class="pipeline-stage closing">
+                    <div class="stage-count">3</div>
+                    <div class="stage-label">Por Cerrar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Tareas Pendientes -->
+            <div class="tasks-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3><i class="fas fa-tasks"></i> Tareas de Hoy</h3>
+                    <button style="padding: 8px 15px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                        <i class="fas fa-plus"></i> Nueva Tarea
+                    </button>
+                </div>
+
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox">
+                    <div class="task-content">
+                        <div class="task-title">Llamar a Juan Pérez - Seguimiento cotización</div>
+                        <div class="task-meta">
+                            <i class="fas fa-clock"></i> 10:00 AM •
+                            <i class="fas fa-phone"></i> Llamada
+                        </div>
+                    </div>
+                    <span class="task-priority high">Alta</span>
+                </div>
+
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox">
+                    <div class="task-content">
+                        <div class="task-title">Enviar propuesta a Ana Torres</div>
+                        <div class="task-meta">
+                            <i class="fas fa-clock"></i> 02:00 PM •
+                            <i class="fas fa-envelope"></i> Email
+                        </div>
+                    </div>
+                    <span class="task-priority medium">Media</span>
+                </div>
+
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox">
+                    <div class="task-content">
+                        <div class="task-title">Renovación próxima - Roberto Silva</div>
+                        <div class="task-meta">
+                            <i class="fas fa-clock"></i> Vence en 3 días •
+                            <i class="fas fa-sync"></i> Renovación
+                        </div>
+                    </div>
+                    <span class="task-priority high">Alta</span>
+                </div>
+
+                <div class="task-item">
+                    <input type="checkbox" class="task-checkbox" checked>
+                    <div class="task-content">
+                        <div class="task-title" style="text-decoration: line-through; opacity: 0.6;">Actualizar información de contacto</div>
+                        <div class="task-meta">
+                            <i class="fas fa-check-circle" style="color: #10b981;"></i> Completada
+                        </div>
+                    </div>
+                    <span class="task-priority low">Baja</span>
+                </div>
+            </div>
+
+            <!-- Comisiones -->
+            <div class="content-section">
+                <h3><i class="fas fa-hand-holding-usd"></i> Comisiones</h3>
+                <div class="commissions-grid">
+                    <div class="commission-card">
+                        <div class="commission-amount">$1,245</div>
+                        <div class="commission-label">Este Mes</div>
+                        <span class="commission-status">En Proceso</span>
+                    </div>
+                    <div class="commission-card">
+                        <div class="commission-amount">$890</div>
+                        <div class="commission-label">Mes Anterior</div>
+                        <span class="commission-status" style="background: #e0f2fe; color: #0369a1;">Pagado</span>
+                    </div>
+                    <div class="commission-card">
+                        <div class="commission-amount">$2,340</div>
+                        <div class="commission-label">Proyectado</div>
+                        <span class="commission-status" style="background: #fef3c7; color: #92400e;">Estimado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid de 2 columnas -->
+        <div class="content-grid" style="grid-template-columns: 2fr 1fr;">
+            <!-- Metas y Progreso -->
+            <div class="content-section">
+                <h3><i class="fas fa-bullseye"></i> Metas y Progreso</h3>
+
+                <div class="goal-progress">
+                    <div class="goal-header">
+                        <span class="goal-title">Afiliados Nuevos</span>
+                        <span class="goal-value" th:text="|${totalAfiliadosVendedor}/${afiliados}|">42/60</span>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill sales" th:style="'width:' + ${porcentajeAfiliacion}"></div>
+                    </div>
+                </div>
+
+                <div class="goal-progress">
+                    <div class="goal-header">
+                        <span class="goal-title">Ingresos Mensuales</span>
+                        <span class="goal-value">$8,450/$12,000</span>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill revenue" style="width: 70%"></div>
+                    </div>
+                </div>
+
+                <div class="goal-progress">
+                    <div class="goal-header">
+                        <span class="goal-title">Tasa de Retención</span>
+                        <span class="goal-value">89/100</span>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill clients" style="width: 89%"></div>
+                    </div>
+                </div>
+
+                <div class="goal-progress">
+                    <div class="goal-header">
+                        <span class="goal-title">Seguimientos Completados</span>
+                        <span class="goal-value">45/50</span>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill" style="width: 90%; background: #8b5cf6;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendario de Citas -->
+            <div class="calendar-widget">
+                <div class="calendar-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Próximas Citas</h3>
+                    <button style="background: none; border: none; color: #3b82f6; cursor: pointer; font-weight: 600;">
+                        Ver todas <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="calendar-event">
+                    <div class="calendar-event-time">
+                        <i class="fas fa-clock"></i> Hoy, 10:00 AM
+                    </div>
+                    <div class="calendar-event-title">Reunión con Carlos Mendoza</div>
+                </div>
+
+                <div class="calendar-event">
+                    <div class="calendar-event-time">
+                        <i class="fas fa-clock"></i> Hoy, 3:30 PM
+                    </div>
+                    <div class="calendar-event-title">Presentación Plan Familiar - Ana García</div>
+                </div>
+
+                <div class="calendar-event" style="background: #fef3c7; border-left-color: #f59e0b;">
+                    <div class="calendar-event-time" style="color: #f59e0b;">
+                        <i class="fas fa-clock"></i> Mañana, 9:00 AM
+                    </div>
+                    <div class="calendar-event-title">Follow-up Luis Torres</div>
+                </div>
+
+                <div class="calendar-event" style="background: #dcfce7; border-left-color: #10b981;">
+                    <div class="calendar-event-time" style="color: #10b981;">
+                        <i class="fas fa-clock"></i> Mañana, 2:00 PM
+                    </div>
+                    <div class="calendar-event-title">Cierre de venta - Patricia Ruiz</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ranking de Equipo -->
+        <div class="leaderboard-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3><i class="fas fa-trophy"></i> Top Vendedores del Mes</h3>
+                <span style="color: #64748b; font-size: 14px;">Actualizado hace 1 hora</span>
+            </div>
+
+            <div class="leaderboard-item">
+                <div class="leaderboard-rank gold">1</div>
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name">José Martínez</div>
+                    <div class="leaderboard-sales">58 ventas • 105% de meta</div>
+                </div>
+                <div class="leaderboard-amount">$15,240</div>
+            </div>
+
+            <div class="leaderboard-item">
+                <div class="leaderboard-rank silver">2</div>
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name">Laura Hernández</div>
+                    <div class="leaderboard-sales">51 ventas • 95% de meta</div>
+                </div>
+                <div class="leaderboard-amount">$12,890</div>
+            </div>
+
+            <div class="leaderboard-item" style="background: #eff6ff; border: 2px solid #3b82f6;">
+                <div class="leaderboard-rank bronze">3</div>
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name" th:text="|${session.nombre} ${session.apellido}|">María Castro (Tú)</div>
+                    <div class="leaderboard-sales">42 ventas • 70% de meta</div>
+                </div>
+                <div class="leaderboard-amount">$8,450</div>
+            </div>
+
+            <div class="leaderboard-item">
+                <div class="leaderboard-rank">4</div>
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name">Pedro Ramírez</div>
+                    <div class="leaderboard-sales">38 ventas • 63% de meta</div>
+                </div>
+                <div class="leaderboard-amount">$7,320</div>
+            </div>
+
+            <div class="leaderboard-item">
+                <div class="leaderboard-rank">5</div>
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name">Sofía Morales</div>
+                    <div class="leaderboard-sales">35 ventas • 58% de meta</div>
+                </div>
+                <div class="leaderboard-amount">$6,850</div>
+            </div>
+        </div>
+
+        <!-- Actividades Recientes -->
+        <div class="content-section">
+            <h3><i class="fas fa-history"></i> Actividades Recientes</h3>
+            <div class="notifications">
+                <div th:if="${notificaciones != null and notificaciones.size() > 0}">
+                    <div th:each="notif : ${notificaciones}" class="notification-item">
+                        <div class="notification-icon"
+                             th:classappend="${notif.tipo == 'PAGO'} ? ' payment' : ' user'">
+                            <i th:class="${notif.tipo == 'PAGO'} ? 'fas fa-file-invoice-dollar' : 'fas fa-user'"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p th:text="${notif.textoNotificacion}">Texto de la notificación</p>
+                            <span class="time"
+                                  th:text="${#temporals.format(notif.createdAt, 'dd/MM/yyyy HH:mm')}">Hace un momento</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${notificaciones == null or notificaciones.size() == 0}">
+                    <div class="notification-item">
+                        <div class="notification-icon success" style="background: #dcfce7; color: #166534;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p><strong>Pago recibido</strong> de Carlos Mendoza - Plan Premium</p>
+                            <span class="time">Hace 15 minutos</span>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon user">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p><strong>Nuevo afiliado registrado:</strong> Ana García - Plan Básico</p>
+                            <span class="time">Hace 1 hora</span>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon" style="background: #fef3c7; color: #92400e;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p><strong>Recordatorio:</strong> Renovación de Roberto Silva en 3 días</p>
+                            <span class="time">Hace 2 horas</span>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon" style="background: #e0e7ff; color: #3730a3;">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p><strong>Cotización enviada</strong> a Patricia Ruiz - Plan Familiar</p>
+                            <span class="time">Hace 3 horas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado de Afiliados Recientes -->
+        <div class="content-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3><i class="fas fa-users"></i> Afiliados Recientes</h3>
+                <button style="padding: 8px 15px; background: white; color: #3b82f6; border: 1px solid #3b82f6; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="location.href='/afiliado/vendedor'">
+                    Ver Todos <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="client-list">
+                <div class="client-item">
+                    <div class="client-info">
+                        <div class="client-avatar" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">CM</div>
+                        <div class="client-details">
+                            <h4>Carlos Mendoza</h4>
+                            <p>Plan Premium • ID: #15248</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="status-badge paid">Pagado</span>
+                        <button style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px;">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="client-item">
+                    <div class="client-info">
+                        <div class="client-avatar" style="background: linear-gradient(135deg, #10b981, #059669);">AG</div>
+                        <div class="client-details">
+                            <h4>Ana García</h4>
+                            <p>Plan Básico • ID: #15247</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="status-badge paid">Pagado</span>
+                        <button style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px;">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="client-item">
+                    <div class="client-info">
+                        <div class="client-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">LT</div>
+                        <div class="client-details">
+                            <h4>Luis Torres</h4>
+                            <p>Plan Familiar • ID: #15246</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="status-badge pending">Pendiente</span>
+                        <button style="background: none; border: none; color: #3b82f6; cursor: pointer; font-size: 16px;" title="Contactar">
+                            <i class="fas fa-phone"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="client-item">
+                    <div class="client-info">
+                        <div class="client-avatar" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">PR</div>
+                        <div class="client-details">
+                            <h4>Patricia Ruiz</h4>
+                            <p>Plan Ejecutivo • ID: #15245</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="status-badge paid">Pagado</span>
+                        <button style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px;">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="client-item">
+                    <div class="client-info">
+                        <div class="client-avatar" style="background: linear-gradient(135deg, #ef4444, #dc2626);">RS</div>
+                        <div class="client-details">
+                            <h4>Roberto Silva</h4>
+                            <p>Plan Premium • ID: #15244</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="status-badge overdue">Vencido</span>
+                        <button style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px;" title="Urgente">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Script para marcar tareas como completadas
+    document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const taskItem = this.closest('.task-item');
+            const taskTitle = taskItem.querySelector('.task-title');
+
+            if (this.checked) {
+                taskTitle.style.textDecoration = 'line-through';
+                taskTitle.style.opacity = '0.6';
+                taskItem.style.background = '#f8fafc';
+            } else {
+                taskTitle.style.textDecoration = 'none';
+                taskTitle.style.opacity = '1';
+                taskItem.style.background = 'transparent';
+            }
+        });
+    });
+
+    // Animación para los números de stats (opcional)
+    function animateValue(element, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            element.textContent = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    // Activar animación al cargar la página (opcional)
+    window.addEventListener('load', () => {
+        const statValues = document.querySelectorAll('.stat-value');
+        statValues.forEach(el => {
+            const finalValue = parseInt(el.textContent);
+            if (!isNaN(finalValue)) {
+                animateValue(el, 0, finalValue, 1000);
+            }
+        });
+    });
+</script>
+</body>
+</html>

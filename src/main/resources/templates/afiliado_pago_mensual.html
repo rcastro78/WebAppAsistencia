@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Método de Pago - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://checkout.wompi.co/widget.js"></script>
+    <link rel="stylesheet" th:href="@{/css/afiliado_pago_mensual.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Cobro de plan</h1>
+        <span class="subtitle">Seleccione el periodo y método de pago</span>
+    </div>
+
+    <!-- Selector de Periodo -->
+    <div class="period-selector">
+        <div class="period-title">
+            <i class="fas fa-calendar-alt"></i>
+            Seleccionar mes y año a pagar
+        </div>
+
+        <div class="date-selectors">
+            <div class="selector-group">
+                <label class="selector-label" for="mesPago">
+                    <i class="fas fa-calendar-alt"></i> Mes a pagar
+                </label>
+                <select id="mesPago" name="mesPago" onchange="calculateAmount()">
+                    <option value="">Seleccione un mes</option>
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+            </div>
+
+            <div class="selector-group">
+                <label class="selector-label" for="anioPago">
+                    <i class="fas fa-calendar"></i> Año
+                </label>
+                <select id="anioPago" name="anioPago" onchange="calculateAmount()">
+                    <option value="">Seleccione un año</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="amount-display" id="amountDisplay" style="display: none;">
+            <div class="amount-label">Monto a Pagar</div>
+            <div class="amount-value">
+                <span th:text="${moneda}">$</span>
+                <span id="calculatedAmount">25.00</span></div>
+            <div style="margin-top: 10px; font-size: 0.9rem;">
+                <span id="periodText">Enero 2025</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="payment-summary">
+        <div class="summary-title">Resumen del Pago</div>
+        <div class="amount">
+            <span th:text="${moneda}">$</span>
+            <span id="totalAmount">0.00</span></div>
+        <div class="summary-details">
+            <p><strong>Plan:</strong> <span th:text="${afiliado?.nombrePlan}">Plan Familiar</span></p>
+            <p><strong>Beneficiario:</strong> <span th:text="|${afiliado?.nombre} ${afiliado?.apellido}|">Nombre Completo</span></p>
+            <p><strong>DUI:</strong> <span th:text="${afiliado?.dui}">00000000-0</span></p>
+            <p><strong>Periodo:</strong> <span id="summaryPeriod">Seleccione mes y año</span></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Seleccionar Método de Pago</h2>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/pagos/procesar}" th:object="${pago}" method="post" enctype="multipart/form-data" id="paymentForm">
+                <input type="hidden" name="duiAfiliado" th:value="${afiliado?.dui}">
+                <input type="hidden" name="mes" id="mesHidden" th:field="*{mes}">
+                <input type="hidden" name="cobradoPor" id="cobradoPor" th:field="*{cobradoPor}">
+                <input type="hidden" name="anio" id="anioHidden" th:field="*{anio}">
+                <input type="hidden" name="cantidadPagada" id="cantidadPagada" th:field="*{cantidadPagada}">
+                <input type="hidden" name="formaPago" id="formaPagoHidden" th:field="*{formaPago}">
+
+                <div class="payment-methods">
+                    <!-- Tarjeta con Wompi (formaPago = 1) -->
+                    <div class="payment-method" onclick="selectPaymentMethod('tarjeta', this, 1)">
+                        <input type="radio" name="metodoPagoRadio" value="1" id="tarjeta">
+                        <div class="method-header">
+                            <div class="method-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="method-info">
+                                <h3>Tarjeta de Crédito/Débito</h3>
+                                <p>Pago inmediato y seguro con Wompi</p>
+                            </div>
+                        </div>
+
+                        <div class="method-details" id="tarjeta-details">
+                            <div class="security-info">
+                                <h4><i class="fas fa-shield-alt"></i>Pago 100% Seguro con Wompi</h4>
+                                <p>Tu información está protegida. Wompi procesa pagos de forma segura y confiable.</p>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico</label>
+                                    <input type="email" class="input" id="email" name="email"
+                                           placeholder="correo@ejemplo.com" th:value="${afiliado?.email}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
+                                    <input type="tel" class="input" id="telefono" name="telefono"
+                                           placeholder="7123-4567" th:value="${afiliado?.telefono}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="nombreCompleto"><i class="fas fa-user"></i> Nombre Completo</label>
+                                    <input type="text" class="input" id="nombreCompleto" name="nombreCompleto"
+                                           placeholder="Nombre Completo" th:value="|${afiliado?.nombre} ${afiliado?.apellido}|">
+                                </div>
+                            </div>
+
+                            <p style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i>
+                                Al continuar, serás redirigido a la plataforma segura de Wompi para completar tu pago.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Transferencia Bancaria (formaPago = 2) -->
+                    <div class="payment-method" onclick="selectPaymentMethod('transferencia', this, 2)">
+                        <input type="radio" name="metodoPagoRadio" value="2" id="transferencia">
+                        <div class="method-header">
+                            <div class="method-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="method-info">
+                                <h3>Transferencia Bancaria</h3>
+                                <p>Transfiere desde tu banco online o app móvil</p>
+                            </div>
+                        </div>
+
+                        <div class="method-details" id="transferencia-details">
+                            <h4>Datos para Transferencia:</h4>
+                            <div class="bank-details">
+                                <div class="bank-item">
+                                    <span class="bank-label">Banco:</span>
+                                    <span class="bank-value">Banco de América Central</span>
+                                </div>
+                                <div class="bank-item">
+                                    <span class="bank-label">Cuenta:</span>
+                                    <span class="bank-value">123-456789-0</span>
+                                </div>
+                                <div class="bank-item">
+                                    <span class="bank-label">A nombre de:</span>
+                                    <span class="bank-value">Asistencia El Salvador S.A.</span>
+                                </div>
+                                <div class="bank-item">
+                                    <span class="bank-label">Concepto:</span>
+                                    <span class="bank-value">Pago Póliza - <span th:text="${afiliado?.dui}">00000000-0</span></span>
+                                </div>
+                            </div>
+
+                            <!-- Campo para subir voucher -->
+                            <div class="form-group full-width" style="margin-top: 20px;">
+                                <label><i class="fas fa-file-upload"></i> Subir Comprobante de Transferencia</label>
+                                <div class="file-input-wrapper">
+                                    <input type="file" name="voucherFile" accept="image/*,.pdf" id="voucherFile"
+                                           onchange="updateFileLabel('voucherFile', 'voucherLabel')">
+                                    <label for="voucherFile" class="file-input-label" id="voucherLabel">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        Seleccionar archivo (imagen o PDF)
+                                    </label>
+                                </div>
+                                <small style="color: #666; margin-top: 5px; display: block;">
+                                    Formatos aceptados: JPG, PNG, GIF, PDF (máximo 5MB)
+                                </small>
+                            </div>
+
+                            <p style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i>
+                                Una vez realizada la transferencia, sube el comprobante para procesar tu pago.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Pago en Oficina (formaPago = 3) -->
+                    <div class="payment-method" onclick="selectPaymentMethod('efectivo', this, 3)">
+                        <input type="radio" name="metodoPagoRadio" value="3" id="efectivo">
+                        <div class="method-header">
+                            <div class="method-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="method-info">
+                                <h3>Pago en Efectivo</h3>
+                                <p>Registra el pago en efectivo recibido</p>
+                            </div>
+                        </div>
+
+                        <div class="method-details" id="efectivo-details">
+                            <p style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+                                <i class="fas fa-info-circle"></i>
+                                Recuerda solicitar el DUI del afiliado para verificar la identidad.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn" id="submitBtn" disabled>
+                        <i class="fas fa-credit-card"></i> Procesar Pago
+                    </button>
+
+                    <a th:href="${'https://wa.me/' + afiliado.telefono.replace('-', '') + '?text=Hola ' + afiliado.nombre + ' ' + afiliado.apellido + ', realiza tu pago con este link: ' + linkPago + ', no olvides responder con tu comprobante'}"
+                       target="_blank"
+                       class="btn btn-success">
+                        <i class="fas fa-money-bill-transfer"></i> Solicitar pago por WhatsApp
+                    </a>
+
+                    <a th:href="@{/afiliado/}" class="btn secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Historial de Pagos -->
+    <div class="payments-history">
+        <div class="history-title">
+            <i class="fas fa-history"></i>
+            Historial de Pagos Recientes
+        </div>
+
+        <div class="table-responsive">
+            <table id="pagosTable">
+                <thead>
+                <tr>
+                    <th>Periodo</th>
+                    <th>Plan</th>
+                    <th>Monto</th>
+                    <th>Forma de Pago</th>
+                    <th>Fecha de Pago</th>
+                    <th>Voucher</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${pagos == null || pagos.isEmpty()}">
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>No hay pagos registrados</h3>
+                            <p>Aún no se han realizado pagos para este afiliado.</p>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:each="pago : ${pagos}">
+                    <td>
+                        <strong th:text="${periodosFormateados != null ? periodosFormateados.get(pago.dui + '_' + pago.mes + '_' + pago.anio) : (pago.mes + '/' + pago.anio)}">Enero 2024</strong>
+                    </td>
+                    <td th:text="${pago.nombrePlan ?: 'N/A'}">Plan Familiar</td>
+                    <td class="amount">
+                        <span th:text="${moneda}">$</span>
+                        <span th:text="${#numbers.formatDecimal(pago.cantidadPagada, 1, 2)}">25.00</span></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${pago.formaPagoNombre != null && pago.formaPagoNombre.toLowerCase().contains('tarjeta') ? 'badge-tarjeta' :
+                                               (pago.formaPagoNombre != null && pago.formaPagoNombre.toLowerCase().contains('transferencia') ? 'badge-transferencia' : 'badge-efectivo')}"
+                              th:text="${pago.formaPagoNombre ?: 'Efectivo'}">Tarjeta</span>
+                    </td>
+                    <td th:text="${pago.createdAt != null ? #temporals.format(pago.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">01/01/2024 10:30</td>
+                    <td>
+                        <a th:if="${pago.voucherURL != null && !pago.voucherURL.isEmpty()}"
+                           th:href="${pago.voucherURL}"
+                           target="_blank"
+                           class="voucher-link">
+                            <i class="fas fa-file-download"></i> Ver
+                        </a>
+                        <button th:if="${pago.voucherURL == null || pago.voucherURL.isEmpty()}"
+                                type="button"
+                                class="btn-upload-voucher"
+                                th:attr="data-dui=${pago.dui}, data-mes=${pago.mes}, data-anio=${pago.anio}"
+                                onclick="abrirModalVoucher(this)">
+                            <i class="fas fa-upload"></i> Subir
+                        </button>
+
+                        <button th:if="${pago.voucherURL != null && !pago.voucherURL.isEmpty()}"
+                                type="button"
+                                class="btn-update-voucher"
+                                th:attr="data-dui=${pago.dui}, data-mes=${pago.mes}, data-anio=${pago.anio}"
+                                onclick="abrirModalVoucher(this)">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para subir/actualizar voucher -->
+<div id="voucherModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center;">
+    <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #333;">
+                <i class="fas fa-file-upload"></i> Subir Voucher
+            </h3>
+            <button onclick="cerrarModalVoucher()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form id="voucherForm" enctype="multipart/form-data" onsubmit="return submitVoucher(event)">
+            <input type="hidden" id="voucherDui" name="dui">
+            <input type="hidden" id="voucherMes" name="mes">
+            <input type="hidden" id="voucherAnio" name="anio">
+
+            <div style="margin-bottom: 20px;">
+                <div class="file-input-wrapper">
+                    <input type="file" name="voucherFile" accept="image/*,.pdf" id="modalVoucherFile" required
+                           onchange="updateFileLabel('modalVoucherFile', 'modalVoucherLabel')">
+                    <label for="modalVoucherFile" class="file-input-label" id="modalVoucherLabel" style="width: 100%; text-align: center;">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        Seleccionar archivo (imagen o PDF)
+                    </label>
+                </div>
+                <small style="color: #666; margin-top: 10px; display: block; text-align: center;">
+                    Formatos: JPG, PNG, GIF, PDF (máximo 5MB)
+                </small>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button type="submit" class="btn" style="flex: 1;">
+                    <i class="fas fa-upload"></i> Subir
+                </button>
+                <button type="button" onclick="cerrarModalVoucher()" class="btn secondary" style="flex: 1;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .btn-upload-voucher, .btn-update-voucher {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-left: 5px;
+    }
+
+    .btn-upload-voucher {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+
+    .btn-update-voucher {
+        background: linear-gradient(135deg, #ffc107, #ff9800);
+        color: white;
+    }
+
+    .btn-upload-voucher:hover, .btn-update-voucher:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+</style>
+
+<script th:inline="javascript">
+    const PRECIO_MENSUAL = parseFloat(/*[[${planMensual}]]*/ '25.00');
+    const WOMPI_PUBLIC_KEY = 'pub_test_TU_LLAVE_PUBLICA_AQUI';
+
+    let selectedMonth = '';
+    let selectedYear = '';
+    let selectedAmount = 0;
+    let selectedMethod = '';
+    let selectedFormaPagoId = null;
+
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    function initYears() {
+        const currentYear = new Date().getFullYear();
+        const yearSelect = document.getElementById('anioPago');
+
+        for (let i = -1; i < 2; i++) {
+            const year = currentYear + i;
+            const option = document.createElement('option');
+            option.value = year.toString();
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+    }
+
+    function calculateAmount() {
+        const month = document.getElementById('mesPago').value;
+        const year = document.getElementById('anioPago').value;
+
+        if (month && year) {
+            selectedMonth = parseInt(month);
+            selectedYear = year;
+            selectedAmount = PRECIO_MENSUAL;
+
+            const monthName = meses[selectedMonth - 1];
+            const periodText = `${monthName} ${year}`;
+
+            document.getElementById('calculatedAmount').textContent = selectedAmount.toFixed(2);
+            document.getElementById('periodText').textContent = periodText;
+            document.getElementById('totalAmount').textContent = selectedAmount.toFixed(2);
+            document.getElementById('summaryPeriod').textContent = periodText;
+            document.getElementById('amountDisplay').style.display = 'block';
+
+            document.getElementById('mesHidden').value = selectedMonth;
+            document.getElementById('anioHidden').value = selectedYear;
+            document.getElementById('cantidadPagada').value = selectedAmount.toFixed(2);
+
+            updateSubmitButton();
+        } else {
+            document.getElementById('amountDisplay').style.display = 'none';
+            document.getElementById('totalAmount').textContent = '0.00';
+            document.getElementById('summaryPeriod').textContent = 'Seleccione mes y año';
+            selectedAmount = 0;
+            updateSubmitButton();
+        }
+    }
+
+    function updateSubmitButton() {
+        const submitBtn = document.getElementById('submitBtn');
+        const hasAmount = selectedAmount > 0;
+        const hasMethod = selectedMethod !== '';
+
+        submitBtn.disabled = !(hasAmount && hasMethod);
+    }
+
+    function selectPaymentMethod(method, element, formaPagoId) {
+        document.querySelectorAll('.payment-method').forEach(el => {
+            el.classList.remove('selected');
+        });
+
+        document.querySelectorAll('.method-details').forEach(el => {
+            el.classList.remove('active');
+        });
+
+        element.classList.add('selected');
+        document.getElementById(method).checked = true;
+        document.getElementById(method + '-details').classList.add('active');
+
+        selectedMethod = method;
+        selectedFormaPagoId = formaPagoId;
+
+        document.getElementById('formaPagoHidden').value = formaPagoId;
+
+        const buttonTexts = {
+            'tarjeta': '<i class="fas fa-credit-card"></i> Pagar con Wompi',
+            'transferencia': '<i class="fas fa-university"></i> Confirmar Transferencia',
+            'efectivo': '<i class="fas fa-building"></i> Registrar Pago'
+        };
+
+        document.getElementById('submitBtn').innerHTML = buttonTexts[method];
+
+        const cardFields = ['email', 'telefono', 'nombreCompleto'];
+        cardFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.required = method === 'tarjeta';
+            }
+        });
+
+        updateSubmitButton();
+    }
+
+    function updateFileLabel(inputId, labelId) {
+        const input = document.getElementById(inputId);
+        const label = document.getElementById(labelId);
+
+        if (input.files && input.files.length > 0) {
+            const fileName = input.files[0].name;
+            const fileSize = (input.files[0].size / 1024 / 1024).toFixed(2); // MB
+
+            if (input.files[0].size > 5 * 1024 * 1024) {
+                alert('El archivo es demasiado grande. Máximo 5MB.');
+                input.value = '';
+                return;
+            }
+
+            label.innerHTML = '<i class="fas fa-check-circle"></i> ' + fileName + ' (' + fileSize + ' MB)';
+            label.classList.add('file-selected');
+        } else {
+            label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Seleccionar archivo (imagen o PDF)';
+            label.classList.remove('file-selected');
+        }
+    }
+
+    // ============================================
+// FUNCIONES PARA MANEJO DE MODAL DE VOUCHER
+// ============================================
+
+/**
+ * Abre el modal para subir/actualizar voucher
+ */
+function abrirModalVoucher(button) {
+    const dui = button.getAttribute('data-dui');
+    const mes = button.getAttribute('data-mes');
+    const anio = button.getAttribute('data-anio');
+
+    console.log('Abriendo modal para voucher:', { dui, mes, anio });
+
+    // Establecer los valores en el formulario del modal
+    document.getElementById('voucherDui').value = dui;
+    document.getElementById('voucherMes').value = mes;
+    document.getElementById('voucherAnio').value = anio;
+
+    // Resetear el input de archivo y su label
+    const fileInput = document.getElementById('modalVoucherFile');
+    const fileLabel = document.getElementById('modalVoucherLabel');
+    fileInput.value = '';
+    fileLabel.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Seleccionar archivo (imagen o PDF)';
+    fileLabel.classList.remove('file-selected');
+
+    // Mostrar el modal con animación
+    const modal = document.getElementById('voucherModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.style.opacity = '1';
+    }, 10);
+}
+
+/**
+ * Cierra el modal de voucher
+ */
+function cerrarModalVoucher() {
+    const modal = document.getElementById('voucherModal');
+    modal.style.opacity = '0';
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+/**
+ * Envía el formulario de voucher al servidor
+ */
+function submitVoucher(event) {
+    event.preventDefault();
+
+    const form = document.getElementById('voucherForm');
+    const formData = new FormData(form);
+    const fileInput = document.getElementById('modalVoucherFile');
+
+    // Validar que se haya seleccionado un archivo
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Por favor seleccione un archivo');
+        return false;
+    }
+
+    // Validar tamaño del archivo (máximo 5MB)
+    const file = fileInput.files[0];
+    const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+
+    if (file.size > maxSize) {
+        alert('El archivo es demasiado grande. El tamaño máximo es 5MB.');
+        return false;
+    }
+
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
+    if (!validTypes.includes(file.type)) {
+        alert('Tipo de archivo no válido. Solo se permiten imágenes (JPG, PNG, GIF) y PDF.');
+        return false;
+    }
+
+    const dui = formData.get('dui');
+    const mes = formData.get('mes');
+    const anio = formData.get('anio');
+
+    console.log('Enviando voucher:', { dui, mes, anio, fileName: file.name });
+
+    // Mostrar indicador de carga
+    const submitButton = event.target.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+
+    // Enviar el formulario con fetch
+    fetch(`/pagos/subir-voucher/${dui}/${mes}/${anio}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        console.log('Respuesta del servidor:', response.status);
+
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+
+        return response.text();
+    })
+    .then(data => {
+        console.log('Voucher subido exitosamente');
+
+        // Cerrar modal
+        cerrarModalVoucher();
+
+        // Mostrar mensaje de éxito
+        alert('Voucher subido exitosamente');
+
+        // Recargar la página para mostrar el nuevo voucher
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error al subir voucher:', error);
+        alert('Error al subir el voucher: ' + error.message);
+
+        // Restaurar botón
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+    });
+
+    return false;
+}
+
+/**
+ * Actualiza el label del input de archivo
+ */
+function updateFileLabel(inputId, labelId) {
+    const input = document.getElementById(inputId);
+    const label = document.getElementById(labelId);
+
+    if (input.files && input.files.length > 0) {
+        const file = input.files[0];
+        const fileName = file.name;
+        const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+
+        // Validar tamaño
+        if (file.size > 5 * 1024 * 1024) {
+            alert('El archivo es demasiado grande. Máximo 5MB.');
+            input.value = '';
+            label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Seleccionar archivo (imagen o PDF)';
+            label.classList.remove('file-selected');
+            return;
+        }
+
+        // Validar tipo
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
+        if (!validTypes.includes(file.type)) {
+            alert('Tipo de archivo no válido. Solo se permiten imágenes (JPG, PNG, GIF) y PDF.');
+            input.value = '';
+            label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Seleccionar archivo (imagen o PDF)';
+            label.classList.remove('file-selected');
+            return;
+        }
+
+        // Actualizar label con el nombre del archivo
+        label.innerHTML = `<i class="fas fa-check-circle"></i> ${fileName} (${fileSize} MB)`;
+        label.classList.add('file-selected');
+    } else {
+        label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Seleccionar archivo (imagen o PDF)';
+        label.classList.remove('file-selected');
+    }
+}
+
+/**
+ * Ver voucher en nueva pestaña
+ */
+function verVoucher(url) {
+    if (url && url.trim() !== '') {
+        window.open(url, '_blank');
+    } else {
+        alert('No hay voucher disponible para visualizar');
+    }
+}
+
+// ============================================
+// CERRAR MODAL AL HACER CLIC FUERA
+// ============================================
+document.getElementById('voucherModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalVoucher();
+    }
+});
+
+// ============================================
+// CERRAR MODAL CON TECLA ESC
+// ============================================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('voucherModal');
+        if (modal && modal.style.display === 'flex') {
+            cerrarModalVoucher();
+        }
+    }
+});
+
+console.log('✓ Sistema de vouchers inicializado correctamente');
+
+
+    function initWompiPayment(email, telefono, nombre) {
+        const amountInCents = Math.round(selectedAmount * 100);
+        const reference = 'ASIST-' + Date.now();
+        const monthName = meses[selectedMonth - 1];
+
+        var checkout = new WidgetCheckout({
+            currency: 'USD',
+            amountInCents: amountInCents,
+            reference: reference,
+            publicKey: WOMPI_PUBLIC_KEY,
+            customerData: {
+                email: email,
+                fullName: nombre,
+                phoneNumber: telefono
+            }
+        });
+
+        checkout.open(function(result) {
+            var transaction = result.transaction;
+
+            if (transaction.status === 'APPROVED') {
+                window.location.href = '/pago/confirmacion?transactionId=' + transaction.id +
+                                      '&status=success&reference=' + reference +
+                                      '&mes=' + selectedMonth + '&anio=' + selectedYear +
+                                      '&monto=' + selectedAmount;
+            } else if (transaction.status === 'DECLINED') {
+                alert('El pago fue rechazado. Por favor intenta con otro método de pago.');
+            } else if (transaction.status === 'ERROR') {
+                alert('Ocurrió un error procesando el pago. Por favor intenta nuevamente.');
+            } else if (transaction.status === 'VOIDED') {
+                alert('La transacción fue cancelada.');
+            }
+        });
+    }
+
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        if (selectedMethod === 'tarjeta') {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const telefono = document.getElementById('telefono').value;
+            const nombre = document.getElementById('nombreCompleto').value;
+
+            if (!email || !telefono || !nombre) {
+                alert('Por favor complete todos los campos requeridos');
+                return;
+            }
+
+            if (!selectedAmount || selectedAmount <= 0) {
+                alert('Por favor seleccione un mes y año para pagar');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Por favor ingrese un correo electrónico válido');
+                return;
+            }
+
+            const telefonoDigits = telefono.replace(/\D/g, '');
+            if (telefonoDigits.length < 8) {
+                alert('Por favor ingrese un número de teléfono válido');
+                return;
+            }
+
+            initWompiPayment(email, telefono, nombre);
+        }
+        // Para transferencia y efectivo, el formulario se envía normalmente al backend
+    });
+
+    // Formatear teléfono
+    document.getElementById('telefono')?.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 4) {
+            value = value.substring(0, 4) + '-' + value.substring(4, 8);
+        }
+        e.target.value = value;
+    });
+
+    // Validar email
+    document.getElementById('email')?.addEventListener('blur', function(e) {
+        const email = e.target.value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (email && !emailRegex.test(email)) {
+            e.target.style.borderColor = '#dc3545';
+        } else {
+            e.target.style.borderColor = '';
+        }
+    });
+
+    // Inicialización al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        initYears();
+
+        // Auto-seleccionar el mes y año actuales
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        document.getElementById('mesPago').value = currentMonth;
+        document.getElementById('anioPago').value = currentYear.toString();
+
+        calculateAmount();
+
+        console.log('Sistema de pagos inicializado correctamente');
+        console.log('Precio mensual:', PRECIO_MENSUAL);
+    });
+</script>
+</body>
+</html>

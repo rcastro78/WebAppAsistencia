@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esEdicion ? 'Editar Contactos de Emergencia' : 'Contactos de Emergencia'} + ' - Asistencia El Salvador'">Contactos de Emergencia - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/contacto.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1 th:text="${esEdicion ? 'Editar Contactos de Emergencia' : 'Paso 3. Contactos de Emergencia'}">Paso 3. Contactos de Emergencia</h1>
+        <span class="subtitle" th:text="${esEdicion ? 'Actualiza la información de tus contactos de emergencia' : 'Registra hasta 2 contactos de emergencia'}">Registra hasta 2 contactos de emergencia</span>
+    </div>
+
+    <!-- Progress indicator (solo mostrar en modo creación) -->
+    <div class="progress-indicator" th:if="${!esEdicion}">
+        <div class="progress-step completed"><i class="fas fa-check"></i></div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step completed"><i class="fas fa-check"></i></div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step active">3</div>
+    </div>
+
+    <!-- Alert informativo -->
+    <div class="alert">
+        <i class="fas fa-info-circle"></i>
+        <span><strong>Importante:</strong> El primer contacto es obligatorio. El segundo contacto es opcional.</span>
+    </div>
+
+    <!-- Mensaje de éxito/error -->
+    <div th:if="${mensaje}" class="message success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${mensaje}"></span>
+    </div>
+
+    <div th:if="${error}" class="message error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <form th:action="@{/afiliado/contactos-emergencia/guardar}" method="post">
+        <!-- Campos ocultos -->
+        <input type="hidden" name="duiAfiliado" th:value="${dui}" />
+        <input type="hidden" name="esEdicion" th:value="${esEdicion}" />
+        <input type="hidden" name="contacto1.id" th:value="${contacto1?.idContacto}" th:if="${esEdicion}" />
+        <input type="hidden" name="contacto2.id" th:value="${contacto2?.idContacto}" th:if="${esEdicion && contacto2?.idContacto != null}" />
+
+        <!-- Contacto de Emergencia 1 (Obligatorio) -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-phone-alt"></i> Contacto de Emergencia 1</h2>
+                <span class="badge">Obligatorio</span>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <!-- Nombre del contacto 1 -->
+                    <div class="form-group">
+                        <label for="nombreContacto1">
+                            Nombre Completo
+                            <span class="required">*</span>
+                        </label>
+                        <input type="text"
+                               id="nombreContacto1"
+                               name="contacto1.nombreContacto"
+                               class="input"
+                               placeholder="Ej: Juan Pérez García"
+                               th:value="${contacto1?.nombreContacto}"
+                               required
+                               maxlength="45">
+                    </div>
+
+                    <!-- Teléfono 1 -->
+                    <div class="form-group">
+                        <label for="telefono1">
+                            Teléfono
+                            <span class="required">*</span>
+                        </label>
+                        <input type="tel"
+                               id="telefono1"
+                               name="contacto1.telefono"
+                               class="input"
+                               placeholder="Ej: 7890-1234"
+                               th:value="${contacto1?.telefono}"
+                               required
+                               maxlength="45"
+                               pattern="[0-9]{4}-[0-9]{4}">
+                    </div>
+
+                    <!-- Parentesco 1 -->
+                    <div class="form-group full-width">
+                        <label for="parentesco1">
+                            Parentesco
+                            <span class="required">*</span>
+                        </label>
+                        <select id="parentesco1" name="contacto1.parentesco" class="input" required>
+                            <option value="">Seleccione un parentesco...</option>
+                            <option value="Esposo(a)" th:selected="${contacto1?.parentesco == 'Esposo(a)'}">Esposo(a)</option>
+                            <option value="Padre/Madre" th:selected="${contacto1?.parentesco == 'Padre/Madre'}">Padre/Madre</option>
+                            <option value="Hijo(a)" th:selected="${contacto1?.parentesco == 'Hijo(a)'}">Hijo(a)</option>
+                            <option value="Hermano(a)" th:selected="${contacto1?.parentesco == 'Hermano(a)'}">Hermano(a)</option>
+                            <option value="Abuelo(a)" th:selected="${contacto1?.parentesco == 'Abuelo(a)'}">Abuelo(a)</option>
+                            <option value="Tío(a)" th:selected="${contacto1?.parentesco == 'Tío(a)'}">Tío(a)</option>
+                            <option value="Primo(a)" th:selected="${contacto1?.parentesco == 'Primo(a)'}">Primo(a)</option>
+                            <option value="Cuñado(a)" th:selected="${contacto1?.parentesco == 'Cuñado(a)'}">Cuñado(a)</option>
+                            <option value="Amigo(a)" th:selected="${contacto1?.parentesco == 'Amigo(a)'}">Amigo(a)</option>
+                            <option value="Otro" th:selected="${contacto1?.parentesco == 'Otro'}">Otro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contacto de Emergencia 2 (Opcional) -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-phone-alt"></i> Contacto de Emergencia 2</h2>
+                <span class="badge optional">Opcional</span>
+            </div>
+            <div class="card-body">
+                <div class="form-grid">
+                    <!-- Nombre del contacto 2 -->
+                    <div class="form-group">
+                        <label for="nombreContacto2">
+                            Nombre Completo
+                        </label>
+                        <input type="text"
+                               id="nombreContacto2"
+                               name="contacto2.nombreContacto"
+                               class="input"
+                               placeholder="Ej: María López Ramírez"
+                               th:value="${contacto2?.nombreContacto}"
+                               maxlength="45">
+                    </div>
+
+                    <!-- Teléfono 2 -->
+                    <div class="form-group">
+                        <label for="telefono2">
+                            Teléfono
+                        </label>
+                        <input type="tel"
+                               id="telefono2"
+                               name="contacto2.telefono"
+                               class="input"
+                               placeholder="Ej: 7890-5678"
+                               th:value="${contacto2?.telefono}"
+                               maxlength="45"
+                               pattern="[0-9]{4}-[0-9]{4}">
+                    </div>
+
+                    <!-- Parentesco 2 -->
+                    <div class="form-group full-width">
+                        <label for="parentesco2">
+                            Parentesco
+                        </label>
+                        <select id="parentesco2" name="contacto2.parentesco" class="input">
+                            <option value="">Seleccione un parentesco...</option>
+                            <option value="Esposo(a)" th:selected="${contacto2?.parentesco == 'Esposo(a)'}">Esposo(a)</option>
+                            <option value="Padre/Madre" th:selected="${contacto2?.parentesco == 'Padre/Madre'}">Padre/Madre</option>
+                            <option value="Hijo(a)" th:selected="${contacto2?.parentesco == 'Hijo(a)'}">Hijo(a)</option>
+                            <option value="Hermano(a)" th:selected="${contacto2?.parentesco == 'Hermano(a)'}">Hermano(a)</option>
+                            <option value="Abuelo(a)" th:selected="${contacto2?.parentesco == 'Abuelo(a)'}">Abuelo(a)</option>
+                            <option value="Tío(a)" th:selected="${contacto2?.parentesco == 'Tío(a)'}">Tío(a)</option>
+                            <option value="Primo(a)" th:selected="${contacto2?.parentesco == 'Primo(a)'}">Primo(a)</option>
+                            <option value="Cuñado(a)" th:selected="${contacto2?.parentesco == 'Cuñado(a)'}">Cuñado(a)</option>
+                            <option value="Amigo(a)" th:selected="${contacto2?.parentesco == 'Amigo(a)'}">Amigo(a)</option>
+                            <option value="Otro" th:selected="${contacto2?.parentesco == 'Otro'}">Otro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="actions">
+            <button type="submit" class="btn">
+                <i class="fas fa-save"></i> <span th:text="${esEdicion ? 'Actualizar Contactos' : 'Guardar Contactos'}">Guardar Contactos</span>
+            </button>
+            <a th:href="${esEdicion ? '/afiliado/editar/' + dui : '/afiliado/'}" class="btn secondary">
+                <i class="fas fa-arrow-left"></i> <span th:text="${esEdicion ? 'Cancelar' : 'Volver'}">Volver</span>
+            </a>
+
+            <a th:href="${esEdicion} ? @{/afiliado/titular2/editar/{dui}(dui=${dui})} : @{/afiliado/afiliado_plan/{dui}(dui=${dui})}" class="btn secondary">
+                <i class="fas fa-arrow-right"></i><span th:text="${esEdicion} ? 'Siguiente' : 'Saltar Paso'"></span>
+            </a>
+
+        </div>
+    </form>
+</div>
+
+<script>
+    // Formatear teléfono automáticamente
+    function formatPhone(input) {
+        let value = input.value.replace(/\D/g, '');
+        if (value.length > 4) {
+            value = value.substring(0, 4) + '-' + value.substring(4, 8);
+        }
+        input.value = value;
+    }
+
+    document.getElementById('telefono1').addEventListener('input', function() {
+        formatPhone(this);
+    });
+
+    document.getElementById('telefono2').addEventListener('input', function() {
+        formatPhone(this);
+    });
+
+    // Validación del formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const nombreContacto2 = document.getElementById('nombreContacto2').value;
+        const telefono2 = document.getElementById('telefono2').value;
+        const parentesco2 = document.getElementById('parentesco2').value;
+
+        // Si se llena algún campo del contacto 2, todos deben estar llenos
+        if (nombreContacto2 || telefono2 || parentesco2) {
+            if (!nombreContacto2 || !telefono2 || !parentesco2) {
+                e.preventDefault();
+                alert('Si desea agregar un segundo contacto, debe completar todos los campos (Nombre, Teléfono y Parentesco).');
+                return false;
+            }
+        }
+    });
+
+    // Auto-ocultar mensajes después de 5 segundos
+    const messages = document.querySelectorAll('.message');
+    messages.forEach(message => {
+        setTimeout(() => {
+            message.style.opacity = '0';
+            setTimeout(() => message.remove(), 300);
+        }, 5000);
+    });
+</script>
+</body>
+</html>

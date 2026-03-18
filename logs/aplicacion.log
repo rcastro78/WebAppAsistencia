@@ -1,0 +1,752 @@
+2026-03-17T20:47:29.801-06:00  INFO 3993 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 3993 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T20:47:29.803-06:00  INFO 3993 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T20:47:29.822-06:00  INFO 3993 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-17T20:47:29.823-06:00  INFO 3993 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-17T20:47:30.268-06:00  INFO 3993 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T20:47:30.335-06:00  INFO 3993 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 63 ms. Found 60 JPA repository interfaces.
+2026-03-17T20:47:30.722-06:00  INFO 3993 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-17T20:47:30.731-06:00  INFO 3993 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-17T20:47:30.731-06:00  INFO 3993 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-03-17T20:47:30.753-06:00  INFO 3993 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-17T20:47:30.753-06:00  INFO 3993 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 930 ms
+2026-03-17T20:47:30.844-06:00  INFO 3993 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T20:47:30.877-06:00  INFO 3993 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T20:47:30.894-06:00  INFO 3993 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T20:47:31.014-06:00  INFO 3993 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T20:47:31.028-06:00  INFO 3993 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T20:47:32.094-06:00  INFO 3993 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@8b712c0
+2026-03-17T20:47:32.098-06:00  INFO 3993 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T20:47:32.465-06:00  WARN 3993 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T20:47:32.465-06:00  WARN 3993 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T20:47:32.475-06:00  INFO 3993 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T20:47:32.722-06:00  WARN 3993 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T20:47:32.722-06:00  WARN 3993 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T20:47:33.229-06:00  INFO 3993 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T20:47:33.231-06:00  INFO 3993 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T20:47:33.339-06:00  INFO 3993 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T20:47:35.544-06:00  WARN 3993 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T20:47:35.652-06:00 DEBUG 3993 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T20:47:35.685-06:00  WARN 3993 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 10008f4e-e316-4f62-9a12-aa7ddd1f67ab
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T20:47:35.690-06:00  INFO 3993 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T20:47:35.795-06:00 DEBUG 3993 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T20:47:35.819-06:00 DEBUG 3993 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T20:47:35.896-06:00  INFO 3993 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T20:47:35.915-06:00  INFO 3993 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-17T20:47:35.934-06:00  INFO 3993 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T20:47:35.934-06:00  INFO 3993 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@3e7f84fa]]
+2026-03-17T20:47:35.935-06:00  INFO 3993 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T20:47:35.942-06:00  INFO 3993 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-17T20:47:35.947-06:00  INFO 3993 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 6.325 seconds (process running for 6.529)
+2026-03-17T20:47:45.288-06:00  INFO 3993 --- [http-nio-0.0.0.0-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-17T20:47:45.289-06:00  INFO 3993 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-17T20:47:45.290-06:00  INFO 3993 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-03-17T20:47:45.311-06:00 DEBUG 3993 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.AdminController#mostrarDashboard(HttpSession, Model)
+2026-03-17T20:47:48.469-06:00 DEBUG 3993 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#mostrarLogin(Model, HttpSession, String)
+2026-03-17T20:48:20.056-06:00 DEBUG 3993 --- [http-nio-0.0.0.0-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#login(String, String, HttpSession, String, HttpServletRequest, Model)
+2026-03-17T20:48:21.137-06:00 DEBUG 3993 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.AdminController#mostrarDashboard(HttpSession, Model)
+2026-03-17T20:48:35.941-06:00  INFO 3993 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-17T20:51:59.761-06:00  INFO 3993 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-17T20:51:59.765-06:00  INFO 3993 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-03-17T20:51:59.768-06:00  INFO 3993 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T20:51:59.768-06:00  INFO 3993 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@3e7f84fa]]
+2026-03-17T20:51:59.768-06:00  INFO 3993 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T20:51:59.782-06:00  INFO 3993 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T20:51:59.786-06:00  INFO 3993 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T20:51:59.869-06:00  INFO 3993 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T20:52:13.584-06:00  INFO 4334 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 4334 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T20:52:13.585-06:00  INFO 4334 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T20:52:13.602-06:00  INFO 4334 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-17T20:52:13.602-06:00  INFO 4334 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-17T20:52:13.974-06:00  INFO 4334 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T20:52:14.046-06:00  INFO 4334 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 68 ms. Found 60 JPA repository interfaces.
+2026-03-17T20:52:14.419-06:00  INFO 4334 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-17T20:52:14.427-06:00  INFO 4334 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-17T20:52:14.427-06:00  INFO 4334 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-03-17T20:52:14.450-06:00  INFO 4334 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-17T20:52:14.450-06:00  INFO 4334 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 847 ms
+2026-03-17T20:52:14.543-06:00  INFO 4334 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T20:52:14.567-06:00  INFO 4334 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T20:52:14.581-06:00  INFO 4334 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T20:52:14.694-06:00  INFO 4334 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T20:52:14.706-06:00  INFO 4334 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T20:52:15.782-06:00  INFO 4334 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@53cc49b6
+2026-03-17T20:52:15.784-06:00  INFO 4334 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T20:52:15.904-06:00  WARN 4334 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T20:52:15.905-06:00  WARN 4334 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T20:52:15.918-06:00  INFO 4334 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T20:52:16.166-06:00  WARN 4334 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T20:52:16.166-06:00  WARN 4334 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T20:52:16.684-06:00  INFO 4334 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T20:52:16.685-06:00  INFO 4334 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T20:52:16.789-06:00  INFO 4334 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T20:52:18.781-06:00  WARN 4334 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T20:52:18.890-06:00 DEBUG 4334 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T20:52:18.924-06:00  WARN 4334 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 0bbad698-0705-4e42-a906-199b06174237
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T20:52:18.929-06:00  INFO 4334 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T20:52:19.039-06:00 DEBUG 4334 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T20:52:19.063-06:00 DEBUG 4334 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T20:52:19.134-06:00  INFO 4334 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T20:52:19.153-06:00  INFO 4334 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-17T20:52:19.171-06:00  INFO 4334 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T20:52:19.172-06:00  INFO 4334 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@7820a835]]
+2026-03-17T20:52:19.172-06:00  INFO 4334 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T20:52:19.179-06:00  INFO 4334 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-17T20:52:19.184-06:00  INFO 4334 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 5.779 seconds (process running for 5.974)
+2026-03-17T20:53:19.182-06:00  INFO 4334 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-17T21:02:00.573-06:00  INFO 4334 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-17T21:02:00.579-06:00  INFO 4334 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-03-17T21:02:00.581-06:00  INFO 4334 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:02:00.581-06:00  INFO 4334 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@7820a835]]
+2026-03-17T21:02:00.581-06:00  INFO 4334 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:02:00.594-06:00  INFO 4334 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:02:00.597-06:00  INFO 4334 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:02:00.672-06:00  INFO 4334 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:02:13.010-06:00  INFO 4762 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 4762 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:02:13.011-06:00  INFO 4762 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:02:13.029-06:00  INFO 4762 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-17T21:02:13.029-06:00  INFO 4762 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-17T21:02:13.395-06:00  INFO 4762 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:02:13.462-06:00  INFO 4762 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 62 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:02:13.825-06:00  INFO 4762 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-17T21:02:13.833-06:00  INFO 4762 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-17T21:02:13.833-06:00  INFO 4762 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-03-17T21:02:13.854-06:00  INFO 4762 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-17T21:02:13.854-06:00  INFO 4762 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 825 ms
+2026-03-17T21:02:13.945-06:00  INFO 4762 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:02:13.976-06:00  INFO 4762 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:02:13.990-06:00  INFO 4762 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:02:14.097-06:00  INFO 4762 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:02:14.109-06:00  INFO 4762 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:02:15.185-06:00  INFO 4762 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5d82ed51
+2026-03-17T21:02:15.188-06:00  INFO 4762 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:02:15.300-06:00  WARN 4762 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:02:15.301-06:00  WARN 4762 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:02:15.311-06:00  INFO 4762 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:02:15.570-06:00  WARN 4762 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:02:15.570-06:00  WARN 4762 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:02:16.083-06:00  INFO 4762 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:02:16.084-06:00  INFO 4762 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:02:16.187-06:00  INFO 4762 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:02:18.346-06:00  WARN 4762 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:02:18.460-06:00 DEBUG 4762 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:02:18.496-06:00  WARN 4762 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: c32cbc2e-1919-4ae8-8c76-9199e213f1c4
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:02:18.500-06:00  INFO 4762 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:02:18.606-06:00 DEBUG 4762 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:02:18.631-06:00 DEBUG 4762 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:02:18.700-06:00  INFO 4762 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:02:18.720-06:00  INFO 4762 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-17T21:02:18.738-06:00  INFO 4762 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:02:18.738-06:00  INFO 4762 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@5822509d]]
+2026-03-17T21:02:18.739-06:00  INFO 4762 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:02:18.745-06:00  INFO 4762 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-17T21:02:18.750-06:00  INFO 4762 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 5.905 seconds (process running for 6.097)
+2026-03-17T21:03:18.747-06:00  INFO 4762 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+2026-03-17T21:08:19.065-06:00  INFO 4762 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-17T21:08:19.074-06:00  INFO 4762 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-03-17T21:08:19.081-06:00  INFO 4762 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:08:19.081-06:00  INFO 4762 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@5822509d]]
+2026-03-17T21:08:19.081-06:00  INFO 4762 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:08:19.093-06:00  INFO 4762 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:08:19.096-06:00  INFO 4762 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:08:19.173-06:00  INFO 4762 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:09:18.499-06:00  INFO 5167 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Starting WebAppAsistenciaApplicationTests using Java 21.0.5 with PID 5167 (started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:09:18.499-06:00  INFO 5167 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:09:18.933-06:00  INFO 5167 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:09:19.005-06:00  INFO 5167 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 67 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:09:19.348-06:00  INFO 5167 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:09:19.375-06:00  INFO 5167 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:09:19.391-06:00  INFO 5167 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:09:19.518-06:00  INFO 5167 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:09:19.531-06:00  INFO 5167 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:09:20.665-06:00  INFO 5167 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@579dde54
+2026-03-17T21:09:20.667-06:00  INFO 5167 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:09:20.771-06:00  WARN 5167 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:09:20.772-06:00  WARN 5167 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:09:20.780-06:00  INFO 5167 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:09:21.047-06:00  WARN 5167 --- [main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:21.047-06:00  WARN 5167 --- [main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:21.563-06:00  INFO 5167 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:09:21.564-06:00  INFO 5167 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:21.689-06:00  INFO 5167 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:09:23.840-06:00  WARN 5167 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:09:23.944-06:00 DEBUG 5167 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:09:23.990-06:00  WARN 5167 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 9399736e-4573-4425-ba6c-906598b990d6
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:09:23.994-06:00  INFO 5167 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:09:24.124-06:00 DEBUG 5167 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:09:24.149-06:00 DEBUG 5167 --- [main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:09:24.232-06:00  INFO 5167 --- [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:09:24.251-06:00  INFO 5167 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:09:24.251-06:00  INFO 5167 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@5bb060b1]]
+2026-03-17T21:09:24.252-06:00  INFO 5167 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:09:24.256-06:00  INFO 5167 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Started WebAppAsistenciaApplicationTests in 5.904 seconds (process running for 6.373)
+2026-03-17T21:09:24.567-06:00  INFO 5167 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:09:24.567-06:00  INFO 5167 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@5bb060b1]]
+2026-03-17T21:09:24.567-06:00  INFO 5167 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:09:24.576-06:00  INFO 5167 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:24.577-06:00  INFO 5167 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:09:25.282-06:00  INFO 5167 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:09:29.277-06:00  INFO 5422 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Starting WebAppAsistenciaApplicationTests using Java 21.0.5 with PID 5422 (started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:09:29.278-06:00  INFO 5422 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:09:29.676-06:00  INFO 5422 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:09:29.759-06:00  INFO 5422 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 78 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:09:30.084-06:00  INFO 5422 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:09:30.107-06:00  INFO 5422 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:09:30.120-06:00  INFO 5422 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:09:30.231-06:00  INFO 5422 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:09:30.244-06:00  INFO 5422 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:09:31.193-06:00  INFO 5422 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@1c98fe6f
+2026-03-17T21:09:31.194-06:00  INFO 5422 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:09:31.293-06:00  WARN 5422 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:09:31.293-06:00  WARN 5422 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:09:31.301-06:00  INFO 5422 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:09:31.555-06:00  WARN 5422 --- [main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:31.555-06:00  WARN 5422 --- [main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:32.135-06:00  INFO 5422 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:09:32.136-06:00  INFO 5422 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:32.268-06:00  INFO 5422 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:09:33.783-06:00  INFO 5424 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 5424 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:09:33.784-06:00  INFO 5424 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:09:33.803-06:00  INFO 5424 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-17T21:09:33.804-06:00  INFO 5424 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-17T21:09:34.220-06:00  INFO 5424 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:09:34.299-06:00  INFO 5424 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 75 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:09:34.751-06:00  INFO 5424 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-17T21:09:34.760-06:00  INFO 5424 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-17T21:09:34.760-06:00  INFO 5424 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-03-17T21:09:34.787-06:00  INFO 5424 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-17T21:09:34.788-06:00  INFO 5424 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 983 ms
+2026-03-17T21:09:34.886-06:00  INFO 5424 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:09:34.908-06:00  INFO 5424 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:09:34.923-06:00  INFO 5424 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:09:35.052-06:00  INFO 5424 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:09:35.065-06:00  INFO 5424 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:09:35.186-06:00  WARN 5422 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:09:35.289-06:00 DEBUG 5422 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:09:35.338-06:00  WARN 5422 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 4e68d37b-019d-412c-b1dd-5c42826d30e1
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:09:35.343-06:00  INFO 5422 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:09:35.475-06:00 DEBUG 5422 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:09:35.498-06:00 DEBUG 5422 --- [main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:09:35.572-06:00  INFO 5422 --- [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:09:35.589-06:00  INFO 5422 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:09:35.589-06:00  INFO 5422 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@20ae77c8]]
+2026-03-17T21:09:35.590-06:00  INFO 5422 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:09:35.595-06:00  INFO 5422 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Started WebAppAsistenciaApplicationTests in 6.471 seconds (process running for 6.932)
+2026-03-17T21:09:35.900-06:00  INFO 5422 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:09:35.901-06:00  INFO 5422 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@20ae77c8]]
+2026-03-17T21:09:35.901-06:00  INFO 5422 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:09:35.909-06:00  INFO 5422 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:35.910-06:00  INFO 5422 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:09:35.984-06:00  INFO 5422 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:09:36.021-06:00  INFO 5424 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@548f46dd
+2026-03-17T21:09:36.022-06:00  INFO 5424 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:09:36.117-06:00  WARN 5424 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:09:36.117-06:00  WARN 5424 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:09:36.125-06:00  INFO 5424 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:09:36.418-06:00  WARN 5424 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:36.418-06:00  WARN 5424 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:36.959-06:00  INFO 5424 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:09:36.960-06:00  INFO 5424 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:37.172-06:00  INFO 5424 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:09:38.988-06:00  INFO 5672 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 5672 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:09:38.990-06:00  INFO 5672 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:09:39.018-06:00  INFO 5672 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-17T21:09:39.018-06:00  INFO 5672 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-17T21:09:39.433-06:00  WARN 5424 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:09:39.566-06:00 DEBUG 5424 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:09:39.583-06:00  INFO 5672 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:09:39.609-06:00  INFO 5674 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Starting WebAppAsistenciaApplicationTests using Java 21.0.5 with PID 5674 (started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:09:39.610-06:00  INFO 5674 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:09:39.624-06:00  WARN 5424 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 8838833e-928d-4e87-a357-6e63058f4078
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:09:39.632-06:00  INFO 5424 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:09:39.708-06:00  INFO 5672 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 119 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:09:39.766-06:00 DEBUG 5424 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:09:39.796-06:00 DEBUG 5424 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:09:39.884-06:00  INFO 5424 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:09:39.913-06:00  INFO 5424 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-17T21:09:39.928-06:00  INFO 5424 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:09:39.929-06:00  INFO 5424 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@402d3ab0]]
+2026-03-17T21:09:39.929-06:00  INFO 5424 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:09:39.939-06:00  INFO 5424 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-17T21:09:39.945-06:00  INFO 5424 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 6.359 seconds (process running for 6.592)
+2026-03-17T21:09:40.139-06:00  INFO 5674 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:09:40.213-06:00  INFO 5672 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-17T21:09:40.218-06:00  INFO 5674 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 74 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:09:40.222-06:00  INFO 5672 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-17T21:09:40.222-06:00  INFO 5672 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-03-17T21:09:40.246-06:00  INFO 5672 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-17T21:09:40.247-06:00  INFO 5672 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1228 ms
+2026-03-17T21:09:40.347-06:00  INFO 5672 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:09:40.368-06:00  INFO 5672 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:09:40.382-06:00  INFO 5672 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:09:40.515-06:00  INFO 5672 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:09:40.528-06:00  INFO 5672 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:09:40.565-06:00  INFO 5674 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:09:40.586-06:00  INFO 5674 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:09:40.601-06:00  INFO 5674 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:09:40.714-06:00  INFO 5674 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:09:40.727-06:00  INFO 5674 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:09:41.834-06:00  INFO 5674 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@33399052
+2026-03-17T21:09:41.835-06:00  INFO 5674 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:09:41.909-06:00  INFO 5672 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6864d563
+2026-03-17T21:09:41.910-06:00  INFO 5672 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:09:41.947-06:00  WARN 5674 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:09:41.947-06:00  WARN 5674 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:09:41.956-06:00  INFO 5674 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:09:42.010-06:00  WARN 5672 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:09:42.011-06:00  WARN 5672 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:09:42.019-06:00  INFO 5672 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:09:42.232-06:00  WARN 5674 --- [main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:42.232-06:00  WARN 5674 --- [main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:42.285-06:00  WARN 5672 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:42.285-06:00  WARN 5672 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:42.777-06:00  INFO 5674 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:09:42.778-06:00  INFO 5674 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:42.812-06:00  INFO 5672 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:09:42.813-06:00  INFO 5672 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:42.902-06:00  INFO 5674 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:09:42.930-06:00  INFO 5672 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:09:44.869-06:00  WARN 5672 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:09:44.911-06:00  WARN 5674 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:09:44.981-06:00 DEBUG 5672 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:09:45.013-06:00  WARN 5672 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 33f2b420-c766-420a-bbfb-c267875825b1
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:09:45.016-06:00  INFO 5672 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:09:45.024-06:00 DEBUG 5674 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:09:45.073-06:00  WARN 5674 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 105addc4-cab7-4f83-8d31-79458c09f360
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:09:45.078-06:00  INFO 5674 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:09:45.134-06:00 DEBUG 5672 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:09:45.161-06:00 DEBUG 5672 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:09:45.237-06:00 DEBUG 5674 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:09:45.242-06:00  INFO 5672 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:09:45.263-06:00 DEBUG 5674 --- [main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:09:45.264-06:00  WARN 5672 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2026-03-17T21:09:45.278-06:00  INFO 5672 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:09:45.279-06:00  INFO 5672 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@3f1461f1]]
+2026-03-17T21:09:45.279-06:00  INFO 5672 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:09:45.282-06:00  INFO 5672 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:09:45.282-06:00  INFO 5672 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@3f1461f1]]
+2026-03-17T21:09:45.282-06:00  INFO 5672 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:09:45.283-06:00  WARN 5672 --- [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-03-17T21:09:45.290-06:00  INFO 5672 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:45.292-06:00  INFO 5672 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:09:45.342-06:00  INFO 5674 --- [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:09:45.364-06:00  INFO 5674 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:09:45.364-06:00  INFO 5674 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1c64febb]]
+2026-03-17T21:09:45.365-06:00  INFO 5674 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:09:45.370-06:00  INFO 5674 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Started WebAppAsistenciaApplicationTests in 5.973 seconds (process running for 6.579)
+2026-03-17T21:09:45.689-06:00  INFO 5674 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:09:45.689-06:00  INFO 5674 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1c64febb]]
+2026-03-17T21:09:45.689-06:00  INFO 5674 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:09:45.697-06:00  INFO 5674 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:45.698-06:00  INFO 5674 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:09:45.916-06:00  INFO 5672 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:09:45.924-06:00  INFO 5672 --- [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-03-17T21:09:45.933-06:00 ERROR 5672 --- [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2026-03-17T21:09:46.167-06:00  INFO 5674 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:09:48.866-06:00  INFO 5927 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 5927 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:09:48.867-06:00  INFO 5927 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:09:48.888-06:00  INFO 5927 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-17T21:09:48.888-06:00  INFO 5927 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-17T21:09:49.339-06:00  INFO 5929 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Starting WebAppAsistenciaApplicationTests using Java 21.0.5 with PID 5929 (started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:09:49.340-06:00  INFO 5929 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:09:49.364-06:00  INFO 5927 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:09:49.464-06:00  INFO 5927 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 95 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:09:49.815-06:00  INFO 5929 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:09:49.899-06:00  INFO 5929 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 79 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:09:49.957-06:00  INFO 5927 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-17T21:09:49.966-06:00  INFO 5927 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-17T21:09:49.966-06:00  INFO 5927 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-03-17T21:09:49.992-06:00  INFO 5927 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-17T21:09:49.993-06:00  INFO 5927 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1103 ms
+2026-03-17T21:09:50.085-06:00  INFO 5927 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:09:50.108-06:00  INFO 5927 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:09:50.124-06:00  INFO 5927 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:09:50.263-06:00  INFO 5927 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:09:50.274-06:00  INFO 5929 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:09:50.276-06:00  INFO 5927 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:09:50.297-06:00  INFO 5929 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:09:50.311-06:00  INFO 5929 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:09:50.427-06:00  INFO 5929 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:09:50.440-06:00  INFO 5929 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:09:51.879-06:00  INFO 5927 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@405da515
+2026-03-17T21:09:51.881-06:00  INFO 5927 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:09:51.906-06:00  INFO 5929 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@13f2d42c
+2026-03-17T21:09:51.908-06:00  INFO 5929 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:09:51.982-06:00  WARN 5927 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:09:51.983-06:00  WARN 5927 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:09:51.992-06:00  INFO 5927 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:09:52.013-06:00  WARN 5929 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:09:52.013-06:00  WARN 5929 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:09:52.021-06:00  INFO 5929 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:09:52.261-06:00  WARN 5927 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:52.262-06:00  WARN 5927 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:52.305-06:00  WARN 5929 --- [main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:52.306-06:00  WARN 5929 --- [main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:09:52.769-06:00  INFO 5927 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:09:52.770-06:00  INFO 5927 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:52.838-06:00  INFO 5929 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:09:52.840-06:00  INFO 5929 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:52.913-06:00  INFO 5927 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:09:52.978-06:00  INFO 5929 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:09:54.947-06:00  WARN 5927 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:09:55.011-06:00  WARN 5929 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:09:55.054-06:00 DEBUG 5927 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:09:55.087-06:00  WARN 5927 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 0af9a3de-f97a-42f4-b20c-f95c5371135f
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:09:55.090-06:00  INFO 5927 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:09:55.121-06:00 DEBUG 5929 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:09:55.170-06:00  WARN 5929 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: e993f54c-0f9e-45f2-8b8a-0972f055758d
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:09:55.176-06:00  INFO 5929 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:09:55.206-06:00 DEBUG 5927 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:09:55.233-06:00 DEBUG 5927 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:09:55.311-06:00  INFO 5927 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:09:55.328-06:00 DEBUG 5929 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:09:55.332-06:00  WARN 5927 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2026-03-17T21:09:55.345-06:00  INFO 5927 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:09:55.346-06:00  INFO 5927 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@747979b]]
+2026-03-17T21:09:55.346-06:00  INFO 5927 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:09:55.350-06:00  INFO 5927 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:09:55.350-06:00  INFO 5927 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@747979b]]
+2026-03-17T21:09:55.350-06:00  INFO 5927 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:09:55.350-06:00  WARN 5927 --- [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-03-17T21:09:55.353-06:00 DEBUG 5929 --- [main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:09:55.357-06:00  INFO 5927 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:55.358-06:00  INFO 5927 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:09:55.429-06:00  INFO 5929 --- [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:09:55.449-06:00  INFO 5929 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:09:55.449-06:00  INFO 5929 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@f5ff7ab]]
+2026-03-17T21:09:55.450-06:00  INFO 5929 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:09:55.455-06:00  INFO 5929 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Started WebAppAsistenciaApplicationTests in 6.282 seconds (process running for 6.796)
+2026-03-17T21:09:55.777-06:00  INFO 5929 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:09:55.777-06:00  INFO 5929 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@f5ff7ab]]
+2026-03-17T21:09:55.777-06:00  INFO 5929 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:09:55.785-06:00  INFO 5929 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:55.787-06:00  INFO 5929 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:09:55.932-06:00  INFO 5927 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:09:55.940-06:00  INFO 5927 --- [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-03-17T21:09:55.948-06:00 ERROR 5927 --- [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2026-03-17T21:09:56.186-06:00  INFO 5424 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-17T21:09:56.191-06:00  INFO 5424 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-03-17T21:09:56.193-06:00  INFO 5424 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:09:56.193-06:00  INFO 5424 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@402d3ab0]]
+2026-03-17T21:09:56.194-06:00  INFO 5424 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:09:56.202-06:00  INFO 5424 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:09:56.203-06:00  INFO 5424 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:09:56.282-06:00  INFO 5424 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:09:56.354-06:00  INFO 5929 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:09:58.899-06:00  INFO 6058 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 6058 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:09:58.900-06:00  INFO 6058 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:09:58.921-06:00  INFO 6058 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-17T21:09:58.921-06:00  INFO 6058 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-17T21:09:59.356-06:00  INFO 6058 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:09:59.434-06:00  INFO 6058 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 74 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:09:59.862-06:00  INFO 6058 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-17T21:09:59.870-06:00  INFO 6058 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-17T21:09:59.870-06:00  INFO 6058 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-03-17T21:09:59.894-06:00  INFO 6058 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-17T21:09:59.894-06:00  INFO 6058 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 973 ms
+2026-03-17T21:09:59.984-06:00  INFO 6058 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:10:00.004-06:00  INFO 6058 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:10:00.019-06:00  INFO 6058 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:10:00.144-06:00  INFO 6058 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:10:00.159-06:00  INFO 6058 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:10:01.435-06:00  INFO 6058 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@ac31956
+2026-03-17T21:10:01.437-06:00  INFO 6058 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:10:01.580-06:00  WARN 6058 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:10:01.580-06:00  WARN 6058 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:10:01.589-06:00  INFO 6058 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:10:01.849-06:00  WARN 6058 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:10:01.850-06:00  WARN 6058 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:10:02.325-06:00  INFO 6058 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:10:02.327-06:00  INFO 6058 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:10:02.466-06:00  INFO 6058 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:10:04.239-06:00  WARN 6058 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:10:04.348-06:00 DEBUG 6058 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:10:04.378-06:00  WARN 6058 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 2685d4be-bc0d-45af-8b0f-6de643577e73
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:10:04.382-06:00  INFO 6058 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:10:04.486-06:00 DEBUG 6058 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:10:04.510-06:00 DEBUG 6058 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:10:04.581-06:00  INFO 6058 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:10:04.598-06:00  INFO 6058 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-17T21:10:04.609-06:00  INFO 6058 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:10:04.609-06:00  INFO 6058 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1aecfd18]]
+2026-03-17T21:10:04.610-06:00  INFO 6058 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:10:04.616-06:00  INFO 6058 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-17T21:10:04.622-06:00  INFO 6058 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 5.932 seconds (process running for 6.167)
+2026-03-17T21:10:13.266-06:00  INFO 6058 --- [http-nio-0.0.0.0-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-17T21:10:13.266-06:00  INFO 6058 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-17T21:10:13.268-06:00  INFO 6058 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-03-17T21:10:13.282-06:00 DEBUG 6058 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.AdminController#mostrarDashboard(HttpSession, Model)
+2026-03-17T21:10:16.913-06:00 DEBUG 6058 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#mostrarLogin(Model, HttpSession, String)
+2026-03-17T21:10:27.219-06:00  INFO 6058 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-17T21:10:27.221-06:00  INFO 6058 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-03-17T21:10:27.222-06:00  INFO 6058 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:10:27.223-06:00  INFO 6058 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1aecfd18]]
+2026-03-17T21:10:27.223-06:00  INFO 6058 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:10:27.231-06:00  INFO 6058 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:10:27.233-06:00  INFO 6058 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:10:27.335-06:00  INFO 6058 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:10:39.224-06:00  INFO 6198 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Starting WebAppAsistenciaApplicationTests using Java 21.0.5 with PID 6198 (started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:10:39.225-06:00  INFO 6198 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:10:39.614-06:00  INFO 6198 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:10:39.688-06:00  INFO 6198 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 69 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:10:40.005-06:00  INFO 6198 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:10:40.028-06:00  INFO 6198 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:10:40.042-06:00  INFO 6198 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:10:40.156-06:00  INFO 6198 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:10:40.169-06:00  INFO 6198 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:10:41.233-06:00  INFO 6198 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@13f2d42c
+2026-03-17T21:10:41.236-06:00  INFO 6198 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:10:41.338-06:00  WARN 6198 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:10:41.338-06:00  WARN 6198 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:10:41.347-06:00  INFO 6198 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:10:41.581-06:00  WARN 6198 --- [main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:10:41.581-06:00  WARN 6198 --- [main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:10:42.056-06:00  INFO 6198 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:10:42.057-06:00  INFO 6198 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:10:42.162-06:00  INFO 6198 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:10:43.861-06:00  WARN 6198 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:10:43.949-06:00 DEBUG 6198 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:10:43.991-06:00  WARN 6198 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: a6fac970-8368-44c5-9ed8-ee7de842bbb5
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:10:43.995-06:00  INFO 6198 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:10:44.105-06:00 DEBUG 6198 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:10:44.124-06:00 DEBUG 6198 --- [main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:10:44.190-06:00  INFO 6198 --- [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:10:44.206-06:00  INFO 6198 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:10:44.206-06:00  INFO 6198 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@4c3909cc]]
+2026-03-17T21:10:44.207-06:00  INFO 6198 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:10:44.211-06:00  INFO 6198 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Started WebAppAsistenciaApplicationTests in 5.14 seconds (process running for 5.582)
+2026-03-17T21:10:44.514-06:00  INFO 6198 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-03-17T21:10:44.515-06:00  INFO 6198 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@4c3909cc]]
+2026-03-17T21:10:44.515-06:00  INFO 6198 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-03-17T21:10:44.523-06:00  INFO 6198 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:10:44.524-06:00  INFO 6198 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-17T21:10:44.699-06:00  INFO 6198 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-17T21:10:47.176-06:00  INFO 6330 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 6330 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
+2026-03-17T21:10:47.177-06:00  INFO 6330 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-03-17T21:10:47.199-06:00  INFO 6330 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-17T21:10:47.199-06:00  INFO 6330 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-17T21:10:47.624-06:00  INFO 6330 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-17T21:10:47.702-06:00  INFO 6330 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 74 ms. Found 60 JPA repository interfaces.
+2026-03-17T21:10:48.132-06:00  INFO 6330 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-17T21:10:48.141-06:00  INFO 6330 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-17T21:10:48.141-06:00  INFO 6330 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
+2026-03-17T21:10:48.164-06:00  INFO 6330 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-17T21:10:48.164-06:00  INFO 6330 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 965 ms
+2026-03-17T21:10:48.259-06:00  INFO 6330 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-17T21:10:48.278-06:00  INFO 6330 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
+2026-03-17T21:10:48.293-06:00  INFO 6330 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-17T21:10:48.412-06:00  INFO 6330 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-17T21:10:48.427-06:00  INFO 6330 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-17T21:10:49.399-06:00  INFO 6330 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@29a80a5e
+2026-03-17T21:10:49.403-06:00  INFO 6330 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-17T21:10:49.508-06:00  WARN 6330 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-17T21:10:49.509-06:00  WARN 6330 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-17T21:10:49.518-06:00  INFO 6330 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 8.0
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-17T21:10:49.759-06:00  WARN 6330 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:10:49.760-06:00  WARN 6330 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
+2026-03-17T21:10:50.229-06:00  INFO 6330 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-17T21:10:50.230-06:00  INFO 6330 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-17T21:10:50.334-06:00  INFO 6330 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-17T21:10:52.233-06:00  WARN 6330 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-17T21:10:52.325-06:00 DEBUG 6330 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 232 mappings in 'requestMappingHandlerMapping'
+2026-03-17T21:10:52.353-06:00  WARN 6330 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: f3b13054-c816-4f30-8253-f4c179b56460
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-17T21:10:52.357-06:00  INFO 6330 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-17T21:10:52.445-06:00 DEBUG 6330 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026-03-17T21:10:52.469-06:00 DEBUG 6330 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
+2026-03-17T21:10:52.542-06:00  INFO 6330 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-03-17T21:10:52.561-06:00  INFO 6330 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-17T21:10:52.573-06:00  INFO 6330 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-03-17T21:10:52.573-06:00  INFO 6330 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@3cdd75bb]]
+2026-03-17T21:10:52.574-06:00  INFO 6330 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-03-17T21:10:52.581-06:00  INFO 6330 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-17T21:10:52.586-06:00  INFO 6330 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 5.617 seconds (process running for 5.841)
+2026-03-17T21:11:01.189-06:00  INFO 6330 --- [http-nio-0.0.0.0-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-17T21:11:01.189-06:00  INFO 6330 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-17T21:11:01.191-06:00  INFO 6330 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-03-17T21:11:01.208-06:00 DEBUG 6330 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#mostrarLogin(Model, HttpSession, String)
+2026-03-17T21:11:52.571-06:00  INFO 6330 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
