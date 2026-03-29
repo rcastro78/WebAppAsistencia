@@ -1,7 +1,10 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
+import com.asistencia_el_salvador.web_app_asistencia.model.EquipoVentas;
 import com.asistencia_el_salvador.web_app_asistencia.model.Usuario;
 import com.asistencia_el_salvador.web_app_asistencia.model.Vendedor;
+import com.asistencia_el_salvador.web_app_asistencia.model.VwEquipoVentas;
 import com.asistencia_el_salvador.web_app_asistencia.service.EmailService;
+import com.asistencia_el_salvador.web_app_asistencia.service.EquipoVentasService;
 import com.asistencia_el_salvador.web_app_asistencia.service.UsuarioService;
 import com.asistencia_el_salvador.web_app_asistencia.service.VendedorService;
 import jakarta.servlet.http.HttpSession;
@@ -27,6 +30,8 @@ public class VendedorController {
     private UsuarioService usuarioService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private EquipoVentasService equipoVentasService;
 
     public VendedorController(VendedorService vendedorService) {
         this.vendedorService = vendedorService;
@@ -141,10 +146,10 @@ public class VendedorController {
 
                 String passCifrado = usuarioService.encodePassword(vendedor.getEmail().split("@")[0]);
                 Usuario usuario = new Usuario();
-                usuario.setActivo(false);
+                usuario.setActivo(true);
                 usuario.setDui(vendedor.getDui());
                 usuario.setEmail(vendedor.getEmail());
-                usuario.setRol(4);
+                usuario.setRol(2);
                 usuario.setNombre(vendedor.getNombre());
                 usuario.setApellido(vendedor.getApellido());
                 usuario.setContrasena(passCifrado);
@@ -265,4 +270,83 @@ public class VendedorController {
                     .body(Map.of("error", "Error al obtener vendedores por zona: " + e.getMessage()));
         }
     }
+
+
+    //Equipos
+    @GetMapping("/equipos")
+    public String getEquipos(@RequestParam(defaultValue = "0") int page,
+                             Model model, HttpSession session) {
+
+        Page<VwEquipoVentas> equipo = vendedorService.listarVwEquipoVentas(1, PageRequest.of(page, 10));
+
+        model.addAttribute("equipos", equipo.getContent());
+        model.addAttribute("totalPaginas", equipo.getTotalPages());
+        model.addAttribute("paginaActual", equipo.getNumber());
+
+        return "equipos_venta";
+    }
+
+
+    // ── MOSTRAR FORMULARIO CREAR ──────────────────────────────────────────────
+    @GetMapping("/equipos/equipo")
+    public String nuevoEquipo(Model model) {
+        model.addAttribute("equipo", new EquipoVentas());
+        model.addAttribute("supervisores", usuarioService.getSupervisoresActivos());
+        model.addAttribute("vendedores", usuarioService.getVendedoresActivos());
+        model.addAttribute("titulo", "Nuevo Equipo de Ventas");
+        model.addAttribute("modo", "crear");
+        return "equipo_ventas_form";
+    }
+
+    // ── MOSTRAR FORMULARIO EDITAR ─────────────────────────────────────────────
+    @GetMapping("/equipos/equipo/{id}")
+    public String editarEquipo(@PathVariable Integer id, Model model, RedirectAttributes ra) {
+        EquipoVentas equipo = equipoVentasService.buscarEquipoPorId(id);
+
+        if (equipo == null) {
+            ra.addFlashAttribute("error", "No se encontró el equipo con ID: " + id);
+            return "redirect:/admin/vendedores/equipos";
+        }
+
+        model.addAttribute("equipo", equipo);
+        model.addAttribute("supervisores", usuarioService.getSupervisoresActivos());
+        model.addAttribute("vendedores", usuarioService.getVendedoresActivos());
+        model.addAttribute("titulo", "Editar Equipo de Ventas");
+        model.addAttribute("modo", "editar");
+        return "equipo_ventas_form";
+    }
+
+    // ── GUARDAR (crear o actualizar) ──────────────────────────────────────────
+    @PostMapping("/equipos/guardar")
+    public String guardarEquipo(@ModelAttribute("equipo") EquipoVentas equipo,
+                                @RequestParam String modo,
+                                RedirectAttributes ra) {
+        try {
+            if (modo.equals("crear")) {
+                equipo.setEstado(1);
+                equipoVentasService.guardarEquipo(equipo);
+                ra.addFlashAttribute("success", "Equipo de ventas creado correctamente.");
+            } else {
+                equipoVentasService.actualizarEquipo(equipo);
+                ra.addFlashAttribute("success", "Equipo de ventas actualizado correctamente.");
+            }
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al guardar el equipo: " + e.getMessage());
+        }
+        return "redirect:/admin/vendedores/equipos";
+    }
+
+    // ── ELIMINAR ──────────────────────────────────────────────────────────────
+    @PostMapping("/equipos/eliminar/{id}")
+    public String eliminarEquipo(@PathVariable Integer id, RedirectAttributes ra) {
+        try {
+            equipoVentasService.eliminarEquipo(id);
+            ra.addFlashAttribute("success", "Equipo de ventas eliminado correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al eliminar el equipo: " + e.getMessage());
+        }
+        return "redirect:/admin/vendedores/equipos";
+    }
+
+
 }

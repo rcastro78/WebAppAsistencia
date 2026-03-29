@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cotizador de Planes - Asistencia El Salvador</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+        --brand: #1a3a5c;
+        --brand-mid: #1e5799;
+        --accent: #e85d04;
+        --accent-light: #fff3eb;
+        --success: #0b7a4e;
+        --success-bg: #d1fae5;
+        --surface: #f4f7fb;
+        --card: #ffffff;
+        --text: #1e2d40;
+        --text-mid: #4a5568;
+        --text-soft: #8896a7;
+        --border: #e2e8f0;
+        --shadow: 0 2px 12px rgba(26,58,92,0.08);
+        --shadow-md: 0 6px 24px rgba(26,58,92,0.14);
+        --radius: 14px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: var(--surface);
+        color: var(--text);
+        min-height: 100vh;
+    }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+        width: 260px; min-height: 100vh; background: var(--brand);
+        display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100;
+    }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-logo img { width: 180px; }
+    .sidebar-profile { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .profile-avatar {
+        width: 46px; height: 46px; background: linear-gradient(135deg, var(--accent), #ff8c42);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 1rem; color: white; margin-bottom: 8px;
+    }
+    .profile-name { font-weight: 700; color: white; font-size: 0.9rem; }
+    .profile-role { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-top: 2px; }
+    .sidebar-nav { padding: 12px 10px; flex: 1; }
+    .nav-section-label {
+        font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px;
+        color: rgba(255,255,255,0.3); padding: 12px 10px 6px; font-weight: 600;
+    }
+    .nav-item {
+        display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+        border-radius: 10px; color: rgba(255,255,255,0.65); text-decoration: none;
+        font-size: 0.88rem; font-weight: 500; transition: all 0.2s; margin-bottom: 2px;
+    }
+    .nav-item i { width: 18px; text-align: center; font-size: 0.95rem; }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+
+    .main { margin-left: 260px; flex: 1; padding: 28px 32px; }
+
+    .page-header {
+        display: flex; justify-content: space-between; align-items: flex-start;
+        margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    }
+    .page-header-left h1 { font-size: 1.55rem; font-weight: 700; color: var(--brand); margin-bottom: 4px; }
+    .page-header-left p { color: var(--text-soft); font-size: 0.88rem; }
+
+    .btn {
+        padding: 10px 20px; border-radius: 10px; border: none; font-family: inherit;
+        font-weight: 600; font-size: 0.88rem; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 8px; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-ghost { background: white; color: var(--text); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--brand-mid); color: var(--brand); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #c94d02; transform: translateY(-1px); color: white; }
+    .btn-brand { background: var(--brand); color: white; }
+    .btn-brand:hover { background: var(--brand-mid); color: white; }
+
+    .cotizador-grid { display: grid; grid-template-columns: 1fr 400px; gap: 24px; align-items: start; }
+
+    .card {
+        background: var(--card); border-radius: var(--radius); padding: 28px;
+        box-shadow: var(--shadow); border: 1px solid var(--border);
+    }
+
+    /* ── CARD BLOQUEADA ── */
+    .card-bloqueada {
+        opacity: 0.5;
+        pointer-events: none;
+        transition: opacity 0.35s, transform 0.35s;
+    }
+    .card-desbloqueada {
+        opacity: 1;
+        pointer-events: all;
+        transition: opacity 0.35s, transform 0.35s;
+    }
+
+    .card-title {
+        font-size: 1.05rem; font-weight: 700; color: var(--brand); margin-bottom: 22px;
+        display: flex; align-items: center; gap: 9px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+    }
+    .card-title i { color: var(--accent); }
+
+    .aviso-bloqueo {
+        margin-left: auto;
+        font-size: 0.74rem;
+        font-weight: 500;
+        color: var(--text-soft);
+        background: var(--surface);
+        padding: 4px 10px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* ── PLANES SIN RESULTADOS ── */
+    .planes-vacio {
+        text-align: center;
+        padding: 30px 20px;
+        color: var(--text-soft);
+        display: none;
+    }
+    .planes-vacio i { font-size: 2rem; margin-bottom: 10px; opacity: 0.3; display: block; }
+    .planes-vacio p { font-size: 0.85rem; }
+
+    /* ── SELECTOR DE PAÍS ── */
+    .pais-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+    .pais-btn {
+        padding: 12px 8px; border: 2px solid var(--border); border-radius: 10px; background: white;
+        cursor: pointer; text-align: center; transition: all 0.2s;
+        display: flex; flex-direction: column; align-items: center; gap: 5px;
+    }
+    .pais-btn:hover { border-color: var(--brand-mid); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .pais-btn.selected { border-color: var(--brand-mid); background: #e8f0fb; }
+    .pais-btn .flag { font-size: 1.5rem; }
+    .pais-btn .pais-name { font-size: 0.75rem; font-weight: 600; color: var(--text-mid); }
+    .pais-btn .moneda-tag {
+        font-size: 0.68rem; background: var(--surface); color: var(--text-soft);
+        padding: 2px 6px; border-radius: 8px; font-weight: 600;
+    }
+    .pais-btn.selected .moneda-tag { background: var(--brand-mid); color: white; }
+
+    /* ── SELECTOR PLAN ── */
+    .planes-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+
+    .plan-option {
+        border: 2px solid var(--border); border-radius: 12px; padding: 16px 18px;
+        cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 14px;
+    }
+    .plan-option:hover { border-color: var(--brand-mid); }
+    .plan-option.selected { border-color: var(--brand-mid); background: #e8f0fb; }
+    .plan-option.oculto { display: none; }
+
+    .plan-radio {
+        width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;
+    }
+    .plan-option.selected .plan-radio { border-color: var(--brand-mid); background: var(--brand-mid); }
+    .plan-option.selected .plan-radio::after {
+        content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; display: block;
+    }
+    .plan-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .plan-info { flex: 1; }
+    .plan-nombre { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 2px; }
+    .plan-desc { font-size: 0.78rem; color: var(--text-soft); }
+    .plan-precio { font-weight: 700; font-size: 1.05rem; color: var(--brand); white-space: nowrap; }
+    .plan-precio .por-mes { font-size: 0.72rem; font-weight: 500; color: var(--text-soft); display: block; text-align: right; }
+
+    /* ── VIGENCIA ── */
+    .vigencia-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    .vig-btn {
+        border: 2px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer;
+        text-align: center; transition: all 0.2s; background: white; position: relative;
+    }
+    .vig-btn:hover { border-color: var(--brand-mid); }
+    .vig-btn.selected { border-color: var(--accent); background: var(--accent-light); }
+    .vig-btn .vig-title { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 3px; }
+    .vig-btn .vig-desc { font-size: 0.75rem; color: var(--text-soft); }
+    .vig-badge {
+        position: absolute; top: -10px; right: 10px; background: var(--accent); color: white;
+        font-size: 0.65rem; font-weight: 700; padding: 3px 8px; border-radius: 10px; display: none;
+    }
+    .vig-btn.selected .vig-badge { display: block; }
+
+    /* ── DATOS PROSPECTO ── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.78rem; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.4px; }
+    .form-group input, .form-group select {
+        padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 9px;
+        font-family: inherit; font-size: 0.92rem; color: var(--text); background: #fafbfc;
+        transition: all 0.2s; appearance: none;
+    }
+    .form-group input:focus, .form-group select:focus {
+        outline: none; border-color: var(--brand-mid); background: white;
+        box-shadow: 0 0 0 3px rgba(30,87,153,0.1);
+    }
+    .form-group input::placeholder { color: #bcc5d0; }
+
+    /* ── PANEL RESULTADO ── */
+    .resultado-panel { position: sticky; top: 20px; }
+
+    .resultado-header {
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-mid) 100%);
+        border-radius: var(--radius) var(--radius) 0 0;
+        padding: 24px; color: white; margin: -28px -28px 24px;
+    }
+    .resultado-header h3 { font-size: 0.85rem; font-weight: 600; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .monto-grande { font-size: 2.4rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+    .monto-sub { font-size: 0.82rem; opacity: 0.65; }
+
+    .resumen-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 0.87rem;
+    }
+    .resumen-item:last-child { border-bottom: none; }
+    .resumen-label { color: var(--text-soft); }
+    .resumen-valor { font-weight: 600; color: var(--text); }
+    .resumen-valor.highlight { color: var(--brand-mid); }
+    .resumen-valor.accent { color: var(--accent); }
+
+    .ahorro-badge {
+        background: var(--success-bg); border: 1px solid #a7f3d0; border-radius: 10px;
+        padding: 12px 14px; display: flex; align-items: center; gap: 10px; margin: 16px 0;
+    }
+    .ahorro-badge i { color: var(--success); font-size: 1rem; }
+    .ahorro-texto { font-size: 0.82rem; color: var(--success); font-weight: 600; }
+
+    .beneficios-lista { margin: 16px 0; }
+    .beneficio-item { display: flex; align-items: center; gap: 9px; padding: 7px 0; font-size: 0.84rem; color: var(--text-mid); }
+    .beneficio-item i { color: var(--success); font-size: 0.85rem; width: 16px; }
+
+    .acciones-cotizacion { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+    .empty-resultado { text-align: center; padding: 40px 20px; color: var(--text-soft); }
+    .empty-resultado i { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.3; display: block; }
+    .empty-resultado p { font-size: 0.87rem; }
+
+    .section-label { font-size: 0.78rem; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; }
+
+    @media (max-width: 1100px) { .cotizador-grid { grid-template-columns: 1fr; } .resultado-panel { position: static; } }
+    @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; padding: 16px; } .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img th:src="@{/images/asistencia.jpeg}" src="/images/asistencia.jpeg" alt="Asistencia El Salvador">
+    </div>
+    <div class="sidebar-profile">
+      <div class="profile-avatar"
+           th:text="${session.nombre != null ? #strings.substring(session.nombre,0,1) + #strings.substring(session.apellido,0,1) : 'EV'}">EV</div>
+      <div class="profile-name" th:text="${session.nombre + ' ' + session.apellido}">Ejecutivo Ventas</div>
+      <div class="profile-role" th:text="${session.email}">ejecutivo@asistencia.sv</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <a th:href="@{/ventas/dashboard}" href="#" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a th:href="@{/afiliado/vendedor}" href="#" class="nav-item"><i class="fas fa-users"></i> Mis Afiliados</a>
+      <a th:href="@{/afiliado/vendedor/nuevo}" href="#" class="nav-item"><i class="fas fa-user-plus"></i> Registrar Afiliado</a>
+      <div class="nav-section-label">Gestión</div>
+      <a href="#" class="nav-item active"><i class="fas fa-calculator"></i> Cotizador</a>
+      <a href="#" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> Pagos</a>
+      <a href="#" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Mis Comisiones</a>
+      <div class="nav-section-label">Cuenta</div>
+      <a th:href="@{/usuarios/login}" href="#" class="nav-item"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+    </nav>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1><i class="fas fa-calculator" style="color:var(--accent); margin-right:8px;"></i>Cotizador de Planes</h1>
+        <p>Genera una cotización al instante para presentarle a tu prospecto.</p>
+      </div>
+      <a th:href="@{/afiliado/vendedor}" href="#" class="btn btn-ghost">
+        <i class="fas fa-arrow-left"></i> Volver
+      </a>
+    </div>
+
+    <div class="cotizador-grid">
+
+      <!-- ── FORMULARIO ── -->
+      <div style="display:flex; flex-direction:column; gap:20px;">
+
+        <!-- Paso 1: País -->
+        <div class="card">
+          <div class="card-title">
+            <i class="fas fa-globe-americas"></i> Paso 1 — Selecciona el país del prospecto
+          </div>
+          <div class="pais-grid" id="paisGrid">
+
+            <!-- Thymeleaf -->
+            <div th:if="${paises != null}" th:each="p : ${paises}"
+                 class="pais-btn"
+                 th:data-pais="${p.idPais}"
+                 th:data-moneda="${p.moneda}"
+                 th:data-nombre="${p.nombrePais}"
+                 th:data-simbolo="${p.moneda == 'HNL' ? 'L' : p.moneda == 'GTQ' ? 'Q' : p.moneda == 'CRC' ? '₡' : '$'}"
+                 onclick="seleccionarPais(this)">
+              <span class="flag">🌎</span>
+              <span class="pais-name" th:text="${p.nombrePais}">País</span>
+              <span class="moneda-tag" th:text="${p.moneda}">USD</span>
+            </div>
+
+            <!-- Fallback estático -->
+            <div th:if="${paises == null}">
+              <div class="pais-btn" data-pais="1" data-moneda="USD" data-simbolo="$" data-nombre="El Salvador" onclick="seleccionarPais(this)">
+                <span class="flag">🇸🇻</span><span class="pais-name">El Salvador</span><span class="moneda-tag">USD</span>
+              </div>
+              <div class="pais-btn" data-pais="2" data-moneda="HNL" data-simbolo="L" data-nombre="Honduras" onclick="seleccionarPais(this)">
+                <span class="flag">🇭🇳</span><span class="pais-name">Honduras</span><span class="moneda-tag">HNL</span>
+              </div>
+              <div class="pais-btn" data-pais="3" data-moneda="GTQ" data-simbolo="Q" data-nombre="Guatemala" onclick="seleccionarPais(this)">
+                <span class="flag">🇬🇹</span><span class="pais-name">Guatemala</span><span class="moneda-tag">GTQ</span>
+              </div>
+              <div class="pais-btn" data-pais="4" data-moneda="NIO" data-simbolo="C$" data-nombre="Nicaragua" onclick="seleccionarPais(this)">
+                <span class="flag">🇳🇮</span><span class="pais-name">Nicaragua</span><span class="moneda-tag">NIO</span>
+              </div>
+              <div class="pais-btn" data-pais="5" data-moneda="CRC" data-simbolo="₡" data-nombre="Costa Rica" onclick="seleccionarPais(this)">
+                <span class="flag">🇨🇷</span><span class="pais-name">Costa Rica</span><span class="moneda-tag">CRC</span>
+              </div>
+              <div class="pais-btn" data-pais="6" data-moneda="MXN" data-simbolo="$" data-nombre="México" onclick="seleccionarPais(this)">
+                <span class="flag">🇲🇽</span><span class="pais-name">México</span><span class="moneda-tag">MXN</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Paso 2: Plan — BLOQUEADO hasta seleccionar país -->
+        <div class="card card-bloqueada" id="cardPlanes">
+          <div class="card-title">
+            <i class="fas fa-shield-alt"></i> Paso 2 — Elige el plan
+            <span class="aviso-bloqueo" id="avisoPlanes">
+              <i class="fas fa-lock"></i> Selecciona un país primero
+            </span>
+          </div>
+
+          <div class="planes-list" id="planesList">
+
+            <!-- Thymeleaf: cada plan lleva data-pais para filtrar -->
+            <div th:if="${planes != null}"
+                 th:each="plan : ${planes}"
+                 class="plan-option oculto"
+                 th:data-id="${plan.idPlan}"
+                 th:data-mensual="${plan.costoPlan}"
+                 th:data-anual="${plan.costoPlanAnual}"
+                 th:data-nombre="${plan.nombrePlan}"
+                 th:data-pais="${plan.idPais}"
+                 onclick="seleccionarPlan(this)">
+              <div class="plan-radio"></div>
+              <div class="plan-icon" style="background:#e8f0fb; color:#1e5799;">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="plan-info">
+                <div class="plan-nombre" th:text="${plan.nombrePlan}">Plan</div>
+                <div class="plan-desc">Cobertura completa de asistencia</div>
+              </div>
+              <div class="plan-precio">
+                <span class="precio-mensual" th:text="${plan.costoPlan}">0.00</span>
+                <span class="por-mes">/ mes</span>
+              </div>
+            </div>
+
+            <!-- Fallback estático con data-pais -->
+            <div th:if="${planes == null}">
+              <div class="plan-option oculto" data-id="1" data-mensual="15.00" data-anual="150.00" data-nombre="Plan Individual" data-pais="1" onclick="seleccionarPlan(this)">
+                <div class="plan-radio"></div>
+                <div class="plan-icon" style="background:#e8f0fb; color:#1e5799;"><i class="fas fa-user-shield"></i></div>
+                <div class="plan-info"><div class="plan-nombre">Plan Individual</div><div class="plan-desc">Cobertura personal completa</div></div>
+                <div class="plan-precio"><span class="precio-mensual">15.00</span><span class="por-mes">/ mes</span></div>
+              </div>
+              <div class="plan-option oculto" data-id="2" data-mensual="25.00" data-anual="250.00" data-nombre="Plan Familiar" data-pais="1" onclick="seleccionarPlan(this)">
+                <div class="plan-radio"></div>
+                <div class="plan-icon" style="background:#fff3eb; color:#e85d04;"><i class="fas fa-users"></i></div>
+                <div class="plan-info"><div class="plan-nombre">Plan Familiar</div><div class="plan-desc">Hasta 5 beneficiarios</div></div>
+                <div class="plan-precio"><span class="precio-mensual">25.00</span><span class="por-mes">/ mes</span></div>
+              </div>
+              <div class="plan-option oculto" data-id="3" data-mensual="35.00" data-anual="350.00" data-nombre="Plan Blue" data-pais="1" onclick="seleccionarPlan(this)">
+                <div class="plan-radio"></div>
+                <div class="plan-icon" style="background:#ede9fe; color:#5b21b6;"><i class="fas fa-star"></i></div>
+                <div class="plan-info"><div class="plan-nombre">Plan Blue</div><div class="plan-desc">Cobertura premium extendida</div></div>
+                <div class="plan-precio"><span class="precio-mensual">35.00</span><span class="por-mes">/ mes</span></div>
+              </div>
+              <div class="plan-option oculto" data-id="4" data-mensual="20.00" data-anual="200.00" data-nombre="Plan Individual HN" data-pais="2" onclick="seleccionarPlan(this)">
+                <div class="plan-radio"></div>
+                <div class="plan-icon" style="background:#e8f0fb; color:#1e5799;"><i class="fas fa-user-shield"></i></div>
+                <div class="plan-info"><div class="plan-nombre">Plan Individual HN</div><div class="plan-desc">Cobertura personal Honduras</div></div>
+                <div class="plan-precio"><span class="precio-mensual">20.00</span><span class="por-mes">/ mes</span></div>
+              </div>
+            </div>
+
+            <!-- Mensaje si no hay planes para ese país -->
+            <div class="planes-vacio" id="planesVacio">
+              <i class="fas fa-folder-open"></i>
+              <p>No hay planes disponibles para este país.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Paso 3: Vigencia — BLOQUEADO hasta seleccionar plan -->
+        <div class="card card-bloqueada" id="cardVigencia">
+          <div class="card-title">
+            <i class="fas fa-calendar-alt"></i> Paso 3 — Duración del servicio
+            <span class="aviso-bloqueo" id="avisoVigencia">
+              <i class="fas fa-lock"></i> Selecciona un plan primero
+            </span>
+          </div>
+          <div class="vigencia-grid">
+            <div class="vig-btn" id="vigMensual" onclick="seleccionarVigencia('mensual')">
+              <div class="vig-title">Mensual</div>
+              <div class="vig-desc">Pago mes a mes</div>
+            </div>
+            <div class="vig-btn" id="vigAnual" onclick="seleccionarVigencia('anual')">
+              <div class="vig-badge">¡Ahorra!</div>
+              <div class="vig-title">Anual</div>
+              <div class="vig-desc">Un solo pago al año</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 4: Datos del prospecto -->
+        <div class="card card-bloqueada" id="cardProspecto">
+          <div class="card-title">
+            <i class="fas fa-user"></i> Paso 4 — Datos del prospecto
+            <span style="font-size:0.75rem; color:var(--text-soft); font-weight:400; margin-left:auto;">(opcional)</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" id="prospectoNombre" placeholder="Juan">
+            </div>
+            <div class="form-group">
+              <label>Apellido</label>
+              <input type="text" id="prospectoApellido" placeholder="Pérez">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Correo electrónico</label>
+              <input type="email" id="prospectoEmail" placeholder="correo@ejemplo.com">
+            </div>
+            <div class="form-group">
+              <label>Teléfono</label>
+              <input type="tel" id="prospectoTel" placeholder="7000-0000">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PANEL RESULTADO ── -->
+      <div class="resultado-panel">
+        <div class="card" id="panelResultado">
+
+          <div class="empty-resultado" id="emptyState">
+            <i class="fas fa-calculator"></i>
+            <p>Selecciona un país, plan y vigencia<br>para ver la cotización.</p>
+          </div>
+
+          <div id="resultadoCotizacion" style="display:none;">
+            <div class="resultado-header">
+              <h3>Cotización Estimada</h3>
+              <div class="monto-grande">
+                <span id="simboloMoneda">$</span><span id="montoFinal">0.00</span>
+              </div>
+              <div class="monto-sub" id="subtituloMonto">por mes · USD</div>
+            </div>
+
+            <div class="section-label">Detalle de la cotización</div>
+
+            <div class="resumen-item">
+              <span class="resumen-label"><i class="fas fa-globe-americas" style="margin-right:6px;"></i>País</span>
+              <span class="resumen-valor" id="resumenPais">—</span>
+            </div>
+            <div class="resumen-item">
+              <span class="resumen-label"><i class="fas fa-shield-alt" style="margin-right:6px;"></i>Plan</span>
+              <span class="resumen-valor highlight" id="resumenPlan">—</span>
+            </div>
+            <div class="resumen-item">
+              <span class="resumen-label"><i class="fas fa-calendar" style="margin-right:6px;"></i>Vigencia</span>
+              <span class="resumen-valor" id="resumenVigencia">—</span>
+            </div>
+            <div class="resumen-item">
+              <span class="resumen-label"><i class="fas fa-coins" style="margin-right:6px;"></i>Moneda</span>
+              <span class="resumen-valor" id="resumenMoneda">—</span>
+            </div>
+            <div class="resumen-item">
+              <span class="resumen-label">Monto mensual</span>
+              <span class="resumen-valor" id="resumenMensual">—</span>
+            </div>
+            <div class="resumen-item" id="filaAnual" style="display:none;">
+              <span class="resumen-label">Pago total anual</span>
+              <span class="resumen-valor accent" id="resumenAnual">—</span>
+            </div>
+
+            <div class="ahorro-badge" id="ahorroBadge" style="display:none;">
+              <i class="fas fa-piggy-bank"></i>
+              <span class="ahorro-texto" id="ahorroTexto">Ahorra pagando anual</span>
+            </div>
+
+            <div class="beneficios-lista">
+              <div class="section-label" style="margin-top:16px;">Incluye</div>
+              <div class="beneficio-item"><i class="fas fa-check-circle"></i> Asistencia médica de emergencia</div>
+              <div class="beneficio-item"><i class="fas fa-check-circle"></i> Asistencia jurídica básica</div>
+              <div class="beneficio-item"><i class="fas fa-check-circle"></i> Asistencia en el hogar</div>
+              <div class="beneficio-item"><i class="fas fa-check-circle"></i> Asistencia vial</div>
+              <div class="beneficio-item" id="beneficioFamiliar" style="display:none;">
+                <i class="fas fa-check-circle"></i> Hasta 5 beneficiarios
+              </div>
+              <div class="beneficio-item" id="beneficioPremium" style="display:none;">
+                <i class="fas fa-check-circle"></i> Cobertura extendida premium
+              </div>
+            </div>
+
+            <div id="nombreProspecto" style="display:none; margin:16px 0; padding:12px 14px; background:var(--surface); border-radius:10px; font-size:0.85rem; color:var(--text-mid);">
+              <i class="fas fa-user" style="color:var(--brand-mid); margin-right:6px;"></i>
+              Cotización para: <strong id="nombreProspectoTexto"></strong>
+            </div>
+
+            <div class="acciones-cotizacion">
+              <button class="btn btn-primary" onclick="registrarAfiliado()" style="justify-content:center;">
+                <i class="fas fa-user-plus"></i> Registrar como Afiliado
+              </button>
+              <button class="btn btn-brand" onclick="compartirCotizacion()" style="justify-content:center;">
+                <i class="fas fa-share-alt"></i> Compartir por WhatsApp
+              </button>
+              <button class="btn btn-ghost" onclick="imprimirCotizacion()" style="justify-content:center;">
+                <i class="fas fa-print"></i> Imprimir Cotización
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script th:inline="javascript">
+  const ejecutivoDui = /*[[${session.usuario != null ? session.usuario.dui : ''}]]*/ '';
+
+  const estado = {
+      pais: null, paisNombre: '', moneda: 'USD', simbolo: '$',
+      plan: null, planNombre: '', precioMensual: 0, precioAnual: 0, vigencia: null
+  };
+
+  function desbloquear(id, avisoId) {
+      document.getElementById(id).classList.remove('card-bloqueada');
+      document.getElementById(id).classList.add('card-desbloqueada');
+      if (avisoId) document.getElementById(avisoId).style.display = 'none';
+  }
+
+  // ── PAÍS ──
+  function seleccionarPais(el) {
+      document.querySelectorAll('.pais-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+
+      estado.pais = el.dataset.pais;
+      estado.paisNombre = el.dataset.nombre || el.querySelector('.pais-name').textContent;
+      estado.moneda = el.dataset.moneda;
+      estado.simbolo = el.dataset.simbolo;
+
+      // Resetear plan seleccionado
+      estado.plan = null;
+      estado.planNombre = '';
+      estado.precioMensual = 0;
+      estado.precioAnual = 0;
+      document.querySelectorAll('.plan-option').forEach(p => p.classList.remove('selected'));
+
+      // Resetear vigencia
+      estado.vigencia = null;
+      document.getElementById('vigMensual').classList.remove('selected');
+      document.getElementById('vigAnual').classList.remove('selected');
+
+      // Filtrar planes por país
+      filtrarPlanesPorPais(estado.pais);
+
+      // Desbloquear paso 2
+      desbloquear('cardPlanes', 'avisoPlanes');
+
+      // Bloquear pasos 3 y 4 de nuevo
+      document.getElementById('cardVigencia').classList.add('card-bloqueada');
+      document.getElementById('cardVigencia').classList.remove('card-desbloqueada');
+      document.getElementById('avisoVigencia').style.display = 'flex';
+      document.getElementById('cardProspecto').classList.add('card-bloqueada');
+      document.getElementById('cardProspecto').classList.remove('card-desbloqueada');
+
+      actualizarResultado();
+  }
+
+  function filtrarPlanesPorPais(idPais) {
+      const planes = document.querySelectorAll('.plan-option');
+      let hayPlanes = false;
+
+      planes.forEach(plan => {
+          if (plan.dataset.pais === String(idPais)) {
+              plan.classList.remove('oculto');
+              hayPlanes = true;
+          } else {
+              plan.classList.add('oculto');
+          }
+      });
+
+      document.getElementById('planesVacio').style.display = hayPlanes ? 'none' : 'block';
+  }
+
+  // ── PLAN ──
+  function seleccionarPlan(el) {
+      document.querySelectorAll('.plan-option').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+
+      estado.plan = el.dataset.id;
+      estado.planNombre = el.dataset.nombre;
+      estado.precioMensual = parseFloat(el.dataset.mensual);
+      estado.precioAnual = parseFloat(el.dataset.anual);
+
+      document.getElementById('beneficioFamiliar').style.display =
+          estado.planNombre.toLowerCase().includes('familiar') ? 'flex' : 'none';
+      document.getElementById('beneficioPremium').style.display =
+          (estado.planNombre.toLowerCase().includes('blue') ||
+           estado.planNombre.toLowerCase().includes('premium')) ? 'flex' : 'none';
+
+      // Desbloquear pasos 3 y 4
+      desbloquear('cardVigencia', 'avisoVigencia');
+      desbloquear('cardProspecto', null);
+
+      actualizarResultado();
+  }
+
+  // ── VIGENCIA ──
+  function seleccionarVigencia(v) {
+      estado.vigencia = v;
+      document.getElementById('vigMensual').classList.toggle('selected', v === 'mensual');
+      document.getElementById('vigAnual').classList.toggle('selected', v === 'anual');
+      actualizarResultado();
+  }
+
+  // ── RESULTADO ──
+  function actualizarResultado() {
+      const empty = document.getElementById('emptyState');
+      const resultado = document.getElementById('resultadoCotizacion');
+
+      const nombre = document.getElementById('prospectoNombre').value;
+      const apellido = document.getElementById('prospectoApellido').value;
+      if (nombre || apellido) {
+          document.getElementById('nombreProspecto').style.display = 'block';
+          document.getElementById('nombreProspectoTexto').textContent = nombre + ' ' + apellido;
+      } else {
+          document.getElementById('nombreProspecto').style.display = 'none';
+      }
+
+      if (!estado.pais || !estado.plan || !estado.vigencia) {
+          empty.style.display = 'block';
+          resultado.style.display = 'none';
+          return;
+      }
+
+      empty.style.display = 'none';
+      resultado.style.display = 'block';
+
+      const esMensual = estado.vigencia === 'mensual';
+      const monto = esMensual ? estado.precioMensual : estado.precioAnual;
+      const ahorroAnual = (estado.precioMensual * 12) - estado.precioAnual;
+
+      document.getElementById('montoFinal').textContent = monto.toFixed(2);
+      document.getElementById('simboloMoneda').textContent = estado.simbolo;
+      document.getElementById('subtituloMonto').textContent =
+          esMensual ? `por mes · ${estado.moneda}` : `pago único anual · ${estado.moneda}`;
+
+      document.getElementById('resumenPais').textContent = estado.paisNombre;
+      document.getElementById('resumenPlan').textContent = estado.planNombre;
+      document.getElementById('resumenVigencia').textContent = esMensual ? 'Mensual' : 'Anual (12 meses)';
+      document.getElementById('resumenMoneda').textContent = estado.moneda;
+      document.getElementById('resumenMensual').textContent = estado.simbolo + estado.precioMensual.toFixed(2) + ' / mes';
+
+      const filaAnual = document.getElementById('filaAnual');
+      if (!esMensual) {
+          filaAnual.style.display = 'flex';
+          document.getElementById('resumenAnual').textContent = estado.simbolo + estado.precioAnual.toFixed(2);
+      } else {
+          filaAnual.style.display = 'none';
+      }
+
+      const ahorroBadge = document.getElementById('ahorroBadge');
+      if (!esMensual && ahorroAnual > 0) {
+          ahorroBadge.style.display = 'flex';
+          document.getElementById('ahorroTexto').textContent =
+              `Ahorras ${estado.simbolo}${ahorroAnual.toFixed(2)} vs pago mensual`;
+      } else {
+          ahorroBadge.style.display = 'none';
+      }
+  }
+
+  document.getElementById('prospectoNombre').addEventListener('input', actualizarResultado);
+  document.getElementById('prospectoApellido').addEventListener('input', actualizarResultado);
+
+  function registrarAfiliado() {
+      if (!estado.pais || !estado.plan || !estado.vigencia) {
+          alert('Completa los pasos 1, 2 y 3 para continuar.');
+          return;
+      }
+      const nombre = encodeURIComponent(document.getElementById('prospectoNombre').value);
+      const apellido = encodeURIComponent(document.getElementById('prospectoApellido').value);
+      const email = encodeURIComponent(document.getElementById('prospectoEmail').value);
+      window.location.href = `/afiliado/vendedor/nuevo?plan=${estado.plan}&pais=${estado.pais}&vigencia=${estado.vigencia === 'anual' ? 12 : 1}&nombre=${nombre}&apellido=${apellido}&email=${email}`;
+  }
+
+  function compartirCotizacion() {
+      if (!estado.pais || !estado.plan || !estado.vigencia) {
+          alert('Completa la cotización primero.');
+          return;
+      }
+      const esMensual = estado.vigencia === 'mensual';
+      const monto = esMensual ? estado.precioMensual : estado.precioAnual;
+      const nombre = document.getElementById('prospectoNombre').value;
+
+      const msg = `Hola${nombre ? ' ' + nombre : ''}! 👋\n\nTe comparto la cotización de tu plan de asistencia:\n\n` +
+          `📋 *${estado.planNombre}*\n` +
+          `🌎 País: ${estado.paisNombre}\n` +
+          `💰 Monto: ${estado.simbolo}${monto.toFixed(2)} ${esMensual ? '/ mes' : '(anual)'}\n` +
+          `🪙 Moneda: ${estado.moneda}\n\n` +
+          `✅ Incluye: Asistencia médica, jurídica, hogar y vial.\n\n` +
+          `Para registrarte: https://asistenciaelsalvador.online/afiliado/registrate?plan=${estado.plan}&ejecutivo=${ejecutivoDui}`;
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  function imprimirCotizacion() { window.print(); }
+</script>
+</body>
+</html>

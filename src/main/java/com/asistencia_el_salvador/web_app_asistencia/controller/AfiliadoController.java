@@ -1,5 +1,9 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
+import com.asistencia_el_salvador.web_app_asistencia.config.WompiConfig;
+import com.asistencia_el_salvador.web_app_asistencia.dto.PagoRequest;
+import com.asistencia_el_salvador.web_app_asistencia.dto.TransactionResult;
+import com.asistencia_el_salvador.web_app_asistencia.dto.WompiTokenResult;
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
 import com.asistencia_el_salvador.web_app_asistencia.repository.AfiliadoRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.PlanAfiliadoRepository;
@@ -25,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -66,6 +71,16 @@ public class AfiliadoController {
     private final AfiliadoService afiliadoService;
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private WompiAuthService wompiAuthService;
+
+    @Autowired
+    private WompiCardService wompiCardService;
+
+    @Autowired
+    private WompiConfig wompiConfig;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
     private final PaisService paisService;
@@ -1644,6 +1659,177 @@ public class AfiliadoController {
         return "mis_pagos";
     }
 
+
+    @GetMapping("/pagarConTarjeta")
+    public String pagaTarjeta(Model model, HttpSession session) {
+        UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
+        Optional<AfiliadoCreadoResumen> afiliadoOpt = afiliadoService.getAfiliadoCreadoById(usuario.getDui());
+
+        String moneda = "USD";
+        String simbolo = "$";
+        double monto = 0.01; // prueba
+
+        if (afiliadoOpt.isPresent()) {
+            Plan plan = planService.getPlanById(afiliadoOpt.get().getIdPlan()).get();
+            moneda = plan.getMoneda();
+            simbolo = getMonedaSimbolo(moneda);
+            monto = plan.getCostoPlan(); // monto real del plan
+        }
+
+        model.addAttribute("moneda", moneda);
+        model.addAttribute("simbolo", simbolo);
+        model.addAttribute("monto", monto);
+        return "pagar_tarjeta";
+    }
+
+    private String getMonedaSimbolo(String moneda) {
+        return switch (moneda) {
+            case "HNL" -> "L";
+            case "GTQ" -> "Q";
+            case "CRC", "NIO" -> "C";
+            default -> "$";
+        };
+    }
+
+    @PostMapping("/cobrar")
+    public String cobrar(@ModelAttribute PagoRequest pagoRequest,
+                         @RequestParam int mesPago,
+                         @RequestParam int anioPago,
+                         HttpSession session,
+                         Model model) {
+        UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
+        String dui = usuario.getDui();
+        // Construir idExterno con DUI + periodo
+        String idExterno = dui + "|" + mesPago + "|" + anioPago;
+
+        Optional<AfiliadoCreadoResumen> afiliadoOpt = afiliadoService.getAfiliadoCreadoById(dui);
+        String moneda = "USD"; // default
+        if (afiliadoOpt.isPresent()) {
+            Plan plan = planService.getPlanById(afiliadoOpt.get().getIdPlan()).get();
+            moneda = plan.getMoneda(); // "USD", "HNL", "GTQ", etc.
+        }
+        pagoRequest.setMoneda(moneda);
+
+        session.setAttribute("mesPago", mesPago);
+        session.setAttribute("anioPago", anioPago);
+        session.setAttribute("idExterno", idExterno);
+
+        String urlRedirect = "https://asistenciaelsalvador.online/"
+                + "?dui=" + dui
+                + "&mes=" + mesPago
+                + "&anio=" + anioPago;
+        pagoRequest.setUrlRedirect(urlRedirect);
+
+        // Ejemplo: "01234567-8|3|2026"
+        pagoRequest.setIdExterno(idExterno);
+        TransactionResult resultado = wompiCardService.procesarPago3DS(pagoRequest);
+        model.addAttribute("resultado", resultado);
+
+        return "pagar_tarjeta";
+    }
+
+    @GetMapping("/afiliado_pago_exitoso")
+    public String pagoExitoso(
+            @RequestParam(required = false) String idTransaccion,
+            @RequestParam(required = false) String esAprobada,
+            @RequestParam(required = false) String mensaje,
+            @RequestParam(required = false) String monto,
+            @RequestParam(required = false) String codigoAutorizacion,
+            @RequestParam(required = false) String dui,    // ← viene en la URL
+            @RequestParam(required = false) Integer mes,   // ← viene en la URL
+            @RequestParam(required = false) Integer anio,  // ← viene en la URL
+            Model model,
+            HttpSession session) {
+
+        // ¿Viene de Wompi?
+        if (idTransaccion != null && esAprobada != null) {
+            return procesarResultadoWompi(
+                    idTransaccion, esAprobada, mensaje, monto, codigoAutorizacion,
+                    session, dui, mes, anio, model
+            );
+        }
+
+        // Flujo original (pago manual) — tu código existente sin cambios
+        AfiliadoPago pagoRealizado = (AfiliadoPago) session.getAttribute("ultimoPagoRealizado");
+        // ... resto de tu código original ...
+
+        return "afiliado_pago_exitoso";
+    }
+
+    // ← AQUÍ, método privado dentro del mismo controller
+    private String procesarResultadoWompi(
+            String idTransaccion, String esAprobada, String mensaje,
+            String montoStr, String codigoAutorizacion,
+            HttpSession session,
+            String dui, Integer mes, Integer anio,
+            Model model) {
+
+        if (!"true".equalsIgnoreCase(esAprobada)) {
+            model.addAttribute("error", mensaje != null ? mensaje : "Pago rechazado por el banco.");
+            model.addAttribute("pagoWompi", false);
+            return "afiliado_pago_exitoso";
+        }
+
+        try {
+            if (afiliadoPagoService.existePago(dui, mes, String.valueOf(anio))) {
+                model.addAttribute("error", "Este pago ya fue registrado.");
+                return "afiliado_pago_exitoso";
+            }
+
+            AfiliadoPago pago = new AfiliadoPago();
+            pago.setDuiAfiliado(dui);
+            pago.setMes(mes);
+            pago.setAnio(String.valueOf(anio));
+            pago.setCantidadPagada(new BigDecimal(montoStr.startsWith(".") ? "0" + montoStr : montoStr));
+            pago.setFormaPago(2);
+            pago.setCobradoPor(dui);
+
+            afiliadoPagoService.guardarPago(pago);
+
+            // Obtener datos del afiliado para la vista
+            Optional<AfiliadoCreadoResumen> afiliadoOpt = afiliadoService.getAfiliadoCreadoById(dui);
+
+            // Activar usuario si es primer pago
+            Usuario u = usuarioService.getUsuarioById(dui).get();
+            if (!u.getActivo()) {
+                u.setActivo(true);
+                usuarioService.modificarDatos(dui, u);
+                String email = afiliadoService.getAfiliadoById(dui).get().getEmail();
+                emailService.enviarEmailHtml(email, "Tus credenciales de acceso",
+                        "Tu usuario es tu DUI: " + dui + " y tu contraseña es: " + email.split("@")[0]);
+            }
+
+            String periodo = obtenerNombreMes(mes) + " " + anio;
+            String fechaHora = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+            session.setAttribute("ultimoPagoRealizado", pago);
+            model.addAttribute("pago", pago);
+            model.addAttribute("afiliado", afiliadoOpt.orElse(null));
+            model.addAttribute("pagoWompi", true);
+            model.addAttribute("idTransaccion", idTransaccion);
+            model.addAttribute("codigoAutorizacion", codigoAutorizacion);
+            model.addAttribute("periodo", periodo);
+            model.addAttribute("fechaHoraRegistro", fechaHora);
+            model.addAttribute("mensajeWompi", mensaje);
+
+        } catch (Exception e) {
+            System.out.println("❌ Error registrando pago: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Pago aprobado pero error al registrar. Contacta soporte con el ID: " + idTransaccion);
+            model.addAttribute("idTransaccion", idTransaccion);
+        }
+
+
+        return "afiliado_pago_exitoso";
+    }
+
+    @PostMapping("/token")
+    public String generarToken(Model model) {
+        WompiTokenResult token = wompiAuthService.getToken();
+        System.out.println(token.getAccess_token());
+        model.addAttribute("token", token);
+        return "pagar_tarjeta";
+    }
 
 
     private String formatearUltimoPago(PagoAfiliado pago) {

@@ -34,5 +34,7 @@ public interface AfiliadoRepository extends JpaRepository<Afiliado, String> {
 
     Page<Afiliado> findByCreatedBy(String createdBy, Pageable pageable);
 
+    List<Afiliado> findByCreatedBy(String createdBy);
+
     long countByCreatedBy(String createdBy);
 }

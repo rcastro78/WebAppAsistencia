@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${titulo} + ' - Asistencia El Salvador'">Equipo de Ventas - Asistencia El Salvador</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1 th:text="${titulo}">Equipo de Ventas</h1>
+    <span class="subtitle"
+          th:text="${modo == 'editar'} ? 'Actualiza los datos del equipo de ventas' : 'Completa la información para registrar un nuevo equipo de ventas'">
+        </span>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Datos del Equipo de Ventas</h2>
+    </div>
+
+    <div class="breadcrumb">
+      <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+      <i class="fas fa-chevron-right"></i>
+      <a th:href="@{/admin/equipos}">Equipos de Ventas</a>
+      <i class="fas fa-chevron-right"></i>
+      <span th:text="${titulo}"></span>
+    </div>
+
+    <!-- Mensajes de error -->
+    <div th:if="${error}" class="alert alert-danger" style="margin: 1rem 1.5rem;">
+      <i class="fas fa-exclamation-circle"></i>
+      <span th:text="${error}"></span>
+    </div>
+
+    <div class="card-body">
+      <form id="equipoForm"
+            th:action="@{/admin/vendedores/equipos/guardar}"
+            th:object="${equipo}"
+            method="post">
+
+        <input type="hidden" name="modo" th:value="${modo}">
+        <!-- ID oculto para modo editar -->
+        <input type="hidden" th:field="*{id}" th:if="${modo == 'editar'}">
+
+        <div class="form-grid">
+
+          <!-- Supervisor -->
+          <div class="form-group">
+            <label for="duiSupervisor"><i class="fas fa-user-tie"></i> Supervisor</label>
+            <select id="duiSupervisor"
+                    th:field="*{duiSupervisor}"
+                    class="input"
+                    required>
+              <option value="">-- Seleccione un supervisor --</option>
+              <option th:each="sup : ${supervisores}"
+                      th:value="${sup.dui}"
+                      th:text="${sup.nombre} + ' ' + ${sup.apellido} + ' — ' + ${sup.dui}">
+              </option>
+            </select>
+          </div>
+
+          <!-- Vendedor -->
+          <div class="form-group">
+            <label for="duiVendedor"><i class="fas fa-user"></i> Vendedor</label>
+            <select id="duiVendedor"
+                    th:field="*{duiVendedor}"
+                    class="input"
+                    required>
+              <option value="">-- Seleccione un vendedor --</option>
+              <option th:each="vend : ${vendedores}"
+                      th:value="${vend.dui}"
+                      th:text="${vend.nombre} + ' ' + ${vend.apellido} + ' — ' + ${vend.dui}">
+              </option>
+            </select>
+          </div>
+
+          <!-- Zona de Cobertura -->
+          <div class="form-group">
+            <label for="zonaCobertura"><i class="fas fa-map-marker-alt"></i> Zona de Cobertura</label>
+            <input type="text"
+                   th:field="*{zonaCobertura}"
+                   id="zonaCobertura"
+                   class="input"
+                   placeholder="Ej: Norte, Oriente, Metropolitana...">
+          </div>
+
+          <!-- Estado — solo visible en modo editar -->
+          <div class="form-group" th:if="${modo == 'editar'}">
+            <label for="estado"><i class="fas fa-toggle-on"></i> Estado</label>
+            <select id="estado" th:field="*{estado}" class="input">
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- BOTONES -->
+        <div class="actions">
+          <button type="submit" class="btn">
+            <i class="fas fa-save"></i>
+            <span th:text="${modo == 'editar'} ? 'Actualizar' : 'Guardar'">Guardar</span>
+          </button>
+          <a th:href="@{/admin/equipos}" class="btn secondary">
+            <i class="fas fa-times"></i> Cancelar
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+      const form = document.getElementById('equipoForm');
+      form.addEventListener('submit', function (e) {
+          const supervisor = document.getElementById('duiSupervisor').value;
+          const vendedor   = document.getElementById('duiVendedor').value;
+
+          if (!supervisor) {
+              e.preventDefault();
+              mostrarError('Debe seleccionar un supervisor.');
+              document.getElementById('duiSupervisor').focus();
+              return;
+          }
+
+          if (!vendedor) {
+              e.preventDefault();
+              mostrarError('Debe seleccionar un vendedor.');
+              document.getElementById('duiVendedor').focus();
+              return;
+          }
+
+          if (supervisor === vendedor) {
+              e.preventDefault();
+              mostrarError('El supervisor y el vendedor no pueden ser la misma persona.');
+              return;
+          }
+      });
+  });
+
+  function mostrarError(mensaje) {
+      let alerta = document.querySelector('.alert.alert-danger');
+      if (!alerta) {
+          alerta = document.createElement('div');
+          alerta.className = 'alert alert-danger';
+          alerta.style.margin = '1rem 1.5rem';
+          const cardBody = document.querySelector('.card-body');
+          cardBody.insertBefore(alerta, cardBody.firstChild);
+      }
+      alerta.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + mensaje;
+      alerta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+</script>
+</body>
+</html>

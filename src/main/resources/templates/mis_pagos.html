@@ -23,7 +23,8 @@
                 <a href="#" class="btn btn-primary" onclick="window.print()">
                     <i class="fas fa-print"></i> Imprimir
                 </a>
-                <a th:href="${linkPago}" class="btn btn-primary" target="_blank">
+                <!-- <a th:href="${linkPago}" class="btn btn-primary" target="_blank">-->
+                <a th:href="@{/afiliado/pagarConTarjeta}" class="btn btn-primary" target="_blank">
                     <i class="fas fa-money-bill-transfer"></i> Pagar mi cuota
                 </a>
                 <a th:href="@{/afiliado/plan}" th:if="${session.rol==1}" class="btn btn-secondary">

@@ -17,10 +17,10 @@ import java.util.Map;
 @Service
 public class WompiService {
 
-    @Value("${wompi.secret.key}")
+    @Value("${wompi.secret-key}")
     private String wompiSecretKey;
 
-    @Value("${wompi.public.key}")
+    @Value("${wompi.public-key}")
     private String wompiPublicKey;
 
     @Value("${wompi.api.url}")

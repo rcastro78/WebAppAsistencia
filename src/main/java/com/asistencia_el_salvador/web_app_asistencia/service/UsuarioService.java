@@ -19,7 +19,7 @@ public class UsuarioService {
 
     private static Integer ADMIN=1;
     private static Integer VENDEDOR=2;
-
+    private static Integer SUPERVISOR=7;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -50,6 +50,12 @@ public class UsuarioService {
         return usuarioRepository.findByActivoAndRol(true,VENDEDOR);
     }
 
+    public List<Usuario> getVendedoresActivos(){
+        return usuarioRepository.findByActivoAndRol(true,VENDEDOR);
+    }
+    public List<Usuario> getSupervisoresActivos(){
+        return usuarioRepository.findByActivoAndRol(true,SUPERVISOR);
+    }
 
     public Usuario registrar(Usuario usuario) {
         // Validaciones mínimas

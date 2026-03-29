@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagar con Tarjeta - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { background: white; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+        .header-title h1 { font-size: 2rem; color: #333; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+        .header-title p { color: #666; font-size: 1rem; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: white; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
+        .btn-secondary { background: #6c757d; }
+        .btn-secondary:hover { background: #5a6268; }
+        .monto-badge { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; padding: 20px 30px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
+        .monto-badge .label { color: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 500; }
+        .monto-badge .valor { color: white; font-size: 2.2rem; font-weight: 700; }
+        .monto-badge .icono { width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: white; }
+        .form-card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 25px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: #444; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f0f0f0; display: flex; align-items: center; gap: 10px; }
+        .section-title i { color: #667eea; }
+        .form-grid { display: grid; gap: 18px; }
+        .form-grid.full { grid-template-columns: 1fr; }
+        .form-grid.two { grid-template-columns: 1fr 1fr; }
+        .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+        .form-group { display: flex; flex-direction: column; gap: 7px; }
+        .form-group label { font-weight: 600; color: #555; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.4px; }
+        .form-group label span.required { color: #e74c3c; margin-left: 2px; }
+        .input-wrap { position: relative; }
+        .input-wrap i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 0.95rem; pointer-events: none; }
+        .input-wrap input, .input-wrap select { width: 100%; padding: 11px 12px 11px 38px; border: 2px solid #e0e0e0; border-radius: 9px; font-size: 1rem; background: #fafafa; color: #333; transition: all 0.3s; appearance: none; }
+        .input-wrap input:focus, .input-wrap select:focus { outline: none; border-color: #667eea; background: white; box-shadow: 0 0 0 3px rgba(102,126,234,0.12); }
+        .input-wrap input::placeholder { color: #bbb; }
+
+        /* Card — angosta y centrada */
+        .card-wrap { display: flex; justify-content: center; margin-bottom: 10px; }
+        .card-preview {
+            background: linear-gradient(135deg, #2c2c2c 0%, #000 100%);
+            border-radius: 16px;
+            padding: 24px 28px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.35);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            width: 320px;
+        }
+        .card-preview::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+        .card-preview::after { content: ''; position: absolute; bottom: -60px; right: 20px; width: 200px; height: 200px; background: rgba(255,255,255,0.03); border-radius: 50%; }
+        .card-preview .chip { width: 36px; height: 26px; background: linear-gradient(135deg, #d4af37, #f5e17a); border-radius: 5px; margin-bottom: 20px; }
+        .card-preview .number { font-size: 1.1rem; letter-spacing: 3px; font-family: 'Courier New', monospace; margin-bottom: 20px; opacity: 0.9; }
+        .card-preview .details { display: flex; justify-content: space-between; align-items: flex-end; }
+        .card-preview .detail-label { font-size: 0.6rem; opacity: 0.55; text-transform: uppercase; margin-bottom: 2px; }
+        .card-preview .detail-value { font-size: 0.85rem; font-weight: 600; opacity: 0.9; }
+
+        /* Periodo badge */
+        .periodo-info { background: #f0f4ff; border: 2px solid #667eea; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: #444; }
+        .periodo-info i { color: #667eea; }
+        .periodo-info strong { color: #333; }
+
+        .btn-pay { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-pay:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.45); }
+        .seguridad { display: flex; align-items: center; justify-content: center; gap: 8px; color: #999; font-size: 0.85rem; margin-top: 15px; }
+        .resultado { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); margin-bottom: 25px; }
+        .resultado.exito { border-left: 5px solid #28a745; }
+        .resultado.error { border-left: 5px solid #dc3545; }
+        .resultado-titulo { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .resultado.exito .resultado-titulo { color: #28a745; }
+        .resultado.error .resultado-titulo { color: #dc3545; }
+        .resultado-detalle { color: #555; margin-bottom: 8px; font-size: 0.95rem; }
+
+        @media (max-width: 600px) {
+            .form-grid.two, .form-grid.three { grid-template-columns: 1fr; }
+            .header-title h1 { font-size: 1.4rem; }
+            .monto-badge .valor { font-size: 1.7rem; }
+            .card-preview { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <div class="header-content">
+            <div class="header-title">
+                <h1><i class="fas fa-credit-card"></i> Pago con Tarjeta</h1>
+                <p>Ingresa los datos de tu tarjeta para procesar el pago de forma segura</p>
+            </div>
+            <div>
+                <a th:href="@{/afiliado/plan}" href="#" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultado exitoso -->
+    <div class="resultado exito" th:if="${resultado != null}">
+        <div class="resultado-titulo">
+            <i class="fas fa-check-circle"></i> Transacción pendiente de aplicación
+        </div>
+        <p class="resultado-detalle">ID Transacción: <strong th:text="${resultado.idTransaccion}"></strong></p>
+        <p class="resultado-detalle">Monto: <strong th:text="'$' + ${resultado.monto} + ' USD'"></strong></p>
+        <p class="resultado-detalle" style="margin-bottom:20px;">Referencia: <strong th:text="${resultado.idExterno}"></strong></p>
+        <a th:href="${resultado.urlCompletarPago3Ds}" target="_self" class="btn btn-primary">
+            <i class="fas fa-lock"></i> Ejecutar pago
+        </a>
+    </div>
+
+    <!-- Error -->
+    <div class="resultado error" th:if="${error != null}">
+        <div class="resultado-titulo">
+            <i class="fas fa-exclamation-circle"></i> Error al procesar el pago
+        </div>
+        <p class="resultado-detalle" th:text="${error}"></p>
+    </div>
+
+    <!-- Monto -->
+    <!-- Monto dinámico -->
+    <div class="monto-badge">
+        <div>
+            <div class="label">Monto a pagar</div>
+            <div class="valor">
+                <span th:text="${simbolo}">$</span>
+                <span th:text="${monto}">0.01</span>
+                <span th:text="${moneda}">USD</span>
+            </div>
+        </div>
+        <div class="icono"><i class="fas fa-shield-alt"></i></div>
+    </div>
+
+    <!-- Campo oculto con monto dinámico -->
+    <input type="hidden" name="monto" th:value="${monto}"/>
+
+    <!-- Preview tarjeta -->
+    <div class="form-card" style="padding: 25px 30px 20px;">
+        <div class="section-title"><i class="fas fa-eye"></i> Vista previa de la tarjeta</div>
+        <div class="card-wrap">
+            <div class="card-preview">
+                <div class="chip"></div>
+                <div class="number" id="previewNumber">•••• •••• •••• ••••</div>
+                <div class="details">
+                    <div>
+                        <div class="detail-label">Titular</div>
+                        <div class="detail-value" id="previewHolder">NOMBRE APELLIDO</div>
+                    </div>
+                    <div>
+                        <div class="detail-label">Vence</div>
+                        <div class="detail-value" id="previewExp">MM/AAAA</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{/afiliado/cobrar}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" name="monto" value="0.01"/>
+        <input type="hidden" name="idPais" value="SV"/>
+
+        <!-- Periodo a pagar -->
+        <div class="form-card">
+            <div class="section-title"><i class="fas fa-calendar-check"></i> Periodo a pagar</div>
+
+            <div class="periodo-info">
+                <i class="fas fa-info-circle"></i>
+                <span>Período seleccionado: <strong id="periodoTexto">—</strong></span>
+            </div>
+
+            <div class="form-grid two">
+                <div class="form-group">
+                    <label>Mes <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-calendar"></i>
+                        <select name="mesPago" id="mesPago" required onchange="actualizarPeriodo()">
+                            <option value="">Seleccionar</option>
+                            <option value="1">01 - Enero</option>
+                            <option value="2">02 - Febrero</option>
+                            <option value="3">03 - Marzo</option>
+                            <option value="4">04 - Abril</option>
+                            <option value="5">05 - Mayo</option>
+                            <option value="6">06 - Junio</option>
+                            <option value="7">07 - Julio</option>
+                            <option value="8">08 - Agosto</option>
+                            <option value="9">09 - Septiembre</option>
+                            <option value="10">10 - Octubre</option>
+                            <option value="11">11 - Noviembre</option>
+                            <option value="12">12 - Diciembre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Año <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-calendar-alt"></i>
+                        <select name="anioPago" id="anioPago" required onchange="actualizarPeriodo()">
+                            <option value="">Seleccionar</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos de la tarjeta -->
+        <div class="form-card">
+            <div class="section-title"><i class="fas fa-credit-card"></i> Datos de la tarjeta</div>
+
+            <div class="form-grid full" style="margin-bottom: 18px;">
+                <div class="form-group">
+                    <label>Número de tarjeta <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-credit-card"></i>
+                        <input type="text" id="cardNumber" name="tarjetaCreditoDebido.numeroTarjeta"
+                               placeholder="0000 0000 0000 0000" maxlength="19"
+                               autocomplete="cc-number" inputmode="numeric" required/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid three" style="margin-bottom: 18px;">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Nombre del titular <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="cardHolder" placeholder="Como aparece en la tarjeta"
+                               autocomplete="cc-name"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>CVV <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="text" name="tarjetaCreditoDebido.cvv"
+                               placeholder="123" maxlength="4" inputmode="numeric"
+                               autocomplete="cc-csc" required/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid two">
+                <div class="form-group">
+                    <label>Mes vencimiento tarjeta <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-calendar"></i>
+                        <select id="expMonth" name="tarjetaCreditoDebido.mesVencimiento" required>
+                            <option value="">Mes</option>
+                            <option value="1">01 - Enero</option>
+                            <option value="2">02 - Febrero</option>
+                            <option value="3">03 - Marzo</option>
+                            <option value="4">04 - Abril</option>
+                            <option value="5">05 - Mayo</option>
+                            <option value="6">06 - Junio</option>
+                            <option value="7">07 - Julio</option>
+                            <option value="8">08 - Agosto</option>
+                            <option value="9">09 - Septiembre</option>
+                            <option value="10">10 - Octubre</option>
+                            <option value="11">11 - Noviembre</option>
+                            <option value="12">12 - Diciembre</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Año vencimiento tarjeta <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-calendar-alt"></i>
+                        <select id="expYear" name="tarjetaCreditoDebido.anioVencimiento" required>
+                            <option value="">Año</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos personales -->
+        <div class="form-card">
+            <div class="section-title"><i class="fas fa-user-shield"></i> Datos del titular</div>
+
+            <div class="form-grid two" style="margin-bottom: 18px;">
+                <div class="form-group">
+                    <label>Nombre <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="nombre" placeholder="Juan" required/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Apellido <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="apellido" placeholder="Pérez" required/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid two" style="margin-bottom: 18px;">
+                <div class="form-group">
+                    <label>Correo electrónico <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="email" placeholder="correo@ejemplo.com" autocomplete="email" required/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" name="telefono" placeholder="78901234" inputmode="tel" required/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid two" style="margin-bottom: 18px;">
+                <div class="form-group">
+                    <label>Ciudad <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-city"></i>
+                        <input type="text" name="ciudad" placeholder="San Salvador" required/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Código postal <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-map-pin"></i>
+                        <input type="text" name="codigoPostal" placeholder="01101" inputmode="numeric" required/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid full" style="margin-bottom: 18px;">
+                <div class="form-group">
+                    <label>Dirección <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" name="direccion" placeholder="Colonia Escalón, Calle El Mirador" required/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid two" style="margin-bottom: 25px;">
+                <div class="form-group">
+                    <label>Departamento <span class="required">*</span></label>
+                    <div class="input-wrap">
+                        <i class="fas fa-map"></i>
+                        <select name="idRegion" required>
+                            <option value="">Seleccionar</option>
+                            <option value="SV-AH">Ahuachapán</option>
+                            <option value="SV-CA">Cabañas</option>
+                            <option value="SV-CH">Chalatenango</option>
+                            <option value="SV-CU">Cuscatlán</option>
+                            <option value="SV-LI">La Libertad</option>
+                            <option value="SV-PA">La Paz</option>
+                            <option value="SV-UN">La Unión</option>
+                            <option value="SV-MO">Morazán</option>
+                            <option value="SV-SM">San Miguel</option>
+                            <option value="SV-SS" selected>San Salvador</option>
+                            <option value="SV-SV">San Vicente</option>
+                            <option value="SV-SA">Santa Ana</option>
+                            <option value="SV-SO">Sonsonate</option>
+                            <option value="SV-US">Usulután</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn-pay">
+                <i class="fas fa-shield-alt"></i>
+                <span>Procesar Pago</span>
+            </button>
+
+            <div class="seguridad">
+                <i class="fas fa-lock"></i>
+                <span>Conexión segura con cifrado SSL · Powered by Wompi</span>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                   'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+
+    // Años vencimiento tarjeta
+    (function() {
+        const sel = document.getElementById('expYear');
+        for (let i = 0; i <= 10; i++) {
+            const y = currentYear + i;
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            sel.appendChild(opt);
+        }
+    })();
+
+    // Años para periodo de pago y preseleccionar mes/año actual
+    (function() {
+        const sel = document.getElementById('anioPago');
+        for (let i = 0; i <= 1; i++) {
+            const y = currentYear + i;
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            if (i === 0) opt.selected = true;
+            sel.appendChild(opt);
+        }
+        document.getElementById('mesPago').value = currentMonth;
+        actualizarPeriodo();
+    })();
+
+    function actualizarPeriodo() {
+        const m = document.getElementById('mesPago').value;
+        const y = document.getElementById('anioPago').value;
+        document.getElementById('periodoTexto').textContent =
+            (m && y) ? meses[parseInt(m) - 1] + ' ' + y : '—';
+    }
+
+    // Preview tarjeta
+    document.getElementById('cardNumber').addEventListener('input', function(e) {
+        let val = e.target.value.replace(/\D/g, '').substring(0, 16);
+        e.target.value = val.replace(/(.{4})/g, '$1 ').trim();
+        document.getElementById('previewNumber').textContent =
+            val.padEnd(16, '•').replace(/(.{4})/g, '$1 ').trim();
+    });
+
+    document.getElementById('cardHolder').addEventListener('input', function(e) {
+        document.getElementById('previewHolder').textContent =
+            e.target.value.toUpperCase() || 'NOMBRE APELLIDO';
+    });
+
+    document.getElementById('expMonth').addEventListener('change', actualizarExpPreview);
+    document.getElementById('expYear').addEventListener('change', actualizarExpPreview);
+
+    function actualizarExpPreview() {
+        const m = document.getElementById('expMonth').value || 'MM';
+        const y = document.getElementById('expYear').value || 'AAAA';
+        document.getElementById('previewExp').textContent = m + '/' + y;
+    }
+</script>
+</body>
+</html>

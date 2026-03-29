@@ -124,6 +124,10 @@ public class AfiliadoService {
         return afiliadoRepository.findAll();
     }
 
+    public List<Afiliado> getAllAfiliados(String createdBy) {
+        return afiliadoRepository.findByCreatedBy(createdBy);
+    }
+
     // Obtener todos (vendedor)
     public Page<Afiliado> getAllAfiliadosVendedor(String createdBy, Pageable pageable) {
         return afiliadoRepository.findByCreatedBy(createdBy, pageable);

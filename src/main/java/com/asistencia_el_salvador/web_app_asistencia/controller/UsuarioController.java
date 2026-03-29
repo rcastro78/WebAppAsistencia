@@ -170,6 +170,8 @@ public class UsuarioController {
             if (usuario.getRol() == 2) return "redirect:/admin/ventas/dashboard";
             if (usuario.getRol() == 3) return "redirect:/usuarios/dashboard/";
 
+            if (usuario.getRol() == 7) return "redirect:/supervisor/ventas/dashboard";
+
 
         } else {
             model.addAttribute("error", "Credenciales inválidas o usuario inactivo");

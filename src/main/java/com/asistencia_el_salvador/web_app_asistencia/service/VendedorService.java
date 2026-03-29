@@ -1,6 +1,9 @@
 package com.asistencia_el_salvador.web_app_asistencia.service;
 import com.asistencia_el_salvador.web_app_asistencia.model.Vendedor;
+import com.asistencia_el_salvador.web_app_asistencia.model.VwEquipoVentas;
+import com.asistencia_el_salvador.web_app_asistencia.repository.EquipoVentasRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.VendedorRepository;
+import com.asistencia_el_salvador.web_app_asistencia.repository.VwEquipoVentasRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +19,16 @@ import java.util.Optional;
 public class VendedorService {
 
     private final VendedorRepository vendedorRepository;
+    private final VwEquipoVentasRepository vwEquipoVentasRepository;
+    private final EquipoVentasRepository equipoVentasRepository;
 
-    public VendedorService(VendedorRepository vendedorRepository) {
+    public VendedorService(VendedorRepository vendedorRepository,
+                           VwEquipoVentasRepository vwEquipoVentasRepository,
+                           EquipoVentasRepository equipoVentasRepository) {
         this.vendedorRepository = vendedorRepository;
+        this.vwEquipoVentasRepository = vwEquipoVentasRepository;
+        this.equipoVentasRepository = equipoVentasRepository;
     }
-
     // ── CREATE ────────────────────────────────────────────────────────────────
 
     public Vendedor crear(Vendedor vendedor) {
@@ -42,6 +50,12 @@ public class VendedorService {
     public List<Vendedor> listarActivos() {
         return vendedorRepository.findByActivoTrueAndDeletedAtIsNull();
     }
+
+    @Transactional(readOnly = true)
+    public Page<VwEquipoVentas> listarVwEquipoVentas(int estado, Pageable pageable) {return  vwEquipoVentasRepository.findByEstado(estado, pageable);}
+
+    @Transactional(readOnly = true)
+    public List<VwEquipoVentas> listarVwEquipoVentas(String duiSupervisor) {return  vwEquipoVentasRepository.findByDuiSupervisor(duiSupervisor) ;}
 
     @Transactional(readOnly = true)
     public Page<Vendedor> listarActivosPaginados(Pageable pageable) {
@@ -119,4 +133,7 @@ public class VendedorService {
         vendedor.setActivo(activo);
         return vendedorRepository.save(vendedor);
     }
+
+
+
 }

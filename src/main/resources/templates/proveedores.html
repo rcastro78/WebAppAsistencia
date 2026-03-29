@@ -253,7 +253,15 @@
                             <button class="action-btn primary"
                                     th:data-id="${proveedor.idProveedor}"
                                     th:onclick="'verServicios(' + ${proveedor.idProveedor} + ')'">
-                                <i class="fas fa-sack-dollar"></i> Ver coberturas
+                                <i class="fas fa-clover"></i> Ver coberturas
+                            </button>
+                        </div>
+                        <br/>
+                        <div class="card-actions" th:if="${session.rol==1}">
+                            <button class="action-btn primary"
+                                    th:data-id="${proveedor.idProveedor}"
+                                    th:onclick="'verServicios(' + ${proveedor.idProveedor} + ')'">
+                                <i class="fas fa-file"></i> Descargar contrato
                             </button>
                         </div>
                     </div>
