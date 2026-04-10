@@ -3,41 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Proveedor de Servicios - Asistencia El Salvador</title>
+    <title th:text="${modoEdicion} ? 'Editar Proveedor - Asistencia El Salvador' : 'Nuevo Proveedor - Asistencia El Salvador'">Proveedor</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/empresa.css}">
 </head>
 <body>
 <div class="app">
     <div class="header">
-        <h1>Nuevo Proveedor de Servicios</h1>
-        <span class="subtitle">Completa la información para registrar un nuevo proveedor</span>
+        <h1 th:text="${modoEdicion} ? 'Editar Proveedor de Servicios' : 'Nuevo Proveedor de Servicios'">Proveedor</h1>
+        <span class="subtitle"
+              th:text="${modoEdicion} ? 'Modifica la información del proveedor' : 'Completa la información para registrar un nuevo proveedor'">
+        </span>
     </div>
 
     <div class="card">
         <div class="card-header">
-            <h2>Datos del proveedor</h2>
+            <h2 th:text="${modoEdicion} ? 'Editar datos del proveedor' : 'Datos del proveedor'">Datos</h2>
         </div>
         <div class="card-body">
-            <form th:action="@{/proveedores/guardar}" th:object="${proveedor}" method="post" enctype="multipart/form-data" id="proveedorForm">
+
+            <!--
+                ACTION DINÁMICO:
+                  - Creación → POST /proveedores/guardar
+                  - Edición  → POST /proveedores/actualizar/{id}
+                Así cada POST va al endpoint correcto del controller.
+            -->
+            <form th:action="${modoEdicion}
+                                ? @{/proveedores/actualizar/{id}(id=${proveedor.idProveedor})}
+                                : @{/proveedores/guardar}"
+                  th:object="${proveedor}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  id="proveedorForm">
 
                 <div class="form-grid">
                     <!-- NIT -->
                     <div class="form-group">
                         <label for="nit"><i class="fas fa-id-card"></i> NIT</label>
-                        <input type="text" th:field="*{nit}" id="nit" class="input" placeholder="0000-000000-000-0" pattern="[0-9]{4}-[0-9]{6}-[0-9]{3}-[0-9]" required>
+                        <input type="text" th:field="*{nit}" id="nit" class="input"
+                               placeholder="0000-000000-000-0"
+                               pattern="[0-9]{4}-[0-9]{6}-[0-9]{3}-[0-9]" required>
                     </div>
 
                     <!-- Nombre Proveedor -->
                     <div class="form-group">
                         <label for="nombreProveedor"><i class="fas fa-building"></i> Nombre del proveedor</label>
-                        <input type="text" th:field="*{nombreProveedor}" id="nombreProveedor" class="input" placeholder="Ingrese el nombre del proveedor" required>
+                        <input type="text" th:field="*{nombreProveedor}" id="nombreProveedor" class="input"
+                               placeholder="Ingrese el nombre del proveedor" required>
                     </div>
 
                     <!-- Dirección -->
                     <div class="form-group full-width">
                         <label for="direccion"><i class="fas fa-map-marker-alt"></i> Dirección</label>
-                        <input type="text" th:field="*{direccion}" id="direccion" class="input" placeholder="Ingrese la dirección completa del proveedor" required>
+                        <input type="text" th:field="*{direccion}" id="direccion" class="input"
+                               placeholder="Ingrese la dirección completa del proveedor" required>
                     </div>
 
                     <!-- País -->
@@ -45,26 +64,31 @@
                         <label for="pais"><i class="fas fa-globe"></i> País</label>
                         <select id="pais" th:field="*{idPais}" class="input" required>
                             <option value="">Seleccione un país</option>
-                            <option th:each="p : ${paises}" th:value="${p.idPais}" th:text="${p.nombrePais}"></option>
+                            <option th:each="p : ${paises}"
+                                    th:value="${p.idPais}"
+                                    th:text="${p.nombrePais}"></option>
                         </select>
                     </div>
 
                     <!-- Teléfono -->
                     <div class="form-group">
                         <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
-                        <input type="tel" th:field="*{telefono}" id="telefono" class="input" placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}" required>
+                        <input type="tel" th:field="*{telefono}" id="telefono" class="input"
+                               placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}" required>
                     </div>
 
                     <!-- Email -->
                     <div class="form-group">
                         <label for="email"><i class="fas fa-envelope"></i> Email</label>
-                        <input type="email" th:field="*{email}" id="email" class="input" placeholder="correo@proveedor.com" required>
+                        <input type="email" th:field="*{email}" id="email" class="input"
+                               placeholder="correo@proveedor.com" required>
                     </div>
 
                     <!-- Representante Legal -->
                     <div class="form-group">
                         <label for="repreLegalNombre"><i class="fas fa-user-tie"></i> Representante Legal</label>
-                        <input type="text" th:field="*{repreLegalNombre}" id="repreLegalNombre" class="input" placeholder="Nombre del representante legal" required>
+                        <input type="text" th:field="*{repreLegalNombre}" id="repreLegalNombre" class="input"
+                               placeholder="Nombre del representante legal" required>
                     </div>
 
                     <!-- Categoría Empresa -->
@@ -72,7 +96,9 @@
                         <label for="categoriaEmpresa"><i class="fas fa-tags"></i> Categoría de Empresa</label>
                         <select id="categoriaEmpresa" th:field="*{idCategoriaEmpresa}" class="input" required>
                             <option value="">Seleccione una categoría</option>
-                            <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.catNombre}"></option>
+                            <option th:each="cat : ${categorias}"
+                                    th:value="${cat.idCategoria}"
+                                    th:text="${cat.catNombre}"></option>
                         </select>
                     </div>
 
@@ -81,20 +107,32 @@
                         <label><i class="fas fa-toggle-on"></i> Estado</label>
                         <select th:field="*{estado}" class="input" required>
                             <option value="">Seleccione el estado</option>
-                            <option value="1">Activo</option>
-                            <option value="0">Inactivo</option>
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
                         </select>
                     </div>
 
-                    <!-- Logo/Imagen del Proveedor -->
+                    <!-- Logo/Imagen -->
                     <div class="form-group full-width">
                         <label><i class="fas fa-image"></i> Logo del Proveedor</label>
+
+                        <!-- Preview imagen actual en edición -->
+                        <div th:if="${modoEdicion == true and proveedor.imagenURL != null and !#strings.isEmpty(proveedor.imagenURL)}"
+                             style="margin-bottom:10px; display:flex; align-items:center; gap:12px;">
+                            <img th:src="${proveedor.imagenURL}" alt="Logo actual"
+                                 style="width:64px; height:64px; object-fit:contain; border:1px solid #ddd; border-radius:8px; padding:4px;">
+                            <span style="font-size:0.85rem; color:#6c757d;">
+                                <i class="fas fa-info-circle"></i>
+                                Logo actual. Sube una nueva imagen solo si deseas reemplazarlo.
+                            </span>
+                        </div>
+
                         <div class="file-input-wrapper">
                             <input type="file" name="imagenFile" accept="image/*" id="imagenProveedor"
-                                   onchange="updateFileLabel('imagenProveedor', 'imagenLabel')">
+                                   onchange="updateFileLabel()">
                             <label for="imagenProveedor" class="file-input-label" id="imagenLabel">
                                 <i class="fas fa-cloud-upload-alt"></i>
-                                Subir logo o imagen del proveedor
+                                <span th:text="${modoEdicion} ? 'Subir nuevo logo (opcional)' : 'Subir logo o imagen del proveedor'">Subir logo</span>
                             </label>
                         </div>
                         <small class="form-text">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
@@ -103,7 +141,8 @@
 
                 <div class="actions">
                     <button type="submit" class="btn">
-                        <i class="fas fa-save"></i> Guardar
+                        <i class="fas fa-save"></i>
+                        <span th:text="${modoEdicion} ? 'Actualizar' : 'Guardar'">Guardar</span>
                     </button>
                     <a th:href="@{/proveedores/}" class="btn secondary">
                         <i class="fas fa-times"></i> Cancelar
@@ -115,13 +154,11 @@
 </div>
 
 <script>
-    function updateFileLabel(inputId, labelId) {
-        const input = document.getElementById(inputId);
-        const label = document.getElementById(labelId);
-
+    function updateFileLabel() {
+        const input = document.getElementById('imagenProveedor');
+        const label = document.getElementById('imagenLabel');
         if (input.files && input.files.length > 0) {
-            const fileName = input.files[0].name;
-            label.innerHTML = '<i class="fas fa-check"></i> ' + fileName;
+            label.innerHTML = '<i class="fas fa-check"></i> ' + input.files[0].name;
             label.classList.add('file-selected');
         } else {
             label.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Subir logo o imagen del proveedor';
@@ -129,76 +166,39 @@
         }
     }
 
-    // Validación del formulario antes de enviar
-    document.getElementById('proveedorForm').addEventListener('submit', function(e) {
+    document.getElementById('proveedorForm').addEventListener('submit', function (e) {
         const imagenInput = document.getElementById('imagenProveedor');
-
-        // Verificar tamaño de archivo (max 5MB)
-        const maxSize = 5 * 1024 * 1024; // 5MB
-
         if (imagenInput.files && imagenInput.files.length > 0) {
-            if (imagenInput.files[0].size > maxSize) {
+            if (imagenInput.files[0].size > 5 * 1024 * 1024) {
                 alert('La imagen es demasiado grande. Máximo 5MB.');
                 e.preventDefault();
-                return false;
             }
         }
-
-        return true;
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Validación automática del NIT
+    document.addEventListener('DOMContentLoaded', function () {
+        // Formateo NIT
         const nitInput = document.getElementById('nit');
         if (nitInput) {
-            nitInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length > 0) {
-                    let formatted = '';
-                    if (value.length >= 4) {
-                        formatted = value.substring(0, 4) + '-';
-                        if (value.length >= 10) {
-                            formatted += value.substring(4, 10) + '-';
-                            if (value.length >= 13) {
-                                formatted += value.substring(10, 13) + '-';
-                                formatted += value.substring(13, 14);
-                            } else {
-                                formatted += value.substring(10);
-                            }
-                        } else {
-                            formatted += value.substring(4);
-                        }
-                    } else {
-                        formatted = value;
-                    }
-                    e.target.value = formatted;
-                }
+            nitInput.addEventListener('input', function (e) {
+                let v = e.target.value.replace(/\D/g, '');
+                let f = '';
+                if (v.length >= 4)  f = v.slice(0,4) + '-';
+                else                { e.target.value = v; return; }
+                if (v.length >= 10) f += v.slice(4,10) + '-';
+                else                { e.target.value = f + v.slice(4); return; }
+                if (v.length >= 13) f += v.slice(10,13) + '-' + v.slice(13,14);
+                else                f += v.slice(10);
+                e.target.value = f;
             });
         }
 
-        // Validación automática del teléfono
+        // Formateo teléfono
         const telInput = document.getElementById('telefono');
         if (telInput) {
-            telInput.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                if (value.length >= 4) {
-                    value = value.substring(0, 4) + '-' + value.substring(4, 8);
-                }
-                e.target.value = value;
-            });
-        }
-
-        // Mejorar la experiencia del file input
-        const fileInput = document.getElementById('imagenProveedor');
-        if (fileInput) {
-            fileInput.addEventListener('change', function(e) {
-                const label = document.getElementById('imagenLabel');
-                const fileName = e.target.files[0]?.name;
-
-                if (fileName) {
-                    label.innerHTML = `<i class="fas fa-check-circle"></i> ${fileName}`;
-                    label.classList.add('file-selected');
-                }
+            telInput.addEventListener('input', function (e) {
+                let v = e.target.value.replace(/\D/g, '');
+                e.target.value = v.length >= 4 ? v.slice(0,4) + '-' + v.slice(4,8) : v;
             });
         }
     });

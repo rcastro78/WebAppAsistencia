@@ -1,6 +1,5 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
-
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
 import com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse;
 import com.asistencia_el_salvador.web_app_asistencia.service.CategoriaEmpresaService;
@@ -24,6 +23,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/proveedores")
 public class ProveedorController {
+
     @Autowired
     private ProveedorService proveedorService;
     @Autowired
@@ -33,136 +33,148 @@ public class ProveedorController {
     @Autowired
     private FirebaseStorageService firebaseStorageService;
 
+    private static final Logger logger = LoggerFactory.getLogger(ProveedorController.class);
+
+    // ── NUEVO ────────────────────────────────────────────────────────────────
     @GetMapping("/nuevo")
-    public String nuevoProveedor(HttpSession session, Model model){
-        List<Pais> paises = paisService.listarTodos();
-        model.addAttribute("paises", paises);
+    public String nuevoProveedor(Model model) {
+        model.addAttribute("paises", paisService.listarTodos());
         model.addAttribute("proveedor", new Proveedor());
         model.addAttribute("categorias", categoriaEmpresaService.listarTodas());
         return "proveedor_form";
     }
 
-    @GetMapping({"/",""})
-    public String listarProveedores(HttpSession session, Model model){
+    // ── EDITAR ───────────────────────────────────────────────────────────────
+    @GetMapping("/editar/{id}")
+    public String editarProveedor(@PathVariable("id") String id,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes) {
 
+        Proveedor proveedor = proveedorService.buscarProveedor(id);
+        if (proveedor == null) {
+            redirectAttributes.addFlashAttribute("error", "Proveedor no encontrado");
+            return "redirect:/proveedores";
+        }
+
+        model.addAttribute("paises", paisService.listarTodos());
+        model.addAttribute("categorias", categoriaEmpresaService.listarTodas());
+        model.addAttribute("proveedor", proveedor);
+        model.addAttribute("modoEdicion", true);
+        return "proveedor_form";
+    }
+
+    // ── LISTADO ──────────────────────────────────────────────────────────────
+    @GetMapping({"", "/"})
+    public String listarProveedores(HttpSession session, Model model) {
         UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
         List<ProveedorAfiliado> proveedores = proveedorService.listarTodas();
         List<CategoriaEmpresa> categorias = categoriaEmpresaService.listarTodas();
-        long totalProveedores = proveedorService.listarTodas().stream().count();
         model.addAttribute("usuario", usuario);
         model.addAttribute("proveedores", proveedores);
         model.addAttribute("categorias", categorias);
-        model.addAttribute("totalProveedores", totalProveedores);
-
+        model.addAttribute("totalProveedores", (long) proveedores.size());
         return "proveedores";
     }
 
+    // ── GUARDAR (CREATE) ─────────────────────────────────────────────────────
     @PostMapping("/guardar")
     public String guardarProveedor(HttpServletRequest request,
                                    @ModelAttribute Proveedor proveedor,
                                    @RequestParam(value = "imagenFile", required = false) MultipartFile imagenFile,
                                    RedirectAttributes redirectAttributes) {
 
-        Logger logger = LoggerFactory.getLogger(this.getClass());
-        logger.info("=================== INICIO PROCESO GUARDAR PROVEEDOR ===================");
+        logger.info("=================== GUARDAR PROVEEDOR ===================");
+        logger.info("idProveedor recibido: {}", proveedor.getIdProveedor());
 
         try {
-            // 1. VERIFICAR FORMULARIO
             String contentType = request.getContentType();
-            logger.info("Content-Type recibido: {}", contentType);
-
             if (contentType == null || !contentType.contains("multipart/form-data")) {
-                logger.error("❌ ERROR: La petición NO es multipart/form-data");
                 redirectAttributes.addFlashAttribute("error", "Error: Formulario mal configurado");
-                return "redirect:/proveedor/nuevo";
+                return "redirect:/proveedores/nuevo";
             }
 
-            // 2. PROCESAR LOGO DEL PROVEEDOR Y SUBIR A FIREBASE
+            // Procesar imagen si se proporcionó
             if (imagenFile != null && !imagenFile.isEmpty()) {
-                logger.info("=== PROCESANDO LOGO DEL PROVEEDOR ===");
-                logger.info("Nombre original: {}", imagenFile.getOriginalFilename());
-                logger.info("Tamaño: {} bytes", imagenFile.getSize());
-                logger.info("Content-Type: {}", imagenFile.getContentType());
-
-                // Validar que es una imagen
                 if (!isValidImageFile(imagenFile)) {
-                    logger.error("❌ El archivo no es una imagen válida");
                     redirectAttributes.addFlashAttribute("error", "El logo debe ser una imagen válida (JPG, PNG, GIF)");
-                    return "redirect:/proveedor/nuevo";
+                    return "redirect:/proveedores/nuevo";
                 }
-
                 try {
-                    // Subir a Firebase Storage
                     String nitLimpio = proveedor.getNit().replace("-", "");
                     String urlLogo = firebaseStorageService.uploadFile(imagenFile, "logo_proveedor_" + nitLimpio);
                     proveedor.setImagenURL(urlLogo);
                     logger.info("✓ Logo subido a Firebase: {}", urlLogo);
                 } catch (IOException e) {
-                    logger.error("❌ Error al subir logo a Firebase: {}", e.getMessage());
+                    logger.error("❌ Error al subir logo: {}", e.getMessage());
                     redirectAttributes.addFlashAttribute("error", "Error al subir el logo del proveedor");
-                    return "redirect:/proveedor/nuevo";
+                    return "redirect:/proveedores/nuevo";
                 }
-            } else {
-                logger.warn("⚠️ No se recibió logo o está vacío");
             }
 
-            // 3. VERIFICAR DATOS ANTES DE GUARDAR
-            logger.info("=== DATOS ANTES DE GUARDAR EN BD ===");
-            logger.info("NIT: {}", proveedor.getNit());
-            logger.info("Nombre Proveedor: {}", proveedor.getNombreProveedor());
-            logger.info("Dirección: {}", proveedor.getDireccion());
-            logger.info("Teléfono: {}", proveedor.getTelefono());
-            logger.info("Email: {}", proveedor.getEmail());
-            logger.info("Representante Legal: {}", proveedor.getRepreLegalNombre());
-            logger.info("Estado: {}", proveedor.getEstado());
-            logger.info("ID Categoría: {}", proveedor.getIdCategoriaEmpresa());
-            logger.info("ID País: {}", proveedor.getIdPais());
-            logger.info("imagenURL: {}", proveedor.getImagenURL());
-
-            // 4. GUARDAR EN BASE DE DATOS
-            logger.info("=== GUARDANDO EN BD ===");
-            Proveedor proveedorGuardado = proveedorService.saveProveedor(proveedor);
-
-            // 5. VERIFICAR DESPUÉS DE GUARDAR
-            logger.info("=== VERIFICACIÓN DESPUÉS DE GUARDAR ===");
-            if (proveedorGuardado != null) {
-                logger.info("✓ Proveedor guardado con NIT: {}", proveedorGuardado.getNit());
-                logger.info("URL del logo en BD: {}", proveedorGuardado.getImagenURL());
-
-                redirectAttributes.addFlashAttribute("success", "Proveedor guardado exitosamente");
-            } else {
-                logger.error("❌ El servicio devolvió null");
-                redirectAttributes.addFlashAttribute("error", "Error al guardar el proveedor");
-                return "redirect:/proveedor/nuevo";
-            }
-
-            logger.info("=================== FIN PROCESO EXITOSO ===================");
+            proveedorService.saveProveedor(proveedor);
+            redirectAttributes.addFlashAttribute("success", "Proveedor guardado exitosamente");
 
         } catch (Exception e) {
-            logger.error("❌ ERROR GENERAL: {}", e.getMessage(), e);
+            logger.error("❌ ERROR: {}", e.getMessage(), e);
             redirectAttributes.addFlashAttribute("error", "Error inesperado: " + e.getMessage());
-            return "redirect:/proveedor/nuevo";
+            return "redirect:/proveedores/nuevo";
         }
 
-        return "redirect:/proveedores"; // Ajusta según tu ruta de listado
+        return "redirect:/proveedores";
     }
 
-    // Método auxiliar para validar archivos de imagen
+    // ── ACTUALIZAR (UPDATE) ──────────────────────────────────────────────────
+    @PostMapping("/actualizar/{id}")
+    public String actualizarProveedor(@PathVariable("id") String id,
+                                      @ModelAttribute Proveedor proveedor,
+                                      @RequestParam(value = "imagenFile", required = false) MultipartFile imagenFile,
+                                      RedirectAttributes redirectAttributes) {
+
+        logger.info("=================== ACTUALIZAR PROVEEDOR id={} ===================", id);
+
+        try {
+            // Si no se sube nueva imagen, conservar la existente
+            if (imagenFile == null || imagenFile.isEmpty()) {
+                Proveedor existente = proveedorService.buscarProveedor(id);
+                if (existente != null) {
+                    proveedor.setImagenURL(existente.getImagenURL());
+                    logger.info("Conservando imagen existente: {}", existente.getImagenURL());
+                }
+            } else {
+                if (!isValidImageFile(imagenFile)) {
+                    redirectAttributes.addFlashAttribute("error", "El logo debe ser una imagen válida (JPG, PNG, GIF)");
+                    return "redirect:/proveedores/editar/" + id;
+                }
+                try {
+                    String nitLimpio = proveedor.getNit().replace("-", "");
+                    String urlLogo = firebaseStorageService.uploadFile(imagenFile, "logo_proveedor_" + nitLimpio);
+                    proveedor.setImagenURL(urlLogo);
+                    logger.info("✓ Nuevo logo subido: {}", urlLogo);
+                } catch (IOException e) {
+                    logger.error("❌ Error al subir logo: {}", e.getMessage());
+                    redirectAttributes.addFlashAttribute("error", "Error al subir el logo del proveedor");
+                    return "redirect:/proveedores/editar/" + id;
+                }
+            }
+
+            // Usa el método de actualización del servicio (hace UPDATE, no INSERT)
+            proveedorService.updateEmpresaAfiliada(id, proveedor);
+            redirectAttributes.addFlashAttribute("success", "Proveedor actualizado exitosamente");
+
+        } catch (Exception e) {
+            logger.error("❌ ERROR: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
+            return "redirect:/proveedores/editar/" + id;
+        }
+
+        return "redirect:/proveedores";
+    }
+
     private boolean isValidImageFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            return false;
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null) {
-            return false;
-        }
-
-        return contentType.startsWith("image/") &&
-                (contentType.equals("image/jpeg") ||
-                        contentType.equals("image/jpg") ||
-                        contentType.equals("image/png") ||
-                        contentType.equals("image/gif"));
+        if (file == null || file.isEmpty()) return false;
+        String ct = file.getContentType();
+        if (ct == null) return false;
+        return ct.equals("image/jpeg") || ct.equals("image/jpg")
+                || ct.equals("image/png")  || ct.equals("image/gif");
     }
-
 }

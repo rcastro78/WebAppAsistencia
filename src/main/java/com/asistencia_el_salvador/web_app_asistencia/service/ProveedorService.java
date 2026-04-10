@@ -39,6 +39,10 @@ public class ProveedorService {
         return proveedorAfiliadoRepository.findById(id) ;
     }
 
+    public Proveedor buscarProveedor(String id){
+        return proveedorRepository.findById(id).orElse(null);
+    }
+
     public List<ProveedorAfiliado> listarTodas(){
         return proveedorAfiliadoRepository.findAll();
     }
@@ -48,24 +52,29 @@ public class ProveedorService {
 
 
 
-    //Actualizar
     public Proveedor updateEmpresaAfiliada(String id, Proveedor proveedor){
         return proveedorRepository.findById(id)
                 .map(p -> {
+                    p.setNit(proveedor.getNit());
+                    p.setNombreProveedor(proveedor.getNombreProveedor());
                     p.setEmail(proveedor.getEmail());
                     p.setDireccion(proveedor.getDireccion());
                     p.setEstado(proveedor.getEstado());
                     p.setIdCategoriaEmpresa(proveedor.getIdCategoriaEmpresa());
-                    p.setNombreProveedor(proveedor.getNombreProveedor());
+                    p.setIdPais(proveedor.getIdPais());
                     p.setTelefono(proveedor.getTelefono());
-                    if (p.getImagenURL() != null) {
+                    p.setRepreLegalNombre(proveedor.getRepreLegalNombre());
+
+                    // Solo actualizar imagen si viene una nueva URL (no null ni vacía)
+                    if (proveedor.getImagenURL() != null && !proveedor.getImagenURL().isEmpty()) {
                         p.setImagenURL(proveedor.getImagenURL());
                     }
+                    // Si imagenURL es null, se conserva la que ya tenía p
+
                     return proveedorRepository.save(p);
                 })
-                .orElseThrow(() -> new RuntimeException("Empresa no encontrada con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Proveedor no encontrado con ID: " + id));
     }
-
     //Borrado lógico
     public Proveedor deleteProveedor(String id){
         return proveedorRepository.findById(id)

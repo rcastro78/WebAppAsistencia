@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esEdicion == true} ? 'Editar Cobertura - Asistencia El Salvador' : 'Nueva Cobertura - Asistencia El Salvador'">Cobertura</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/plan.css}">
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1 th:text="${esEdicion == true} ? 'Editar Cobertura' : 'Nueva Cobertura'">Cobertura</h1>
+        <span class="subtitle"
+              th:text="${esEdicion == true} ? 'Modifica la información de la cobertura' : 'Registra una nueva cobertura en el sistema'">
+        </span>
+    </div>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a th:href="@{/coberturas}">
+            <i class="fas fa-shield-alt"></i> Coberturas
+        </a>
+        <span>/</span>
+        <span class="current" th:text="${esEdicion == true} ? 'Editar' : 'Nueva'">Cobertura</span>
+    </nav>
+
+    <div class="card fade-in">
+        <div class="card-header">
+            <h2 th:text="${esEdicion == true} ? 'Editar Cobertura' : 'Crear Cobertura'">Cobertura</h2>
+            <a th:href="@{/coberturas}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Listado
+            </a>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Mensajes flash -->
+            <div class="alert alert-success" th:if="${success}" style="
+                display:flex; align-items:center; gap:10px;
+                background:#d4edda; color:#155724;
+                border:1px solid #c3e6cb; border-radius:8px;
+                padding:12px 18px; margin-bottom:20px;">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${success}"></span>
+            </div>
+            <div class="alert alert-danger" th:if="${error}" style="
+                display:flex; align-items:center; gap:10px;
+                background:#f8d7da; color:#721c24;
+                border:1px solid #f5c6cb; border-radius:8px;
+                padding:12px 18px; margin-bottom:20px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!--
+                ACTION dinámico:
+                  - Creación → POST /coberturas/guardar
+                  - Edición  → POST /coberturas/actualizar/{id}
+            -->
+            <form th:action="${esEdicion == true}
+                                ? @{/coberturas/actualizar/{id}(id=${cobertura.idCobertura})}
+                                : @{/coberturas/guardar}"
+                  th:object="${cobertura}"
+                  method="post"
+                  class="form"
+                  id="coberturaForm">
+
+                <div class="form-row">
+
+                    <!-- Nombre de la Cobertura -->
+                    <div class="form-group full-width">
+                        <label for="nombreCobertura" class="form-label required">
+                            <i class="fas fa-shield-alt"></i> Nombre de la Cobertura
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               th:field="*{nombreCobertura}"
+                               id="nombreCobertura"
+                               placeholder="Ej: Asistencia en Carretera Básica"
+                               maxlength="45"
+                               required>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Nombre único de la cobertura (máximo 45 caracteres)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+
+                    <!-- Eventos -->
+                    <div class="form-group">
+                        <label for="eventos" class="form-label required">
+                            <i class="fas fa-calendar-check"></i> Número de Eventos
+                        </label>
+                        <input type="number"
+                               class="form-control"
+                               th:field="*{eventos}"
+                               id="eventos"
+                               placeholder="0"
+                               min="0"
+                               required>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Cantidad de eventos incluidos en la cobertura
+                        </div>
+                    </div>
+
+                    <!-- Límite Económico -->
+                    <div class="form-group">
+                        <label for="limiteEconomico" class="form-label required">
+                            <i class="fas fa-dollar-sign"></i> Límite Económico ($)
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               th:field="*{limiteEconomico}"
+                               id="limiteEconomico"
+                               placeholder="0.00"
+                               pattern="^\d+(\.\d{1,2})?$"
+                               required>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Monto máximo de cobertura económica (formato: 0.00)
+                        </div>
+                    </div>
+
+                    <!-- Por Año -->
+                    <div class="form-group">
+                        <label for="porAnio" class="form-label required">
+                            <i class="fas fa-calendar-alt"></i> Eventos por Año
+                        </label>
+                        <input type="number"
+                               class="form-control"
+                               th:field="*{porAnio}"
+                               id="porAnio"
+                               placeholder="0"
+                               min="0"
+                               required>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Número de eventos permitidos por año
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estado — solo visible en edición -->
+                <div class="form-row" th:if="${esEdicion == true}">
+                    <div class="form-group">
+                        <label for="estado" class="form-label">
+                            <i class="fas fa-toggle-on"></i> Estado
+                        </label>
+                        <select class="form-control" th:field="*{estado}" id="estado">
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Estado actual de la cobertura
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="form-actions">
+                    <a th:href="@{/coberturas}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success" id="submitBtn">
+                        <i th:class="${esEdicion == true} ? 'fas fa-edit' : 'fas fa-save'"></i>
+                        <span th:text="${esEdicion == true} ? 'Actualizar Cobertura' : 'Guardar Cobertura'">Guardar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // Formateo del límite económico
+        const limiteInput = document.getElementById('limiteEconomico');
+        if (limiteInput) {
+            limiteInput.addEventListener('input', function () {
+                let v = this.value.replace(/[^0-9.]/g, '');
+                const parts = v.split('.');
+                if (parts.length > 2) v = parts[0] + '.' + parts.slice(1).join('');
+                if (parts[1] && parts[1].length > 2) v = parts[0] + '.' + parts[1].slice(0, 2);
+                this.value = v;
+            });
+            limiteInput.addEventListener('blur', function () {
+                if (this.value && this.value !== '.') {
+                    const n = parseFloat(this.value);
+                    if (!isNaN(n)) this.value = n.toFixed(2);
+                }
+            });
+        }
+
+        // Validación antes de enviar
+        const form = document.getElementById('coberturaForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', function (e) {
+            let valid = true;
+
+            const nombre = document.getElementById('nombreCobertura').value.trim();
+            if (!nombre || nombre.length < 2) {
+                document.getElementById('nombreCobertura').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('nombreCobertura').classList.remove('is-invalid');
+            }
+
+            const limite = parseFloat(document.getElementById('limiteEconomico').value);
+            if (isNaN(limite) || limite < 0) {
+                document.getElementById('limiteEconomico').classList.add('is-invalid');
+                valid = false;
+            } else {
+                document.getElementById('limiteEconomico').classList.remove('is-invalid');
+            }
+
+            if (!valid) {
+                e.preventDefault();
+                alert('Por favor corrija los errores antes de continuar.');
+                return;
+            }
+
+            // Feedback visual al enviar
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        });
+
+        // Auto-ocultar alertas después de 5s
+        document.querySelectorAll('.alert').forEach(function (alert) {
+            setTimeout(function () {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(function () { alert.remove(); }, 500);
+            }, 5000);
+        });
+    });
+</script>
+
+<style>
+    .form-help {
+        font-size: 0.82rem;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+    .form-help i {
+        margin-right: 4px;
+    }
+    .is-invalid {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+    label.required::after {
+        content: ' *';
+        color: #dc3545;
+    }
+</style>
+</body>
+</html>

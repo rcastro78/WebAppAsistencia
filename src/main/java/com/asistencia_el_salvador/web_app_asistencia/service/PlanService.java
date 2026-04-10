@@ -41,7 +41,7 @@ public class PlanService {
         return planRepository.findByNombrePlan(nombre);
     }
 
-    //Crear nueva institución
+    //Crear nuevo plan
     public Plan savePlan(Plan p){
         return planRepository.save(p);
     }
