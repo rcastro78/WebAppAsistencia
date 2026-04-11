@@ -14,6 +14,8 @@ public class CategoriaEmpresa implements Serializable {
     private Integer idCategoria;
     @Column(name = "catNombre")
     private String catNombre;
+    @Column(name = "estado")
+    private Integer estado;
 
     public Integer getIdCategoria() {
         return idCategoria;
@@ -29,5 +31,13 @@ public class CategoriaEmpresa implements Serializable {
 
     public void setCatNombre(String catNombre) {
         this.catNombre = catNombre;
+    }
+
+    public Integer getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Integer estado) {
+        this.estado = estado;
     }
 }
