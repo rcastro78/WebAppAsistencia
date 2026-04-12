@@ -24,7 +24,8 @@ import java.util.Optional;
 @RequestMapping("/comerciosAfiliados")
 public class ComercioAfiliadoController {
     private final ComercioAfiliadoService comercioService;
-    private final CategoriaEmpresaService categoriaEmpresaService;
+    @Autowired
+    private RubroService rubroService;
     private final ComercioAfiliadoPromocionService comercioAfiliadoPromocionService;
     @Autowired
     private PlanService planService;
@@ -43,10 +44,8 @@ public class ComercioAfiliadoController {
     @Autowired
 
     public ComercioAfiliadoController(ComercioAfiliadoService comercioService,
-                                      CategoriaEmpresaService categoriaEmpresaService,
                                       ComercioAfiliadoPromocionService comercioAfiliadoPromocionService) {
         this.comercioService = comercioService;
-        this.categoriaEmpresaService = categoriaEmpresaService;
         this.comercioAfiliadoPromocionService = comercioAfiliadoPromocionService;
     }
 
@@ -178,11 +177,12 @@ public class ComercioAfiliadoController {
     public String mostrarComercios(HttpSession session, Model model) {
         UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
         List<ComercioAfiliado> comercios = comercioService.listarTodos();
-        List<CategoriaEmpresa> categorias = categoriaEmpresaService.listarTodas();
+        //List<CategoriaEmpresa> categorias = categoriaEmpresaService.listarTodas();
+        List<Rubro> rubros = rubroService.listarTodos();
         long totalComercios = comercioService.listarTodos().stream().count();
         model.addAttribute("usuario", usuario);
         model.addAttribute("comercios", comercios);
-        model.addAttribute("categorias", categorias);
+        model.addAttribute("rubros", rubros);
         model.addAttribute("totalComercios", totalComercios);
 
         return "comercios_afiliados";

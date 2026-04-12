@@ -28,6 +28,9 @@ public class ComercioAfiliado {
     @Column(name = "catNombre")
     private String catNombre;
 
+    @Column(name = "nombreRubro")
+    private String nombreRubro;
+
     @Column(name = "nombrePais")
     private String nombrePais;
 
@@ -36,7 +39,8 @@ public class ComercioAfiliado {
     }
 
     public ComercioAfiliado(String nit, String nombreEmpresa, String direccion, String telefono,
-                            String email, String imagenURL, String catNombre, String nombrePais) {
+                            String email, String imagenURL, String catNombre, String nombrePais,
+                            String nombreRubro) {
         this.nit = nit;
         this.nombreEmpresa = nombreEmpresa;
         this.direccion = direccion;
@@ -45,6 +49,7 @@ public class ComercioAfiliado {
         this.imagenURL = imagenURL;
         this.catNombre = catNombre;
         this.nombrePais = nombrePais;
+        this.nombreRubro = nombreRubro;
     }
 
     // Getters y Setters
@@ -110,6 +115,14 @@ public class ComercioAfiliado {
 
     public void setNombrePais(String nombrePais) {
         this.nombrePais = nombrePais;
+    }
+
+    public String getNombreRubro() {
+        return nombreRubro;
+    }
+
+    public void setNombreRubro(String nombreRubro) {
+        this.nombreRubro = nombreRubro;
     }
 
     @Override

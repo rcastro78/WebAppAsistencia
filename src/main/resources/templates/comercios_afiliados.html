@@ -225,10 +225,10 @@
                     <input type="text" placeholder="Buscar comercios afiliados..." id="searchInput">
                 </div>
                 <select class="category-filter" id="categoryFilter">
-                    <option value="all">Todas las categorías</option>
-                    <option th:each="cat : ${categorias}"
-                            th:value="${cat.catNombre}"
-                            th:text="${cat.catNombre}"></option>
+                    <option value="all">Todos los rubros</option>
+                    <option th:each="r : ${rubros}"
+                            th:value="${r.nombreRubro}"
+                            th:text="${r.nombreRubro}"></option>
                 </select>
             </div>
             <div class="toolbar-right">
@@ -286,7 +286,7 @@
                 <!-- Tarjeta de comercio (Se repite por cada comercio) -->
                 <div class="comercio-card"
                      th:each="comercio : ${comercios}"
-                     th:attr="data-category=${comercio.catNombre}"
+                     th:attr="data-rubro=${comercio.nombreRubro}"
                      th:data-nombre="${comercio.nombreEmpresa}">
 
                     <div class="card-header">
@@ -352,7 +352,7 @@
 <script th:inline="javascript">
     // Datos iniciales desde el servidor
     const comerciosData = /*[[${comercios}]]*/ [];
-    const categoriasData = /*[[${categorias}]]*/ [];
+    const rubrosData = /*[[${rubros}]]*/ [];
 
     // Elementos del DOM
     const gridViewBtn = document.getElementById('gridView');
@@ -407,7 +407,7 @@
 
         cards.forEach(card => {
             const nombre = card.getAttribute('data-nombre').toLowerCase();
-            const category = card.getAttribute('data-category');
+            const category = card.getAttribute('data-rubro');
 
             const matchesSearch = nombre.includes(searchTerm);
             const matchesCategory = selectedCategory === 'all' || category === selectedCategory;

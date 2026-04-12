@@ -43,6 +43,10 @@ public class ProveedorService {
         return proveedorRepository.findById(id).orElse(null);
     }
 
+    public Proveedor buscarProveedorNIT(String nit){
+        return proveedorRepository.findByNit(nit);
+    }
+
     public List<ProveedorAfiliado> listarTodas(){
         return proveedorAfiliadoRepository.findAll();
     }

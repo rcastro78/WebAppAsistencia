@@ -290,7 +290,14 @@
                                    th:href="@{/proveedores/editar/{id}(id=${proveedor.idProveedor})}">
                                     <i class="fas fa-pen-to-square"></i> Editar
                                 </a>
+                                <a class="action-btn secondary"
+                                   th:href="@{/proveedores/sucursales/{nit}(nit=${proveedor.nit})}">
+                                    <i class="fas fa-code-branch"></i> Sucursales
+                                </a>
                             </div>
+
+
+
                             <br/>
                             <div class="card-actions">
                                 <button class="action-btn primary"

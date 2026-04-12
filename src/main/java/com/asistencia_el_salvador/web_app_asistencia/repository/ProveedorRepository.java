@@ -11,5 +11,5 @@ import java.util.List;
 
 @Repository
 public interface ProveedorRepository extends JpaRepository<Proveedor,String> {
-
+    Proveedor findByNit(String nit);
 }
