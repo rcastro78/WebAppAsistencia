@@ -1570,9 +1570,6 @@ public class AfiliadoController {
             return "redirect:/login";
         }
 
-        //De mi plan, obtener el link de wompi
-
-
         List<PagoAfiliado> todosPagos = pagoAfiliadoService.listarPagos(dui);
 
         // LOG 1: Ver qué trae de la BD

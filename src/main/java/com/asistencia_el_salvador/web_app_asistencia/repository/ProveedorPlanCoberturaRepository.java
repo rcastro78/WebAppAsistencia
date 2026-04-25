@@ -10,5 +10,6 @@ public interface ProveedorPlanCoberturaRepository
     List<ProveedorPlanCobertura> findByEstado(int estado);
     List<ProveedorPlanCobertura> findByIdPlanAndEstado(int idPlan, int estado);
     List<ProveedorPlanCobertura> findByIdProveedor(int idProveedor);
+    List<ProveedorPlanCobertura> findByIdProveedorAndIdPlan(int idProveedor, int idPlan);
     List<ProveedorPlanCobertura> findByIdCoberturaAndIdPlan(int idCobertura, int idPlan);
 }

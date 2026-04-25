@@ -20,6 +20,11 @@ public class ProveedorPlanCoberturaService {
         return repository.findByIdProveedor(idProveedor);
     }
 
+    public List<ProveedorPlanCobertura> listarPorProveedorPlan(int idProveedor, int idPlan){
+        return repository.findByIdProveedorAndIdPlan(idProveedor,idPlan);
+    }
+
+
     public List<ProveedorPlanCobertura> listarActivos(){
         return repository.findByEstado(1);
     }
