@@ -1,771 +1,96 @@
-2026-04-23T10:01:50.701-06:00  INFO 2120 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Starting WebAppAsistenciaApplicationTests using Java 21.0.5 with PID 2120 (started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
-2026-04-23T10:01:50.704-06:00  INFO 2120 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : No active profile set, falling back to 1 default profile: "default"
-2026-04-23T10:01:51.145-06:00  INFO 2120 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-23T10:01:51.222-06:00  INFO 2120 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 72 ms. Found 66 JPA repository interfaces.
-2026-04-23T10:01:51.597-06:00  INFO 2120 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-23T10:01:51.627-06:00  INFO 2120 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
-2026-04-23T10:01:51.645-06:00  INFO 2120 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-23T10:01:51.783-06:00  INFO 2120 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-23T10:01:51.802-06:00  INFO 2120 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-04-23T10:01:53.085-06:00  INFO 2120 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@64508788
-2026-04-23T10:01:53.088-06:00  INFO 2120 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-04-23T10:01:53.378-06:00  WARN 2120 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-23T10:01:53.379-06:00  WARN 2120 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
-2026-04-23T10:01:53.390-06:00  INFO 2120 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 8.0
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-04-23T10:01:53.668-06:00  WARN 2120 --- [main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T10:01:53.668-06:00  WARN 2120 --- [main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T10:01:54.217-06:00  INFO 2120 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-23T10:01:54.219-06:00  INFO 2120 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T10:01:54.370-06:00  INFO 2120 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-04-23T10:01:56.595-06:00  WARN 2120 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-23T10:01:56.713-06:00 DEBUG 2120 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : 286 mappings in 'requestMappingHandlerMapping'
-2026-04-23T10:01:56.760-06:00  WARN 2120 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
-
-Using generated security password: 9765c0cd-ff8d-4356-887c-76fbce0850d9
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2026-04-23T10:01:56.765-06:00  INFO 2120 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-04-23T10:01:56.906-06:00 DEBUG 2120 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2026-04-23T10:01:56.930-06:00 DEBUG 2120 --- [main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2026-04-23T10:01:57.031-06:00  INFO 2120 --- [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
-2026-04-23T10:01:57.052-06:00  INFO 2120 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
-2026-04-23T10:01:57.052-06:00  INFO 2120 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@524cb059]]
-2026-04-23T10:01:57.053-06:00  INFO 2120 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
-2026-04-23T10:01:57.058-06:00  INFO 2120 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Started WebAppAsistenciaApplicationTests in 6.517 seconds (process running for 6.99)
-2026-04-23T10:01:57.372-06:00  INFO 2120 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
-2026-04-23T10:01:57.372-06:00  INFO 2120 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@524cb059]]
-2026-04-23T10:01:57.372-06:00  INFO 2120 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
-2026-04-23T10:01:57.381-06:00  INFO 2120 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T10:01:57.382-06:00  INFO 2120 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-04-23T10:01:57.893-06:00  INFO 2120 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-04-23T10:02:02.406-06:00  INFO 2251 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 2251 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
-2026-04-23T10:02:02.407-06:00  INFO 2251 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
-2026-04-23T10:02:02.430-06:00  INFO 2251 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2026-04-23T10:02:02.430-06:00  INFO 2251 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2026-04-23T10:02:02.874-06:00  INFO 2251 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-23T10:02:02.960-06:00  INFO 2251 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 81 ms. Found 66 JPA repository interfaces.
-2026-04-23T10:02:03.403-06:00  INFO 2251 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2026-04-23T10:02:03.412-06:00  INFO 2251 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-04-23T10:02:03.413-06:00  INFO 2251 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
-2026-04-23T10:02:03.440-06:00  INFO 2251 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-04-23T10:02:03.440-06:00  INFO 2251 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1010 ms
-2026-04-23T10:02:03.530-06:00  INFO 2251 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-23T10:02:03.552-06:00  INFO 2251 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
-2026-04-23T10:02:03.567-06:00  INFO 2251 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-23T10:02:03.688-06:00  INFO 2251 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-23T10:02:03.701-06:00  INFO 2251 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-04-23T10:02:04.721-06:00  INFO 2251 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@67027b12
-2026-04-23T10:02:04.724-06:00  INFO 2251 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-04-23T10:02:04.855-06:00  WARN 2251 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-23T10:02:04.856-06:00  WARN 2251 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
-2026-04-23T10:02:04.867-06:00  INFO 2251 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 8.0
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-04-23T10:02:05.133-06:00  WARN 2251 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T10:02:05.133-06:00  WARN 2251 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T10:02:05.625-06:00  INFO 2251 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-23T10:02:05.626-06:00  INFO 2251 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T10:02:05.738-06:00  INFO 2251 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-04-23T10:02:07.729-06:00  WARN 2251 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-23T10:02:07.826-06:00 DEBUG 2251 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 286 mappings in 'requestMappingHandlerMapping'
-2026-04-23T10:02:07.854-06:00  WARN 2251 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
-
-Using generated security password: 03767679-882c-42bf-9e62-b6179ce3d47e
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2026-04-23T10:02:07.858-06:00  INFO 2251 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-04-23T10:02:07.952-06:00 DEBUG 2251 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2026-04-23T10:02:07.978-06:00 DEBUG 2251 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2026-04-23T10:02:08.065-06:00  INFO 2251 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
-2026-04-23T10:02:08.083-06:00  INFO 2251 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2026-04-23T10:02:08.095-06:00  INFO 2251 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
-2026-04-23T10:02:08.095-06:00  INFO 2251 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1cbc0853]]
-2026-04-23T10:02:08.096-06:00  INFO 2251 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
-2026-04-23T10:02:08.103-06:00  INFO 2251 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2026-04-23T10:02:08.108-06:00  INFO 2251 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 5.922 seconds (process running for 6.148)
-2026-04-23T10:03:08.100-06:00  INFO 2251 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
-2026-04-23T10:05:11.161-06:00  INFO 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-04-23T10:05:11.163-06:00  INFO 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-04-23T10:05:11.164-06:00  INFO 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2026-04-23T10:05:11.182-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T10:05:11.218-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@54ab186d]
-2026-04-23T10:05:12.633-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T10:05:12.634-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDEyMzQ2NS02Iiwicm9sIjozLCJpYXQiOjE3NzY5NjAzMTIsImV4cCI6MTc3 (truncated)...]
-2026-04-23T10:05:43.309-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#verHistorialPagos(String, Integer, Integer, String, HttpServletRequest)
-2026-04-23T10:05:44.060-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T10:05:44.060-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@1d114dd6]
-2026-04-23T10:33:08.101-06:00  INFO 2251 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 2, active threads = 1, queued tasks = 0, completed tasks = 1]
-2026-04-23T10:57:20.995-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@422140a8 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:57:32.270-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m27s14ms).
-2026-04-23T10:57:44.325-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@23e14914 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:57:54.336-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2447bb39 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:58:13.238-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@69f985a9 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:58:23.275-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@407567c4 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:58:33.283-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@6b99693d (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:58:43.290-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@4d8b0239 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:58:53.298-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@60d2afed (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:58:53.302-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=51s28ms).
-2026-04-23T10:59:03.318-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@5c9cb5b3 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T10:59:13.329-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@166427b1 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
-2026-04-23T11:02:27.260-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.AdminController#mostrarDashboard(HttpSession, Model)
-2026-04-23T11:02:31.469-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.DashboardController#mostrarDashboard(HttpSession, Model)
-2026-04-23T11:02:31.475-06:00 ERROR 2251 --- [http-nio-0.0.0.0-8080-exec-7] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.NullPointerException: Cannot invoke "com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse.getDui()" because "usuario" is null] with root cause
-
-java.lang.NullPointerException: Cannot invoke "com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse.getDui()" because "usuario" is null
-	at com.asistencia_el_salvador.web_app_asistencia.controller.DashboardController.mostrarDashboard(DashboardController.java:45) ~[classes/:na]
-	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
-	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
-	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:191) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564) ~[tomcat-embed-core-10.1.43.jar:6.0]
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.43.jar:6.0]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:125) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:119) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at com.asistencia_el_salvador.web_app_asistencia.config.JwtAuthFilter.doFilterInternal(JwtAuthFilter.java:37) ~[classes/:na]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.csrf.CsrfFilter.doFilterInternal(CsrfFilter.java:117) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319) ~[spring-security-config-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240) ~[spring-security-config-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-
-2026-04-23T11:02:31.484-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#errorHtml(HttpServletRequest, HttpServletResponse)
-2026-04-23T11:02:31.900-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T11:02:31.902-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T11:02:31.902-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T11:02:31.902-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T11:02:31.902-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 11:02:31 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T11:02:31.903-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T11:02:31.903-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T11:02:31.903-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 11:02:31 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T11:02:31.903-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 11:02:31 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T11:02:34.431-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#listarUsuarios(int, Model)
-2026-04-23T11:02:34.986-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#mostrarLogin(Model, HttpSession, String)
-2026-04-23T11:02:38.854-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#login(String, String, HttpSession, String, HttpServletRequest, Model)
-2026-04-23T11:02:40.201-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.DashboardController#mostrarDashboard(HttpSession, Model)
-2026-04-23T11:02:42.934-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.AfiliadoController#verHistorial(String, Integer, Integer, String, int, Model)
-2026-04-23T11:10:21.017-06:00  WARN 2251 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m27s642ms).
-2026-04-23T11:21:02.745-06:00  INFO 2251 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 3, active threads = 1, queued tasks = 0, completed tasks = 2]
-2026-04-23T11:51:02.755-06:00  INFO 2251 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 4, active threads = 1, queued tasks = 0, completed tasks = 3]
-2026-04-23T12:21:02.764-06:00  INFO 2251 --- [MessageBroker-3] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 5, active threads = 1, queued tasks = 0, completed tasks = 4]
-2026-04-23T12:51:02.767-06:00  INFO 2251 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 6, active threads = 1, queued tasks = 0, completed tasks = 5]
-2026-04-23T13:21:02.774-06:00  INFO 2251 --- [MessageBroker-4] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 7, active threads = 1, queued tasks = 0, completed tasks = 6]
-2026-04-23T13:51:02.784-06:00  INFO 2251 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 8, active threads = 1, queued tasks = 0, completed tasks = 7]
-2026-04-23T14:21:02.789-06:00  INFO 2251 --- [MessageBroker-5] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 9, active threads = 1, queued tasks = 0, completed tasks = 8]
-2026-04-23T14:51:02.802-06:00  INFO 2251 --- [MessageBroker-3] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 10, active threads = 1, queued tasks = 0, completed tasks = 9]
-2026-04-23T15:05:51.441-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T15:05:51.550-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-5] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@46a1a2fd]
-2026-04-23T15:05:53.378-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:05:53.381-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDEyMzQ2NS02Iiwicm9sIjozLCJpYXQiOjE3NzY5NzgzNTMsImV4cCI6MTc3 (truncated)...]
-2026-04-23T15:05:53.921-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#getPlanAfiliado(String, HttpServletRequest)
-2026-04-23T15:05:54.838-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:05:54.840-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@59429ed3]
-2026-04-23T15:12:03.786-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T15:12:03.806-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@7f100c5a]
-2026-04-23T15:12:04.609-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:12:04.612-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDEyMzQ2NS02Iiwicm9sIjozLCJpYXQiOjE3NzY5Nzg3MjQsImV4cCI6MTc3 (truncated)...]
-2026-04-23T15:12:05.148-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#getPlanAfiliado(String, HttpServletRequest)
-2026-04-23T15:12:05.776-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:12:05.781-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@1770333a]
-2026-04-23T15:15:39.388-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T15:15:39.398-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@830a816]
-2026-04-23T15:15:40.214-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:15:40.214-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDEyMzQ2NS02Iiwicm9sIjozLCJpYXQiOjE3NzY5Nzg5NDAsImV4cCI6MTc3 (truncated)...]
-2026-04-23T15:15:40.741-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#getPlanAfiliado(String, HttpServletRequest)
-2026-04-23T15:15:41.364-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:15:41.366-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@28f74ddb]
-2026-04-23T15:16:38.460-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T15:16:38.468-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@74e6e6b8]
-2026-04-23T15:16:39.314-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:16:39.315-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDEyMzQ2NS02Iiwicm9sIjozLCJpYXQiOjE3NzY5Nzg5OTksImV4cCI6MTc3 (truncated)...]
-2026-04-23T15:16:39.832-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#getPlanAfiliado(String, HttpServletRequest)
-2026-04-23T15:16:40.442-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:16:40.442-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@4fe57977]
-2026-04-23T15:17:00.968-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#verHistorialPagos(String, Integer, Integer, String, HttpServletRequest)
-2026-04-23T15:17:02.050-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:17:02.050-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@4f99c92b]
-2026-04-23T15:21:02.825-06:00  INFO 2251 --- [MessageBroker-3] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 10, active threads = 1, queued tasks = 0, completed tasks = 10]
-2026-04-23T15:23:29.760-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T15:23:29.773-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@7174ed52]
-2026-04-23T15:23:30.633-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:23:30.633-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDEyMzQ2NS02Iiwicm9sIjozLCJpYXQiOjE3NzY5Nzk0MTAsImV4cCI6MTc3 (truncated)...]
-2026-04-23T15:23:31.147-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#getPlanAfiliado(String, HttpServletRequest)
-2026-04-23T15:23:31.803-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:23:31.803-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@7df1c428]
-2026-04-23T15:23:36.205-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#verHistorialPagos(String, Integer, Integer, String, HttpServletRequest)
-2026-04-23T15:23:36.865-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:23:36.865-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@79688b3]
-2026-04-23T15:51:02.837-06:00  INFO 2251 --- [MessageBroker-3] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 10, active threads = 1, queued tasks = 0, completed tasks = 11]
-2026-04-23T15:58:46.371-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.AdminController#mostrarDashboard(HttpSession, Model)
-2026-04-23T15:58:49.887-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.DashboardController#mostrarDashboard(HttpSession, Model)
-2026-04-23T15:58:49.940-06:00 ERROR 2251 --- [http-nio-0.0.0.0-8080-exec-8] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.NullPointerException: Cannot invoke "com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse.getDui()" because "usuario" is null] with root cause
-
-java.lang.NullPointerException: Cannot invoke "com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse.getDui()" because "usuario" is null
-	at com.asistencia_el_salvador.web_app_asistencia.controller.DashboardController.mostrarDashboard(DashboardController.java:45) ~[classes/:na]
-	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
-	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
-	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:191) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564) ~[tomcat-embed-core-10.1.43.jar:6.0]
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.43.jar:6.0]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:125) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:119) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at com.asistencia_el_salvador.web_app_asistencia.config.JwtAuthFilter.doFilterInternal(JwtAuthFilter.java:37) ~[classes/:na]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.csrf.CsrfFilter.doFilterInternal(CsrfFilter.java:117) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319) ~[spring-security-config-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267) ~[spring-webmvc-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240) ~[spring-security-config-6.5.2.jar:6.5.2]
-	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.9.jar:6.2.9]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1769) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.43.jar:10.1.43]
-	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
-
-2026-04-23T15:58:49.962-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#errorHtml(HttpServletRequest, HttpServletResponse)
-2026-04-23T15:58:50.035-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T15:58:50.035-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T15:58:50.035-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T15:58:50.036-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:58:50.036-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:58:50.036-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T15:58:50.037-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 15:58:50 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T15:58:50.037-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 15:58:50 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T15:58:50.037-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 15:58:50 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T15:58:51.881-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#listarUsuarios(int, Model)
-2026-04-23T15:58:53.137-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#listarUsuarios(int, Model)
-2026-04-23T15:58:53.674-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#mostrarLogin(Model, HttpSession, String)
-2026-04-23T15:58:57.212-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#login(String, String, HttpSession, String, HttpServletRequest, Model)
-2026-04-23T15:58:58.030-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.DashboardController#mostrarDashboard(HttpSession, Model)
-2026-04-23T15:59:00.737-06:00 DEBUG 2251 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.AfiliadoController#mostrarMiTarjeta(HttpSession, Model)
-2026-04-23T16:08:48.834-06:00  INFO 2251 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2026-04-23T16:08:48.844-06:00  INFO 2251 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2026-04-23T16:08:48.852-06:00  INFO 2251 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
-2026-04-23T16:08:48.853-06:00  INFO 2251 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1cbc0853]]
-2026-04-23T16:08:48.853-06:00  INFO 2251 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
-2026-04-23T16:08:48.869-06:00  INFO 2251 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T16:08:48.894-06:00  INFO 2251 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-04-23T16:08:48.979-06:00  INFO 2251 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-04-23T16:08:55.318-06:00  INFO 6842 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Starting WebAppAsistenciaApplicationTests using Java 21.0.5 with PID 6842 (started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
-2026-04-23T16:08:55.319-06:00  INFO 6842 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : No active profile set, falling back to 1 default profile: "default"
-2026-04-23T16:08:55.746-06:00  INFO 6842 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-23T16:08:55.817-06:00  INFO 6842 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 66 ms. Found 66 JPA repository interfaces.
-2026-04-23T16:08:56.161-06:00  INFO 6842 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-23T16:08:56.187-06:00  INFO 6842 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
-2026-04-23T16:08:56.203-06:00  INFO 6842 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-23T16:08:56.328-06:00  INFO 6842 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-23T16:08:56.342-06:00  INFO 6842 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-04-23T16:08:57.481-06:00  INFO 6842 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@21eedcde
-2026-04-23T16:08:57.484-06:00  INFO 6842 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-04-23T16:08:57.651-06:00  WARN 6842 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-23T16:08:57.651-06:00  WARN 6842 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
-2026-04-23T16:08:57.661-06:00  INFO 6842 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 8.0
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-04-23T16:08:57.924-06:00  WARN 6842 --- [main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T16:08:57.924-06:00  WARN 6842 --- [main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T16:08:58.492-06:00  INFO 6842 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-23T16:08:58.494-06:00  INFO 6842 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T16:08:58.607-06:00  INFO 6842 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-04-23T16:09:00.845-06:00  WARN 6842 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-23T16:09:00.946-06:00 DEBUG 6842 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : 287 mappings in 'requestMappingHandlerMapping'
-2026-04-23T16:09:00.999-06:00  WARN 6842 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
-
-Using generated security password: d240573a-11b2-4573-9ba7-4b20ae2d0eff
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2026-04-23T16:09:01.003-06:00  INFO 6842 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-04-23T16:09:01.121-06:00 DEBUG 6842 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2026-04-23T16:09:01.145-06:00 DEBUG 6842 --- [main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2026-04-23T16:09:01.243-06:00  INFO 6842 --- [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
-2026-04-23T16:09:01.259-06:00  INFO 6842 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
-2026-04-23T16:09:01.260-06:00  INFO 6842 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1ed65c99]]
-2026-04-23T16:09:01.260-06:00  INFO 6842 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
-2026-04-23T16:09:01.264-06:00  INFO 6842 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Started WebAppAsistenciaApplicationTests in 6.099 seconds (process running for 6.578)
-2026-04-23T16:09:01.577-06:00  INFO 6842 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
-2026-04-23T16:09:01.577-06:00  INFO 6842 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1ed65c99]]
-2026-04-23T16:09:01.577-06:00  INFO 6842 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
-2026-04-23T16:09:01.585-06:00  INFO 6842 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T16:09:01.587-06:00  INFO 6842 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-04-23T16:09:02.312-06:00  INFO 6842 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-04-23T16:09:06.433-06:00  INFO 6979 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 6979 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
-2026-04-23T16:09:06.434-06:00  INFO 6979 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
-2026-04-23T16:09:06.453-06:00  INFO 6979 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2026-04-23T16:09:06.453-06:00  INFO 6979 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2026-04-23T16:09:06.889-06:00  INFO 6979 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-23T16:09:06.964-06:00  INFO 6979 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 71 ms. Found 66 JPA repository interfaces.
-2026-04-23T16:09:07.366-06:00  INFO 6979 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2026-04-23T16:09:07.374-06:00  INFO 6979 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-04-23T16:09:07.374-06:00  INFO 6979 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
-2026-04-23T16:09:07.396-06:00  INFO 6979 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-04-23T16:09:07.396-06:00  INFO 6979 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 943 ms
-2026-04-23T16:09:07.479-06:00  INFO 6979 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-23T16:09:07.496-06:00  INFO 6979 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
-2026-04-23T16:09:07.507-06:00  INFO 6979 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-23T16:09:07.638-06:00  INFO 6979 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-23T16:09:07.653-06:00  INFO 6979 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-04-23T16:09:08.743-06:00  INFO 6979 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@3d0822ef
-2026-04-23T16:09:08.744-06:00  INFO 6979 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-04-23T16:09:08.857-06:00  WARN 6979 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-23T16:09:08.857-06:00  WARN 6979 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
-2026-04-23T16:09:08.865-06:00  INFO 6979 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 8.0
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-04-23T16:09:09.164-06:00  WARN 6979 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T16:09:09.164-06:00  WARN 6979 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T16:09:09.684-06:00  INFO 6979 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-23T16:09:09.685-06:00  INFO 6979 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T16:09:09.815-06:00  INFO 6979 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-04-23T16:09:11.815-06:00  WARN 6979 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-23T16:09:11.914-06:00 DEBUG 6979 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 287 mappings in 'requestMappingHandlerMapping'
-2026-04-23T16:09:11.947-06:00  WARN 6979 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
-
-Using generated security password: d7534472-a5af-4521-b213-9a3584d7c054
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2026-04-23T16:09:11.951-06:00  INFO 6979 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-04-23T16:09:12.042-06:00 DEBUG 6979 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2026-04-23T16:09:12.077-06:00 DEBUG 6979 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2026-04-23T16:09:12.170-06:00  INFO 6979 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
-2026-04-23T16:09:12.190-06:00  INFO 6979 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2026-04-23T16:09:12.202-06:00  INFO 6979 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
-2026-04-23T16:09:12.203-06:00  INFO 6979 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@37006ac0]]
-2026-04-23T16:09:12.203-06:00  INFO 6979 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
-2026-04-23T16:09:12.212-06:00  INFO 6979 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2026-04-23T16:09:12.217-06:00  INFO 6979 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 6.003 seconds (process running for 6.261)
-2026-04-23T16:10:12.225-06:00  INFO 6979 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
-2026-04-23T16:10:27.298-06:00  INFO 6979 --- [http-nio-0.0.0.0-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-04-23T16:10:27.298-06:00  INFO 6979 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-04-23T16:10:27.311-06:00  INFO 6979 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 13 ms
-2026-04-23T16:10:27.336-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T16:10:27.383-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@26be8def]
-2026-04-23T16:10:28.368-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T16:10:28.368-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{usuario=com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse@257ecca0, token=eyJh (truncated)...]
-2026-04-23T16:10:59.174-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T16:10:59.178-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T16:10:59.178-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 16:10:59 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T16:11:11.889-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#verCarnetAfiliado(String)
-2026-04-23T16:11:13.744-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T16:11:13.744-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@3f036074]
-2026-04-23T16:40:04.507-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T16:40:04.560-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-6] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@26f15182]
-2026-04-23T16:40:05.503-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T16:40:05.505-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{usuario=com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse@7f48cb25, token=eyJh (truncated)...]
-2026-04-23T16:40:06.055-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#getPlanAfiliado(String, HttpServletRequest)
-2026-04-23T16:40:06.873-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T16:40:06.875-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@5d5839c9]
-2026-04-23T16:40:12.236-06:00  INFO 6979 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 2, active threads = 1, queued tasks = 0, completed tasks = 1]
-2026-04-23T16:41:42.028-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T16:41:42.038-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@df77387]
-2026-04-23T16:41:42.871-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T16:41:42.875-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{usuario=com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse@2fd58678, token=eyJh (truncated)...]
-2026-04-23T16:41:43.409-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#getPlanAfiliado(String, HttpServletRequest)
-2026-04-23T16:41:44.069-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T16:41:44.070-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@2a120993]
-2026-04-23T16:41:51.475-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#verCarnetAfiliado(String)
-2026-04-23T16:41:53.042-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T16:41:53.044-06:00 DEBUG 6979 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@2c5c379]
-2026-04-23T17:10:12.279-06:00  INFO 6979 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 3, active threads = 1, queued tasks = 0, completed tasks = 2]
-2026-04-23T17:40:12.287-06:00  INFO 6979 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 4, active threads = 1, queued tasks = 0, completed tasks = 3]
-2026-04-23T18:10:12.296-06:00  INFO 6979 --- [MessageBroker-3] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 5, active threads = 1, queued tasks = 0, completed tasks = 4]
-2026-04-23T18:40:12.310-06:00  INFO 6979 --- [MessageBroker-2] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 6, active threads = 1, queued tasks = 0, completed tasks = 5]
-2026-04-23T19:10:12.318-06:00  INFO 6979 --- [MessageBroker-4] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 7, active threads = 1, queued tasks = 0, completed tasks = 6]
-2026-04-23T19:40:12.331-06:00  INFO 6979 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 8, active threads = 1, queued tasks = 0, completed tasks = 7]
-2026-04-23T20:10:12.347-06:00  INFO 6979 --- [MessageBroker-5] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 9, active threads = 1, queued tasks = 0, completed tasks = 8]
-2026-04-23T20:24:40.597-06:00  INFO 6979 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2026-04-23T20:24:40.617-06:00  INFO 6979 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2026-04-23T20:24:40.628-06:00  INFO 6979 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
-2026-04-23T20:24:40.629-06:00  INFO 6979 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@37006ac0]]
-2026-04-23T20:24:40.629-06:00  INFO 6979 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
-2026-04-23T20:24:40.652-06:00  INFO 6979 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T20:24:40.696-06:00  INFO 6979 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-04-23T20:24:40.781-06:00  INFO 6979 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-04-23T21:03:16.196-06:00  INFO 13151 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Starting WebAppAsistenciaApplicationTests using Java 21.0.5 with PID 13151 (started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
-2026-04-23T21:03:16.197-06:00  INFO 13151 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : No active profile set, falling back to 1 default profile: "default"
-2026-04-23T21:03:16.682-06:00  INFO 13151 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-23T21:03:16.760-06:00  INFO 13151 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 73 ms. Found 66 JPA repository interfaces.
-2026-04-23T21:03:17.099-06:00  INFO 13151 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-23T21:03:17.127-06:00  INFO 13151 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
-2026-04-23T21:03:17.144-06:00  INFO 13151 --- [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-23T21:03:17.279-06:00  INFO 13151 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-23T21:03:17.293-06:00  INFO 13151 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-04-23T21:03:18.449-06:00  INFO 13151 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@c6bf8d9
-2026-04-23T21:03:18.451-06:00  INFO 13151 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-04-23T21:03:18.740-06:00  WARN 13151 --- [main] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-23T21:03:18.741-06:00  WARN 13151 --- [main] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
-2026-04-23T21:03:18.752-06:00  INFO 13151 --- [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 8.0
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-04-23T21:03:19.024-06:00  WARN 13151 --- [main] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T21:03:19.025-06:00  WARN 13151 --- [main] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T21:03:19.549-06:00  INFO 13151 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-23T21:03:19.550-06:00  INFO 13151 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T21:03:19.671-06:00  INFO 13151 --- [main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-04-23T21:03:22.118-06:00  WARN 13151 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-23T21:03:22.223-06:00 DEBUG 13151 --- [main] s.w.s.m.m.a.RequestMappingHandlerMapping : 287 mappings in 'requestMappingHandlerMapping'
-2026-04-23T21:03:22.267-06:00  WARN 13151 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
-
-Using generated security password: 597cbce8-c9af-4417-bf3c-39acd37cf0a9
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2026-04-23T21:03:22.271-06:00  INFO 13151 --- [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-04-23T21:03:22.393-06:00 DEBUG 13151 --- [main] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2026-04-23T21:03:22.414-06:00 DEBUG 13151 --- [main] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2026-04-23T21:03:22.504-06:00  INFO 13151 --- [main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
-2026-04-23T21:03:22.522-06:00  INFO 13151 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
-2026-04-23T21:03:22.522-06:00  INFO 13151 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@f9c04e]]
-2026-04-23T21:03:22.522-06:00  INFO 13151 --- [main] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
-2026-04-23T21:03:22.527-06:00  INFO 13151 --- [main] c.a.w.WebAppAsistenciaApplicationTests   : Started WebAppAsistenciaApplicationTests in 6.493 seconds (process running for 7.086)
-2026-04-23T21:03:22.834-06:00  INFO 13151 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
-2026-04-23T21:03:22.834-06:00  INFO 13151 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@f9c04e]]
-2026-04-23T21:03:22.835-06:00  INFO 13151 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
-2026-04-23T21:03:22.843-06:00  INFO 13151 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T21:03:22.844-06:00  INFO 13151 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-04-23T21:03:23.270-06:00  INFO 13151 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-04-23T21:03:26.994-06:00  INFO 13281 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Starting WebAppAsistenciaApplication using Java 21.0.5 with PID 13281 (/Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia/target/classes started by rcastro in /Users/rcastro/Documents/ProyectosSpring/WebAppAsistencia)
-2026-04-23T21:03:26.995-06:00  INFO 13281 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : No active profile set, falling back to 1 default profile: "default"
-2026-04-23T21:03:27.023-06:00  INFO 13281 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2026-04-23T21:03:27.023-06:00  INFO 13281 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2026-04-23T21:03:27.633-06:00  INFO 13281 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-23T21:03:27.831-06:00  INFO 13281 --- [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 192 ms. Found 66 JPA repository interfaces.
-2026-04-23T21:03:28.320-06:00  INFO 13281 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2026-04-23T21:03:28.329-06:00  INFO 13281 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-04-23T21:03:28.329-06:00  INFO 13281 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.43]
-2026-04-23T21:03:28.354-06:00  INFO 13281 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-04-23T21:03:28.354-06:00  INFO 13281 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1331 ms
-2026-04-23T21:03:28.437-06:00  INFO 13281 --- [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-23T21:03:28.460-06:00  INFO 13281 --- [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.22.Final
-2026-04-23T21:03:28.474-06:00  INFO 13281 --- [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-23T21:03:28.603-06:00  INFO 13281 --- [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-23T21:03:28.615-06:00  INFO 13281 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-04-23T21:03:29.682-06:00  INFO 13281 --- [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@261f4f0b
-2026-04-23T21:03:29.685-06:00  INFO 13281 --- [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-04-23T21:03:29.812-06:00  WARN 13281 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-23T21:03:29.813-06:00  WARN 13281 --- [restartedMain] org.hibernate.orm.deprecation            : HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
-2026-04-23T21:03:29.823-06:00  INFO 13281 --- [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 8.0
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-04-23T21:03:30.116-06:00  WARN 13281 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000038: Composite-id class does not override equals(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T21:03:30.116-06:00  WARN 13281 --- [restartedMain] org.hibernate.mapping.RootClass          : HHH000039: Composite-id class does not override hashCode(): com.asistencia_el_salvador.web_app_asistencia.model.UsuarioComercioPK
-2026-04-23T21:03:30.626-06:00  INFO 13281 --- [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-23T21:03:30.627-06:00  INFO 13281 --- [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T21:03:30.740-06:00  INFO 13281 --- [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-04-23T21:03:32.809-06:00  WARN 13281 --- [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-23T21:03:32.910-06:00 DEBUG 13281 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerMapping : 287 mappings in 'requestMappingHandlerMapping'
-2026-04-23T21:03:32.938-06:00  WARN 13281 --- [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
-
-Using generated security password: 187ab379-68ef-4073-877a-d6a83b02e490
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2026-04-23T21:03:32.942-06:00  INFO 13281 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-04-23T21:03:33.051-06:00 DEBUG 13281 --- [restartedMain] s.w.s.m.m.a.RequestMappingHandlerAdapter : ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
-2026-04-23T21:03:33.081-06:00 DEBUG 13281 --- [restartedMain] .m.m.a.ExceptionHandlerExceptionResolver : ControllerAdvice beans: 0 @ExceptionHandler, 1 ResponseBodyAdvice
-2026-04-23T21:03:33.166-06:00  INFO 13281 --- [restartedMain] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
-2026-04-23T21:03:33.183-06:00  INFO 13281 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2026-04-23T21:03:33.196-06:00  INFO 13281 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
-2026-04-23T21:03:33.196-06:00  INFO 13281 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@5e834422]]
-2026-04-23T21:03:33.197-06:00  INFO 13281 --- [restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
-2026-04-23T21:03:33.204-06:00  INFO 13281 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2026-04-23T21:03:33.208-06:00  INFO 13281 --- [restartedMain] c.a.w.WebAppAsistenciaApplication        : Started WebAppAsistenciaApplication in 6.569 seconds (process running for 6.847)
-2026-04-23T21:04:33.240-06:00  INFO 13281 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
-2026-04-23T21:06:32.307-06:00  INFO 13281 --- [http-nio-0.0.0.0-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-04-23T21:06:32.308-06:00  INFO 13281 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-04-23T21:06:32.313-06:00  INFO 13281 --- [http-nio-0.0.0.0-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
-2026-04-23T21:06:32.340-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.UsuarioController#loginApi(LoginRequest, HttpServletRequest)
-2026-04-23T21:06:32.397-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/json;charset=UTF-8" to [com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest@6588dce3]
-2026-04-23T21:06:33.772-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:06:33.772-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwMDEyMzQ2NS02Iiwicm9sIjozLCJpYXQiOjE3NzY5OTk5OTMsImV4cCI6MTc3 (truncated)...]
-2026-04-23T21:06:34.363-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#getPlanAfiliado(String, HttpServletRequest)
-2026-04-23T21:06:35.047-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:06:35.048-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@37492651]
-2026-04-23T21:06:44.304-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#rubrosComercio(HttpServletRequest)
-2026-04-23T21:06:44.590-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#comerciosAfiliados(HttpServletRequest)
-2026-04-23T21:06:44.867-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:06:44.867-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@454e1249]
-2026-04-23T21:06:45.145-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:06:45.145-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@2a48ccb6]
-2026-04-23T21:06:49.599-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#beneficiosComerciosAfiliados(String, HttpServletRequest)
-2026-04-23T21:06:49.779-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:06:49.780-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@7a394337]
-2026-04-23T21:06:57.779-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#coberturasPlan(Integer)
-2026-04-23T21:06:57.950-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:06:57.951-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@175381a2]
-2026-04-23T21:07:05.519-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#proveedoresPorCobertura(Integer, HttpServletRequest)
-2026-04-23T21:07:05.532-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#coberturas(HttpServletRequest)
-2026-04-23T21:07:05.694-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:07:05.695-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@4be4cec1]
-2026-04-23T21:07:05.706-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:07:05.707-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@b8796d2]
-2026-04-23T21:07:11.283-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#serviciosPorProveedorPlan(Integer, Integer, HttpServletRequest)
-2026-04-23T21:07:11.447-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:07:11.447-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@62c8d9ca]
-2026-04-23T21:07:27.773-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-10] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#listarMias(HttpServletRequest)
-2026-04-23T21:07:28.944-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:07:28.945-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-10] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@29c4fdd6]
-2026-04-23T21:07:35.539-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-3] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#categorias(HttpServletRequest)
-2026-04-23T21:07:35.559-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T21:07:35.563-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:07:35.563-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 21:07:35 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T21:07:35.739-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:07:35.740-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-3] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@667f932e]
-2026-04-23T21:07:35.902-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T21:07:35.903-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:07:35.903-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 21:07:35 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T21:08:00.135-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#listarSucursales(String, HttpServletRequest)
-2026-04-23T21:08:00.444-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:08:00.445-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-5] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@44661d9e]
-2026-04-23T21:08:06.279-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T21:08:06.284-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:08:06.284-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 21:08:06 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T21:08:11.820-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#listarSucursales(String, HttpServletRequest)
-2026-04-23T21:08:12.017-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:08:12.018-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@6c5d7e93]
-2026-04-23T21:08:20.111-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-8] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#listarMias(HttpServletRequest)
-2026-04-23T21:08:21.061-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:08:21.062-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-8] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@576940d]
-2026-04-23T21:08:25.781-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-9] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#verHistorialPagos(String, Integer, Integer, String, HttpServletRequest)
-2026-04-23T21:08:26.498-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:08:26.498-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-9] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@779aaa8e]
-2026-04-23T21:08:37.612-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.api.AsistenciaApiController#verCarnetAfiliado(String)
-2026-04-23T21:08:39.151-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:08:39.151-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-1] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse@1cd69f13]
-2026-04-23T21:08:56.248-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T21:08:56.250-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:08:56.250-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 21:08:56 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T21:17:53.478-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-5] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to com.asistencia_el_salvador.web_app_asistencia.controller.AdminController#mostrarDashboard(HttpSession, Model)
-2026-04-23T21:17:53.483-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T21:17:53.483-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T21:17:53.484-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
-2026-04-23T21:17:53.486-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:17:53.486-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:17:53.486-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/json', given [*/*] and supported [application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
-2026-04-23T21:17:53.486-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-7] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 21:17:53 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T21:17:53.486-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-6] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 21:17:53 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T21:17:53.486-06:00 DEBUG 13281 --- [http-nio-0.0.0.0-8080-exec-4] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Thu Apr 23 21:17:53 CST 2026, status=404, error=Not Found, trace=org.springframework.web. (truncated)...]
-2026-04-23T21:34:33.248-06:00  INFO 13281 --- [MessageBroker-1] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 2, active threads = 1, queued tasks = 0, completed tasks = 1]
-2026-04-23T21:52:02.830-06:00  INFO 13281 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2026-04-23T21:52:02.843-06:00  INFO 13281 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2026-04-23T21:52:02.854-06:00  INFO 13281 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
-2026-04-23T21:52:02.855-06:00  INFO 13281 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@5e834422]]
-2026-04-23T21:52:02.855-06:00  INFO 13281 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
-2026-04-23T21:52:02.913-06:00  INFO 13281 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-04-23T21:52:02.935-06:00  INFO 13281 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-04-23T21:52:03.029-06:00  INFO 13281 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-05-01T00:08:23.514-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m46s791ms).
+2026-05-01T00:08:45.260-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@7ed877af (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T00:09:03.378-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@53ca6977 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T00:09:20.170-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@496b97d5 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T00:27:15.899-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@555e7247 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T00:44:25.758-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2bd942dd (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T00:44:25.762-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=36m2s253ms).
+2026-05-01T00:47:47.579-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@210234e4 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T01:21:39.328-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@33b9269a (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T01:21:49.359-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@4196753b (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T01:21:59.422-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@535378df (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T01:21:59.425-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=37m33s662ms).
+2026-05-01T01:22:09.436-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@4e25a147 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T01:22:35.252-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@f619b02 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T01:23:05.240-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@32b061ad (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T01:39:22.151-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@73b98691 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T01:52:00.414-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@688effc (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:24:29.445-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@5af884bc (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:24:29.447-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h1m54s189ms).
+2026-05-01T02:24:39.457-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@e328ac5 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:24:49.464-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@25527868 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:24:59.473-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@531a2294 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:25:09.485-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@502fecf2 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:25:19.494-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@3cc77262 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:25:19.495-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=50s48ms).
+2026-05-01T02:25:29.502-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@374750d2 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:25:47.380-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@5173fdc2 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T02:42:10.014-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@47be424f (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:10:22.982-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@5995e198 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:26:23.368-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@34769c33 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:26:23.372-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h33s875ms).
+2026-05-01T03:26:41.423-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@61e69741 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:26:51.432-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@18346567 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:27:07.292-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@1382a992 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:27:17.301-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2fa8b7c8 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:27:27.310-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@34e25644 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:27:37.319-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2dda619f (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T03:42:56.560-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@61e3a686 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T04:11:36.671-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@76f93fb4 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T04:43:47.116-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@4a8a4c74 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T04:43:47.122-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h16m9s798ms).
+2026-05-01T04:43:57.132-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@de5f749 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T04:54:54.460-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2b568232 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T05:11:53.471-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@48655776 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T05:11:53.473-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=28m6s352ms).
+2026-05-01T05:28:20.551-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@581bdb8d (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T05:44:58.367-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@15c69b91 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T05:45:21.453-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@48ad3b21 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T05:45:21.458-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=33m27s984ms).
+2026-05-01T05:45:31.466-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@4ba96fdf (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T05:45:48.661-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@460a21d7 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T05:51:01.449-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@3feea725 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T05:55:57.413-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@346f3dcd (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T06:12:03.031-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@ebf76d4 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T06:29:30.079-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=43m38s614ms).
+2026-05-01T06:56:54.764-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@56ea5a7 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T06:57:04.785-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@25521311 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T06:57:14.796-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@ed905d7 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T06:57:24.806-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@1d1eb8ea (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T06:57:24.809-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=27m54s731ms).
+2026-05-01T07:43:18.180-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@734ce8e8 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T07:57:55.226-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@3c58d37e (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T07:58:04.772-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1h39s963ms).
+2026-05-01T07:58:30.861-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@64dcc404 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T07:58:44.328-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@6b76bbd6 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T07:58:54.334-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@13314c3c (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T07:58:54.335-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=49s563ms).
+2026-05-01T07:59:04.340-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@4da26e8e (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T07:59:14.350-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@12ea26c1 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T07:59:24.360-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@61185849 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T08:33:38.639-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2ab9c6c0 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T08:51:35.820-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@32d27d1f (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T08:51:35.822-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=52m41s487ms).
+2026-05-01T08:59:00.517-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@e0fb065 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:15:29.212-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@63582ba8 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:15:39.194-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=24m3s372ms).
+2026-05-01T09:27:05.644-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@5daf7f47 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:27:15.655-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@217676fd (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:27:15.658-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=11m36s464ms).
+2026-05-01T09:27:34.243-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2a8bbc52 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:27:44.500-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@33c0d93e (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:27:54.511-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@d91c4e3 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:28:04.520-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@5108946 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:28:04.523-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=48s865ms).
+2026-05-01T09:28:14.533-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@5559ad54 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:28:24.544-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2fe4fde8 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:28:34.561-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@64e6e704 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:28:44.582-06:00  WARN 14698 --- [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection com.mysql.cj.jdbc.ConnectionImpl@2a813fd9 (No operations allowed after connection closed.). Possibly consider using a shorter maxLifetime value.
+2026-05-01T09:35:13.760-06:00  INFO 14698 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-05-01T09:35:13.771-06:00  INFO 14698 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-05-01T09:35:13.777-06:00  INFO 14698 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+2026-05-01T09:35:13.778-06:00  INFO 14698 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@2e75aba7]]
+2026-05-01T09:35:13.778-06:00  INFO 14698 --- [SpringApplicationShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+2026-05-01T09:35:13.792-06:00  INFO 14698 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-05-01T09:35:13.809-06:00  INFO 14698 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-05-01T09:35:13.890-06:00  INFO 14698 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

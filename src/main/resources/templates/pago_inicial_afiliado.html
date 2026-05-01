@@ -6,6 +6,8 @@
     <title>Completar Pago - Asistencia El Salvador</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+
+
         * {
             margin: 0;
             padding: 0;
@@ -355,4 +357,53 @@
     </div>
 </div>
 </body>
+<script>
+    var esAndroid = typeof AndroidBridge !== "undefined";
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+            if (esAndroid) {
+                // --- MODO ANDROID ---
+                // Ocultar el botón de Wompi (el pago lo manejará la app)
+                var formPago = document.querySelector("form");
+                if (formPago) formPago.style.display = "none";
+
+                // Mostrar mensaje adaptado para app móvil
+                var instrucciones = document.querySelector(".instructions ol");
+                if (instrucciones) {
+                    instrucciones.innerHTML = `
+                        <li>Tu solicitud fue registrada exitosamente</li>
+                        <li>Recibirás un correo con más información</li>
+                        <li>Nuestro equipo revisará tu solicitud en 24-48 horas</li>
+                        <li>Te notificaremos cuando tu cuenta esté activa</li>
+                    `;
+                }
+
+                // Mostrar contador regresivo antes de cerrar el WebView
+                var securityNote = document.querySelector(".security-note");
+                if (securityNote) {
+                    securityNote.innerHTML = `
+                        <i class="fas fa-mobile-alt" style="color: #667eea;"></i>
+                        <span>Volviendo a la aplicación en <strong id="contador">5</strong> segundos...</span>
+                    `;
+                }
+
+                // Iniciar cuenta regresiva
+                var segundos = 5;
+                var intervalo = setInterval(function () {
+                    segundos--;
+                    var contadorEl = document.getElementById("contador");
+                    if (contadorEl) contadorEl.textContent = segundos;
+
+                    if (segundos <= 0) {
+                        clearInterval(intervalo);
+                        // Llamar al bridge → Android cierra el WebView
+                        AndroidBridge.onRegistroCompleto();
+                    }
+                }, 1000);
+
+            }
+            // Si NO es Android, la página funciona exactamente igual que antes
+        });
+</script>
 </html>

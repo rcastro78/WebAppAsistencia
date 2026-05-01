@@ -1,10 +1,7 @@
 package com.asistencia_el_salvador.web_app_asistencia.api;
 
 
-import com.asistencia_el_salvador.web_app_asistencia.dto.ApiResponse;
-import com.asistencia_el_salvador.web_app_asistencia.dto.CalificacionRequest;
-import com.asistencia_el_salvador.web_app_asistencia.dto.PlanAfiliadoDTO;
-import com.asistencia_el_salvador.web_app_asistencia.dto.SolicitudAsistenciaRequest;
+import com.asistencia_el_salvador.web_app_asistencia.dto.*;
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,8 +11,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,6 +54,10 @@ public class AsistenciaApiController {
     private final RubroService                           rubroService;
     private final BeneficioComercioAfiliadoService     beneficioComercioAfiliadoService;
     private final PagoAfiliadoService                 pagoAfiliadoService;
+    private final WompiAuthService                      wompiAuthService;
+    private final WompiCardService                       wompiCardService;
+    private final AfiliadoPagoService                  afiliadoPagoService;
+    private final UsuarioService                        usuarioService;
 
     public AsistenciaApiController(
             AfiliadoSolicitudAsistenciaService service,
@@ -70,7 +77,10 @@ public class AsistenciaApiController {
             ComercioAfiliadoService comercioAfiliadoService,
             RubroService rubroService,
             BeneficioComercioAfiliadoService beneficioComercioAfiliadoService,
-            PagoAfiliadoService pagoAfiliadoService) {
+            PagoAfiliadoService pagoAfiliadoService,
+            WompiAuthService wompiAuthService,
+            WompiCardService wompiCardService,
+            AfiliadoPagoService afiliadoPagoService, UsuarioService usuarioService) {
         this.service                                  = service;
         this.estadoSolicitudServicioService           = estadoSolicitudServicioService;
         this.planService                              = planService;
@@ -89,7 +99,211 @@ public class AsistenciaApiController {
         this.rubroService                          = rubroService;
         this.beneficioComercioAfiliadoService = beneficioComercioAfiliadoService;
         this.pagoAfiliadoService = pagoAfiliadoService;
+        this.wompiAuthService    = wompiAuthService;
+        this.wompiCardService        = wompiCardService;
+        this.afiliadoPagoService             = afiliadoPagoService;
+        this.usuarioService = usuarioService;
     }
+
+
+    // ════════════════════════════════════════════════════════
+    // GET /api/v1/getWompiKeys
+    // Lista las llaves de wompi
+    // ════════════════════════════════════════════════════════
+    @GetMapping("/wompi/getToken")
+    public ResponseEntity<ApiResponse> wompiKeys() {
+        WompiTokenResult tokenResult = wompiAuthService.getToken();
+        Map<String, Object> data = new HashMap<>();
+        data.put("token",tokenResult.getAccess_token());
+        return ResponseEntity.ok(ApiResponse.ok(data,"wompi"));
+    }
+
+    //Procesar pago
+    /*
+    * Ejemplo de body:
+    *
+    {
+  "tarjetaCreditoDebido": {
+    "numeroTarjeta": "4111111111111111",
+    "cvv": "123",
+    "mesVencimiento": 12,
+    "anioVencimiento": 2026
+  },
+  "monto": 2.99,
+  "urlRedirect": "https://tuapp.com/pago-completado",
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "email": "juan@ejemplo.com",
+  "ciudad": "San Salvador",
+  "direccion": "Colonia Escalón, Calle El Mirador",
+  "codigoPostal": "01101",
+  "telefono": "78901234",
+  "moneda": "USD",
+  "idPais": "SV",
+  "idRegion": "SV-SS"
+}
+    * */
+
+
+
+    @PostMapping("/procesarPago")
+    public ResponseEntity<ApiResponse<TransactionResult>> procesarPago(
+            @RequestBody PagoRequest req,
+            HttpServletRequest session) {
+        try {
+
+            // Valores por defecto para El Salvador
+            if (req.getIdPais()   == null) req.setIdPais("SV");
+            if (req.getIdRegion() == null) req.setIdRegion("SV-SS");
+            if (req.getMoneda()   == null) req.setMoneda("USD");
+
+            // idExterno único por transacción
+            if (req.getIdExterno() == null) {
+                req.setIdExterno("TXN-" + System.currentTimeMillis());
+            }
+
+            TransactionResult result = wompiCardService.procesarPago3DS(req);
+
+            if (result == null) {
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                        .body(ApiResponse.error("No se obtuvo respuesta de Wompi"));
+            }
+
+            return ResponseEntity.ok(ApiResponse.ok("Pago procesado", result));
+
+        } catch (HttpClientErrorException e) {
+            log.error("Error Wompi (cliente): {}", e.getResponseBodyAsString());
+            return ResponseEntity.status(e.getStatusCode())
+                    .body(ApiResponse.error("Error de Wompi: " + e.getResponseBodyAsString()));
+
+        } catch (HttpServerErrorException e) {
+            log.error("Error Wompi (servidor): {}", e.getResponseBodyAsString());
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(ApiResponse.error("Error en servidor de Wompi: " + e.getResponseBodyAsString()));
+
+        } catch (Exception e) {
+            log.error("Error al procesar pago: ", e);
+            return serverError(e); // ← igual que tus otros endpoints
+        }
+    }
+
+
+    @PostMapping("/pagos/registrar/{dui}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> registrarPagoAfiliado(
+            @RequestBody PagoAfiliadoApiRequest req,
+            @PathVariable String dui,
+            HttpServletRequest session) {
+        try {
+            Integer rol = resolverRol(session);
+            if (dui == null) return sinSesion();
+
+            // Solo el propio afiliado (rol 3) puede registrar su pago
+            // Admins (rol 1 y 2) también pueden
+            // Si quisieras restringir: if (rol == 3 && !dui.equals(req.getDui())) return sinPermiso();
+
+            // 1. Verificar si ya existe el pago
+            if (afiliadoPagoService.existePago(dui, req.getMes(), req.getAnio())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(ApiResponse.error("Ya existe un pago registrado para " + req.getMes() + "/" + req.getAnio()));
+            }
+
+            // 2. Obtener información del afiliado
+            AfiliadoCreadoResumen afiliado = afiliadoService.getAfiliadoCreadoById(dui)
+                    .orElse(null);
+            if (afiliado == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.error("No se encontró el afiliado"));
+            }
+
+            // 3. Construir el pago — el voucherURL es la referencia de Wompi
+            String voucherRef = req.getIdTransaccion() != null
+                    ? "WOMPI-" + req.getIdTransaccion()
+                    : req.getIdExterno();
+
+            AfiliadoPago pago = new AfiliadoPago();
+            pago.setDuiAfiliado(dui);
+            pago.setMes(req.getMes());
+            pago.setAnio(req.getAnio());
+            pago.setCantidadPagada(req.getCantidadPagada());
+            pago.setFormaPago(req.getFormaPago());
+            pago.setPagadoPor(dui);
+            pago.setCobradoPor(dui);        // pago propio desde app
+            pago.setVoucherURL(voucherRef); // referencia Wompi como evidencia
+
+            // 4. Guardar según vigencia del plan
+            String vigencia = afiliado.getVigencia();
+
+            if ("1".equals(vigencia)) {
+                // Pago mensual
+                afiliadoPagoService.guardarPago(pago);
+
+            } else if ("12".equals(vigencia)) {
+                // Pago anual — divide en 12 meses
+                BigDecimal montoPorMes = req.getCantidadPagada()
+                        .divide(new BigDecimal("12"), 2, RoundingMode.HALF_UP);
+
+                int mesInicial = req.getMes();
+                int anioActual = Integer.parseInt(req.getAnio());
+
+                for (int i = 0; i < 12; i++) {
+                    int mesActual  = mesInicial + i;
+                    int anioReg    = anioActual;
+                    while (mesActual > 12) { mesActual -= 12; anioReg++; }
+
+                    if (afiliadoPagoService.existePago(dui, mesActual, String.valueOf(anioReg))) continue;
+
+                    AfiliadoPago pagoMes = new AfiliadoPago();
+                    pagoMes.setDuiAfiliado(dui);
+                    pagoMes.setMes(mesActual);
+                    pagoMes.setAnio(String.valueOf(anioReg));
+                    pagoMes.setCantidadPagada(montoPorMes);
+                    pagoMes.setFormaPago(req.getFormaPago());
+                    pagoMes.setPagadoPor(dui);
+                    pagoMes.setCobradoPor(dui);
+                    pagoMes.setVoucherURL(i == 0 ? voucherRef : null);
+
+                    afiliadoPagoService.guardarPago(pagoMes);
+                }
+            }
+
+            // 5. Activar usuario si es su primer pago
+            Usuario u = usuarioService.getUsuarioById(dui).orElse(null);
+            if (u != null && !u.getActivo()) {
+                u.setActivo(true);
+                usuarioService.modificarDatos(dui, u);
+
+                String emailAfiliado = afiliadoService.getAfiliadoById(dui)
+                        .map(a -> a.getEmail()).orElse(null);
+
+                if (emailAfiliado != null) {
+                    emailService.enviarEmailHtml(emailAfiliado,
+                            "Tus credenciales de acceso",
+                            "Tu usuario es tu DUI: " + dui +
+                                    " y tu contraseña es: " + emailAfiliado.split("@")[0]);
+
+                    emailService.enviarEmailHtml(emailAfiliado,
+                            "Firma tu contrato",
+                            "Entra aquí para firmar tu contrato: " +
+                                    "<a href='http://webappasistencia.fly.dev/firmar/nuevo/" + dui + "'>Firma aquí</a>");
+                }
+            }
+
+            // 6. Respuesta
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("dui",          dui);
+            body.put("mes",          req.getMes());
+            body.put("anio",         req.getAnio());
+            body.put("idTransaccion", req.getIdTransaccion());
+            body.put("vigencia",     vigencia);
+
+            return ResponseEntity.ok(ApiResponse.ok("Pago registrado exitosamente", body));
+
+        } catch (Exception e) {
+            log.error("Error al registrar pago desde app: ", e);
+            return serverError(e);
+        }
+    }
+
 
     // ════════════════════════════════════════════════════════
     // GET /api/v1/asistencia/solicitudes
@@ -190,8 +404,9 @@ public class AsistenciaApiController {
             resumen.put("aniosDisponibles", aniosDisponibles);
             body.put("resumen", resumen);
 
+            Map<String, Object> proximoPago = calcularProximoPago(todosPagos); // ← usa todosPagos, NO pagosFiltrados
+            body.put("proximoPago", proximoPago);
             body.put("pagos", pagosJson);
-
             return ResponseEntity.ok(ApiResponse.ok(body));
 
         } catch (Exception e) {
@@ -199,6 +414,66 @@ public class AsistenciaApiController {
             return serverError(e);
         }
     }
+
+
+    //Proximo pago
+    @GetMapping("/proximo-pago/{dui}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getProximoPago(
+            @PathVariable String dui,
+            HttpServletRequest session) {
+        try {
+            String duiSesion = resolverDui(session);
+            Integer rol = resolverRol(session);
+            if (duiSesion == null) return sinSesion();
+            if (rol == 3 && !duiSesion.equals(dui)) return sinPermiso();
+
+            List<PagoAfiliado> todosPagos = pagoAfiliadoService.listarPagos(dui);
+
+            Map<String, Object> proximoPago = calcularProximoPago(todosPagos); // ← llama al auxiliar
+
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("proximoPago", proximoPago);
+
+            return ResponseEntity.ok(ApiResponse.ok(body,"pagos"));
+
+        } catch (Exception e) {
+            log.error("Error al calcular próximo pago: ", e);
+            return serverError(e);
+        }
+    }
+
+    // ✅ MÉTODO AUXILIAR — privado, sin ninguna anotación de Spring MVC
+    private Map<String, Object> calcularProximoPago(List<PagoAfiliado> todosPagos) {
+        if (todosPagos == null || todosPagos.isEmpty()) return null;
+
+        PagoAfiliado ultimoPago = todosPagos.stream()
+                .max(Comparator.comparingInt((PagoAfiliado p) -> p.getAnio())
+                        .thenComparingInt(PagoAfiliado::getMes))
+                .orElse(null);
+
+        if (ultimoPago == null) return null;
+
+        int mes  = ultimoPago.getMes();
+        int anio = ultimoPago.getAnio();
+
+        int proximoMes  = (mes == 12) ? 1        : mes + 1;
+        int proximoAnio = (mes == 12) ? anio + 1 : anio;
+
+        YearMonth ym = YearMonth.of(proximoAnio, proximoMes);
+        String nombreMes = ym.getMonth()
+                .getDisplayName(TextStyle.FULL, new Locale("es", "SV"));
+        nombreMes = nombreMes.substring(0, 1).toUpperCase() + nombreMes.substring(1);
+
+        Map<String, Object> proximo = new LinkedHashMap<>();
+        proximo.put("mes",       proximoMes);
+        proximo.put("anio",      proximoAnio);
+        proximo.put("nombreMes", nombreMes);
+        proximo.put("periodo",   nombreMes + " " + proximoAnio);
+
+        return proximo;
+    }
+
+
 
     // ════════════════════════════════════════════════════════
     // GET /api/v1/carnet/{dui}
