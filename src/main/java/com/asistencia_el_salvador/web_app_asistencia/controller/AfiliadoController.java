@@ -145,6 +145,23 @@ public class AfiliadoController {
     @Value("${app.version}")
     private String appVersion;
 
+    @GetMapping("/test-bcrypt")
+    @ResponseBody
+    public String testBcrypt() {
+        String pass = "padado4811"; // pon el pass que esperas
+        String hash = passwordEncoder.encode(pass);
+        boolean matches = passwordEncoder.matches(pass, hash);
+
+        // también prueba contra el hash que tienes en BD
+        String hashEnBD = "$2a$10$pqQTNHDBqGjvWXIzV3sAAee/Q3LsxMemUnUaxpYLcOmxKsxIue4M.";
+        boolean matchesBD = passwordEncoder.matches(pass, hashEnBD);
+
+        return "Hash generado: " + hash +
+                "\nMatches propio: " + matches +
+                "\nMatches con BD: " + matchesBD;
+    }
+
+
     @PostMapping("/guardar")
     public String guardarAfiliado(HttpServletRequest request,
                                   HttpSession session,
@@ -461,8 +478,7 @@ public class AfiliadoController {
             // 8. GUARDAR EN BASE DE DATOS
             logger.info("=== GUARDANDO EN BD ===");
             Afiliado afiliadoGuardado = afiliadoService.guardarAfiliado(afiliado);
-            String pass = afiliadoGuardado.getEmail().split("@")[0];
-            String passwordEncriptado = passwordEncoder.encode(pass);
+            String pass = afiliado.getEmail().split("@")[0].trim().toLowerCase();
 
             // Crear usuario para el sistema
             Usuario usuario = new Usuario();
@@ -471,7 +487,7 @@ public class AfiliadoController {
             usuario.setRol(3);
             usuario.setEmail(afiliadoGuardado.getEmail());
             usuario.setDui(afiliadoGuardado.getDui());
-            usuario.setContrasena(passwordEncriptado);
+            usuario.setContrasena(pass);
             usuario.setActivo(false);
             usuarioService.registrar(usuario);
 
@@ -482,7 +498,7 @@ public class AfiliadoController {
             planAfiliado.setEstado(1);
 
             // CALCULAR VIGENCIA SEGÚN DURACIÓN
-            String vigencia = duracionMeses + (duracionMeses == 1 ? " mes" : " meses");
+            String vigencia = String.valueOf(duracionMeses) /*+ (duracionMeses == 1 ? " mes" : " meses")*/;
             planAfiliado.setVigencia(vigencia);
 
             planAfiliado.setFirma(urlFirma); // GUARDAR URL DE LA FIRMA
@@ -879,6 +895,8 @@ public class AfiliadoController {
             afiliadoActual.setTelTrabajo(afiliado.getTelTrabajo());
             // NO actualizar fechaAfiliacion - debe mantenerse la original
 
+            usuarioService.activarUsuario(afiliado.getDui());
+
             // *** PROCESAR ARCHIVO DUI FRENTE ***
             if (frenteFile != null && !frenteFile.isEmpty()) {
                 // Validar que es una imagen
@@ -1011,6 +1029,9 @@ public class AfiliadoController {
                                     HttpSession session) throws IOException {
         Optional<Afiliado> afiliado = afiliadoService.getAfiliadoById(dui);
 
+        Optional<Usuario> usuarioOpt = usuarioService.getUsuarioById(dui);
+        model.addAttribute("usuario", usuarioOpt.orElse(null));
+
 
         if(afiliado.isPresent()){
             Afiliado afiliadoEditar = afiliado.get();
@@ -1069,6 +1090,28 @@ public class AfiliadoController {
             model.addAttribute("error", "Afiliado no encontrado");
             return "redirect:/afiliados/listar?error=notfound";
         }
+    }
+
+    @PostMapping("/usuarios/{dui}/activar")
+    public String activarUsuario(@PathVariable String dui, RedirectAttributes redirectAttributes) {
+        boolean ok = usuarioService.activarUsuario(dui);
+        if (ok) {
+            redirectAttributes.addFlashAttribute("success", "Usuario activado correctamente");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "No se pudo activar el usuario");
+        }
+        return "redirect:/afiliado/editar/" + dui;
+    }
+
+    @PostMapping("/usuarios/{dui}/desactivar")
+    public String desactivarUsuario(@PathVariable String dui, RedirectAttributes redirectAttributes) {
+        boolean ok = usuarioService.desactivarUsuario(dui);
+        if (ok) {
+            redirectAttributes.addFlashAttribute("success", "Usuario desactivado correctamente");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "No se pudo desactivar el usuario");
+        }
+        return "redirect:/afiliado/editar/" + dui;
     }
 
 
@@ -1317,17 +1360,31 @@ public class AfiliadoController {
 
 
     @GetMapping("/nuevo/patrocinio")
-    public String showCreateFormPatreon(HttpSession sesion, Model model) {
-        UsuarioResponse usuario = (UsuarioResponse) sesion.getAttribute("usuario");
-        Afiliado afiliado = new Afiliado();
-        afiliado.setPatrocinadorDUI(usuario.getDui());
-        model.addAttribute("afiliado", afiliado);
+    public String showCreateFormPatreon(
+            HttpSession sesion,
+            @RequestParam(required = false) String duiPatrocinador,
+            Model model) {
 
+        String dui;
+
+        // Si viene de Android (sin sesión), usar el parámetro
+        UsuarioResponse usuario = (UsuarioResponse) sesion.getAttribute("usuario");
+        if (usuario != null) {
+            dui = usuario.getDui();
+        } else if (duiPatrocinador != null) {
+            dui = duiPatrocinador;
+        } else {
+            return "redirect:/usuarios/login";
+        }
+
+        Afiliado afiliado = new Afiliado();
+        afiliado.setPatrocinadorDUI(dui);
+        model.addAttribute("afiliado", afiliado);
         model.addAttribute("estadosAfiliacion", estadoAfiliacionService.listarTodos());
         model.addAttribute("paises", paisService.listarTodos());
-        model.addAttribute("patrocinadorDUI", usuario.getDui());
         model.addAttribute("tiposCliente", tipoClienteService.listarTodos());
         model.addAttribute("instituciones", institucionService.listarTodos());
+
         return "afiliado_form_patrocinado";
     }
 
@@ -1422,7 +1479,7 @@ public class AfiliadoController {
     //si sigue igual no hacer nada
     @PostMapping("/carga-masiva")
     public String procesarCargaMasiva(@RequestParam("archivo") MultipartFile archivo,
-                                      @RequestParam("idInstitucion") Integer idInstitucion,
+                                      @RequestParam("idInstitucion") String nitCliente,
                                       @RequestParam("idPlan") Integer idPlan,
                                       RedirectAttributes redirectAttributes) {
 
@@ -1440,7 +1497,7 @@ public class AfiliadoController {
         }
 
         try {
-            CargaMasivaResultado resultado = cargaMasivaService.procesarArchivoExcel(archivo,idInstitucion,idPlan);
+            CargaMasivaResultado resultado = cargaMasivaService.procesarArchivoExcel(archivo,0,idPlan,nitCliente);
 
             if (resultado.getErrores() == 0) {
                 redirectAttributes.addFlashAttribute("success",

@@ -58,6 +58,7 @@ public class UsuarioController {
     }
 
 
+
     //Metodos para webservices
     @PostMapping("/api/login")
     @ResponseBody
@@ -106,9 +107,14 @@ public class UsuarioController {
 
 
     @GetMapping("/")
-    public String listarUsuarios(@RequestParam(defaultValue = "0") int page,  Model model){
+    public String listarUsuarios(@RequestParam(defaultValue = "0") int page, Model model) {
         Page<Usuario> usuarios = usuarioService.listarPaginados(PageRequest.of(page, 10));
+
         model.addAttribute("usuarios", usuarios.getContent());
+        model.addAttribute("currentPage", page + 1);        // el HTML usa base 1
+        model.addAttribute("totalPages", usuarios.getTotalPages());
+        model.addAttribute("pageSize", 10);
+
         return "usuarios";
     }
 

@@ -315,7 +315,7 @@
 
             <form id="formPagoMasivo" action="/clientesCorporativos/pago-masivo" method="post" enctype="multipart/form-data">
                 <input type="hidden" id="nitPago" name="nit" />
-
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <div class="form-group">
                     <label for="mesPago">Mes: <span style="color: red;">*</span></label>
                     <select id="mesPago" name="mes" class="form-control" required>

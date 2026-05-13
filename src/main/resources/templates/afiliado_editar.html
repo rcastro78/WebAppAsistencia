@@ -42,7 +42,50 @@
     </div>
 
 
+    <!-- Activar/Desactivar Usuario -->
+    <div class="card" th:if="${usuario != null}" style="margin-bottom: 20px;">
+        <div class="card-header">
+            <h2><i class="fas fa-user-shield"></i> Acceso al Sistema</h2>
+        </div>
+        <div class="card-body">
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
 
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-weight: bold; color: #333;">Estado del usuario:</span>
+                    <span th:if="${usuario.activo}"
+                          style="background: #d4edda; color: #155724; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
+                    <i class="fas fa-check-circle"></i> Activo
+                </span>
+                    <span th:unless="${usuario.activo}"
+                          style="background: #f8d7da; color: #721c24; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
+                    <i class="fas fa-times-circle"></i> Inactivo
+                </span>
+                </div>
+
+                <!-- Activar -->
+                <form th:if="${!usuario.activo}"
+                      th:action="@{/afiliado/usuarios/{dui}/activar(dui=${afiliado.dui})}"
+                      method="post">
+                    <button type="submit" class="btn"
+                            style="background: linear-gradient(135deg, #28a745, #20c997);"
+                            onclick="return confirm('¿Activar acceso al sistema para este usuario?')">
+                        <i class="fas fa-user-check"></i> Activar Usuario
+                    </button>
+                </form>
+
+                <!-- Desactivar -->
+                <form th:if="${usuario.activo}"
+                      th:action="@{/afiliado/usuarios/{dui}/desactivar(dui=${afiliado.dui})}"
+                      method="post">
+                    <button type="submit" class="btn danger"
+                            onclick="return confirm('¿Desactivar acceso al sistema para este usuario?')">
+                        <i class="fas fa-user-times"></i> Desactivar Usuario
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
 
 
     <!-- Imágenes actuales -->

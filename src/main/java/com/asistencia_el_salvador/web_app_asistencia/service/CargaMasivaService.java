@@ -1,6 +1,7 @@
 package com.asistencia_el_salvador.web_app_asistencia.service;
 
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
+import com.asistencia_el_salvador.web_app_asistencia.repository.AfiliadoCorporativoRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.AfiliadoRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.PlanAfiliadoRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.UsuarioRepository;
@@ -25,6 +26,9 @@ public class CargaMasivaService {
     private AfiliadoRepository afiliadoRepository;
 
     @Autowired
+    private AfiliadoCorporativoRepository afiliadoCorporativoRepository;
+
+    @Autowired
     private PaisService paisService;
 
     @Autowired
@@ -45,7 +49,8 @@ public class CargaMasivaService {
     @Autowired
     private PlanAfiliadoRepository planAfiliadoRepository;
 
-    public CargaMasivaResultado procesarArchivoExcel(MultipartFile archivo, int idInstitucion, int idPlan) throws IOException {
+    public CargaMasivaResultado procesarArchivoExcel(MultipartFile archivo, int idInstitucion, int idPlan,
+                                                     String nitCliente) throws IOException {
         CargaMasivaResultado resultado = new CargaMasivaResultado();
 
         Plan plan = planService.getPlanById(idPlan)
@@ -63,17 +68,17 @@ public class CargaMasivaService {
                 resultado.setTotalProcesados(resultado.getTotalProcesados() + 1);
 
                 try {
-                    Afiliado afiliado = procesarFila(row, i, idInstitucion);
+                    Afiliado afiliado = procesarFila(row, i, 0, nitCliente);
                     afiliadoRepository.save(afiliado);
 
                     PlanAfiliado planAfiliado = new PlanAfiliado(afiliado.getDui(), idPlan,String.valueOf(12),"","",
-                            plan.getCostoPlan(), plan.getCostoPlan()*10.0);
+                            plan.getCostoPlan(), plan.getCostoPlanAnual());
 
                     planAfiliadoRepository.save(planAfiliado);
 
                     //Crear usuario por defecto
                     Usuario usuario = new Usuario();
-                    String passProvisional = passwordEncoder.encode(afiliado.getDui().replace("-",""));
+                    String passProvisional = passwordEncoder.encode(afiliado.getEmail().split("@")[0]);
                     usuario.setNombre(afiliado.getNombre());
                     usuario.setApellido(afiliado.getApellido());
                     usuario.setActivo(true);
@@ -98,7 +103,8 @@ public class CargaMasivaService {
         return resultado;
     }
 
-    private Afiliado procesarFila(Row row, int numeroFila, int idInstitucion) throws Exception {
+    private Afiliado procesarFila(Row row, int numeroFila, int idInstitucion,
+                                  String nitCliente) throws Exception {
         Afiliado afiliado = new Afiliado();
 
         try {
@@ -136,6 +142,26 @@ public class CargaMasivaService {
 
             // Validaciones básicas
             validarAfiliado(afiliado);
+
+            //Registrar en afiliado corporativo
+            LocalDate fechaAfiliacion = null;  // ← declarar aquí arriba
+
+            if (fechaCell != null && fechaCell.getCellType() == CellType.NUMERIC) {
+                if (DateUtil.isCellDateFormatted(fechaCell)) {
+                    Date date = fechaCell.getDateCellValue();
+                    fechaAfiliacion = date.toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate();
+                    afiliado.setFechaAfiliacion(fechaAfiliacion);
+                }
+            }
+
+            AfiliadoCorporativo afiliadoCorporativo = new AfiliadoCorporativo();
+            afiliadoCorporativo.setDuiAfiliado(afiliado.getDui());
+            afiliadoCorporativo.setNITCliente(nitCliente);
+            afiliadoCorporativo.setFechaAfiliacion(fechaAfiliacion);
+            afiliadoCorporativo.setEstado(1);
+            afiliadoCorporativoRepository.save(afiliadoCorporativo);
 
             return afiliado;
 

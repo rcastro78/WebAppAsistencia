@@ -333,7 +333,10 @@
             </div>
 
             <!-- Botón de Pago -->
-            <form th:action="${linkPago}" method="get" target="_blank">
+            <form th:action="${linkPago}" method="get" target="_blank"
+                  th:data-monto="${plan.costoPlan}"
+                  th:data-plan="${plan.nombrePlan}"
+                  th:data-email="${afiliado.email}">
                 <button type="submit" class="payment-btn">
                     <i class="fas fa-credit-card"></i>
                     Pagar con Wompi
@@ -356,54 +359,43 @@
         </div>
     </div>
 </div>
-</body>
 <script>
     var esAndroid = typeof AndroidBridge !== "undefined";
 
         document.addEventListener("DOMContentLoaded", function () {
 
             if (esAndroid) {
-                // --- MODO ANDROID ---
-                // Ocultar el botón de Wompi (el pago lo manejará la app)
-                var formPago = document.querySelector("form");
-                if (formPago) formPago.style.display = "none";
 
-                // Mostrar mensaje adaptado para app móvil
-                var instrucciones = document.querySelector(".instructions ol");
-                if (instrucciones) {
-                    instrucciones.innerHTML = `
-                        <li>Tu solicitud fue registrada exitosamente</li>
-                        <li>Recibirás un correo con más información</li>
-                        <li>Nuestro equipo revisará tu solicitud en 24-48 horas</li>
-                        <li>Te notificaremos cuando tu cuenta esté activa</li>
-                    `;
-                }
+           var form = document.querySelector("form");
+    if (form) {
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            // Pasar el monto y plan al bridge
+            AndroidBridge.abrirPagoNativo(
+                "[[${plan.costoPlan}]]",
+                "[[${plan.nombrePlan}]]",
+                "[[${afiliado.email}]]",
+                "[[${afiliado.dui}]]"
+            );
+        });
+    }
 
-                // Mostrar contador regresivo antes de cerrar el WebView
-                var securityNote = document.querySelector(".security-note");
-                if (securityNote) {
-                    securityNote.innerHTML = `
-                        <i class="fas fa-mobile-alt" style="color: #667eea;"></i>
-                        <span>Volviendo a la aplicación en <strong id="contador">5</strong> segundos...</span>
-                    `;
-                }
 
-                // Iniciar cuenta regresiva
-                var segundos = 5;
-                var intervalo = setInterval(function () {
-                    segundos--;
-                    var contadorEl = document.getElementById("contador");
-                    if (contadorEl) contadorEl.textContent = segundos;
+    var instrucciones = document.querySelector(".instructions ol");
+    if (instrucciones) {
+        instrucciones.innerHTML = `
+            <li>Haz clic en "Pagar con Wompi" para completar tu pago</li>
+            <li>Serás redirigido a la pasarela de pago segura</li>
+            <li>Una vez confirmado, tu plan se activará automáticamente</li>
+            <li>Recibirás un correo con tus credenciales de acceso</li>
+        `;
+    }
 
-                    if (segundos <= 0) {
-                        clearInterval(intervalo);
-                        // Llamar al bridge → Android cierra el WebView
-                        AndroidBridge.onRegistroCompleto();
-                    }
-                }, 1000);
-
-            }
+    // ✅ NO hay countdown, NO hay AndroidBridge.onRegistroCompleto() aquí
+    // Solo se llama al bridge DESPUÉS de que Wompi confirme el pago
+}
             // Si NO es Android, la página funciona exactamente igual que antes
         });
 </script>
+</body>
 </html>

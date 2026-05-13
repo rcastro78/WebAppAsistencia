@@ -35,7 +35,7 @@ public class SecurityConfig {
                 )
 
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/v1/**", "/usuarios/api/**")
+                        .ignoringRequestMatchers("/api/v1/**", "/usuarios/api/**", "/public_api/**")
                 )
 
                 .httpBasic(basic -> basic.disable())
@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/usuarios/api/login", "/api/login").permitAll()
                         .requestMatchers("/api/v1/**").authenticated()
+                        .requestMatchers("/clientesCorporativos/**").permitAll()
                         .anyRequest().permitAll()
                 )
 

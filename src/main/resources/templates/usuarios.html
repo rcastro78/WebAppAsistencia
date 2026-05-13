@@ -110,20 +110,23 @@
                 <ul class="pagination">
                     <!-- Botón Anterior -->
                     <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                        <a class="page-link" th:href="@{/usuario/listar(page=${currentPage - 1}, size=${pageSize})}" aria-label="Anterior">
+                        <a class="page-link" th:href="@{/usuarios/(page=${currentPage - 2})}">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
 
                     <!-- Números de página -->
-                    <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                    <li class="page-item"
+                        th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
                         th:classappend="${pageNum == currentPage} ? 'active'">
-                        <a class="page-link" th:href="@{/usuario/listar(page=${pageNum}, size=${pageSize})}" th:text="${pageNum}"></a>
+                        <a class="page-link" th:href="@{/usuarios/(page=${pageNum - 1})}"
+                           th:text="${pageNum}">
+                        </a>
                     </li>
 
                     <!-- Botón Siguiente -->
                     <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
-                        <a class="page-link" th:href="@{/usuario/listar(page=${currentPage + 1}, size=${pageSize})}" aria-label="Siguiente">
+                        <a class="page-link" th:href="@{/usuarios/(page=${currentPage})}">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>

@@ -30,7 +30,7 @@ public class UsuarioService {
     }
 
     public Page<Usuario> listarPaginados(Pageable pageable) {
-        return usuarioRepository.findByRolIn(Arrays.asList(1, 2), pageable);
+        return usuarioRepository.findByRolIn(Arrays.asList(1, 2, 3), pageable);
     }
 
     public long contarUsuariosActivos(){
@@ -78,6 +78,15 @@ public class UsuarioService {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByDui(request.getDui());
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
+
+
+            System.out.println("DUI encontrado: " + usuario.getDui());
+            System.out.println("Activo: " + usuario.getActivo());
+            System.out.println("Contrasena recibida: " + request.getContrasena());
+            System.out.println("Hash en BD: " + usuario.getContrasena());
+            System.out.println("matches: " + passwordEncoder.matches(request.getContrasena(), usuario.getContrasena()));
+
+
             if (Boolean.TRUE.equals(usuario.getActivo()) &&
                     passwordEncoder.matches(request.getContrasena(), usuario.getContrasena())) {
                 return mapToResponse(usuario);
@@ -150,6 +159,30 @@ public class UsuarioService {
         r.setRol(u.getRol());
         r.setActivo(u.getActivo());
         return r;
+    }
+
+
+    // En el service, reemplaza el método desactivarUsuario
+    public boolean activarUsuario(String dui) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByDui(dui);
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            usuario.setActivo(true);
+            usuarioRepository.save(usuario);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean desactivarUsuario(String dui) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByDui(dui);
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            usuario.setActivo(false);
+            usuarioRepository.save(usuario);
+            return true;
+        }
+        return false;
     }
 }
 

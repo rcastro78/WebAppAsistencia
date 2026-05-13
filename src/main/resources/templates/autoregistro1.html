@@ -242,10 +242,12 @@
                             <i class="fas fa-clipboard-list"></i> Plan de Interés
                         </label>
                         <select id="planInteres" name="planInteres" class="input" required>
-                            <option value="">Seleccione el plan de su interés</option>
+                            <option value="">Primero selecciona un país</option>
                             <option th:each="plan : ${planes}"
                                     th:value="${plan.idPlan}"
-                                    th:text="${plan.nombrePlan + ' - $' + plan.costoPlan}">
+                                    th:attr="data-pais=${plan.idPais}"
+                                    th:text="${plan.nombrePlan + ' ' + plan.moneda + ' ' + plan.costoPlan}"
+                                    style="display:none">
                             </option>
                         </select>
                         <small style="color: #666;">Seleccione el plan que desea contratar</small>
@@ -696,7 +698,41 @@
                 console.error('Error:', error);
                 deptoSelect.innerHTML = "<option value=''>Error al cargar</option>";
             });
+
+            filtrarPlanesPorPais(idPais);
     }
+
+function filtrarPlanesPorPais(idPais) {
+    const planSelect = document.getElementById("planInteres");
+
+    // Resetear
+    planSelect.value = "";
+
+    // Obtener todas las opciones con data-pais
+    const todasOpciones = planSelect.querySelectorAll("option[data-pais]");
+
+    let planesVisibles = 0;
+
+    todasOpciones.forEach(option => {
+        if (option.getAttribute("data-pais") == idPais) {
+            option.removeAttribute("disabled");
+            option.style.display = "";
+            planesVisibles++;
+        } else {
+            option.setAttribute("disabled", "disabled");
+            option.style.display = "none";
+        }
+    });
+
+    // Actualizar el texto del primer option
+    const primerOption = planSelect.querySelector("option:not([data-pais])");
+    if (primerOption) {
+        primerOption.textContent = planesVisibles === 0
+            ? "No hay planes para este país"
+            : "Seleccione el plan de su interés";
+    }
+}
+
 
     // ========== CARGAR MUNICIPIOS ==========
     function loadMunicipios(idDepto) {

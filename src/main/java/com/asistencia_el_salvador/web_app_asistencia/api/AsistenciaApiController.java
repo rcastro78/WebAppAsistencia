@@ -58,7 +58,7 @@ public class AsistenciaApiController {
     private final WompiCardService                       wompiCardService;
     private final AfiliadoPagoService                  afiliadoPagoService;
     private final UsuarioService                        usuarioService;
-
+    private final NotificacionUsuarioService notificacionUsuarioService;
     public AsistenciaApiController(
             AfiliadoSolicitudAsistenciaService service,
             EstadoSolicitudServicioService estadoSolicitudServicioService,
@@ -80,7 +80,9 @@ public class AsistenciaApiController {
             PagoAfiliadoService pagoAfiliadoService,
             WompiAuthService wompiAuthService,
             WompiCardService wompiCardService,
-            AfiliadoPagoService afiliadoPagoService, UsuarioService usuarioService) {
+            AfiliadoPagoService afiliadoPagoService,
+            UsuarioService usuarioService,
+            NotificacionUsuarioService notificacionUsuarioService) {
         this.service                                  = service;
         this.estadoSolicitudServicioService           = estadoSolicitudServicioService;
         this.planService                              = planService;
@@ -103,6 +105,7 @@ public class AsistenciaApiController {
         this.wompiCardService        = wompiCardService;
         this.afiliadoPagoService             = afiliadoPagoService;
         this.usuarioService = usuarioService;
+        this.notificacionUsuarioService = notificacionUsuarioService;
     }
 
 
@@ -186,6 +189,9 @@ public class AsistenciaApiController {
             return serverError(e); // ← igual que tus otros endpoints
         }
     }
+
+
+
 
 
     @PostMapping("/pagos/registrar/{dui}")
@@ -414,7 +420,40 @@ public class AsistenciaApiController {
             return serverError(e);
         }
     }
+    /*
+    * @GetMapping("/solicitudes/{id}")
+    public ResponseEntity<ApiResponse<AfiliadoSolicitudAsistencia>> detalle(
+            @PathVariable Integer id, HttpServletRequest session) {
+        try {
+            String  dui = resolverDui(session);
+            Integer rol = resolverRol(session);
+            if (dui == null) return sinSesion();
 
+            AfiliadoSolicitudAsistencia solicitud = service.obtenerPorId(id)
+                    .orElse(null);
+            if (solicitud == null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.error("Solicitud no encontrada"));
+
+            if (rol == 3 && !solicitud.getDuiAfiliado().equals(dui))
+                return sinPermiso();
+
+            return ResponseEntity.ok(ApiResponse.ok(solicitud));
+
+        } catch (Exception e) {
+            log.error("Error detalle solicitud: ", e);
+            return serverError(e);
+        }
+    }
+    * */
+    //Notificaciones
+    @GetMapping("/notificaciones/{dui}")
+    public ResponseEntity<ApiResponse<List<NotificacionUsuario>>> detalleNotificaciones(
+            @PathVariable String dui, HttpServletRequest session) {
+        List<NotificacionUsuario> notificacionUsuarios = notificacionUsuarioService.getLastUserNotifications(dui);
+        return ResponseEntity.ok(ApiResponse.ok(notificacionUsuarios,"notificacionesUsuario"));
+
+    }
 
     //Proximo pago
     @GetMapping("/proximo-pago/{dui}")
@@ -474,6 +513,11 @@ public class AsistenciaApiController {
     }
 
 
+    @GetMapping("/datosAfiliado/{dui}")
+    public ResponseEntity<ApiResponse<PlanAfiliadoResumen>> obtenerDatosAfiliado(@PathVariable("dui") String dui) {
+        PlanAfiliadoResumen planAfiliadoResumen = afiliadoService.getPlanAfiliadoResumen(dui).get();
+        return ResponseEntity.ok(ApiResponse.ok(planAfiliadoResumen,"resumen"));
+    }
 
     // ════════════════════════════════════════════════════════
     // GET /api/v1/carnet/{dui}

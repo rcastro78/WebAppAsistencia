@@ -46,6 +46,9 @@ public class PlanAfiliadoResumen implements Serializable {
     @Column(name = "carnetActivo")
     private int carnetActivo;
 
+    @Column(name = "perfilPctCompletado")
+    private double perfilPctCompletado;
+
     public String getDui() {
         return dui;
     }
@@ -128,6 +131,14 @@ public class PlanAfiliadoResumen implements Serializable {
 
     public int getCarnetActivo() {
         return carnetActivo;
+    }
+
+    public double getPerfilPctCompletado() {
+        return perfilPctCompletado;
+    }
+
+    public void setPerfilPctCompletado(double perfilPctCompletado) {
+        this.perfilPctCompletado = perfilPctCompletado;
     }
 
     public boolean tieneCarnetActivo() {

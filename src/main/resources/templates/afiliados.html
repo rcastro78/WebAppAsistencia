@@ -5,113 +5,230 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Listado de Afiliados - Asistencia El Salvador</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
     <link rel="stylesheet" th:href="@{/css/afiliados.css}">
+
+    <style>
+        /* ── Sidebar del dashboard ── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ─── SIDEBAR ─────────────────────────── */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .sidebar .logo {
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sidebar .logo img {
+            max-height: 40px;
+            width: auto;
+        }
+
+        .sidebar-profile {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .sidebar-profile h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-profile p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 1.5rem;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            background: #f8f9ff;
+            color: #4A90E2;
+        }
+
+        .nav-item.active {
+            background: #f8f9ff;
+            color: #4A90E2;
+            border-left-color: #4A90E2;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ─── MAIN ─────────────────────────────── */
+        .main {
+            flex: 1;
+            background: #f8fafc;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+    </style>
 </head>
 <body>
 <div class="layout">
 
     <!-- ══════════════════════════════════════════
-         SIDEBAR — condicional por rol
+         SIDEBAR — del dashboard
     ══════════════════════════════════════════ -->
     <aside class="sidebar">
 
-        <div class="sidebar-logo">
+        <div class="logo">
             <img th:src="@{/images/asistencia.jpeg}" src="/images/asistencia.jpeg" alt="Logo Asistencia El Salvador">
         </div>
 
         <div class="sidebar-profile">
-            <div class="profile-avatar"
-                 th:text="${session.nombre != null
-             ? #strings.substring(session.nombre,0,1) + #strings.substring(session.apellido,0,1)
-             : 'US'}">US</div>
-            <div class="profile-name" th:text="${session.nombre + ' ' + session.apellido}">Usuario</div>
-            <div class="profile-role">
-        <span class="role-badge"
-              th:classappend="${session.patrocinio ? 'role-patron'
-                              : (rol == 1 ? 'role-admin' : 'role-vendedor')}">
-          <i th:class="${session.patrocinio ? 'fas fa-star'
-                       : (rol == 1 ? 'fas fa-shield-alt' : 'fas fa-briefcase')}"></i>
-          <span th:text="${session.patrocinio ? 'Patrocinador'
-                         : (rol == 1 ? 'Administrador' : 'Vendedor')}">Rol</span>
-        </span>
-            </div>
-            <div class="profile-email" th:text="${session.email}">usuario@asistencia.sv</div>
+            <div class="profile-avatar">JO</div>
+            <h3>Jorge Orellana</h3>
+            <p>jorge.orellana@asistenciaelsalvador.com</p>
         </div>
 
-        <!-- ── NAV: ADMINISTRADOR (rol == 1) ── -->
-        <nav class="sidebar-nav" th:if="${!session.patrocinio and rol == 1}">
-            <div class="nav-section-label">Principal</div>
-            <a th:href="@{/admin/dashboard}"  href="#" class="nav-item">
-                <i class="fas fa-th-large"></i> Dashboard
-            </a>
-            <a th:href="@{/afiliado}"         href="#" class="nav-item active">
-                <i class="fas fa-users"></i> Afiliados
-            </a>
-            <a th:href="@{/afiliado/nuevo}"   href="#" class="nav-item">
-                <i class="fas fa-user-plus"></i> Registrar Afiliado
-            </a>
-            <div class="nav-section-label">Gestion</div>
-            <a th:href="@{/admin/planes}"     href="#" class="nav-item">
-                <i class="fas fa-layer-group"></i> Planes
-            </a>
-            <a th:href="@{/pagos}"            href="#" class="nav-item">
-                <i class="fas fa-receipt"></i> Pagos
-            </a>
-            <a th:href="@{/admin/usuarios}"   href="#" class="nav-item">
-                <i class="fas fa-user-cog"></i> Usuarios del sistema
-            </a>
-            <a th:href="@{/admin/reportes}"   href="#" class="nav-item">
-                <i class="fas fa-chart-bar"></i> Reportes
-            </a>
-            <div class="nav-section-label">Cuenta</div>
-            <a th:href="@{/usuarios/login}"   href="#" class="nav-item nav-logout">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesion
-            </a>
-        </nav>
+        <nav class="sidebar-nav">
 
-        <!-- ── NAV: VENDEDOR (rol == 2) ── -->
-        <nav class="sidebar-nav" th:if="${!session.patrocinio and rol == 2}">
-            <div class="nav-section-label">Principal</div>
-            <a th:href="@{/admin/ventas/dashboard/}"               href="#" class="nav-item">
-                <i class="fas fa-th-large"></i> Dashboard
+            <a th:href="@{/plan}" href="#" class="nav-item">
+                <i class="fas fa-list-check"></i>
+                <span>Planes</span>
             </a>
-            <a th:href="@{/admin/ventas/dashboard/vendedor}"       href="#" class="nav-item active">
-                <i class="fas fa-users"></i> Mis Afiliados
-            </a>
-            <a th:href="@{/admin/ventas/dashboard/vendedor/nuevo}" href="#" class="nav-item">
-                <i class="fas fa-user-plus"></i> Registrar Afiliado
-            </a>
-            <div class="nav-section-label">Gestion</div>
-            <a th:href="@{/admin/ventas/dashboard/cotizador}"      href="#" class="nav-item">
-                <i class="fas fa-calculator"></i> Cotizador
-            </a>
-            <a th:href="@{/admin/ventas/dashboard/llamadas}"       href="#" class="nav-item">
-                <i class="fas fa-phone"></i> Registro de Llamadas
-            </a>
-            <a th:href="@{/admin/ventas/dashboard/comisiones}"     href="#" class="nav-item">
-                <i class="fas fa-hand-holding-usd"></i> Mis Comisiones
-            </a>
-            <div class="nav-section-label">Cuenta</div>
-            <a th:href="@{/usuarios/login}"                        href="#" class="nav-item nav-logout">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesion
-            </a>
-        </nav>
 
-        <!-- ── NAV: PATROCINADOR (session.patrocinio) ── -->
-        <nav class="sidebar-nav" th:if="${session.patrocinio}">
-            <div class="nav-section-label">Principal</div>
-            <a th:href="@{/usuarios/dashboard/}" href="#" class="nav-item">
-                <i class="fas fa-th-large"></i> Mi Dashboard
+            <a th:href="@{/coberturas}" href="#" class="nav-item">
+                <i class="fas fa-umbrella"></i>
+                <span>Coberturas</span>
             </a>
-            <a th:href="@{/afiliado}"            href="#" class="nav-item active">
-                <i class="fas fa-users"></i> Mis Patrocinados
-            </a>
-            <div class="nav-section-label">Cuenta</div>
-            <a th:href="@{/usuarios/login}"      href="#" class="nav-item nav-logout">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesion
-            </a>
-        </nav>
 
+            <a th:href="@{/categorias}" href="#" class="nav-item">
+                <i class="fas fa-layer-group"></i>
+                <span>Categorías</span>
+            </a>
+
+            <a th:href="@{/proveedores/}" href="#" class="nav-item">
+                <i class="fas fa-truck-fast"></i>
+                <span>Proveedores de servicios</span>
+            </a>
+
+            <a th:href="@{/clientesCorporativos/}" href="#" class="nav-item">
+                <i class="fas fa-suitcase"></i>
+                <span>Clientes Corporativos</span>
+            </a>
+
+            <a th:href="@{/asistencia/todas}" href="#" class="nav-item">
+                <i class="fas fa-circle-info"></i>
+                <span>Solicitudes de servicios</span>
+            </a>
+
+            <a th:href="@{/comerciosAfiliados/}" href="#" class="nav-item">
+                <i class="fas fa-store"></i>
+                <span>Comercios Afiliados</span>
+            </a>
+
+            <a th:href="@{/vehiculos}" href="#" class="nav-item">
+                <i class="fas fa-car"></i>
+                <span>Vehículos Afiliados</span>
+            </a>
+
+            <a th:href="@{/casas}" href="#" class="nav-item">
+                <i class="fas fa-house"></i>
+                <span>Casas Afiliadas</span>
+            </a>
+
+            <a th:href="@{/medicos/listar}" href="#" class="nav-item">
+                <i class="fas fa-user-doctor"></i>
+                <span>Médicos Afiliados</span>
+            </a>
+
+            <a th:href="@{/afiliado/carga-masiva}" href="#" class="nav-item">
+                <i class="fas fa-file-arrow-up"></i>
+                <span>Carga masiva</span>
+            </a>
+
+            <a th:href="@{/admin/dashboard/pagosAfiliados}" href="#" class="nav-item">
+                <i class="fas fa-credit-card"></i>
+                <span>Pagos</span>
+            </a>
+
+            <a th:href="@{/admin/vendedores/}" href="#" class="nav-item">
+                <i class="fas fa-business-time"></i>
+                <span>Vendedores</span>
+            </a>
+
+            <a th:href="@{/admin/vendedores/equipos}" href="#" class="nav-item">
+                <i class="fa-solid fa-users-line"></i>
+                <span>Equipos</span>
+            </a>
+
+            <a th:href="@{/admin/configuracion/}" href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+
+            <a th:href="@{/reportes}" href="#" class="nav-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reportes</span>
+            </a>
+
+            <a th:href="@{/usuarios/login}" href="#" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+
+        </nav>
     </aside>
 
 
@@ -173,7 +290,54 @@
                     <i class="fas fa-list" style="color:var(--brand-mid); margin-right:6px; font-size:.85rem;"></i>
                     <span th:text="${session.patrocinio ? 'Mis Patrocinados' : 'Listado de Afiliados'}">Listado</span>
                 </h3>
-                <span class="registro-count" th:text="${#lists.size(afiliados)} + ' registros'">0 registros</span>
+                <span class="registro-count" id="contadorRegistros" th:text="${#lists.size(afiliados)} + ' registros'">0 registros</span>
+            </div>
+
+            <!-- Buscador -->
+            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #f0f0f0;">
+                <div style="position: relative; max-width: 420px;">
+                    <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#aaa; font-size:0.9rem;"></i>
+                    <input
+                            type="text"
+                            id="buscadorAfiliados"
+                            placeholder="Buscar por nombre o DUI..."
+                            oninput="filtrarAfiliados()"
+                            style="
+                            width: 100%;
+                            padding: 0.6rem 1rem 0.6rem 2.4rem;
+                            border: 1px solid #e0e0e0;
+                            border-radius: 8px;
+                            font-size: 0.92rem;
+                            outline: none;
+                            transition: border-color 0.2s;
+                            background: #fafafa;
+                        "
+                            onfocus="this.style.borderColor='#4A90E2'; this.style.background='#fff';"
+                            onblur="this.style.borderColor='#e0e0e0'; this.style.background='#fafafa';"
+                    >
+                    <button
+                            onclick="limpiarBuscador()"
+                            id="btnLimpiar"
+                            title="Limpiar búsqueda"
+                            style="
+                            display: none;
+                            position: absolute;
+                            right: 10px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            background: none;
+                            border: none;
+                            cursor: pointer;
+                            color: #aaa;
+                            font-size: 0.85rem;
+                            padding: 2px 4px;
+                        ">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                <div id="sinResultados" style="display:none; margin-top: 0.75rem; color: #999; font-size: 0.88rem;">
+                    <i class="fas fa-inbox"></i> No se encontraron resultados para "<span id="terminoBusqueda"></span>"
+                </div>
             </div>
 
             <!-- Estado vacio: admin o vendedor -->

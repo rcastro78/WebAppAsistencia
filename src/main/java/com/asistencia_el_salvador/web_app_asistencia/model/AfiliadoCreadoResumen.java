@@ -87,6 +87,11 @@ public class AfiliadoCreadoResumen implements Serializable{
     @Column(name = "precio_plan_anual")
     private Double PrecioPlanAnual;
 
+    @Column(name = "perfil_completo_pct")
+    private Double PerfilCompletoPct;
+
+
+
     @Column(name = "idPlan")
     private Integer idPlan;
     @Column(name = "vigencia")
