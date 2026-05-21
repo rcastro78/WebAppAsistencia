@@ -1479,8 +1479,9 @@ public class AfiliadoController {
     //si sigue igual no hacer nada
     @PostMapping("/carga-masiva")
     public String procesarCargaMasiva(@RequestParam("archivo") MultipartFile archivo,
-                                      @RequestParam("idInstitucion") String nitCliente,
+                                      @RequestParam("nitCliente") String nitCliente,
                                       @RequestParam("idPlan") Integer idPlan,
+                                      @RequestParam("tipoCarga") String tipoCarga,
                                       RedirectAttributes redirectAttributes) {
 
         if (archivo.isEmpty()) {
@@ -1488,7 +1489,6 @@ public class AfiliadoController {
             return "redirect:/afiliado/carga-masiva";
         }
 
-        // Validar tipo de archivo
         String contentType = archivo.getContentType();
         if (!isExcelFile(contentType)) {
             redirectAttributes.addFlashAttribute("error",
@@ -1496,16 +1496,33 @@ public class AfiliadoController {
             return "redirect:/afiliado/carga-masiva";
         }
 
+        // Validar tipoCarga
+        if (tipoCarga == null || (!tipoCarga.equals("INCREMENTAL") && !tipoCarga.equals("REEMPLAZO"))) {
+            redirectAttributes.addFlashAttribute("error", "Tipo de carga no válido");
+            return "redirect:/afiliado/carga-masiva";
+        }
+
         try {
-            CargaMasivaResultado resultado = cargaMasivaService.procesarArchivoExcel(archivo,0,idPlan,nitCliente);
+            CargaMasivaResultado resultado = cargaMasivaService.procesarArchivoExcel(
+                    archivo, idPlan, nitCliente, tipoCarga
+            );
+
+            StringBuilder mensajeExito = new StringBuilder();
+            mensajeExito.append("Carga completada. ")
+                    .append(resultado.getExitosos())
+                    .append(" afiliados procesados.");
+
+            // Informar desactivaciones si aplica
+            if ("REEMPLAZO".equals(tipoCarga) && resultado.getDesactivados() > 0) {
+                mensajeExito.append(" ").append(resultado.getDesactivados())
+                        .append(" afiliados desactivados por no aparecer en el listado.");
+            }
 
             if (resultado.getErrores() == 0) {
-                redirectAttributes.addFlashAttribute("success",
-                        "Carga completada exitosamente. " + resultado.getExitosos() + " afiliados procesados.");
+                redirectAttributes.addFlashAttribute("success", mensajeExito.toString());
             } else {
                 redirectAttributes.addFlashAttribute("warning",
-                        "Carga parcialmente exitosa. " + resultado.getExitosos() + " exitosos, " +
-                                resultado.getErrores() + " errores.");
+                        mensajeExito + " | " + resultado.getErrores() + " errores encontrados.");
                 redirectAttributes.addFlashAttribute("errores", resultado.getMensajesError());
             }
 

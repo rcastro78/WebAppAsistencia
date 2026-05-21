@@ -21,11 +21,12 @@
             </div>
             <h1 th:text="${nombreProveedor}">Nombre del Proveedor</h1>
             <div class="breadcrumb">
-                <a th:href="@{/usuarios/dashboard}">
+                <a th:with="dest=${session.rol == 1 ? '/admin/dashboard' : (session.rol == 3 ? '/usuarios/dashboard' : '')}"
+                   th:href="@{${dest}}">
                     <i class="fas fa-home"></i> Inicio
                 </a>
                 <i class="fas fa-chevron-right"></i>
-                <a href="#">
+                <a th:href="@{/proveedores}">
                     Proveedores
                 </a>
                 <i class="fas fa-chevron-right"></i>

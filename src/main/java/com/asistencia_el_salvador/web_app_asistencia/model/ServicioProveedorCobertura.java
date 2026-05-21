@@ -15,6 +15,10 @@ public class ServicioProveedorCobertura {
     private Integer idCobertura;
 
     @Id
+    @Column(name = "idServicioProveedorCobertura")
+    private Integer idServicioProveedorCobertura;
+
+    @Id
     @Column(name = "idPlan")
     private Integer idPlan;
 
@@ -113,16 +117,19 @@ class ServicioProveedorCoberturaId implements java.io.Serializable {
     private Integer idProveedor;
     private Integer idCobertura;
     private Integer idPlan;
+    private Integer idServicioProveedorCobertura;
 
     // Constructor vacío
     public ServicioProveedorCoberturaId() {
     }
 
     // Constructor con parámetros
-    public ServicioProveedorCoberturaId(Integer idProveedor, Integer idCobertura, Integer idPlan) {
+    public ServicioProveedorCoberturaId(Integer idProveedor, Integer idCobertura, Integer idPlan,
+                                        Integer idServicioProveedorCobertura) {
         this.idProveedor = idProveedor;
         this.idCobertura = idCobertura;
         this.idPlan = idPlan;
+        this.idServicioProveedorCobertura  = idServicioProveedorCobertura;
     }
 
     // Getters y Setters
@@ -150,7 +157,13 @@ class ServicioProveedorCoberturaId implements java.io.Serializable {
         this.idPlan = idPlan;
     }
 
+    public Integer getIdServicioProveedorCobertura() {
+        return idServicioProveedorCobertura;
+    }
 
+    public void setIdServicioProveedorCobertura(Integer idServicioProveedorCobertura) {
+        this.idServicioProveedorCobertura = idServicioProveedorCobertura;
+    }
 
     // equals y hashCode (IMPORTANTES para claves compuestas)
     @Override

@@ -1,10 +1,13 @@
 package com.asistencia_el_salvador.web_app_asistencia.repository;
 
 import com.asistencia_el_salvador.web_app_asistencia.model.Afiliado;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,4 +40,29 @@ public interface AfiliadoRepository extends JpaRepository<Afiliado, String> {
     List<Afiliado> findByCreatedBy(String createdBy);
 
     long countByCreatedBy(String createdBy);
+
+    // AfiliadoRepository
+    @Query(value = "SELECT a.DUI FROM afiliado a " +
+            "JOIN plan_afiliado pa ON pa.DUI = a.DUI " +
+            "WHERE a.institucion = :institucion " +
+            "AND pa.id_plan = :idPlan " +
+            "AND a.estado = 1 " +
+            "AND pa.estado = 1",
+            nativeQuery = true)
+    List<String> findDuisActivosByClienteAndPlan(
+            @Param("institucion") Integer institucion,
+            @Param("idPlan") int idPlan);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Afiliado a SET a.estado = 0 WHERE a.dui IN :duis")
+    void desactivarAfiliados(@Param("duis") List<String> duis);
+
+    // UsuarioRepository
+    @Modifying
+    @Transactional
+    @Query("UPDATE Usuario u SET u.activo = false WHERE u.dui IN :duis")
+    void desactivarUsuarios(@Param("duis") List<String> duis);
+
+
 }

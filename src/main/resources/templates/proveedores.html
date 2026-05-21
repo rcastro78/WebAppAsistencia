@@ -6,25 +6,33 @@
     <title>Proveedores - Asistencia El Salvador</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/comercios.css}">
+
     <style>
-        .breadcrumb {
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+        }
+
+        .layout {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 15px;
-            font-size: 14px;
-            color: #7f8c8d;
+            min-height: 100vh;
         }
 
-        .breadcrumb a {
-            color: #4A90E2;
-            text-decoration: none;
+        /* ─── SIDEBAR ─────────────────────────── */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
         }
 
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        .logo {
+        .sidebar .logo {
             padding: 2rem 1.5rem;
             display: flex;
             align-items: center;
@@ -32,125 +40,594 @@
             border-bottom: 1px solid #f0f0f0;
         }
 
-        .logo i {
-            font-size: 1.5rem;
-            color: #4A90E2;
-        }
-
-        .logo img {
+        .sidebar .logo img {
             max-height: 40px;
             width: auto;
         }
 
-        /* ── Estilos botón editar ── */
-        .action-btn.edit {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        .sidebar-profile {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .sidebar-profile h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-profile p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 1.5rem;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            background: #f8f9ff;
+            color: #4A90E2;
+        }
+
+        .nav-item.active {
+            background: #f8f9ff;
+            color: #4A90E2;
+            border-left-color: #4A90E2;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ─── MAIN ─────────────────────────────── */
+        .main {
+            flex: 1;
+            background: #f8fafc;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* ─── PAGE HEADER ───────────────────────── */
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1.75rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.6rem;
+            color: #1a1a2e;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-header p {
+            color: #888;
+            font-size: 0.93rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        .breadcrumb a { color: #4A90E2; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        /* ─── TOOLBAR ───────────────────────────── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: white;
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 1.5rem;
+        }
+
+        .toolbar-left, .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f8fafc;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 0.55rem 1rem;
+            transition: border-color 0.2s;
+        }
+        .search-box:focus-within { border-color: #4A90E2; background: white; }
+        .search-box i { color: #aaa; font-size: 0.88rem; }
+        .search-box input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 0.9rem;
+            width: 200px;
+            color: #333;
+        }
+
+        .category-filter {
+            padding: 0.55rem 0.9rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #444;
+            background: #f8fafc;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .category-filter:focus { border-color: #4A90E2; background: white; }
+
+        .btn-create {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 8px 14px;
-            font-size: 13px;
+            border-radius: 10px;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(74,144,226,0.3);
+            text-decoration: none;
+        }
+        .btn-create:hover {
+            background: linear-gradient(135deg, #357ABD, #2a6099);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(74,144,226,0.4);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 3px;
+        }
+
+        .view-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .view-btn.active { background: white; color: #4A90E2; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
+        .stats-summary {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .stat-item i { color: #4A90E2; }
+        .stat-item .stat-number { font-weight: 700; color: #333; }
+
+        /* ─── TABLA CARD ────────────────────────── */
+        .tabla-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+            overflow: hidden;
+        }
+
+        .tabla-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tabla-header h3 {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .registro-count {
+            background: #f0f4ff;
+            color: #4A90E2;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* ─── FLASH MESSAGES ────────────────────── */
+        .flash-success, .flash-error {
+            padding: 0.85rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.93rem;
+        }
+        .flash-success { background: #e6f9f0; color: #1a7a4a; border: 1px solid #b2e8cf; }
+        .flash-error   { background: #fff0f0; color: #c0392b; border: 1px solid #f5c6c6; }
+
+        /* ─── COMERCIOS GRID ────────────────────── */
+        .comercios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+            padding: 1.5rem;
+        }
+
+        .comercio-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #f0f0f0;
+        }
+        .comercio-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .card-header-img {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comercio-logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 1;
+        }
+        .comercio-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .comercio-logo i { font-size: 1.8rem; color: #4A90E2; }
+
+        .card-body {
+            padding: 1rem 1.25rem 1.25rem;
+        }
+
+        .comercio-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.4rem;
+        }
+
+        .comercio-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f0f4ff;
+            color: #4A90E2;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 0.85rem;
+        }
+
+        .comercio-info-extra {
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            color: #666;
+        }
+        .info-item i { color: #4A90E2; font-size: 0.8rem; min-width: 14px; }
+        .info-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .action-btn {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.25s ease;
-            box-shadow: 0 3px 8px rgba(243, 156, 18, 0.3);
+            padding: 7px 13px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
             text-decoration: none;
+            transition: all 0.2s ease;
         }
 
-        .action-btn.edit:hover {
-            background: linear-gradient(135deg, #e67e22 0%, #ca6f1e 100%);
-            box-shadow: 0 5px 12px rgba(243, 156, 18, 0.45);
+        .action-btn.primary {
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            color: white;
+            box-shadow: 0 3px 8px rgba(74,144,226,0.3);
+        }
+        .action-btn.primary:hover {
+            background: linear-gradient(135deg, #357ABD, #2a6099);
             transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(74,144,226,0.4);
         }
 
-        .action-btn.edit:active {
-            transform: translateY(0);
+        .action-btn.secondary {
+            background: #f0f4ff;
+            color: #4A90E2;
+        }
+        .action-btn.secondary:hover {
+            background: #4A90E2;
+            color: white;
         }
 
-        /* separador entre filas de acciones */
-        .card-actions + .card-actions {
-            margin-top: 8px;
+        .action-btn.edit {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            box-shadow: 0 3px 8px rgba(243,156,18,0.3);
         }
+        .action-btn.edit:hover {
+            background: linear-gradient(135deg, #e67e22, #ca6f1e);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(243,156,18,0.45);
+        }
+
+        /* ─── EMPTY / LOADING ───────────────────── */
+        .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+            color: #aaa;
+        }
+        .empty-state i { font-size: 3.5rem; color: #ddd; margin-bottom: 1rem; }
+        .empty-state h3 { font-size: 1.3rem; color: #555; margin-bottom: 0.5rem; }
+        .empty-state p { font-size: 0.93rem; }
+
+        .loading-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4A90E2;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+
+        /* Lista view */
+        .comercios-list { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; }
+        .comercio-card.list-view { display: flex; flex-direction: row; }
+        .comercio-card.list-view .card-header-img { width: 100px; min-width: 100px; height: auto; border-radius: 16px 0 0 16px; }
+        .comercio-card.list-view .card-body { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+        .comercio-card.list-view .comercio-name { flex: 0 0 180px; margin: 0; }
+        .comercio-card.list-view .comercio-category { flex: 0 0 130px; margin: 0; }
+        .comercio-card.list-view .comercio-info-extra { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 6px; margin: 0; }
+        .comercio-card.list-view .card-actions { flex: 0 0 auto; margin: 0; }
     </style>
 </head>
 <body>
-<div class="dashboard-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
+<div class="layout">
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════ -->
+    <aside class="sidebar">
+
         <div class="logo">
-            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+            <img th:src="@{/images/asistencia.jpeg}" src="/images/asistencia.jpeg" alt="Logo Asistencia El Salvador">
         </div>
 
-        <div class="profile-section">
-            <div class="profile-avatar">
-                JO
-            </div>
+        <div class="sidebar-profile">
+            <div class="profile-avatar">JO</div>
             <h3>Jorge Orellana</h3>
             <p>jorge.orellana@asistenciaelsalvador.com</p>
         </div>
 
         <nav class="sidebar-nav">
-            <a th:href="@{/plan}" class="nav-item">
+
+            <a th:href="@{/plan}" href="#" class="nav-item">
                 <i class="fas fa-list-check"></i>
                 <span>Planes</span>
             </a>
-            <a th:href="@{/admin/dashboard}" class="nav-item">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
+
+            <a th:href="@{/coberturas}" href="#" class="nav-item">
+                <i class="fas fa-umbrella"></i>
+                <span>Coberturas</span>
             </a>
-            <a th:href="@{/comerciosAfiliados/}" class="nav-item">
+
+            <a th:href="@{/categorias}" href="#" class="nav-item">
+                <i class="fas fa-layer-group"></i>
+                <span>Categorías</span>
+            </a>
+
+            <a th:href="@{/proveedores/}" href="#" class="nav-item active">
+                <i class="fas fa-truck-fast"></i>
+                <span>Proveedores de servicios</span>
+            </a>
+
+            <a th:href="@{/clientesCorporativos/}" href="#" class="nav-item">
+                <i class="fas fa-suitcase"></i>
+                <span>Clientes Corporativos</span>
+            </a>
+
+            <a th:href="@{/asistencia/todas}" href="#" class="nav-item">
+                <i class="fas fa-circle-info"></i>
+                <span>Solicitudes de servicios</span>
+            </a>
+
+            <a th:href="@{/comerciosAfiliados/}" href="#" class="nav-item">
                 <i class="fas fa-store"></i>
                 <span>Comercios Afiliados</span>
             </a>
-            <a th:href="@{/afiliado/carga-masiva}" class="nav-item">
+
+            <a th:href="@{/vehiculos}" href="#" class="nav-item">
+                <i class="fas fa-car"></i>
+                <span>Vehículos Afiliados</span>
+            </a>
+
+            <a th:href="@{/casas}" href="#" class="nav-item">
+                <i class="fas fa-house"></i>
+                <span>Casas Afiliadas</span>
+            </a>
+
+            <a th:href="@{/medicos/listar}" href="#" class="nav-item">
+                <i class="fas fa-user-doctor"></i>
+                <span>Médicos Afiliados</span>
+            </a>
+
+            <a th:href="@{/afiliado/carga-masiva}" href="#" class="nav-item">
                 <i class="fas fa-file-arrow-up"></i>
                 <span>Carga masiva</span>
             </a>
-            <a href="#" class="nav-item">
+
+            <a th:href="@{/admin/dashboard/pagosAfiliados}" href="#" class="nav-item">
                 <i class="fas fa-credit-card"></i>
                 <span>Pagos</span>
             </a>
-            <a href="#" class="nav-item">
+
+            <a th:href="@{/admin/vendedores/}" href="#" class="nav-item">
+                <i class="fas fa-business-time"></i>
+                <span>Vendedores</span>
+            </a>
+
+            <a th:href="@{/admin/vendedores/equipos}" href="#" class="nav-item">
+                <i class="fa-solid fa-users-line"></i>
+                <span>Equipos</span>
+            </a>
+
+            <a th:href="@{/admin/configuracion/}" href="#" class="nav-item">
                 <i class="fas fa-cog"></i>
                 <span>Configuración</span>
             </a>
-            <a href="#" class="nav-item">
+
+            <a th:href="@{/reportes}" href="#" class="nav-item">
                 <i class="fas fa-file-pdf"></i>
                 <span>Reportes</span>
             </a>
-            <a th:href="@{/usuarios/login}" class="nav-item">
+
+            <a th:href="@{/usuarios/login}" href="#" class="nav-item">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
             </a>
-        </nav>
-    </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-left">
-                <h1>Proveedores</h1>
+        </nav>
+    </aside>
+
+
+    <!-- ══════════════════════════════════════════
+         MAIN
+    ══════════════════════════════════════════ -->
+    <main class="main">
+
+        <!-- Page header -->
+        <div class="page-header">
+            <div>
+                <h1>
+                    <i class="fas fa-truck-fast" style="color:#4A90E2; margin-right:8px;"></i>
+                    Proveedores
+                </h1>
                 <p>Proveedores de servicios de Asistencia El Salvador.</p>
-                <div class="breadcrumb">
-                    <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Inicio</a>
+
+                <nav class="breadcrumb">
+                    <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
                     <i class="fas fa-chevron-right"></i>
                     <span>Proveedores</span>
-                </div>
+                </nav>
             </div>
-            <div class="header-right">
-                <div class="user-menu">
-                    <span th:text="|${session.nombre} ${session.apellido}|"></span>
-                    <i class="fas fa-bell"></i>
-                    <i class="fas fa-bars"></i>
-                </div>
-                <div class="header-illustration">
-                    <img src="https://via.placeholder.com/150x120/FF8C00/FFFFFF?text=Store" alt="Store Illustration">
-                </div>
-            </div>
+        </div>
+
+        <!-- Flash messages -->
+        <div class="flash-success" th:if="${success != null}">
+            <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+        </div>
+        <div class="flash-error" th:if="${error != null}">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
         </div>
 
         <!-- Toolbar -->
@@ -168,7 +645,7 @@
                 </select>
             </div>
             <div class="toolbar-right">
-                <button class="btn-create-commerce" onclick="crearNuevoComercio()">
+                <button class="btn-create" onclick="window.location.href='/proveedores/nuevo'">
                     <i class="fas fa-plus-circle"></i>
                     <span>Nuevo Proveedor</span>
                 </button>
@@ -184,70 +661,52 @@
                     <div class="stat-item">
                         <i class="fas fa-store"></i>
                         <span class="stat-number" th:text="${totalComercios}">0</span>
-                        <span>Comercios</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="fas fa-percentage"></i>
-                        <span class="stat-number">15%</span>
-                        <span>Desc. Promedio</span>
+                        <span>Proveedores</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Comercios Container -->
-        <div class="comercios-container">
-            <div class="list-header-section">
-                <h2>Listado de Proveedores</h2>
-                <br/>
+        <!-- Tabla card -->
+        <div class="tabla-card">
+
+            <div class="tabla-header">
+                <h3>
+                    <i class="fas fa-list" style="color:#4A90E2; margin-right:6px; font-size:.85rem;"></i>
+                    Listado de Proveedores
+                </h3>
+                <span class="registro-count" th:text="${totalComercios} + ' registros'">0 registros</span>
             </div>
 
-            <!-- Mensajes flash -->
-            <div th:if="${success}" style="
-                background:#d4edda; color:#155724; border:1px solid #c3e6cb;
-                border-radius:8px; padding:12px 18px; margin-bottom:16px;
-                display:flex; align-items:center; gap:10px;">
-                <i class="fas fa-check-circle"></i>
-                <span th:text="${success}"></span>
-            </div>
-            <div th:if="${error}" style="
-                background:#f8d7da; color:#721c24; border:1px solid #f5c6cb;
-                border-radius:8px; padding:12px 18px; margin-bottom:16px;
-                display:flex; align-items:center; gap:10px;">
-                <i class="fas fa-exclamation-circle"></i>
-                <span th:text="${error}"></span>
-            </div>
-
-            <!-- Loading State -->
-            <div class="loading-state" id="loadingState" style="display: none;">
+            <!-- Loading -->
+            <div class="loading-state" id="loadingState">
                 <div class="spinner"></div>
                 <span>Cargando proveedores...</span>
             </div>
 
-            <!-- Empty State -->
-            <div class="empty-state" id="emptyState" style="display: none;">
+            <!-- Empty state -->
+            <div class="empty-state" id="emptyState">
                 <i class="fas fa-store-slash"></i>
                 <h3>No se encontraron proveedores</h3>
-                <p>Intenta ajustar los filtros de búsqueda o selecciona una categoría diferente.</p>
+                <p>Intenta ajustar los filtros de búsqueda o agrega un nuevo proveedor.</p>
             </div>
 
-            <!-- Comercios Grid -->
+            <!-- Grid de cards -->
             <div class="comercios-grid" id="comerciosContainer">
                 <div class="comercio-card"
                      th:each="proveedor : ${proveedores}"
                      th:attr="data-category=${proveedor.catNombre}"
                      th:data-nombre="${proveedor.nombreProveedor}">
 
-                    <div class="card-header">
+                    <div class="card-header-img">
                         <div class="comercio-logo">
                             <img th:if="${proveedor.imagenURL != null && !proveedor.imagenURL.isEmpty()}"
                                  th:src="${proveedor.imagenURL}"
-                                 th:alt="${proveedor.nombreProveedor}" style="width:80px;height:80px"
+                                 th:alt="${proveedor.nombreProveedor}"
                                  onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-building\'></i>';">
                             <i th:if="${proveedor.imagenURL == null || proveedor.imagenURL.isEmpty()}"
                                class="fas fa-building"></i>
                         </div>
-                        <div class="card-decoration"></div>
                     </div>
 
                     <div class="card-body">
@@ -278,14 +737,12 @@
                         </div>
 
                         <!-- Acciones rol 1 (admin) -->
-                        <div th:if="${session.rol==1}">
+                        <div th:if="${session.rol == 1}">
                             <div class="card-actions">
                                 <button class="action-btn primary"
-                                        th:data-id="${proveedor.idProveedor}"
-                                        th:onclick="'verServicios2(' + ${proveedor.idProveedor} + ')'">
+                                        th:onclick="'verCoberturas(' + ${proveedor.idProveedor} + ')'">
                                     <i class="fas fa-sack-dollar"></i> Ver coberturas
                                 </button>
-                                <!-- ── BOTÓN EDITAR (solo admin) ── -->
                                 <a class="action-btn edit"
                                    th:href="@{/proveedores/editar/{id}(id=${proveedor.idProveedor})}">
                                     <i class="fas fa-pen-to-square"></i> Editar
@@ -295,13 +752,8 @@
                                     <i class="fas fa-code-branch"></i> Sucursales
                                 </a>
                             </div>
-
-
-
-                            <br/>
-                            <div class="card-actions">
+                            <div class="card-actions" style="margin-top:8px;">
                                 <button class="action-btn primary"
-                                        th:data-id="${proveedor.idProveedor}"
                                         th:onclick="'verServicios(' + ${proveedor.idProveedor} + ')'">
                                     <i class="fas fa-file"></i> Descargar contrato
                                 </button>
@@ -309,34 +761,33 @@
                         </div>
 
                         <!-- Acciones rol 3 -->
-                        <div th:if="${session.rol==3}">
+                        <div th:if="${session.rol == 3}">
                             <div class="card-actions">
                                 <button class="action-btn primary"
-                                        th:data-id="${proveedor.idProveedor}"
                                         th:onclick="'verServicios(' + ${proveedor.idProveedor} + ')'">
                                     <i class="fas fa-clover"></i> Ver coberturas
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
+
+        </div><!-- /tabla-card -->
+
+    </main>
+</div><!-- /layout -->
+
 
 <script th:inline="javascript">
-    const comerciosData = /*[[${proveedores}]]*/ [];
-    const categoriasData = /*[[${categorias}]]*/ [];
-
-    const gridViewBtn = document.getElementById('gridView');
-    const listViewBtn = document.getElementById('listView');
-    const comerciosContainer = document.getElementById('comerciosContainer');
-    const searchInput = document.getElementById('searchInput');
+    const comerciosData  = /*[[${proveedores}]]*/ [];
+    const gridViewBtn    = document.getElementById('gridView');
+    const listViewBtn    = document.getElementById('listView');
+    const container      = document.getElementById('comerciosContainer');
+    const searchInput    = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
-    const loadingState = document.getElementById('loadingState');
-    const emptyState = document.getElementById('emptyState');
+    const loadingState   = document.getElementById('loadingState');
+    const emptyState     = document.getElementById('emptyState');
 
     let currentView = 'grid';
 
@@ -344,23 +795,19 @@
         window.location.href = `/proveedores/serviciosProveedor?idProveedor=${idProveedor}`;
     }
 
-    function verServicios2(idProveedor) {
+    function verCoberturas(idProveedor) {
         window.location.href = `/proveedores/cobertura?idProveedor=${idProveedor}`;
-    }
-
-    function crearNuevoComercio() {
-        window.location.href = '/proveedores/nuevo';
     }
 
     function toggleView(viewType) {
         if (viewType === 'list') {
-            comerciosContainer.className = 'comercios-list';
-            comerciosContainer.querySelectorAll('.comercio-card').forEach(c => c.classList.add('list-view'));
+            container.className = 'comercios-list';
+            container.querySelectorAll('.comercio-card').forEach(c => c.classList.add('list-view'));
             listViewBtn.classList.add('active');
             gridViewBtn.classList.remove('active');
         } else {
-            comerciosContainer.className = 'comercios-grid';
-            comerciosContainer.querySelectorAll('.comercio-card').forEach(c => c.classList.remove('list-view'));
+            container.className = 'comercios-grid';
+            container.querySelectorAll('.comercio-card').forEach(c => c.classList.remove('list-view'));
             gridViewBtn.classList.add('active');
             listViewBtn.classList.remove('active');
         }
@@ -368,32 +815,25 @@
     }
 
     function filterCommerces() {
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        const selectedCategory = categoryFilter.value;
-        const cards = comerciosContainer.querySelectorAll('.comercio-card');
-        let visibleCount = 0;
+        const term     = searchInput.value.toLowerCase().trim();
+        const category = categoryFilter.value;
+        const cards    = container.querySelectorAll('.comercio-card');
+        let visible    = 0;
 
         cards.forEach(card => {
-            const nombre = card.getAttribute('data-nombre').toLowerCase();
-            const category = card.getAttribute('data-category');
-            const matchesSearch = nombre.includes(searchTerm);
-            const matchesCategory = selectedCategory === 'all' || category === selectedCategory;
-
-            if (matchesSearch && matchesCategory) {
-                card.style.display = 'block';
-                card.style.animation = 'fadeInUp 0.3s ease-out';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
+            const nombre = (card.dataset.nombre || '').toLowerCase();
+            const cat    = card.dataset.category;
+            const show   = nombre.includes(term) && (category === 'all' || cat === category);
+            card.style.display = show ? '' : 'none';
+            if (show) { card.style.animation = 'fadeInUp 0.3s ease-out'; visible++; }
         });
 
-        if (visibleCount === 0) {
+        if (visible === 0) {
             emptyState.style.display = 'flex';
-            comerciosContainer.style.display = 'none';
+            container.style.display  = 'none';
         } else {
             emptyState.style.display = 'none';
-            comerciosContainer.style.display = currentView === 'grid' ? 'grid' : 'flex';
+            container.style.display  = currentView === 'grid' ? 'grid' : 'flex';
         }
     }
 
@@ -402,76 +842,11 @@
     searchInput.addEventListener('input', filterCommerces);
     categoryFilter.addEventListener('change', filterCommerces);
 
-    // Estilos dinámicos
-    const style = document.createElement('style');
-    style.textContent = `
-        .btn-create-commerce {
-            display: flex; align-items: center; gap: 8px;
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
-            color: white; border: none; border-radius: 10px;
-            font-size: 14px; font-weight: 600; cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(74,144,226,0.3);
-        }
-        .btn-create-commerce:hover {
-            background: linear-gradient(135deg, #357ABD 0%, #2868A8 100%);
-            box-shadow: 0 6px 15px rgba(74,144,226,0.4);
-            transform: translateY(-2px);
-        }
-        .btn-create-commerce:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(74,144,226,0.3); }
-        .btn-create-commerce i { font-size: 16px; }
-
-        @media (max-width: 768px) {
-            .btn-create-commerce span { display: none; }
-            .btn-create-commerce { padding: 10px 15px; border-radius: 50%; width: 44px; height: 44px; justify-content: center; }
-            .btn-create-commerce i { margin: 0; }
-        }
-
-        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes slideInRight { from { opacity:0; transform:translateX(100px); } to { opacity:1; transform:translateX(0); } }
-        @keyframes slideOutRight { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(100px); } }
-
-        .loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 20px; text-align:center; }
-        .spinner { border:4px solid #f3f3f3; border-top:4px solid #4A90E2; border-radius:50%; width:50px; height:50px; animation:spin 1s linear infinite; margin-bottom:20px; }
-        @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
-
-        .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 20px; text-align:center; color:#666; }
-        .empty-state i { font-size:80px; color:#ddd; margin-bottom:20px; }
-        .empty-state h3 { font-size:24px; margin-bottom:10px; color:#333; }
-        .empty-state p { font-size:16px; color:#666; }
-
-        .comercio-info-extra { margin:15px 0; font-size:14px; }
-        .info-item { display:flex; align-items:center; gap:8px; padding:5px 0; color:#666; }
-        .info-item i { color:#4A90E2; font-size:14px; min-width:16px; }
-        .info-item span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-
-        .comercios-list { display:flex; flex-direction:column; gap:15px; }
-        .comercio-card.list-view { display:flex; flex-direction:row; max-width:100%; height:auto; }
-        .comercio-card.list-view .card-header { width:120px; min-width:120px; height:auto; border-radius:15px 0 0 15px; }
-        .comercio-card.list-view .comercio-logo { font-size:3em; }
-        .comercio-card.list-view .card-body { flex:1; display:flex; flex-wrap:wrap; align-items:center; padding:20px; gap:15px; }
-        .comercio-card.list-view .comercio-name { flex:0 0 200px; font-size:1.3em; margin:0; }
-        .comercio-card.list-view .comercio-category { flex:0 0 150px; margin:0; }
-        .comercio-card.list-view .comercio-info-extra { flex:1; display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin:0; }
-        .comercio-card.list-view .card-actions { flex:0 0 auto; display:flex; gap:10px; margin:0; }
-
-        @media (max-width: 768px) {
-            .comercio-card.list-view { flex-direction:column; }
-            .comercio-card.list-view .card-header { width:100%; height:120px; border-radius:15px 15px 0 0; }
-            .comercio-card.list-view .card-body { flex-direction:column; align-items:flex-start; }
-            .comercio-card.list-view .comercio-name,
-            .comercio-card.list-view .comercio-category { flex:1 0 100%; }
-            .comercio-card.list-view .card-actions { width:100%; }
-        }
-    `;
-    document.head.appendChild(style);
-
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Proveedores cargados:', comerciosData.length);
+    document.addEventListener('DOMContentLoaded', function () {
+        loadingState.style.display = 'none';
         if (comerciosData.length === 0) {
             emptyState.style.display = 'flex';
-            comerciosContainer.style.display = 'none';
+            container.style.display  = 'none';
         }
     });
 </script>

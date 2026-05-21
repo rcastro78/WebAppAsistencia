@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -49,18 +52,18 @@ public class CargaMasivaService {
     @Autowired
     private PlanAfiliadoRepository planAfiliadoRepository;
 
-    public CargaMasivaResultado procesarArchivoExcel(MultipartFile archivo, int idInstitucion, int idPlan,
-                                                     String nitCliente) throws IOException {
+    public CargaMasivaResultado procesarArchivoExcel(MultipartFile archivo, int idPlan,
+                                                     String nitCliente, String tipoCarga) throws IOException {
         CargaMasivaResultado resultado = new CargaMasivaResultado();
 
         Plan plan = planService.getPlanById(idPlan)
                 .orElseThrow(() -> new RuntimeException("Plan no encontrado con ID: " + idPlan));
 
+        List<String> duisEnArchivo = new ArrayList<>();
 
         try (Workbook workbook = WorkbookFactory.create(archivo.getInputStream())) {
-            Sheet sheet = workbook.getSheetAt(0); // Primera hoja
+            Sheet sheet = workbook.getSheetAt(0);
 
-            // Iterar desde la fila 1 (asumiendo que la fila 0 son headers)
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
@@ -69,14 +72,14 @@ public class CargaMasivaService {
 
                 try {
                     Afiliado afiliado = procesarFila(row, i, 0, nitCliente);
+                    duisEnArchivo.add(afiliado.getDui()); // Registrar DUI leído
+
                     afiliadoRepository.save(afiliado);
 
-                    PlanAfiliado planAfiliado = new PlanAfiliado(afiliado.getDui(), idPlan,String.valueOf(12),"","",
+                    PlanAfiliado planAfiliado = new PlanAfiliado(afiliado.getDui(), idPlan, String.valueOf(12), "", "",
                             plan.getCostoPlan(), plan.getCostoPlanAnual());
-
                     planAfiliadoRepository.save(planAfiliado);
 
-                    //Crear usuario por defecto
                     Usuario usuario = new Usuario();
                     String passProvisional = passwordEncoder.encode(afiliado.getEmail().split("@")[0]);
                     usuario.setNombre(afiliado.getNombre());
@@ -93,14 +96,35 @@ public class CargaMasivaService {
 
                 } catch (Exception e) {
                     resultado.setErrores(resultado.getErrores() + 1);
-                    resultado.getMensajesError().add(
-                            "Fila " + (i + 1) + ": " + e.getMessage()
-                    );
+                    resultado.getMensajesError().add("Fila " + (i + 1) + ": " + e.getMessage());
                 }
             }
         }
 
+        // Si es REEMPLAZO, desactivar afiliados que no vinieron en el archivo
+        if ("REEMPLAZO".equals(tipoCarga) && !duisEnArchivo.isEmpty()) {
+            int desactivados = desactivarAfiliadosAusentes(1, idPlan, duisEnArchivo);
+            resultado.setDesactivados(desactivados);
+        }
+
         return resultado;
+    }
+
+    private int desactivarAfiliadosAusentes(int idInstitucion, int idPlan, List<String> duisPresentes) {
+        // Traer DUIs activos de ese cliente en ese plan
+        List<String> duisActivos = afiliadoRepository.findDuisActivosByClienteAndPlan(idInstitucion, idPlan);
+
+        List<String> duisADesactivar = duisActivos.stream()
+                .filter(dui -> !duisPresentes.contains(dui))
+                .collect(Collectors.toList());
+
+        if (!duisADesactivar.isEmpty()) {
+            // Desactivar afiliado y su usuario asociado
+            afiliadoRepository.desactivarAfiliados(duisADesactivar);
+            afiliadoRepository.desactivarUsuarios(duisADesactivar);
+        }
+
+        return duisADesactivar.size();
     }
 
     private Afiliado procesarFila(Row row, int numeroFila, int idInstitucion,
@@ -115,7 +139,7 @@ public class CargaMasivaService {
             afiliado.setDireccion(getCellValueAsString(row.getCell(3))); // Columna D
             afiliado.setTelefono(getCellValueAsString(row.getCell(4))); // Columna E
             afiliado.setEmail(getCellValueAsString(row.getCell(5))); // Columna F
-            afiliado.setInstitucion(idInstitucion);
+            afiliado.setInstitucion(1);
             // Para fechas
             Cell fechaCell = row.getCell(6); // Columna G
             if (fechaCell != null && fechaCell.getCellType() == CellType.NUMERIC) {

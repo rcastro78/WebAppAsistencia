@@ -62,7 +62,7 @@
                 <!-- Selector de Institución -->
                 <div class="form-group">
                     <label for="idInstitucion"><i class="fas fa-building"></i> Cliente corporativo</label>
-                    <select id="idInstitucion" name="idInstitucion" class="form-control" style="padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 1rem; background: #f8f9fa;" required>
+                    <select id="idInstitucion" name="nitCliente" class="form-control" style="padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 1rem; background: #f8f9fa;" required>
                         <option value="">Seleccione un cliente</option>
                         <option th:each="c : ${clientes}" th:value="${c.nit}" th:text="${c.nombreCliente}"></option>
                     </select>
@@ -77,6 +77,17 @@
 
                     </select>
 
+                </div>
+
+                <div class="form-group">
+                    <label for="tipoCarga"><i class="fas fa-sliders-h"></i> Tipo de Carga</label>
+                    <select id="tipoCarga" name="tipoCarga" class="form-control"
+                            style="padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 1rem; background: #f8f9fa;" required>
+                        <option value="">Seleccione tipo de carga</option>
+                        <option value="INCREMENTAL">Incremental (solo agregar nuevos afiliados)</option>
+                        <option value="REEMPLAZO">Reemplazo (desactiva afiliados no incluidos)</option>
+                    </select>
+                    <div id="tipoCargaInfo" style="margin-top: 8px; font-size: 0.85rem; color: #666; display: none;"></div>
                 </div>
 
 
@@ -125,6 +136,28 @@
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
 
+const tipoCarga = document.getElementById('tipoCarga');
+const tipoCargaInfo = document.getElementById('tipoCargaInfo');
+
+tipoCarga.addEventListener('change', function() {
+    if (this.value === 'INCREMENTAL') {
+        tipoCargaInfo.style.display = 'block';
+        tipoCargaInfo.style.color = '#28a745';
+        tipoCargaInfo.innerHTML = '<i class="fas fa-plus-circle"></i> Solo se agregarán afiliados nuevos. Los existentes no serán modificados.';
+    } else if (this.value === 'REEMPLAZO') {
+        tipoCargaInfo.style.display = 'block';
+        tipoCargaInfo.style.color = '#dc3545';
+        tipoCargaInfo.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <strong>Advertencia:</strong> Los afiliados del cliente que NO aparezcan en el archivo serán desactivados (estado = 0).';
+    } else {
+        tipoCargaInfo.style.display = 'none';
+    }
+});
+
+// Validación adicional en submit
+const tipoCargaVal = document.getElementById('tipoCarga');
+
+
+
         // Drag and drop functionality
         uploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();
@@ -155,50 +188,66 @@
         });
 
         // Form submit with progress
-        uploadForm.addEventListener('submit', function(e) {
-            const institucion = document.getElementById('idInstitucion');
+        // Reemplaza el bloque del submit listener con este:
+uploadForm.addEventListener('submit', function(e) {
+    const institucion = document.getElementById('idInstitucion');
+    const tipoCargaVal = document.getElementById('tipoCarga');
 
-            if (!institucion.value) {
-                e.preventDefault();
-                alert('Por favor seleccione una institución');
-                institucion.focus();
-                return;
-            }
+    if (!institucion.value) {
+        e.preventDefault();
+        alert('Por favor seleccione un cliente corporativo');
+        institucion.focus();
+        return;
+    }
 
-            if (!fileInput.files.length) {
-                e.preventDefault();
-                alert('Por favor seleccione un archivo');
-                return;
-            }
+    if (!tipoCargaVal.value) {
+        e.preventDefault();
+        alert('Por favor seleccione el tipo de carga');
+        tipoCargaVal.focus();
+        return;
+    }
 
-            const file = fileInput.files[0];
-            const maxSize = 10 * 1024 * 1024; // 10MB
+    if (tipoCargaVal.value === 'REEMPLAZO') {
+        const confirmacion = confirm(
+            '⚠️ ADVERTENCIA: Tipo de carga REEMPLAZO\n\n' +
+            'Los afiliados de este cliente que NO estén en el archivo serán DESACTIVADOS.\n\n' +
+            '¿Desea continuar?'
+        );
+        if (!confirmacion) {
+            e.preventDefault();
+            return;
+        }
+    }
 
-            if (file.size > maxSize) {
-                e.preventDefault();
-                alert('El archivo es demasiado grande. Máximo 10MB permitido.');
-                return;
-            }
+    if (!fileInput.files.length) {
+        e.preventDefault();
+        alert('Por favor seleccione un archivo');
+        return;
+    }
 
-            // Show progress bar
-            progressBar.style.display = 'block';
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+    const file = fileInput.files[0];
+    if (file.size > 10 * 1024 * 1024) {
+        e.preventDefault();
+        alert('El archivo es demasiado grande. Máximo 10MB permitido.');
+        return;
+    }
 
-            // Simulate progress (since we can't track actual upload progress with regular form)
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress > 90) progress = 90;
-                progressFill.style.width = progress + '%';
-            }, 500);
+    progressBar.style.display = 'block';
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
 
-            // Clean up after form submission
-            setTimeout(() => {
-                clearInterval(interval);
-                progressFill.style.width = '100%';
-            }, 2000);
-        });
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 90) progress = 90;
+        progressFill.style.width = progress + '%';
+    }, 500);
+
+    setTimeout(() => {
+        clearInterval(interval);
+        progressFill.style.width = '100%';
+    }, 2000);
+});
 
         function updateFileDisplay(file) {
             const uploadText = uploadArea.querySelector('.file-upload-text');

@@ -6,10 +6,15 @@ import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.bouncycastle.math.raw.Mod;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -78,22 +83,32 @@ public class AdminController {
     }
 
     @GetMapping("/pagosAfiliados")
-    public String mostrarPagosAfiliados(HttpSession session, Model model){
-        List<PagoAfiliado> pagosAfiliados = pagoAfiliadoService.listarTodos();
+    public String mostrarPagosAfiliados(
+            HttpSession session,
+            Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<PagoAfiliado> paginaPagos = pagoAfiliadoService.listarTodos(pageable);
+
         UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
 
-        // Calcular estadísticas usando streams
-        double montoTotal = pagosAfiliados.stream()
+        // Estadísticas sobre toda la data (no solo la página actual)
+        List<PagoAfiliado> todosLosPagos = pagoAfiliadoService.listarTodos();
+        double montoTotal = todosLosPagos.stream()
                 .mapToDouble(PagoAfiliado::getCantidadPagada)
                 .sum();
-
-        long afiliadosUnicos = pagosAfiliados.stream()
+        long afiliadosUnicos = todosLosPagos.stream()
                 .map(PagoAfiliado::getDui)
                 .distinct()
                 .count();
 
         model.addAttribute("usuario", usuario);
-        model.addAttribute("pagos", pagosAfiliados);
+        model.addAttribute("pagos", paginaPagos.getContent());
+        model.addAttribute("paginaActual", paginaPagos.getNumber());
+        model.addAttribute("totalPaginas", paginaPagos.getTotalPages());
+        model.addAttribute("totalElementos", paginaPagos.getTotalElements());
         model.addAttribute("montoTotal", montoTotal);
         model.addAttribute("afiliadosUnicos", afiliadosUnicos);
 

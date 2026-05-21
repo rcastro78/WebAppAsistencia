@@ -7,7 +7,8 @@ public class CargaMasivaResultado {
     private int totalProcesados;
     private int exitosos;
     private int errores;
-    private List<String> mensajesError;
+    private int desactivados; // NUEVO
+    private List<String> mensajesError = new ArrayList<>();
 
     // Constructores, getters y setters
     public CargaMasivaResultado() {
@@ -44,5 +45,13 @@ public class CargaMasivaResultado {
 
     public void setMensajesError(List<String> mensajesError) {
         this.mensajesError = mensajesError;
+    }
+
+    public int getDesactivados() {
+        return desactivados;
+    }
+
+    public void setDesactivados(int desactivados) {
+        this.desactivados = desactivados;
     }
 }

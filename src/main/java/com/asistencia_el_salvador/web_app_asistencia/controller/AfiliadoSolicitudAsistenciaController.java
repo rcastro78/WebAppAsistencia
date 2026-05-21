@@ -329,7 +329,14 @@ public class AfiliadoSolicitudAsistenciaController {
             model.addAttribute("nombrePlan", plan != null ? plan.getNombrePlan() : "");
             model.addAttribute("nombreAfiliado", afiliado != null ?
                     afiliado.getNombre() + " " + afiliado.getApellido() : "");
-
+            model.addAttribute("afiliadoTelefono",
+                    "+503"+afiliado.getTelefono()
+                            .replace("-", "")
+                            .replace(" ", "")
+                    .replace("(", "")
+                    .replace(")", "")
+                    .trim()
+            );
             // IMPORTANTE: Agregar los valores preseleccionados para que JavaScript los use
             model.addAttribute("idCoberturaPreseleccionada", solicitud.getIdAsistencia());
             model.addAttribute("idProveedorPreseleccionado", solicitud.getIdProveedor());

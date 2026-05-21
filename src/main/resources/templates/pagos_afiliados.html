@@ -237,7 +237,43 @@
                 </div>
             </div>
         </div>
+        <!-- Paginación -->
+        <div th:if="${totalPaginas > 1}"
+             style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 1.5rem;">
 
+            <!-- Anterior -->
+            <a th:href="@{/admin/dashboard/pagosAfiliados(page=${paginaActual - 1})}"
+               th:style="${paginaActual == 0} ? 'opacity: 0.4; pointer-events: none;' : ''"
+               style="padding: 8px 14px; border-radius: 6px; background: #e0e7ff;
+          color: #475ad2; text-decoration: none; font-weight: 600;">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+
+            <!-- Números -->
+            <th:block th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}">
+                <a th:href="@{/admin/dashboard/pagosAfiliados(page=${i})}"
+                   th:text="${i + 1}"
+                   th:style="${i == paginaActual}
+           ? 'background: #667eea; color: white; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-weight: 600;'
+           : 'background: #f3f4f6; color: #374151; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-weight: 600;'">
+                </a>
+            </th:block>
+
+            <!-- Siguiente -->
+            <a th:href="@{/admin/dashboard/pagosAfiliados(page=${paginaActual + 1})}"
+               th:style="${paginaActual + 1 == totalPaginas} ? 'opacity: 0.4; pointer-events: none;' : ''"
+               style="padding: 8px 14px; border-radius: 6px; background: #e0e7ff;
+          color: #475ad2; text-decoration: none; font-weight: 600;">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+
+            <!-- Info -->
+            <span style="color: #6b7280; font-size: 0.9rem; margin-left: 8px;">
+        Página <strong th:text="${paginaActual + 1}"></strong>
+        de <strong th:text="${totalPaginas}"></strong>
+        (<span th:text="${totalElementos}"></span> registros)
+    </span>
+        </div>
         <!-- Listado de Pagos -->
         <!-- Tabla unificada dentro del contenedor Listado de Pagos -->
         <div class="solicitudes-card">

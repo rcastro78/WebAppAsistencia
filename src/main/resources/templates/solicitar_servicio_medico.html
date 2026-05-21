@@ -802,43 +802,52 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // ══ DOCTOR ACEPTÓ ══
     function doctorAcepto(consulta) {
-        clearInterval(timerEspera);
+    clearInterval(timerEspera);
 
-        // Actualizar UI
-        document.getElementById('buscandoDoctors').innerHTML = `
-            <div class="doc-avatar activo"><i class="fas fa-user-md"></i></div>
-            <span class="buscando-text" style="color:var(--green);">
-                Médico conectado
-            </span>`;
+    document.getElementById('buscandoDoctors').innerHTML = `
+        <div class="doc-avatar activo"><i class="fas fa-user-md"></i></div>
+        <span class="buscando-text" style="color:var(--green);">
+            Médico conectado
+        </span>`;
 
-        document.getElementById('esperaSubtitle').textContent =
-            'Un médico aceptó tu consulta. Ingresando a la sala en segundos…';
+    document.getElementById('esperaSubtitle').textContent =
+        'Un médico aceptó tu consulta. Ingresando a la sala en segundos…';
 
-        document.getElementById('encontradoBadge').classList.add('show');
+    document.getElementById('encontradoBadge').classList.add('show');
 
-        // Redirigir al room
-        setTimeout(() => {
+    setTimeout(() => {
+        if (window.AndroidBridge) {
+            window.AndroidBridge.ingresarSala(consulta.roomId);
+        } else {
             window.location.href = `/telemedicina/consulta/sala/${consulta.roomId}`;
-        }, 2000);
+        }
+    }, 2000);
+}
+
+async function cancelarConsulta() {
+    if (!consultaActual?.id) {
+        if (window.AndroidBridge) {
+            window.AndroidBridge.cancelarConsulta();
+        } else {
+            window.history.back();
+        }
+        return;
     }
 
-    // ══ CANCELAR ══
-    async function cancelarConsulta() {
-        if (!consultaActual?.id) {
-            window.history.back();
-            return;
-        }
+    if (!confirm('¿Deseas cancelar la solicitud?')) return;
 
-        if (!confirm('¿Deseas cancelar la solicitud?')) return;
+    clearInterval(timerEspera);
 
-        clearInterval(timerEspera);
+    await fetch(`/telemedicina/consulta/${consultaActual.id}/cancelar`, {
+        method: 'PUT'
+    }).catch(() => {});
 
-        await fetch(`/telemedicina/consulta/${consultaActual.id}/cancelar`, {
-            method: 'PUT'
-        }).catch(() => {});
-
+    if (window.AndroidBridge) {
+        window.AndroidBridge.cancelarConsulta();
+    } else {
         window.location.href = '/paciente/dashboard';
     }
+}
 </script>
 </body>
 </html>
