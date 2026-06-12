@@ -404,11 +404,12 @@
                                 th:disabled="${session.rol == 3}"
                                 required>
                             <option value="">Seleccione vigencia...</option>
-                            <option value="1" th:selected="${session.rol == 3 ? false : *{vigencia} == '1'}">1 mes</option>
-                            <option value="12" th:selected="${session.rol == 3 ? true : *{vigencia} == '12'}">12 meses</option>
+                            <option value="1"
+                                    th:selected="${session.rol != 3 and planAfiliado.vigencia == '1'}">1 mes</option>
+                            <option value="12"
+                                    th:selected="${session.rol == 3 or planAfiliado.vigencia == '12'}">12 meses</option>
                         </select>
                     </div>
-
 
                     <!-- Observaciones -->
                     <div class="form-group full-width">

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${esEdicion == 1} ? 'Editar Intermediario - Asistencia El Salvador' : 'Nuevo Intermediario - Asistencia El Salvador'">Intermediario</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/plan.css}">
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1 th:text="${esEdicion == 1} ? 'Editar Intermediario' : 'Nuevo Intermediario'">Intermediario</h1>
+    <span class="subtitle"
+          th:text="${esEdicion == 1} ? 'Modifica la información del intermediario' : 'Registra un nuevo intermediario en el sistema'">
+        </span>
+  </div>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a th:href="@{/plan/intermediarios}">
+      <i class="fas fa-handshake"></i> Intermediarios
+    </a>
+    <span>/</span>
+    <span class="current" th:text="${esEdicion == 1} ? 'Editar' : 'Nuevo'">Intermediario</span>
+  </nav>
+
+  <div class="card fade-in">
+    <div class="card-header">
+      <h2 th:text="${esEdicion == 1} ? 'Editar Intermediario' : 'Crear Intermediario'">Intermediario</h2>
+      <a th:href="@{/plan/intermediarios}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver al Listado
+      </a>
+    </div>
+
+    <div class="card-body">
+
+      <!-- Mensajes flash -->
+      <div class="alert alert-success" th:if="${mensaje}" style="
+                display:flex; align-items:center; gap:10px;
+                background:#d4edda; color:#155724;
+                border:1px solid #c3e6cb; border-radius:8px;
+                padding:12px 18px; margin-bottom:20px;">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${mensaje}"></span>
+      </div>
+      <div class="alert alert-danger" th:if="${error}" style="
+                display:flex; align-items:center; gap:10px;
+                background:#f8d7da; color:#721c24;
+                border:1px solid #f5c6cb; border-radius:8px;
+                padding:12px 18px; margin-bottom:20px;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span th:text="${error}"></span>
+      </div>
+
+      <!--
+          ACTION dinámico:
+            - Creación → POST /plan/guardarIntermediario
+            - Edición  → POST /plan/editarIntermediario
+      -->
+      <form th:action="${esEdicion == 1}
+                                ? @{/plan/editarIntermediario}
+                                : @{/plan/guardarIntermediario}"
+            th:object="${planIntermediario}"
+            method="post"
+            class="form"
+            id="intermediarioForm">
+
+        <div class="form-row">
+
+          <!-- NIT del Intermediario -->
+          <div class="form-group">
+            <label for="nitIntermediario" class="form-label required">
+              <i class="fas fa-id-card"></i> NIT del Intermediario
+            </label>
+            <input type="text"
+                   class="form-control"
+                   th:field="*{nitIntermediario}"
+                   id="nitIntermediario"
+                   placeholder="Ej: 0614-123456-001-2"
+                   maxlength="25"
+                   th:readonly="${esEdicion == 1}"
+                   required>
+            <div class="form-help">
+              <i class="fas fa-info-circle"></i>
+              Número de Identificación Tributaria (máximo 25 caracteres)
+            </div>
+          </div>
+
+          <!-- Nombre del Intermediario -->
+          <div class="form-group">
+            <label for="nombreIntermediario" class="form-label required">
+              <i class="fas fa-handshake"></i> Nombre del Intermediario
+            </label>
+            <input type="text"
+                   class="form-control"
+                   th:field="*{nombreIntermediario}"
+                   id="nombreIntermediario"
+                   placeholder="Ej: Corredores Asociados S.A."
+                   maxlength="45"
+                   required>
+            <div class="form-help">
+              <i class="fas fa-info-circle"></i>
+              Nombre del intermediario (máximo 45 caracteres)
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado — solo visible en edición -->
+        <div class="form-row" th:if="${esEdicion == 1}">
+          <div class="form-group">
+            <label for="estado" class="form-label">
+              <i class="fas fa-toggle-on"></i> Estado
+            </label>
+            <select class="form-control" th:field="*{estado}" id="estado">
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+            <div class="form-help">
+              <i class="fas fa-info-circle"></i>
+              Estado actual del intermediario
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions">
+          <a th:href="@{/plan/intermediarios}" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Cancelar
+          </a>
+          <button type="submit" class="btn btn-success" id="submitBtn">
+            <i th:class="${esEdicion == 1} ? 'fas fa-edit' : 'fas fa-save'"></i>
+            <span th:text="${esEdicion == 1} ? 'Actualizar Intermediario' : 'Guardar Intermediario'">Guardar</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+      // Validación antes de enviar
+      const form = document.getElementById('intermediarioForm');
+      const submitBtn = document.getElementById('submitBtn');
+
+      form.addEventListener('submit', function (e) {
+          let valid = true;
+
+          const nit = document.getElementById('nitIntermediario').value.trim();
+          if (!nit || nit.length < 2) {
+              document.getElementById('nitIntermediario').classList.add('is-invalid');
+              valid = false;
+          } else {
+              document.getElementById('nitIntermediario').classList.remove('is-invalid');
+          }
+
+          const nombre = document.getElementById('nombreIntermediario').value.trim();
+          if (!nombre || nombre.length < 2) {
+              document.getElementById('nombreIntermediario').classList.add('is-invalid');
+              valid = false;
+          } else {
+              document.getElementById('nombreIntermediario').classList.remove('is-invalid');
+          }
+
+          if (!valid) {
+              e.preventDefault();
+              alert('Por favor corrija los errores antes de continuar.');
+              return;
+          }
+
+          // Feedback visual al enviar
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+      });
+
+      // Auto-ocultar alertas después de 5s
+      document.querySelectorAll('.alert').forEach(function (alert) {
+          setTimeout(function () {
+              alert.style.transition = 'opacity 0.5s ease';
+              alert.style.opacity = '0';
+              setTimeout(function () { alert.remove(); }, 500);
+          }, 5000);
+      });
+  });
+</script>
+
+<style>
+  .form-help {
+      font-size: 0.82rem;
+      color: #6c757d;
+      margin-top: 4px;
+  }
+  .form-help i {
+      margin-right: 4px;
+  }
+  .is-invalid {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+  }
+  label.required::after {
+      content: ' *';
+      color: #dc3545;
+  }
+</style>
+</body>
+</html>

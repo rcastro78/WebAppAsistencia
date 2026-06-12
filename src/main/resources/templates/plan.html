@@ -214,6 +214,97 @@
                     </div>
                 </div>
 
+                <!-- ============ COPARTICIPACIÓN ============ -->
+                <div class="form-row">
+                    <div class="form-group full-width" style="border-top: 1px solid #e0e0e0; padding-top: 15px;">
+                        <label class="form-label" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                            <input type="checkbox"
+                                   id="tieneCoparticipacion"
+                                   name="tieneCoparticipacion"
+                                   style="width:18px; height:18px;"
+                                   th:checked="${coparticipacion != null}">
+                            <i class="fas fa-handshake"></i> Este plan tiene coparticipación
+                        </label>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Al activar esta opción podrá asignar un copartícipe e intermediario, indicando cuánto recibe cada uno del costo del plan.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="coparticipacionFields" style="display:none;">
+                    <div class="form-row">
+                        <!-- Copartícipe -->
+                        <div class="form-group">
+                            <label for="nitCoparticipe" class="form-label">
+                                <i class="fas fa-user"></i> Copartícipe
+                            </label>
+                            <select id="nitCoparticipe" name="nitCoparticipe" class="form-control">
+                                <option value="">Seleccione un copartícipe</option>
+                                <option th:each="c : ${coparticipes}"
+                                        th:value="${c.nitCoparticipe}"
+                                        th:text="${c.nombreCoparticipe}"
+                                        th:selected="${coparticipacion != null and coparticipacion.nitCoparticipe == c.nitCoparticipe}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Monto Copartícipe -->
+                        <div class="form-group">
+                            <label for="cobroCoparticipe" class="form-label">
+                                <i class="fas fa-dollar-sign"></i> Monto para Copartícipe
+                            </label>
+                            <input type="text"
+                                   id="cobroCoparticipe"
+                                   name="cobroCoparticipe"
+                                   class="form-control"
+                                   placeholder="0.00"
+                                   pattern="^\d+(\.\d{1,2})?$"
+                                   th:value="${coparticipacion != null and coparticipacion.cobroCoparticipe != null ? coparticipacion.cobroCoparticipe : ''}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Intermediario -->
+                        <div class="form-group">
+                            <label for="nitIntermediario" class="form-label">
+                                <i class="fas fa-handshake"></i> Intermediario
+                            </label>
+                            <select id="nitIntermediario" name="nitIntermediario" class="form-control">
+                                <option value="">Seleccione un intermediario</option>
+                                <option th:each="i : ${intermediarios}"
+                                        th:value="${i.nitIntermediario}"
+                                        th:text="${i.nombreIntermediario}"
+                                        th:selected="${coparticipacion != null and coparticipacion.nitIntermediario == i.nitIntermediario}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Monto Intermediario -->
+                        <div class="form-group">
+                            <label for="cobroIntermediario" class="form-label">
+                                <i class="fas fa-dollar-sign"></i> Monto para Intermediario
+                            </label>
+                            <input type="text"
+                                   id="cobroIntermediario"
+                                   name="cobroIntermediario"
+                                   class="form-control"
+                                   placeholder="0.00"
+                                   pattern="^\d+(\.\d{1,2})?$"
+                                   th:value="${coparticipacion != null and coparticipacion.cobroIntermediario != null ? coparticipacion.cobroIntermediario : ''}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <div class="form-help" id="coparticipacionInfo">
+                                <i class="fas fa-info-circle"></i>
+                                La suma de los montos de copartícipe e intermediario no puede superar el costo del plan.
+                                <span id="restanteAesal" style="font-weight:bold;"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============ FIN COPARTICIPACIÓN ============ -->
+
                 <!-- Botones de acción -->
                 <div class="form-actions">
                     <a th:href="@{/plan}" class="btn btn-secondary">
@@ -251,6 +342,15 @@
         const simboloMonedaA = document.getElementById('simboloMonedaA');
         const costoInfo = document.getElementById('costoInfo');
         const costoInfoA = document.getElementById('costoInfoA');
+
+        // Coparticipación
+        const chkCoparticipacion = document.getElementById('tieneCoparticipacion');
+        const coparticipacionFields = document.getElementById('coparticipacionFields');
+        const selectCoparticipe = document.getElementById('nitCoparticipe');
+        const inputCobroCoparticipe = document.getElementById('cobroCoparticipe');
+        const selectIntermediario = document.getElementById('nitIntermediario');
+        const inputCobroIntermediario = document.getElementById('cobroIntermediario');
+        const restanteAesal = document.getElementById('restanteAesal');
 
         // Mapeo de códigos de moneda a símbolos
         const simbolosMoneda = {
@@ -363,6 +463,50 @@
         // Aplicar formateo a ambos inputs de costo
         formatCurrencyInput(costoInput);
         formatCurrencyInput(costoAnualInput);
+        formatCurrencyInput(inputCobroCoparticipe);
+        formatCurrencyInput(inputCobroIntermediario);
+
+        // ========== TOGGLE COPARTICIPACIÓN ==========
+        function toggleCoparticipacion() {
+            const activo = chkCoparticipacion.checked;
+            coparticipacionFields.style.display = activo ? 'block' : 'none';
+
+            selectCoparticipe.disabled = !activo;
+            inputCobroCoparticipe.disabled = !activo;
+            selectIntermediario.disabled = !activo;
+            inputCobroIntermediario.disabled = !activo;
+
+            if (!activo) {
+                selectCoparticipe.value = '';
+                inputCobroCoparticipe.value = '';
+                selectIntermediario.value = '';
+                inputCobroIntermediario.value = '';
+                restanteAesal.textContent = '';
+            } else {
+                actualizarRestante();
+            }
+        }
+
+        function actualizarRestante() {
+            const costo = parseFloat(costoInput.value) || 0;
+            const cop = parseFloat(inputCobroCoparticipe.value) || 0;
+            const inter = parseFloat(inputCobroIntermediario.value) || 0;
+            const restante = costo - cop - inter;
+            const simbolo = simbolosMoneda[monedaInput.value] || '';
+
+            if (chkCoparticipacion.checked) {
+                restanteAesal.textContent = `Quedan para AESAL: ${simbolo} ${restante.toFixed(2)}`;
+                restanteAesal.style.color = restante < 0 ? '#dc3545' : '#28a745';
+            }
+        }
+
+        chkCoparticipacion.addEventListener('change', toggleCoparticipacion);
+        costoInput.addEventListener('input', actualizarRestante);
+        inputCobroCoparticipe.addEventListener('input', actualizarRestante);
+        inputCobroIntermediario.addEventListener('input', actualizarRestante);
+
+        // Inicializar estado del bloque de coparticipación (modo edición)
+        toggleCoparticipacion();
 
         // Validación del formulario
         form.addEventListener('submit', function(e) {
@@ -402,6 +546,36 @@
                 isValid = false;
             }
 
+            // Validación de coparticipación
+            if (chkCoparticipacion.checked) {
+                const cop = parseFloat(inputCobroCoparticipe.value) || 0;
+                const inter = parseFloat(inputCobroIntermediario.value) || 0;
+
+                if (!selectCoparticipe.value && !selectIntermediario.value) {
+                    alert('Seleccione al menos un copartícipe o un intermediario.');
+                    isValid = false;
+                }
+
+                if (selectCoparticipe.value && (isNaN(parseFloat(inputCobroCoparticipe.value)) || parseFloat(inputCobroCoparticipe.value) < 0)) {
+                    inputCobroCoparticipe.classList.add('is-invalid');
+                    alert('Ingrese un monto válido para el copartícipe.');
+                    isValid = false;
+                }
+
+                if (selectIntermediario.value && (isNaN(parseFloat(inputCobroIntermediario.value)) || parseFloat(inputCobroIntermediario.value) < 0)) {
+                    inputCobroIntermediario.classList.add('is-invalid');
+                    alert('Ingrese un monto válido para el intermediario.');
+                    isValid = false;
+                }
+
+                if ((cop + inter) > costo) {
+                    inputCobroCoparticipe.classList.add('is-invalid');
+                    inputCobroIntermediario.classList.add('is-invalid');
+                    alert('La suma de los montos de copartícipe e intermediario no puede superar el costo del plan.');
+                    isValid = false;
+                }
+            }
+
             if (!isValid) {
                 alert('Por favor, corrija los errores en el formulario antes de continuar.');
                 return;
@@ -414,6 +588,7 @@
 
             // Enviar formulario
             setTimeout(() => {
+                // Reactivar selects/inputs deshabilitados para que se envíen si están vacíos por desactivación
                 this.submit();
             }, 500);
         });

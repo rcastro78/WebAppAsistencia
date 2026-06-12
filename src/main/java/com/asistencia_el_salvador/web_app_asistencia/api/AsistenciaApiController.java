@@ -4,10 +4,12 @@ package com.asistencia_el_salvador.web_app_asistencia.api;
 import com.asistencia_el_salvador.web_app_asistencia.dto.*;
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,29 +38,31 @@ public class AsistenciaApiController {
 
     private static final Logger log = LoggerFactory.getLogger(AsistenciaApiController.class);
 
-    private final AfiliadoSolicitudAsistenciaService      service;
-    private final EstadoSolicitudServicioService          estadoSolicitudServicioService;
-    private final PlanService                             planService;
-    private final PlanesCoberturaService                  planesCoberturaService;
-    private final ProveedorService                        proveedorService;
-    private final ProveedorPlanCoberturaService           proveedorPlanCoberturaService;
-    private final AfiliadoSolicitudAsistenciaProvService  afiliadoSolicitudAsistenciaProvService;
-    private final AfiliadoService                         afiliadoService;
-    private final EmailService                            emailService;
-    private final VwSucursalesProveedorService            sucursalesProveedorService;
-    private final CategoriaEmpresaService                  categoriaEmpresaService;
-    private final CoberturaPlanService                     coberturaPlanService;
-    private final CoberturaService                        coberturaService;
-    private final PlanAfiliadoService                    planAfiliadoService;
-    private final ComercioAfiliadoService                comercioAfiliadoService;
-    private final RubroService                           rubroService;
-    private final BeneficioComercioAfiliadoService     beneficioComercioAfiliadoService;
-    private final PagoAfiliadoService                 pagoAfiliadoService;
-    private final WompiAuthService                      wompiAuthService;
-    private final WompiCardService                       wompiCardService;
-    private final AfiliadoPagoService                  afiliadoPagoService;
-    private final UsuarioService                        usuarioService;
+    private final AfiliadoSolicitudAsistenciaService service;
+    private final EstadoSolicitudServicioService estadoSolicitudServicioService;
+    private final PlanService planService;
+    private final PlanesCoberturaService planesCoberturaService;
+    private final ProveedorService proveedorService;
+    private final ProveedorPlanCoberturaService proveedorPlanCoberturaService;
+    private final AfiliadoSolicitudAsistenciaProvService afiliadoSolicitudAsistenciaProvService;
+    private final AfiliadoService afiliadoService;
+    private final EmailService emailService;
+    private final VwSucursalesProveedorService sucursalesProveedorService;
+    private final CategoriaEmpresaService categoriaEmpresaService;
+    private final CoberturaPlanService coberturaPlanService;
+    private final CoberturaService coberturaService;
+    private final PlanAfiliadoService planAfiliadoService;
+    private final ComercioAfiliadoService comercioAfiliadoService;
+    private final RubroService rubroService;
+    private final BeneficioComercioAfiliadoService beneficioComercioAfiliadoService;
+    private final PagoAfiliadoService pagoAfiliadoService;
+    private final WompiAuthService wompiAuthService;
+    private final WompiCardService wompiCardService;
+    private final AfiliadoPagoService afiliadoPagoService;
+    private final UsuarioService usuarioService;
     private final NotificacionUsuarioService notificacionUsuarioService;
+    private final MedConsultaService consultaService;
+    private final MedDoctorService doctorService;
     public AsistenciaApiController(
             AfiliadoSolicitudAsistenciaService service,
             EstadoSolicitudServicioService estadoSolicitudServicioService,
@@ -82,30 +86,34 @@ public class AsistenciaApiController {
             WompiCardService wompiCardService,
             AfiliadoPagoService afiliadoPagoService,
             UsuarioService usuarioService,
-            NotificacionUsuarioService notificacionUsuarioService) {
-        this.service                                  = service;
-        this.estadoSolicitudServicioService           = estadoSolicitudServicioService;
-        this.planService                              = planService;
-        this.planesCoberturaService                   = planesCoberturaService;
-        this.proveedorService                         = proveedorService;
-        this.proveedorPlanCoberturaService            = proveedorPlanCoberturaService;
-        this.afiliadoSolicitudAsistenciaProvService   = afiliadoSolicitudAsistenciaProvService;
-        this.afiliadoService                          = afiliadoService;
-        this.emailService                             = emailService;
-        this.sucursalesProveedorService               = sucursalesProveedorService;
-        this.categoriaEmpresaService                    = categoriaEmpresaService;
-        this.coberturaPlanService                    = coberturaPlanService;
-        this.coberturaService                        = coberturaService;
-        this.planAfiliadoService                    = planAfiliadoService;
-        this.comercioAfiliadoService            = comercioAfiliadoService;
-        this.rubroService                          = rubroService;
+            NotificacionUsuarioService notificacionUsuarioService,
+            MedConsultaService consultaService,
+            MedDoctorService doctorService) {
+        this.service = service;
+        this.estadoSolicitudServicioService = estadoSolicitudServicioService;
+        this.planService = planService;
+        this.planesCoberturaService = planesCoberturaService;
+        this.proveedorService = proveedorService;
+        this.proveedorPlanCoberturaService = proveedorPlanCoberturaService;
+        this.afiliadoSolicitudAsistenciaProvService = afiliadoSolicitudAsistenciaProvService;
+        this.afiliadoService = afiliadoService;
+        this.emailService = emailService;
+        this.sucursalesProveedorService = sucursalesProveedorService;
+        this.categoriaEmpresaService = categoriaEmpresaService;
+        this.coberturaPlanService = coberturaPlanService;
+        this.coberturaService = coberturaService;
+        this.planAfiliadoService = planAfiliadoService;
+        this.comercioAfiliadoService = comercioAfiliadoService;
+        this.rubroService = rubroService;
         this.beneficioComercioAfiliadoService = beneficioComercioAfiliadoService;
         this.pagoAfiliadoService = pagoAfiliadoService;
-        this.wompiAuthService    = wompiAuthService;
-        this.wompiCardService        = wompiCardService;
-        this.afiliadoPagoService             = afiliadoPagoService;
+        this.wompiAuthService = wompiAuthService;
+        this.wompiCardService = wompiCardService;
+        this.afiliadoPagoService = afiliadoPagoService;
         this.usuarioService = usuarioService;
         this.notificacionUsuarioService = notificacionUsuarioService;
+        this.consultaService = consultaService;
+        this.doctorService = doctorService;
     }
 
 
@@ -117,8 +125,8 @@ public class AsistenciaApiController {
     public ResponseEntity<ApiResponse> wompiKeys() {
         WompiTokenResult tokenResult = wompiAuthService.getToken();
         Map<String, Object> data = new HashMap<>();
-        data.put("token",tokenResult.getAccess_token());
-        return ResponseEntity.ok(ApiResponse.ok(data,"wompi"));
+        data.put("token", tokenResult.getAccess_token());
+        return ResponseEntity.ok(ApiResponse.ok(data, "wompi"));
     }
 
     //Procesar pago
@@ -148,7 +156,6 @@ public class AsistenciaApiController {
     * */
 
 
-
     @PostMapping("/procesarPago")
     public ResponseEntity<ApiResponse<TransactionResult>> procesarPago(
             @RequestBody PagoRequest req,
@@ -156,9 +163,9 @@ public class AsistenciaApiController {
         try {
 
             // Valores por defecto para El Salvador
-            if (req.getIdPais()   == null) req.setIdPais("SV");
+            if (req.getIdPais() == null) req.setIdPais("SV");
             if (req.getIdRegion() == null) req.setIdRegion("SV-SS");
-            if (req.getMoneda()   == null) req.setMoneda("USD");
+            if (req.getMoneda() == null) req.setMoneda("USD");
 
             // idExterno único por transacción
             if (req.getIdExterno() == null) {
@@ -189,9 +196,6 @@ public class AsistenciaApiController {
             return serverError(e); // ← igual que tus otros endpoints
         }
     }
-
-
-
 
 
     @PostMapping("/pagos/registrar/{dui}")
@@ -252,9 +256,12 @@ public class AsistenciaApiController {
                 int anioActual = Integer.parseInt(req.getAnio());
 
                 for (int i = 0; i < 12; i++) {
-                    int mesActual  = mesInicial + i;
-                    int anioReg    = anioActual;
-                    while (mesActual > 12) { mesActual -= 12; anioReg++; }
+                    int mesActual = mesInicial + i;
+                    int anioReg = anioActual;
+                    while (mesActual > 12) {
+                        mesActual -= 12;
+                        anioReg++;
+                    }
 
                     if (afiliadoPagoService.existePago(dui, mesActual, String.valueOf(anioReg))) continue;
 
@@ -296,11 +303,11 @@ public class AsistenciaApiController {
 
             // 6. Respuesta
             Map<String, Object> body = new LinkedHashMap<>();
-            body.put("dui",          dui);
-            body.put("mes",          req.getMes());
-            body.put("anio",         req.getAnio());
+            body.put("dui", dui);
+            body.put("mes", req.getMes());
+            body.put("anio", req.getAnio());
             body.put("idTransaccion", req.getIdTransaccion());
-            body.put("vigencia",     vigencia);
+            body.put("vigencia", vigencia);
 
             return ResponseEntity.ok(ApiResponse.ok("Pago registrado exitosamente", body));
 
@@ -318,7 +325,7 @@ public class AsistenciaApiController {
     @GetMapping("/solicitudes")
     public ResponseEntity<ApiResponse<Map<String, Object>>> listarMias(HttpServletRequest session) {
         try {
-            String  dui = resolverDui(session);
+            String dui = resolverDui(session);
             Integer rol = resolverRol(session);
             if (dui == null) return sinSesion();
 
@@ -379,14 +386,14 @@ public class AsistenciaApiController {
 
             List<Map<String, Object>> pagosJson = pagosFiltrados.stream().map(pago -> {
                 Map<String, Object> p = new LinkedHashMap<>();
-                p.put("dui",            pago.getDui());
-                p.put("mes",            pago.getMes());
-                p.put("anio",           pago.getAnio());
-                p.put("periodo",        obtenerNombreMes(pago.getMes()) + " " + pago.getAnio());
+                p.put("dui", pago.getDui());
+                p.put("mes", pago.getMes());
+                p.put("anio", pago.getAnio());
+                p.put("periodo", obtenerNombreMes(pago.getMes()) + " " + pago.getAnio());
                 p.put("cantidadPagada", pago.getCantidadPagada());
-                p.put("formaPago",      pago.getFormaPagoNombre());
-                p.put("nombrePlan",     pago.getNombrePlan());
-                p.put("createdAt",      pago.getCreatedAt());
+                p.put("formaPago", pago.getFormaPagoNombre());
+                p.put("nombrePlan", pago.getNombrePlan());
+                p.put("createdAt", pago.getCreatedAt());
                 return p;
             }).collect(Collectors.toList());
 
@@ -396,17 +403,17 @@ public class AsistenciaApiController {
 
             if (afiliado != null) {
                 Map<String, Object> afiliadoJson = new LinkedHashMap<>();
-                afiliadoJson.put("dui",      afiliado.getDui());
-                afiliadoJson.put("nombre",   afiliado.getNombre());
+                afiliadoJson.put("dui", afiliado.getDui());
+                afiliadoJson.put("nombre", afiliado.getNombre());
                 afiliadoJson.put("apellido", afiliado.getApellido());
                 body.put("afiliado", afiliadoJson);
             }
 
             Map<String, Object> resumen = new LinkedHashMap<>();
-            resumen.put("totalPagos",       pagosFiltrados.size());
-            resumen.put("totalMonto",       totalMonto);
-            resumen.put("ultimoPago",       pagosFiltrados.isEmpty() ? null : formatearUltimoPago(pagosFiltrados.get(0)));
-            resumen.put("nombrePlan",       pagosFiltrados.isEmpty() ? null : pagosFiltrados.get(0).getNombrePlan());
+            resumen.put("totalPagos", pagosFiltrados.size());
+            resumen.put("totalMonto", totalMonto);
+            resumen.put("ultimoPago", pagosFiltrados.isEmpty() ? null : formatearUltimoPago(pagosFiltrados.get(0)));
+            resumen.put("nombrePlan", pagosFiltrados.isEmpty() ? null : pagosFiltrados.get(0).getNombrePlan());
             resumen.put("aniosDisponibles", aniosDisponibles);
             body.put("resumen", resumen);
 
@@ -420,6 +427,7 @@ public class AsistenciaApiController {
             return serverError(e);
         }
     }
+
     /*
     * @GetMapping("/solicitudes/{id}")
     public ResponseEntity<ApiResponse<AfiliadoSolicitudAsistencia>> detalle(
@@ -451,7 +459,7 @@ public class AsistenciaApiController {
     public ResponseEntity<ApiResponse<List<NotificacionUsuario>>> detalleNotificaciones(
             @PathVariable String dui, HttpServletRequest session) {
         List<NotificacionUsuario> notificacionUsuarios = notificacionUsuarioService.getLastUserNotifications(dui);
-        return ResponseEntity.ok(ApiResponse.ok(notificacionUsuarios,"notificacionesUsuario"));
+        return ResponseEntity.ok(ApiResponse.ok(notificacionUsuarios, "notificacionesUsuario"));
 
     }
 
@@ -473,7 +481,7 @@ public class AsistenciaApiController {
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("proximoPago", proximoPago);
 
-            return ResponseEntity.ok(ApiResponse.ok(body,"pagos"));
+            return ResponseEntity.ok(ApiResponse.ok(body, "pagos"));
 
         } catch (Exception e) {
             log.error("Error al calcular próximo pago: ", e);
@@ -492,10 +500,10 @@ public class AsistenciaApiController {
 
         if (ultimoPago == null) return null;
 
-        int mes  = ultimoPago.getMes();
+        int mes = ultimoPago.getMes();
         int anio = ultimoPago.getAnio();
 
-        int proximoMes  = (mes == 12) ? 1        : mes + 1;
+        int proximoMes = (mes == 12) ? 1 : mes + 1;
         int proximoAnio = (mes == 12) ? anio + 1 : anio;
 
         YearMonth ym = YearMonth.of(proximoAnio, proximoMes);
@@ -504,10 +512,10 @@ public class AsistenciaApiController {
         nombreMes = nombreMes.substring(0, 1).toUpperCase() + nombreMes.substring(1);
 
         Map<String, Object> proximo = new LinkedHashMap<>();
-        proximo.put("mes",       proximoMes);
-        proximo.put("anio",      proximoAnio);
+        proximo.put("mes", proximoMes);
+        proximo.put("anio", proximoAnio);
         proximo.put("nombreMes", nombreMes);
-        proximo.put("periodo",   nombreMes + " " + proximoAnio);
+        proximo.put("periodo", nombreMes + " " + proximoAnio);
 
         return proximo;
     }
@@ -516,8 +524,17 @@ public class AsistenciaApiController {
     @GetMapping("/datosAfiliado/{dui}")
     public ResponseEntity<ApiResponse<PlanAfiliadoResumen>> obtenerDatosAfiliado(@PathVariable("dui") String dui) {
         PlanAfiliadoResumen planAfiliadoResumen = afiliadoService.getPlanAfiliadoResumen(dui).get();
-        return ResponseEntity.ok(ApiResponse.ok(planAfiliadoResumen,"resumen"));
+        return ResponseEntity.ok(ApiResponse.ok(planAfiliadoResumen, "resumen"));
     }
+
+
+    //Patrocinados
+    @GetMapping("afiliado/{dui}/patrocinados")
+    public ResponseEntity<ApiResponse<List<Afiliado>>> obtenerPatrocinado(@PathVariable("dui") String dui) {
+        List<Afiliado> patrocinados = afiliadoService.listarPatrocinadosActivos(dui);
+        return ResponseEntity.ok(ApiResponse.ok(patrocinados, "patrocinadosAfiliado"));
+    }
+
 
     // ════════════════════════════════════════════════════════
     // GET /api/v1/carnet/{dui}
@@ -533,7 +550,7 @@ public class AsistenciaApiController {
 
         String lastPayment = "N/A";
         String nextPayment = "N/A";
-        if(ultimoPago != null){
+        if (ultimoPago != null) {
             lastPayment = formatearUltimoPago(ultimoPago);
             nextPayment = siguientePago(ultimoPago);
         }
@@ -558,14 +575,15 @@ public class AsistenciaApiController {
     }
 
     private String siguientePago(PagoAfiliado pago) {
-        String mesNombre = obtenerNombreMes(pago.getMes()+1);
+        String mesNombre = obtenerNombreMes(pago.getMes() + 1);
         String anio = String.valueOf(pago.getAnio());
-        if(pago.getMes()+1 == 12){
+        if (pago.getMes() + 1 == 12) {
             mesNombre = "Enero";
-            anio = String.valueOf(pago.getAnio()+1);
+            anio = String.valueOf(pago.getAnio() + 1);
         }
         return mesNombre + " " + anio;
     }
+
     // ════════════════════════════════════════════════════════
     // GET /api/v1/afiliados/plan/{dui}   (Admin)
     // Lista TODAS las solicitudes
@@ -576,8 +594,8 @@ public class AsistenciaApiController {
             HttpServletRequest session) {
         try {
             List<PlanAfiliadoDTO> planes =
-                    planAfiliadoService.findByDui(dui,true);
-            return ResponseEntity.ok(ApiResponse.ok(planes,"planAfiliado"));
+                    planAfiliadoService.findByDui(dui, true);
+            return ResponseEntity.ok(ApiResponse.ok(planes, "planAfiliado"));
         } catch (Exception e) {
             log.error("Error listando sucursales: ", e);
             return serverError(e);
@@ -598,12 +616,12 @@ public class AsistenciaApiController {
 
             List<AfiliadoSolicitudAsistencia> raw = service.obtenerTodas();
             Map<String, Object> body = new HashMap<>();
-            body.put("solicitudes",      solicitudes);
+            body.put("solicitudes", solicitudes);
             body.put("totalSolicitudes", raw.size());
-            body.put("pendientes",   raw.stream().filter(s -> "0".equals(s.getEstado())).count());
-            body.put("enProceso",    raw.stream().filter(s -> "1".equals(s.getEstado())).count());
-            body.put("completadas",  raw.stream().filter(s -> "2".equals(s.getEstado())).count());
-            body.put("estados",      buildEstadosMap());
+            body.put("pendientes", raw.stream().filter(s -> "0".equals(s.getEstado())).count());
+            body.put("enProceso", raw.stream().filter(s -> "1".equals(s.getEstado())).count());
+            body.put("completadas", raw.stream().filter(s -> "2".equals(s.getEstado())).count());
+            body.put("estados", buildEstadosMap());
 
             return ResponseEntity.ok(ApiResponse.ok(body));
 
@@ -621,7 +639,7 @@ public class AsistenciaApiController {
     public ResponseEntity<ApiResponse<AfiliadoSolicitudAsistencia>> detalle(
             @PathVariable Integer id, HttpServletRequest session) {
         try {
-            String  dui = resolverDui(session);
+            String dui = resolverDui(session);
             Integer rol = resolverRol(session);
             if (dui == null) return sinSesion();
 
@@ -653,7 +671,7 @@ public class AsistenciaApiController {
         try {
             List<CategoriaEmpresa> cats =
                     categoriaEmpresaService.listarTodas();
-            return ResponseEntity.ok(ApiResponse.ok(cats,"categorias"));
+            return ResponseEntity.ok(ApiResponse.ok(cats, "categorias"));
         } catch (Exception e) {
             log.error("Error listando sucursales: ", e);
             return serverError(e);
@@ -671,7 +689,7 @@ public class AsistenciaApiController {
         try {
             List<Rubro> r =
                     rubroService.listarTodos();
-            return ResponseEntity.ok(ApiResponse.ok(r,"rubrosComercio"));
+            return ResponseEntity.ok(ApiResponse.ok(r, "rubrosComercio"));
         } catch (Exception e) {
             log.error("Error listando rubros: ", e);
             return serverError(e);
@@ -689,7 +707,7 @@ public class AsistenciaApiController {
         try {
             List<ComercioAfiliado> c =
                     comercioAfiliadoService.listarTodos();
-            return ResponseEntity.ok(ApiResponse.ok(c,"comerciosAfiliados"));
+            return ResponseEntity.ok(ApiResponse.ok(c, "comerciosAfiliados"));
         } catch (Exception e) {
             log.error("Error listando comercios: ", e);
             return serverError(e);
@@ -708,7 +726,7 @@ public class AsistenciaApiController {
         try {
             List<BeneficioComercioAfiliado> beneficios =
                     beneficioComercioAfiliadoService.obtenerPorNitComercio(nit);
-            return ResponseEntity.ok(ApiResponse.ok(beneficios,"beneficiosComercioAfiliado"));
+            return ResponseEntity.ok(ApiResponse.ok(beneficios, "beneficiosComercioAfiliado"));
         } catch (Exception e) {
             log.error("Error listando beneficios del comercio: ", e);
             return serverError(e);
@@ -725,12 +743,13 @@ public class AsistenciaApiController {
         try {
             List<Cobertura> coberturas =
                     coberturaService.listarActivas();
-            return ResponseEntity.ok(ApiResponse.ok(coberturas,"coberturas"));
+            return ResponseEntity.ok(ApiResponse.ok(coberturas, "coberturas"));
         } catch (Exception e) {
             log.error("Error listando coberturas: ", e);
             return serverError(e);
         }
     }
+
     // ════════════════════════════════════════════════════════
     // GET /api/v1/sucursales/categoria/{cat}
     // Listado de sucursales por categoria
@@ -742,7 +761,7 @@ public class AsistenciaApiController {
         try {
             List<VWSucursalesProveedor> sucursales =
                     sucursalesProveedorService.sucursalesPorCategoria(cat);
-            return ResponseEntity.ok(ApiResponse.ok(sucursales,"sucursales"));
+            return ResponseEntity.ok(ApiResponse.ok(sucursales, "sucursales"));
         } catch (Exception e) {
             log.error("Error listando sucursales: ", e);
             return serverError(e);
@@ -755,7 +774,7 @@ public class AsistenciaApiController {
         try {
             List<VWSucursalesProveedor> sucursales =
                     sucursalesProveedorService.listarTodas();
-            return ResponseEntity.ok(ApiResponse.ok(sucursales,"sucursales"));
+            return ResponseEntity.ok(ApiResponse.ok(sucursales, "sucursales"));
         } catch (Exception e) {
             log.error("Error listando sucursales: ", e);
             return serverError(e);
@@ -776,7 +795,110 @@ public class AsistenciaApiController {
         }
     }
 
+    // ════════════════════════════════════════════════════════
+    // POST /api/v1/asistencia/consulta
+    // Crear nueva consulta medica
+    // ════════════════════════════════════════════════════════
+    @PostMapping("/consulta/solicitar/{dui}")
+    public ResponseEntity<ApiResponse<MedConsulta>> crearConsulta(
+            @RequestBody SolicitudConsultaDTO dto,
+            @PathVariable String dui,
+            HttpSession session,
+            HttpServletRequest request) throws MessagingException {
 
+        MedConsulta nuevaConsulta = new MedConsulta();
+        nuevaConsulta.setDuiAfiliado(dui);
+        nuevaConsulta.setMotivo(dto.getMotivoConsulta());
+        nuevaConsulta.setRoomId(UUID.randomUUID().toString());
+        nuevaConsulta.setIdTipo(1);
+        nuevaConsulta.setIdEstadoConsulta(1);
+
+        MedConsulta consulta = consultaService.crear(nuevaConsulta);
+
+        String baseUrl = request.getScheme() + "://" + request.getServerName()
+                + ":" + request.getServerPort();
+        String roomUrl = baseUrl + "/telemedicina/consulta/sala/" + consulta.getRoomId();
+
+        List<MedDoctor> doctoresDisponibles = doctorService.obtenerPorEstado(1);
+        for (MedDoctor doctor : doctoresDisponibles) {
+            emailService.enviarEmailHtml(
+                    doctor.getEmail(),
+                    "Hay una emergencia por atender!",
+                    buildHtml(doctor, consulta, roomUrl)
+            );
+        }
+
+        return ResponseEntity.ok(ApiResponse.ok(consulta,"consultaSolicitada"));
+
+
+    }
+
+    private String buildHtml(MedDoctor doctor, MedConsulta consulta, String roomUrl) {
+        return """
+        <!DOCTYPE html>
+        <html lang="es">
+        <head><meta charset="UTF-8"></head>
+        <body style="margin:0; padding:0; background:#f4f4f4; font-family:'Segoe UI',sans-serif;">
+          <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f4f4f4; padding:40px 0;">
+            <tr><td align="center">
+              <table width="600" cellpadding="0" cellspacing="0"
+                     style="background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#667eea,#764ba2); padding:32px; text-align:center;">
+                    <p style="margin:0; font-size:2rem;">🚨</p>
+                    <h1 style="margin:8px 0 0; color:#ffffff; font-size:1.4rem; font-weight:700;">Consulta de Emergencia</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:32px;">
+                    <p style="margin:0 0 16px; font-size:1rem; color:#333;">Estimado/a <strong>Dr/a. %s</strong>,</p>
+                    <p style="margin:0 0 24px; font-size:0.95rem; color:#555; line-height:1.6;">Tiene una consulta de emergencia pendiente que requiere su atención inmediata.</p>
+                    <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f8f9fa; border-radius:10px; border:1px solid #e9ecef; margin-bottom:28px;">
+                      <tr><td style="padding:20px;">
+                        <table width="100%%" cellpadding="6" cellspacing="0">
+                          <tr>
+                            <td style="color:#888; font-size:0.85rem; width:120px;">🪪 Paciente (DUI)</td>
+                            <td style="color:#222; font-weight:600; font-size:0.9rem;">%s</td>
+                          </tr>
+                          <tr>
+                            <td style="color:#888; font-size:0.85rem; border-top:1px solid #e9ecef; padding-top:10px;">📋 Motivo</td>
+                            <td style="color:#222; font-weight:600; font-size:0.9rem; border-top:1px solid #e9ecef; padding-top:10px;">%s</td>
+                          </tr>
+                          <tr>
+                            <td style="color:#888; font-size:0.85rem; border-top:1px solid #e9ecef; padding-top:10px;">🕐 Solicitada</td>
+                            <td style="color:#222; font-weight:600; font-size:0.9rem; border-top:1px solid #e9ecef; padding-top:10px;">%s</td>
+                          </tr>
+                        </table>
+                      </td></tr>
+                    </table>
+                    <table width="100%%" cellpadding="0" cellspacing="0">
+                      <tr><td align="center">
+                        <a href="%s" style="display:inline-block; padding:16px 40px; background:linear-gradient(135deg,#667eea,#764ba2); color:#ffffff; text-decoration:none; border-radius:10px; font-size:1rem; font-weight:700;">Ingresar a la sala →</a>
+                      </td></tr>
+                    </table>
+                    <p style="margin:24px 0 0; font-size:0.78rem; color:#aaa; text-align:center;">O copie este enlace:<br><span style="color:#667eea;">%s</span></p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="background:#f8f9fa; padding:20px 32px; border-top:1px solid #e9ecef; text-align:center;">
+                    <p style="margin:0; font-size:0.78rem; color:#aaa;">Este correo fue generado automáticamente por el sistema de telemedicina.</p>
+                  </td>
+                </tr>
+              </table>
+            </td></tr>
+          </table>
+        </body>
+        </html>
+        """.formatted(
+                doctor.getNombre() + " " + doctor.getApellido(),
+                consulta.getDuiAfiliado(),
+                consulta.getMotivo(),
+                java.time.LocalDateTime.now().format(
+                        java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                roomUrl,
+                roomUrl
+        );
+    }
 
 
 
@@ -789,7 +911,7 @@ public class AsistenciaApiController {
             @RequestBody SolicitudAsistenciaRequest req,
             HttpServletRequest session) {
         try {
-            String  dui = resolverDui(session);
+            String dui = resolverDui(session);
             Integer rol = resolverRol(session);
             if (dui == null) return sinSesion();
 

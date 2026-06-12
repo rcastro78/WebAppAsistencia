@@ -36,7 +36,8 @@ public class PlanesCoberturaController {
 
 
     @GetMapping
-    public String mostrarCoberturasPlan(Model model, @RequestParam("idPlan") int idPlan){
+    public String mostrarCoberturasPlan(Model model,HttpSession session) {
+        Integer idPlan = (Integer) session.getAttribute("idPlan");
         List<PlanesCobertura> planesCobertura =
                 planesCoberturaService.listarTodosByPlan(idPlan);
         model.addAttribute("planesCobertura", planesCobertura);

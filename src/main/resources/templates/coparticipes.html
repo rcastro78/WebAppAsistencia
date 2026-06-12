@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listado de Copartícipes - Asistencia El Salvador</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/planes.css}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/tabler-icons.min.css">
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Gestión de Copartícipes</h1>
+    <span class="subtitle">Administra todos los copartícipes registrados en el sistema</span>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Listado de Copartícipes</h2>
+      <a th:href="@{/plan/coparticipe/nuevo}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Nuevo Copartícipe
+      </a>
+    </div>
+    <div class="breadcrumb">
+      <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Copartícipes</span>
+    </div>
+    <div class="card-body">
+      <div class="table-container">
+        <!-- Tabla con datos -->
+        <table class="modern-table" th:if="${not #lists.isEmpty(coparticipes)}">
+          <thead>
+          <tr>
+            <th><i class="fas fa-id-card"></i> NIT</th>
+            <th><i class="fas fa-user"></i> Nombre del Copartícipe</th>
+            <th><i class="fas fa-calendar-plus"></i> Fecha Creación</th>
+            <th><i class="fas fa-calendar-check"></i> Última Actualización</th>
+            <th><i class="fas fa-toggle-on"></i> Estado</th>
+            <th><i class="fas fa-cogs"></i> Acciones</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="coparticipe, iterStat : ${coparticipes}" class="fade-in-row" th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's'">
+            <td>
+              <span class="id-badge" th:text="${coparticipe.nitCoparticipe}"></span>
+            </td>
+            <td>
+              <span class="plan-name" th:text="${coparticipe.nombreCoparticipe}"></span>
+            </td>
+            <td>
+              <span th:text="${#temporals.format(coparticipe.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+            </td>
+            <td>
+                            <span th:if="${coparticipe.updatedAt != null}"
+                                  th:text="${#temporals.format(coparticipe.updatedAt, 'dd/MM/yyyy HH:mm')}"></span>
+              <span th:if="${coparticipe.updatedAt == null}" style="color: #aaa;">—</span>
+            </td>
+            <td>
+              <i th:if="${coparticipe.estado == 1}"
+                 class="ti ti-circle-check"
+                 style="color: green; font-size: 20px;"
+                 title="Activo"></i>
+              <i th:if="${coparticipe.estado == 0}"
+                 class="ti ti-circle-x"
+                 style="color: red; font-size: 20px;"
+                 title="Inactivo"></i>
+            </td>
+            <td>
+              <div class="action-icons">
+                <!-- Editar -->
+                <a th:href="@{/plan/coparticipe/editar/{nit}(nit=${coparticipe.nitCoparticipe})}"
+                   class="action-btn edit"
+                   data-tooltip="Editar">
+                  <i class="fas fa-edit"></i>
+                </a>
+
+                <!-- Eliminar -->
+                <a th:href="@{/plan/coparticipe/eliminar/{nit}(nit=${coparticipe.nitCoparticipe})}"
+                   class="action-btn delete"
+                   data-tooltip="Eliminar">
+                  <i class="fas fa-trash-alt"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <!-- Estado vacío -->
+        <div class="empty-state" th:if="${#lists.isEmpty(coparticipes)}">
+          <i class="fas fa-users"></i>
+          <h3>No hay copartícipes registrados</h3>
+          <p>Comience agregando el primer copartícipe al sistema</p>
+          <a th:href="@{/plan/coparticipe/nuevo}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Registrar Primer Copartícipe
+          </a>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination-container" th:if="${totalPaginas > 1}">
+        <ul class="pagination">
+          <li class="page-item" th:classappend="${paginaActual == 0} ? 'disabled'">
+            <a class="page-link" th:href="@{/plan/coparticipes(page=${paginaActual-1})}">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+
+          <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPaginas-1)}"
+              th:classappend="${i == paginaActual} ? 'active'">
+            <a class="page-link" th:href="@{/plan/coparticipes(page=${i})}" th:text="${i+1}"></a>
+          </li>
+
+          <li class="page-item" th:classappend="${paginaActual == totalPaginas-1} ? 'disabled'">
+            <a class="page-link" th:href="@{/plan/coparticipes(page=${paginaActual+1})}">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const rows = document.querySelectorAll('.fade-in-row');
+      rows.forEach((row, index) => {
+          row.style.opacity = '0';
+          row.style.transform = 'translateY(20px)';
+          setTimeout(() => {
+              row.style.transition = 'all 0.4s ease-out';
+              row.style.opacity = '1';
+              row.style.transform = 'translateY(0)';
+          }, index * 100);
+      });
+
+      const deleteButtons = document.querySelectorAll('.action-btn.delete');
+      deleteButtons.forEach(btn => {
+          btn.addEventListener('click', function(e) {
+              e.preventDefault();
+              const confirmation = confirm(
+                  '⚠️ ADVERTENCIA ⚠️\n\n' +
+                  '¿Está completamente seguro que desea eliminar este copartícipe?\n\n' +
+                  '• Esta acción no se puede deshacer\n' +
+                  '• Se perderán todos los datos asociados\n' +
+                  '• El proceso es irreversible\n\n' +
+                  '¿Desea continuar?'
+              );
+              if (confirmation) {
+                  const userInput = prompt('Para confirmar, escriba: CONFIRMAR');
+                  if (userInput === 'CONFIRMAR') {
+                      window.location.href = this.href;
+                  } else {
+                      alert('Eliminación cancelada. El texto ingresado no coincide.');
+                  }
+              }
+          });
+      });
+  });
+</script>
+</body>
+</html>

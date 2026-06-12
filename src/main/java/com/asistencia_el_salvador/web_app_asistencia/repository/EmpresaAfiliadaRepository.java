@@ -12,4 +12,5 @@ import java.util.List;
 public interface EmpresaAfiliadaRepository  extends JpaRepository<EmpresaAfiliada, String> {
     List<EmpresaAfiliada> findByIdCategoriaEmpresa(int catId);
     Page<EmpresaAfiliada> findByEstadoTrue(Pageable pageable);
+    EmpresaAfiliada findByNit(String nit);
 }

@@ -27,6 +27,9 @@ public class Plan {
     @Column(name = "linkPagoAnual")
     private String linkPagoAnual;
 
+    @Column(name="coparticipacion")
+    private int coparticipacion=0;
+
 
     public int getIdPlan() {
         return idPlan;
@@ -99,6 +102,14 @@ public class Plan {
 
     public void setLinkPagoAnual(String linkPagoAnual) {
         this.linkPagoAnual = linkPagoAnual;
+    }
+
+    public int getCoparticipacion() {
+        return coparticipacion;
+    }
+
+    public void setCoparticipacion(int coparticipacion) {
+        this.coparticipacion = coparticipacion;
     }
 
     public String getSimboloMoneda() {

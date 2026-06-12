@@ -79,7 +79,10 @@ public class AfiliadoController {
     private WompiCardService wompiCardService;
 
     @Autowired
-    private WompiConfig wompiConfig;
+    private InfoEmpleoAfiliadoService infoEmpleoAfiliadoService;
+
+    @Autowired
+    private AfiliadoVehiculoService afiliadoVehiculoService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -103,7 +106,10 @@ public class AfiliadoController {
     private EstadoContratoService estadoContratoService;
     @Autowired
     private ContratoService contratoService;
-
+    @Autowired
+    private ContactoEmergenciaAfiliadoService contactoEmergenciaAfiliadoService;
+    @Autowired
+    private AfiliadoHogarService afiliadoHogarService;
     @Autowired
     private ClienteCorporativoService clienteCorporativoService;
 
@@ -1730,7 +1736,105 @@ public class AfiliadoController {
         return "mis_pagos";
     }
 
+    @GetMapping("/historial/")
+    public String verHistorial(
+            @RequestParam(required = false) Integer anio,
+            @RequestParam(required = false) Integer mes,
+            @RequestParam(required = false) String formaPago,
+            @RequestParam(defaultValue = "0") int page,
+            HttpSession session,
+            Model model) {
 
+        String dui = session.getAttribute("dui").toString();
+        if (dui == null) {
+            return "redirect:/login";
+        }
+
+        List<PagoAfiliado> todosPagos = pagoAfiliadoService.listarPagos(dui);
+
+        // LOG 1: Ver qué trae de la BD
+        System.out.println("=== TODOS LOS PAGOS (desde BD) ===");
+        for (PagoAfiliado pago : todosPagos) {
+            System.out.println("ID: " + pago.getDui() + " | MES: " + pago.getMes() + " | AÑO: " + pago.getAnio());
+        }
+
+        List<PagoAfiliado> pagosFiltrados = aplicarFiltros(todosPagos, anio, mes, formaPago);
+
+        // LOG 2: Ver qué queda después del filtro
+        System.out.println("=== PAGOS FILTRADOS ===");
+        System.out.println("Filtros aplicados - Año: " + anio + " | Mes: " + mes + " | FormaPago: " + formaPago);
+        for (PagoAfiliado pago : pagosFiltrados) {
+            System.out.println("ID: " + pago.getDui() + " | MES: " + pago.getMes() + " | AÑO: " + pago.getAnio());
+        }
+
+        pagosFiltrados.sort((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt()));
+
+        // LOG 3: Ver después de ordenar
+        System.out.println("=== PAGOS DESPUÉS DE ORDENAR ===");
+        for (PagoAfiliado pago : pagosFiltrados) {
+            System.out.println("ID: " + pago.getDui() + " | MES: " + pago.getMes() + " | CREATED: " + pago.getCreatedAt());
+        }
+
+
+
+        int totalPagos = pagosFiltrados.size();
+        double totalMonto = pagosFiltrados.stream()
+                .mapToDouble(PagoAfiliado::getCantidadPagada)
+                .sum();
+
+        String ultimoPago = pagosFiltrados.isEmpty() ? "N/A" :
+                formatearUltimoPago(pagosFiltrados.get(0));
+
+        String nombrePlan = pagosFiltrados.isEmpty() ? "N/A" :
+                pagosFiltrados.get(0).getNombrePlan();
+
+        //Si no ha pagado da error esto
+        int idPlan = planService.getPlanIdByNombrePlan(nombrePlan).get(0).getIdPlan();
+        Plan plan = planService.getPlanById(idPlan).get();
+        List<Integer> aniosDisponibles = todosPagos.stream()
+                .map(PagoAfiliado::getAnio)
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
+
+        int pageSize = 10;
+        int start = Math.min(page * pageSize, pagosFiltrados.size());
+        int end = Math.min(start + pageSize, pagosFiltrados.size());
+        List<PagoAfiliado> pagosPaginados = pagosFiltrados.subList(start, end);
+
+        // LOG 4: Ver los pagos paginados
+        System.out.println("=== PAGOS PAGINADOS (página " + page + ") ===");
+        for (PagoAfiliado pago : pagosPaginados) {
+            System.out.println("ID: " + pago.getDui() + " | MES: " + pago.getMes() + " | AÑO: " + pago.getAnio());
+        }
+
+        int totalPaginas = (int) Math.ceil((double) pagosFiltrados.size() / pageSize);
+
+        Map<String, String> periodosFormateados = new LinkedHashMap<>();
+        for (PagoAfiliado pago : pagosPaginados) {
+            String clave = pago.getDui() + "_" + pago.getMes() + "_" + pago.getAnio();
+            String periodo = obtenerNombreMes(pago.getMes()) + " " + pago.getAnio();
+            periodosFormateados.put(clave, periodo);
+        }
+        Afiliado afiliado = afiliadoService.getAfiliadoById(dui).get();
+
+        model.addAttribute("pagos", pagosPaginados);
+        model.addAttribute("periodosFormateados", periodosFormateados);
+        model.addAttribute("totalPagos", totalPagos);
+        model.addAttribute("totalMonto", totalMonto);
+        model.addAttribute("ultimoPago", ultimoPago);
+        model.addAttribute("nombrePlan", nombrePlan);
+        model.addAttribute("aniosDisponibles", aniosDisponibles);
+        model.addAttribute("anioSeleccionado", anio);
+        model.addAttribute("mesSeleccionado", mes);
+        model.addAttribute("formaPagoSeleccionada", formaPago);
+        model.addAttribute("paginaActual", page);
+        model.addAttribute("afiliado", afiliado);
+        model.addAttribute("totalPaginas", totalPaginas);
+        model.addAttribute("linkPago",plan.getLinkPago());
+
+        return "mis_pagos";
+    }
     @GetMapping("/pagarConTarjeta")
     public String pagaTarjeta(Model model, HttpSession session) {
         UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
@@ -1745,6 +1849,40 @@ public class AfiliadoController {
             moneda = plan.getMoneda();
             simbolo = getMonedaSimbolo(moneda);
             monto = plan.getCostoPlan(); // monto real del plan
+            model.addAttribute("nombre",afiliadoOpt.get().getNombre()+" "+afiliadoOpt.get().getApellido());
+            model.addAttribute("docNumero",usuario.getDui());
+            model.addAttribute("plan",plan.getNombrePlan());
+        }
+
+        model.addAttribute("moneda", moneda);
+        model.addAttribute("simbolo", simbolo);
+        model.addAttribute("monto", monto);
+        return "pagar_tarjeta";
+    }
+
+
+    @GetMapping("/pagarCuotaPatrocinado/{dui}")
+    public String pagaTarjetaPatrocinado(Model model, HttpSession session,
+                                         @PathVariable("dui") String dui) {
+        //UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
+        Optional<AfiliadoCreadoResumen> afiliadoOpt = afiliadoService.getAfiliadoCreadoById(dui);
+        String moneda = "USD";
+        String simbolo = "$";
+        double monto = 0.01; // prueba
+
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        logger.info(afiliadoOpt.toString());
+
+
+        if (afiliadoOpt.isPresent()) {
+            Plan plan = planService.getPlanById(afiliadoOpt.get().getIdPlan()).get();
+            moneda = plan.getMoneda();
+            simbolo = getMonedaSimbolo(moneda);
+            monto = plan.getCostoPlan(); // monto real del plan
+
+            model.addAttribute("nombre",afiliadoOpt.get().getNombre()+" "+afiliadoOpt.get().getApellido());
+            model.addAttribute("docNumero",dui);
+            model.addAttribute("plan",plan.getNombrePlan());
         }
 
         model.addAttribute("moneda", moneda);
@@ -2161,6 +2299,507 @@ public class AfiliadoController {
             moneda = "C";
 
         return moneda;
+    }
+
+
+    // ============================================================
+// Endpoint: GET /afiliado/contrato/{dui}
+// Genera el contrato PDF completo fiel al modelo de AESAL
+// ============================================================
+
+    @GetMapping("/contrato/{dui}")
+    public ResponseEntity<byte[]> generarContrato(@PathVariable String dui) {
+        try {
+            // ── 1. OBTENER DATOS DEL AFILIADO ──────────────────────────────
+            Afiliado afiliado = afiliadoService.getAfiliadoById(dui)
+                    .orElseThrow(() -> new RuntimeException("Afiliado no encontrado"));
+
+            // Plan activo del afiliado
+            var planResumen = afiliadoService.getPlanAfiliadoResumen(dui).orElse(null);
+            String nombrePlan = (planResumen != null) ? planResumen.getNombrePlan() : "Orange";
+            String numTarjeta = (planResumen != null) ? planResumen.getNumTarjeta() : "No Aun no Asignado";
+            String vigencia    = (planResumen != null) ? planResumen.getVigencia() : "Mensual";
+
+            // Vendedor (ejecutivo asignado)
+            String nombreVendedor  = "Jorge Orellana Ferman";
+            String codigoVendedor  = "02741259-5";
+            if (afiliado.getEjecutivoAsignado() != null) {
+                var ejecutivo = usuarioService.getUsuarioById(afiliado.getEjecutivoAsignado()).orElse(null);
+                if (ejecutivo != null) {
+                    nombreVendedor = ejecutivo.getNombre() + " " + ejecutivo.getApellido();
+                    codigoVendedor = ejecutivo.getDui();
+                }
+            }
+
+            // Ubicación
+            String deptoNombre = "";
+            String munNombre   = "";
+            try {
+                var deptos = departamentoService.getDepartamentosByPais(afiliado.getIdPais());
+                deptoNombre = deptos.stream()
+                        .filter(d -> d.getIdDepto().equals(afiliado.getIdDepto()))
+                        .findFirst().map(d -> d.getNombreDepartamento()).orElse("");
+                var municipios = municipioService.getMunicipiosByDepto(afiliado.getIdDepto());
+                munNombre = municipios.stream()
+                        .filter(m -> m.getIdMunicipio().equals(afiliado.getIdMunicipio()))
+                        .findFirst().map(m -> m.getMunNombre()).orElse("");
+            } catch (Exception ignored) {}
+
+            // Plan precio
+            double costoPlan = 1.99;
+            String esMensual = "X";
+            String esAnual   = "______";
+            if (planResumen != null) {
+                try {
+                    Plan plan = planService.getPlanById(
+                            planService.getPlanIdByNombrePlan(nombrePlan.toLowerCase()).get(0).getIdPlan()
+                    ).orElse(null);
+                    if (plan != null) costoPlan = plan.getCostoPlan();
+                } catch (Exception ignored) {}
+                if (vigencia != null && vigencia.contains("12")) {
+                    esMensual = "______";
+                    esAnual   = "X";
+                }
+            }
+
+            String fechaContrato = (afiliado.getFechaAfiliacion() != null)
+                    ? afiliado.getFechaAfiliacion().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                    : "Sin fecha";
+
+            // ── 2. CONFIGURAR DOCUMENTO ────────────────────────────────────
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Document document = new Document(PageSize.A4, 50, 50, 50, 50);
+            PdfWriter writer = PdfWriter.getInstance(document, baos);
+            document.open();
+
+            // ── 3. FUENTES ─────────────────────────────────────────────────
+            Font fTitulo      = FontFactory.getFont(FontFactory.HELVETICA_BOLD,  13, BaseColor.BLACK);
+            Font fSeccion     = FontFactory.getFont(FontFactory.HELVETICA_BOLD,  9,  BaseColor.BLACK);
+            Font fNormal      = FontFactory.getFont(FontFactory.HELVETICA,       8,  BaseColor.BLACK);
+            Font fNormalBold  = FontFactory.getFont(FontFactory.HELVETICA_BOLD,  8,  BaseColor.BLACK);
+            Font fPie         = FontFactory.getFont(FontFactory.HELVETICA,       7,  BaseColor.GRAY);
+            Font fNumTarjeta  = FontFactory.getFont(FontFactory.HELVETICA_BOLD,  14, new BaseColor(0xFF, 0x8C, 0x00));
+            Font fFooterWeb   = FontFactory.getFont(FontFactory.HELVETICA,       7,  BaseColor.DARK_GRAY);
+
+            // ── 4. ENCABEZADO: Número de tarjeta + Logo ────────────────────
+            com.itextpdf.text.pdf.PdfPTable headerTable = new com.itextpdf.text.pdf.PdfPTable(2);
+            headerTable.setWidthPercentage(100);
+            headerTable.setWidths(new float[]{50f, 50f});
+
+            // Celda izquierda: número tarjeta en naranja
+            com.itextpdf.text.pdf.PdfPCell cellNumTarjeta = new com.itextpdf.text.pdf.PdfPCell();
+            cellNumTarjeta.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            Paragraph pNumTarjeta = new Paragraph(numTarjeta, fNumTarjeta);
+            pNumTarjeta.setAlignment(Element.ALIGN_LEFT);
+            cellNumTarjeta.addElement(pNumTarjeta);
+            headerTable.addCell(cellNumTarjeta);
+
+            // Celda derecha: logo (texto sustituto si no hay imagen)
+            com.itextpdf.text.pdf.PdfPCell cellLogo = new com.itextpdf.text.pdf.PdfPCell();
+            cellLogo.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            cellLogo.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            try {
+                // Intenta cargar el logo desde classpath o ruta fija
+                org.springframework.core.io.Resource logoResource =
+                        new org.springframework.core.io.ClassPathResource("static/images/asistencia.jpeg");
+                byte[] logoBytes = logoResource.getInputStream().readAllBytes();
+                Image logo = Image.getInstance(logoBytes);
+
+                logo.scaleToFit(120, 50);
+                logo.setAlignment(Image.ALIGN_RIGHT);
+                cellLogo.addElement(logo);
+            } catch (Exception e) {
+                // Fallback texto si no hay imagen
+                Font fLogoText = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, new BaseColor(0x00, 0x70, 0xC0));
+                Paragraph pLogo = new Paragraph("Asistencia®\nEl Salvador", fLogoText);
+                pLogo.setAlignment(Element.ALIGN_RIGHT);
+                cellLogo.addElement(pLogo);
+            }
+            headerTable.addCell(cellLogo);
+            document.add(headerTable);
+            document.add(Chunk.NEWLINE);
+
+            // ── 5. TÍTULO PRINCIPAL ────────────────────────────────────────
+            Paragraph titulo = new Paragraph(
+                    "CONTRATO PARA LA PRESTACION de SERVICIOS DE ASISTENCIA TARJETAS DE ASISTENCIA",
+                    fTitulo);
+            titulo.setAlignment(Element.ALIGN_CENTER);
+            titulo.setSpacingAfter(8);
+            document.add(titulo);
+
+            // ── 6. TEXTO INTRODUCTORIO ─────────────────────────────────────
+            String intro = "En lo sucesivo \"el CLIENTE\", por medio del presente instrumento OTORGO: Que en esta fecha he (mos) convenido en suscribir con la sociedad ASISTENCIA EL SALVADOR, SOCIEDAD ANÓNIMA DE CAPITAL VARIABLE, que puede abreviarse AESAL, S.A. DE C.V., en lo sucesivo \"AESAL\", un CONTRATO DE PRESTACIÓN DE SERVICIOS DE ASISTENCIA, el cual se regirá bajo las cláusulas siguientes:";
+            document.add(new Paragraph(intro, fNormal));
+            document.add(Chunk.NEWLINE);
+
+            // ── 7. CLÁUSULAS DEL CONTRATO ──────────────────────────────────
+            String[][] clausulas = {
+                    {"1) OBJETO.", "En virtud de este contrato, el CLIENTE recibirá de AESAL el servicio de asistencia técnica y profesional oportuna, así como los servicios suplementarios o de valor agregado solicitados. El servicio de asistencia es prestado dentro de las áreas de cobertura previamente determinadas por AESAL, por medio de recursos humanos propios y una amplia red de proveedores distribuidos geográficamente en todo el país. Para la prestación del (de los) servicio (s) objeto del presente contrato, es necesario que EL CLIENTE cuente con su servicio de asistencia vigente, y se regirá por los términos y condiciones de este Contrato. Es del conocimiento del cliente que AESAL podrá implementar políticas que desarrollen el uso, consumo y/o funcionamiento de los diferentes servicios, planes y/o promociones que AESAL de acuerdo a su oferta comercial ponga a disposición del CLIENTE, condiciones que de forma previa y por cualquier medio AESAL pondrá a disposición del CLIENTE."},
+                    {"2) PRECIO DE LOS SERVICIOS.", "Como contraprestación de los servicios prestados, el CLIENTE pagará periódicamente, mensualmente o anualmente como corresponda en el contrato, a AESAL el valor de correspondiente de la membresía del plan solicitado, durante la vigencia de este contrato."},
+                    {"3) FACTURACIÓN Y FORMA DE PAGO.", "Los servicios serán facturados en dólares, moneda de los Estados Unidos de América, por períodos mensuales o anuales, de acuerdo al ciclo de facturación que corresponda. El CLIENTE deberá realizar el pago correspondiente a más tardar en la fecha indicada en el documento de cobro, en el caso que la fecha de vencimiento corresponda a un día no hábil, el pago podrá realizarse el día hábil inmediato siguiente sin recargo alguno. AESAL podrá modificar la fecha de pago de los servicios previo acuerdo con el CLIENTE. El CLIENTE deberá pagar las sumas adeudadas en efectivo, transferencia o autorizar que se carguen en las tarjetas de crédito o débito que el CLIENTE posea como titular y que sean autorizadas por AESAL o por medio de cheque. AESAL se obliga a enviar el documento electrónico de cobro a la dirección de correo electrónico proporcionada por EL CLIENTE para tal fin o a su número telefónico por medio de WhatsApp, SMS o cualquier otro medio electrónico que AESAL tenga a su disposición, con anticipación no menor de diez días calendario a la fecha de vencimiento del periodo, de no recibir dicho documento, EL CLIENTE deberá notificarlo a AESAL, a efecto de obtener los datos correspondientes para realizar el pago y para que AESAL pueda tomar las medidas correctivas."},
+                    {"4) RECARGO POR MORA.", "El CLIENTE se constituirá en mora, al día siguiente de la fecha indicada en el documento de cobro, sin que haya efectuado el pago de las sumas que está obligado a pagar por su membresía ya filiación al servicio de asistencia. En este caso el CLIENTE pagará a AESAL un recargo de UN DÓLAR, IVA incluido, por cada cobro que se encuentre en mora."},
+                    {"5) SUSPENSIÓN DEL SERVICIO.", "5.1. AESAL podrá suspender el servicio de ASISTENCIA, sin previo aviso, en los siguientes casos: a) Cuando estén pendientes de pago las facturaciones o cuotas de dos o más meses, derivadas de la prestación del servicio; b) Cuando se ocasione mal funcionamiento o daño a la red de AESAL; c) Cuando el cliente haga fraude a la red de proveedores de AESAL, d) A solicitud de autoridad competente. 5.2. El CLIENTE autoriza a AESAL para que le sea suspendido el servicio, bastando la comunicación de AESAL por cualquier medio a su alcance, en caso de: a) Mora de conformidad con la cláusula 4 de este contrato, b) Sospechas de fraude en el uso de las asistencias, o en los documentos que motivaron la aprobación del servicio contratado, y c) Cualquier otro caso que hagan suponer un uso indebido del servicio. En todos estos casos la suspensión se mantendrá hasta que el CLIENTE deje de incurrir en infracción de las obligaciones mencionadas, sin perjuicio de la facultad expedida a AESAL de dar por terminado el contrato."},
+                    {"6) CESIÓN DEL SERVICIO DE ASISTENCIA.", "El CLIENTE podrá solicitar a AESAL la cesión de sus servicios de manera escrita, indicando a la persona natural o jurídica a la que se le cederá dicho servicio. AESAL sólo aceptará la cesión si el cesionario reúne los requisitos del CLIENTE, a juicio de AESAL. En caso que la cesión fuese denegada, el CLIENTE deberá continuar el servicio por el plazo acordado. AESAL, por su parte, queda facultada para ceder su posición contractual a un operador autorizado, bastando notificación o comunicación al CLIENTE, para que surta plenos efectos."},
+                    {"7) PLAZO.", "El plazo del presente contrato es por tiempo indefinido, contado a partir de la fecha de entrega de los servicios, la cual estará sujeta al cumplimiento de los requisitos y parámetros establecidos por AESAL, una vez aprobado el servicio, AESAL se obliga a entregar los servicios en un plazo de siete días hábiles, salvo que se hubiere acordado con EL CLIENTE un plazo distinto. El plazo mínimo asociado a cada servicio se encuentra relacionado en la solicitud de servicios suscrita por el CLIENTE y en las condiciones comerciales de este contrato. Además, al vencimiento del plazo mínimo obligatorio de cualquier plan que haya contratado, el CLIENTE podrá solicitar a AESAL la renovación del referido plan de suscripción, por un período similar y bajo términos y condiciones similares, salvo que el plan contratado ya no forme parte ya de la oferta comercial de AESAL."},
+                    {"8) TERMINACIÓN DEL CONTRATO.", "El presente contrato podrá terminarse anticipadamente en los siguientes casos: A) MUTUO CONSENTIMIENTO entre las partes, para ello, será necesario una solicitud personal, que por escrito haga el CLIENTE a AESAL, con diez días hábiles de anticipación a la fecha en que desee que el contrato se dé por terminado, en cuyo caso deberá cancelar los valores económicos que a la fecha se encuentren pendientes de pago, así como aquellos servicios de asistencia que se hayan prestado previo a la fecha de finalización de este contrato. Una vez pagado lo anterior, procederá la terminación del Contrato. De no mediar la referida comunicación por escrito, AESAL no se encuentra autorizada a desactivar el servicio de asistencia y el CLIENTE se encontrará en la responsabilidad de continuar pagando los cargos subsecuentes. La terminación del Contrato será efectiva una vez que el Cliente haya pagado a AESAL la totalidad de los cargos generados en concepto de servicios suministrados con motivo de este Contrato. B) AESAL podrá dar por terminado este contrato sin intervención judicial cuando, EL CLIENTE ha dejado transcurrir más de noventa días calendario sin hacer efectivo el pago por los servicios prestados, quedando a salvo el derecho de AESAL a ejercer acciones correspondientes para gestionar el pago. C) El CLIENTE podrá dar por terminado el presente contrato sin responsabilidad: i) Por desistimiento de su parte, en cuyo caso deberá manifestar por escrito su intención de desistir, siempre y cuando los servicios no hayan sido entregados por AESAL al CLIENTE.; ii) Cuando sin causa legal, AESAL modifique unilateralmente las cláusulas de este contrato, siempre que con ello se ocasione un perjuicio manifiesto y razonable para el CLIENTE, esto no aplicará, cuando la modificación tenga su origen en el cumplimiento de la ley, o de una disposición dictada por autoridad administrativa o judicial competente; iii) Por incumplimiento de las condiciones ofertadas o por deficiencia en los servicios contratados, una vez comprobado el incumplimiento de la oferta o de los parámetros de calidad establecidos en la normativa vigente, el CLIENTE podrá solicitar en cualquier momento y por cualquier medio que permita comprobar la titularidad del servicio, la terminación de este contrato sin penalidad alguna por terminación anticipada. AESAL se obliga a aplicar la baja de los servicios contratados a más tardar cinco días hábiles contados a partir de la fecha del requerimiento realizado por el CLIENTE."},
+                    {"9) CARGO POR TERMINACIÓN ANTICIPADA.", "En atención al servicio, plazo y modalidad contratada, solamente procederá la terminación del contrato por mutuo acuerdo, manifestada tal intención de la forma expuesta en la cláusula 8 de este contrato. En el supuesto que EL CLIENTE solicite la terminación anticipada del servicio previo al vencimiento del plazo mínimo contratado y/o cualquiera de las prórrogas convenidas, éste NO deberá pagar a AESAL conceptos algunos por penalidad. En caso de pagos anticipados por membresías anuales de parte del CLIENTE, AESAL deberá de hacer la devolución de los meses restantes a EL CLIENTE, a un máximo de 15 días de la solicitud de cancelación del contrato, tomando en cuenta a partir del siguiente mes, los meses completos pendientes de uso de la membresía."},
+                    {"10) IMPUESTOS.", "Serán de cuenta del CLIENTE el impuesto de transferencia de bienes muebles y prestación de servicio que graven el presente servicio y cualquier otro que le sea aplicable."},
+                    {"11) COBERTURA DEL SERVICIO.", "El servicio de Asistencia, será habilitado al CLIENTE a nivel nacional, en las áreas donde AESAL posea cobertura en sus diferentes redes de proveedores, por lo tanto, en zonas o áreas fronterizas o áreas rurales, en las cuales AESAL no posee cobertura inmediata, AESAL coordinará con su red de proveedores más proxima a la localidad para brindar la asistencia solicitada. La cobertura no comprende espacios aéreos ni marítimos. AESAL pondrá a disposición del CLIENTE los medios para que conozca sus áreas de cobertura, tales como su página Web, Redes Sociales, WhatsApp, Centro de Atención al Cliente, etc. Queda enterado el CLIENTE en cumplimiento a lo ordenado en la normativa vigente, AESAL podrá modificar las áreas de cobertura durante la vigencia de este Contrato."},
+                    {"12) CALIDAD DEL SERVICIO.", "AESAL suministrará los servicios de asistencia conforme a los niveles de calidad establecidos en la legislación vigente y conforme a los estándares internacionales de operación, a manera de asegurar la continuidad del servicio al CLIENTE. Las fallas eléctricas, hecatombes, guerra civil, o desastres a consecuencia de la naturaleza, y otros, no serán considerados a efectos de determinar la calidad del servicio. Adicional, AESAL no garantiza la adecuada prestación del servicio de asistencia, en caso que el CLIENTE no se identifique adecuadamente con los agentes de servicio de AESAL."},
+                    {"13) CASO FORTUITO O FUERZA MAYOR.", "El CLIENTE reconoce que pueden existir situaciones o acontecimientos impredecibles, imprevistos o que previstos no puedan evitarse y que imposibiliten el cumplimiento de las obligaciones contractuales para ambas partes. En este supuesto, ninguna de las partes será considerada como responsable, ni estará sujeta a la imposición de sanciones por incumplimiento o demora de sus obligaciones."},
+                    {"14) RECLAMOS SOBRE EL SERVICIO; CONSULTAS; SOLICITUDES.", "A) Los reclamos motivados por posibles incumplimientos al presente contrato, deberán ser presentados por escrito en las oficinas de atención al cliente de AESAL o por medios digitales, en un periodo no mayor a 7 días hábiles al incumplimiento. La respuesta favorable o desfavorable, será comunicada al CLIENTE por escrito, ya sea a la dirección de cobro o a un correo electrónico autorizado por el cliente para recibir notificaciones, dentro del plazo máximo de cinco días hábiles siguientes a la fecha de presentación del reclamo. B) AESAL pondrá a disposición de sus clientes diferentes medios de atención a través de los cuales el CLIENTE podrá realizar consultas, aclaraciones o solicitar información adicional sobre los servicios contratados, tales como Centros de Atención Presencial, Call center por medio de su número 2200-7000, página Web www.asistenciaelsalvador.com, correo electrónico: info@asistenciaelsalvador.com, aplicaciones que estén disponibles, Atención WhatsApp por medio del número 7355-8877, lo cual no será considerado como reclamos para los efectos establecidos en las Leyes. C) AESAL pondrá a disposición de sus clientes diferentes medios, tales como, Centros de Atención Presencial, Call Center por medio de su número 2200-7000, y Atención WhatsApp por medio del número 7355-8877, para que pueda realizar solicitudes relacionadas con el servicio, activar o desactivar servicios de valor agregado."},
+                    {"15) Sobre los SERVICIOS.", "El CLIENTE acepta al suscribirse a los planes de asistencia comercializados por AESAL, que los servicios son suministrados por personal calificado con estructura propia de AESAL y su amplia red de proveedores externos."},
+                    {"16) DERECHOS Y OBLIGACIONES DEL CLIENTE.", "16.1) DERECHOS. a) Recibir los servicios contratados bajo los niveles de calidad y coberturas ofrecidas en virtud de este contrato; b) Interponer sus reclamos por escrito según lo establecido en la normativa vigente; y c) A que no se le deshabilite arbitrariamente el servicio. 16.2) OBLIGACIONES. a) Pagar puntualmente las facturas derivadas de la prestación de los servicios adquiridos. b) Responder por el mal uso de los servicios prestados por la red de proveedores de AESAL; c) Responsabilizarse por el uso fraudulento del servicio; d) Mantener vigente el presente contrato, para que sus coberturas estén siempre disponibles; e) A interponer sus reclamos y a dirigir sus solicitudes en la forma indicada en la Cláusula 14 de este Contrato; f) A solicitar la habilitación o deshabilitación de los servicios suplementarios o de valor agregado, que sean del interés del CLIENTE; g) A informarse de forma oportuna y diligente, respecto de las condiciones aplicables a las promociones vigentes en AESAL; y h) A cumplir las demás obligaciones señaladas en el presente contrato y sus anexos."},
+                    {"17) DERECHOS Y OBLIGACIONES DE AESAL.", "17.1.) DERECHOS. a) Gestionar el pago de los servicios en la fecha correspondiente; b) Suspender la prestación de los servicios al CLIENTE en caso de incumplimiento a los términos y condiciones establecidos en este Contrato; c) Solicitar al CLIENTE el pago de cualquier monto que se haya generado como excedente a las coberturas de los servicios. 17.2 OBLIGACIONES. a) A suministrar los servicios contratados bajo los niveles de calidad establecidos en la normativa vigente, y coberturas y montos económicos ofrecidos en virtud de este contrato; b) Recibir los reclamos del CLIENTE, motivados por incumplimiento al presente contrato y a proporcionar una respuesta dentro del plazo aquí señalado; c) A no deshabilitar arbitrariamente el servicio al CLIENTE."},
+                    {"18) SERVICIOS SUPLEMENTARIOS Y/O DE VALOR AGREGADO.", "Los servicios suplementarios y/o de valor agregado estarán a disposición del CLIENTE desde la activación del servicio de asistencia, salvo que en la solicitud haya manifestado su decisión de no habilitar alguno, pudiendo solicitar durante el transcurso de este contrato la habilitación de aquellos servicios que sean de su interés o de los nuevos que AESAL ponga a su disposición, o la desactivación de estos servicios, a través de los medios que AESAL haya dispuesto e informado previamente para tales efectos."},
+                    {"19) DECLARACIONES ESPECIALES.", "En el supuesto que el CLIENTE pertenezca a determinadas empresas, instituciones públicas o privadas, que se encuentren vinculadas comercialmente con AESAL en atención a un contrato de prestación de servicios de asistencia suscrito entre dicha institución/empresa y AESAL, ésta podrá otorgar al CLIENTE ciertos beneficios que dichas empresas o instituciones hayan negociado para sus empleados. Al finalizar dicho vínculo, y en el supuesto que se encuentre aún vigente un plazo mínimo asociado a la asistencia contratada, el CLIENTE deberá, dentro de los 10 días calendario siguientes a la finalización del referido vínculo, migrar la asistencia contratada al plan de asistencia que más se ajuste a sus necesidades."},
+                    {"20) DOMICILIO.", "Para los efectos legales del presente contrato, las partes señalan como domicilio especial el de la ciudad San Salvador, de la República de El Salvador, a cuyos tribunales se someten."},
+                    {"21) INTEGRACIÓN DEL CONTRATO.", "Forman parte integrante de este contrato la solicitud de servicios de asistencia y los anexos, debidamente suscritos por el CLIENTE, los cuales constituyen el acuerdo total entre AESAL y el CLIENTE y sustituyen y dejan sin efecto cualquier entendimiento previo verbal o escrito entre las partes. En caso de controversia entre el contenido de este Contrato y sus Anexos, prevalecerá lo dispuesto en los Anexos respectivos."}
+            };
+
+            for (String[] clausula : clausulas) {
+                Paragraph pClausula = new Paragraph();
+                pClausula.add(new Chunk(clausula[0] + "\n", fSeccion));
+                pClausula.add(new Chunk(clausula[1], fNormal));
+                pClausula.setSpacingAfter(6);
+                document.add(pClausula);
+            }
+
+            // ── 8. PÁRRAFO DE ACEPTACIÓN ───────────────────────────────────
+            document.add(Chunk.NEWLINE);
+            String aceptacion = "Yo el CLIENTE, i) Manifiesto que acepto el contenido íntegro de este contrato, así como sus anexos y demás documentos que forman parte de éste, declarando que refleja y contiene la manifestación fiel de mi voluntad y la de AESAL; ii) Hago constar: a) Que leí el presente contrato y sus anexos el cual consta de dos folios, los cuales fueron explicados por la fuerza de ventas de AESAL en sus partes pertinentes, y consciente de sus contenidos, objeto, validez y efectos legales, lo acepto, ratifico y firmo; b) Que en esta fecha he recibido de AESAL, un ejemplar del presente Contrato y sus anexos.";
+            document.add(new Paragraph(aceptacion, fNormal));
+            document.add(Chunk.NEWLINE);
+
+            // ── 9. BLOQUE DE FIRMAS ────────────────────────────────────────
+            // Verificar si hay firma digital del afiliado
+            String urlFirma = null;
+            try {
+                var planAfiliado = planAfiliadoRepository.findByDui(dui).stream().findFirst().orElse(null);
+                if (planAfiliado != null) urlFirma = planAfiliado.getFirma();
+            } catch (Exception ignored) {}
+
+            com.itextpdf.text.pdf.PdfPTable tablaFirmas = new com.itextpdf.text.pdf.PdfPTable(2);
+            tablaFirmas.setWidthPercentage(100);
+            tablaFirmas.setSpacingBefore(20);
+
+            // Celda firma cliente
+            com.itextpdf.text.pdf.PdfPCell celdaCliente = new com.itextpdf.text.pdf.PdfPCell();
+            celdaCliente.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            if (urlFirma != null && !urlFirma.isBlank()) {
+                try {
+                    Image imgFirma = Image.getInstance(new java.net.URL(urlFirma));
+                    imgFirma.scaleToFit(140, 55);
+                    celdaCliente.addElement(imgFirma);
+                } catch (Exception e) {
+                    celdaCliente.addElement(new Paragraph("Aún no ha firmado", fPie));
+                }
+            } else {
+                celdaCliente.addElement(new Paragraph("Aún no ha firmado", fPie));
+            }
+            celdaCliente.addElement(new Paragraph("\n_____________________________________", fNormal));
+            celdaCliente.addElement(new Paragraph("EL CLIENTE", fNormalBold));
+            celdaCliente.addElement(new Paragraph("Titular o Representante Legal", fNormal));
+            tablaFirmas.addCell(celdaCliente);
+
+            // Celda firma vendedor
+            com.itextpdf.text.pdf.PdfPCell celdaVendedor = new com.itextpdf.text.pdf.PdfPCell();
+            celdaVendedor.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            celdaVendedor.addElement(new Paragraph("\n\n_____________________________________", fNormal));
+            celdaVendedor.addElement(new Paragraph(nombreVendedor, fNormalBold));
+            celdaVendedor.addElement(new Paragraph("Código Vendedor: " + codigoVendedor, fNormal));
+            tablaFirmas.addCell(celdaVendedor);
+            document.add(tablaFirmas);
+
+            // ── 10. PIE DE PÁGINA PÁGINA 1 ────────────────────────────────
+            document.add(Chunk.NEWLINE);
+            Paragraph pie = new Paragraph();
+            pie.add(new Chunk("www.asistenciaelsalvador.com\n", fFooterWeb));
+            pie.add(new Chunk("info@asistenciaelsalvador.com\n", fFooterWeb));
+            pie.add(new Chunk("Oficinas 2200-7000. WhatsApp: 7355-8877\n", fFooterWeb));
+            pie.add(new Chunk("Calle y Colonia Roma No 22 A1, San Salvador, El Salvador", fFooterWeb));
+            pie.setAlignment(Element.ALIGN_RIGHT);
+            document.add(pie);
+
+            // ══════════════════════════════════════════════════════════════
+            // ── PÁGINA 2: SOLICITUD DE SERVICIOS ──────────────────────────
+            // ══════════════════════════════════════════════════════════════
+            document.newPage();
+
+            // Encabezado página 2
+            Paragraph tituloSolicitud = new Paragraph("SOLICITUD DE SERVICIOS DE ASISTENCIA", fTitulo);
+            tituloSolicitud.setAlignment(Element.ALIGN_CENTER);
+            tituloSolicitud.setSpacingAfter(2);
+            document.add(tituloSolicitud);
+
+            Paragraph subTitulo = new Paragraph("TARJETAS DE ASISTENCIA", fSeccion);
+            subTitulo.setAlignment(Element.ALIGN_CENTER);
+            subTitulo.setSpacingAfter(8);
+            document.add(subTitulo);
+
+            // Vendedor y fecha
+            com.itextpdf.text.pdf.PdfPTable tablaVF = new com.itextpdf.text.pdf.PdfPTable(2);
+            tablaVF.setWidthPercentage(100);
+            com.itextpdf.text.pdf.PdfPCell cvf1 = new com.itextpdf.text.pdf.PdfPCell(
+                    new Paragraph("Vendedor: " + nombreVendedor, fNormal));
+            cvf1.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            com.itextpdf.text.pdf.PdfPCell cvf2 = new com.itextpdf.text.pdf.PdfPCell(
+                    new Paragraph("Fecha Contrato: " + fechaContrato, fNormal));
+            cvf2.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            tablaVF.addCell(cvf1);
+            tablaVF.addCell(cvf2);
+            document.add(tablaVF);
+            document.add(Chunk.NEWLINE);
+
+            // Institución
+            Font fTipoContrato = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, new BaseColor(0xFF, 0x8C, 0x00));
+            document.add(new Paragraph("Tipo de Contrato", fTipoContrato));
+
+
+            String instNombre = institucionService.getInstitucion(String.valueOf(afiliado.getInstitucion())).get().getNombreInstitucion();
+            document.add(new Paragraph(instNombre, fNormalBold));
+            document.add(Chunk.NEWLINE);
+
+            // Datos personales titular
+            Font fDatosLabel = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, new BaseColor(0xFF, 0x8C, 0x00));
+            document.add(new Paragraph("Datos Personales – Titular I", fDatosLabel));
+
+            // Tabla datos personales
+            com.itextpdf.text.pdf.PdfPTable tDatos = new com.itextpdf.text.pdf.PdfPTable(3);
+            tDatos.setWidthPercentage(100);
+            tDatos.setWidths(new float[]{40f, 35f, 25f});
+
+            String edad = "";
+            if (afiliado.getFechaNacimiento() != null) {
+                edad = String.valueOf(java.time.Period.between(afiliado.getFechaNacimiento(), java.time.LocalDate.now()).getYears());
+            }
+
+            agregarCeldaDatos(tDatos, "Nombre: " + afiliado.getNombre() + " " + afiliado.getApellido(), fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "No Documento Identidad: " + afiliado.getDui(), fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "Edad: " + edad, fNormal, fNormalBold);
+
+            String ocupacion = (afiliado.getLugarTrabajo() != null) ? afiliado.getLugarTrabajo() : "______________________";
+            agregarCeldaDatos(tDatos, "Ocupación: " + ocupacion, fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "Celular: " + nvl(afiliado.getTelefono()), fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "Teléfono: " + nvl(afiliado.getTelefono()), fNormal, fNormalBold);
+
+            String edoCivil = estadoCivilService.getByIdEstadoCivil(afiliado.getEstadoCivil()).getNombreEstado();
+
+            //String estadoCivil = (afiliado.getEstadoCivil() != null) ? afiliado.getEstadoCivil().toString() : "______________________";
+            agregarCeldaDatos(tDatos, "Estado Civil: " + edoCivil, fNormal, fNormalBold);
+            com.itextpdf.text.pdf.PdfPCell cDireccion = new com.itextpdf.text.pdf.PdfPCell(
+                    new Paragraph("Dirección: " + nvl(afiliado.getDireccion()), fNormal));
+            cDireccion.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            cDireccion.setColspan(2);
+            tDatos.addCell(cDireccion);
+
+            agregarCeldaDatos(tDatos, "Departamento: " + deptoNombre, fNormal, fNormalBold);
+            com.itextpdf.text.pdf.PdfPCell cMunicipio = new com.itextpdf.text.pdf.PdfPCell(
+                    new Paragraph("Municipio: " + munNombre, fNormal));
+            cMunicipio.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            cMunicipio.setColspan(2);
+            tDatos.addCell(cMunicipio);
+
+            agregarCeldaDatos(tDatos, "Correo electrónico: " + nvl(afiliado.getEmail()), fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "Plan: " + nombrePlan + " --- Mensual: " + esMensual + "  Anual: " + esAnual, fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "", fNormal, fNormalBold);
+
+            agregarCeldaDatos(tDatos, "Trabajo: " + nvl(afiliado.getLugarTrabajo()), fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "Teléfono: " + nvl(afiliado.getTelTrabajo()), fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "", fNormal, fNormalBold);
+
+            agregarCeldaDatos(tDatos, "Cargo del Plan: " + String.format("%.2f", costoPlan) + " USD", fNormalBold, fNormalBold);
+            agregarCeldaDatos(tDatos, "", fNormal, fNormalBold);
+            agregarCeldaDatos(tDatos, "", fNormal, fNormalBold);
+
+            document.add(tDatos);
+            document.add(Chunk.NEWLINE);
+
+            // Tarjeta de crédito
+            document.add(new Paragraph("Tarjeta De Crédito", fDatosLabel));
+            com.itextpdf.text.pdf.PdfPTable tTarjeta = new com.itextpdf.text.pdf.PdfPTable(3);
+            tTarjeta.setWidthPercentage(100);
+            agregarCeldaDatos(tTarjeta, "Deseo cargo automático: No disponible", fNormal, fNormalBold);
+            agregarCeldaDatos(tTarjeta, "", fNormal, fNormalBold);
+            agregarCeldaDatos(tTarjeta, "", fNormal, fNormalBold);
+            agregarCeldaDatos(tTarjeta, "Nombre del Tarjetahabiente: _______________", fNormal, fNormalBold);
+            agregarCeldaDatos(tTarjeta, "Número de Tarjeta: No disponible", fNormal, fNormalBold);
+            agregarCeldaDatos(tTarjeta, "F. Venc.: ________", fNormal, fNormalBold);
+            agregarCeldaDatos(tTarjeta, "Nombre del Emisor: _______________", fNormal, fNormalBold);
+            agregarCeldaDatos(tTarjeta, "", fNormal, fNormalBold);
+            agregarCeldaDatos(tTarjeta, "", fNormal, fNormalBold);
+            document.add(tTarjeta);
+            document.add(Chunk.NEWLINE);
+
+            // ── En caso de emergencia ──────────────────────────────────────
+            document.add(new Paragraph("En caso de Emergencia, llamar a:", fDatosLabel));
+            com.itextpdf.text.pdf.PdfPTable tEmergencia = new com.itextpdf.text.pdf.PdfPTable(3);
+            tEmergencia.setWidthPercentage(100);
+            tEmergencia.setWidths(new float[]{35f, 35f, 30f});
+
+            List<ContactoEmergenciaAfiliado> contactos =
+                    contactoEmergenciaAfiliadoService.listarContactos(dui);
+            if (contactos == null) contactos = new ArrayList<>();
+
+            if (contactos.isEmpty()) {
+                // 2 filas placeholder — 3 celdas cada una = múltiplo correcto
+                for (int i = 0; i < 2; i++) {
+                    agregarCeldaDatos(tEmergencia, "Nombre: _______________", fNormal, fNormalBold);
+                    agregarCeldaDatos(tEmergencia, "Celular: _______________", fNormal, fNormalBold);
+                    agregarCeldaDatos(tEmergencia, "Parentesco: _______________", fNormal, fNormalBold);
+                }
+            } else {
+                for (ContactoEmergenciaAfiliado c : contactos) {
+                    // EXACTAMENTE 3 celdas por fila
+                    agregarCeldaDatos(tEmergencia, "Nombre: "     + nvl(c.getNombreContacto()), fNormal, fNormalBold);
+                    agregarCeldaDatos(tEmergencia, "Celular: "    + nvl(c.getTelefono()),        fNormal, fNormalBold);
+                    agregarCeldaDatos(tEmergencia, "Parentesco: " + nvl(c.getParentesco()),      fNormal, fNormalBold);
+                }
+            }
+            document.add(tEmergencia);
+            document.add(Chunk.NEWLINE);
+
+// ── Información vehículo ───────────────────────────────────────
+            document.add(new Paragraph("Información de Vehículo – Asistencia Vial (Tarjeta Gold)", fDatosLabel));
+            com.itextpdf.text.pdf.PdfPTable tVehiculo = new com.itextpdf.text.pdf.PdfPTable(3);
+            tVehiculo.setWidthPercentage(100);
+            tVehiculo.setWidths(new float[]{33f, 33f, 34f});
+
+            AfiliadoVehiculo afiliadoVehiculo = afiliadoVehiculoService.buscarPorDUI(dui);
+            if (afiliadoVehiculo != null) {
+                agregarCeldaDatos(tVehiculo, "Placa: "  + nvl(afiliadoVehiculo.getPlaca()),  fNormal, fNormalBold);
+                agregarCeldaDatos(tVehiculo, "Marca: "  + nvl(afiliadoVehiculo.getMarca()),  fNormal, fNormalBold);
+                agregarCeldaDatos(tVehiculo, "Modelo: " + nvl(afiliadoVehiculo.getModelo()), fNormal, fNormalBold);
+                agregarCeldaDatos(tVehiculo, "Año: "    + nvl(afiliadoVehiculo.getAnio()),   fNormal, fNormalBold);
+                //agregarCeldaDatos(tVehiculo, "Color: "  + nvl(afiliadoVehiculo.getColor()),  fNormal, fNormalBold);
+                agregarCeldaDatos(tVehiculo, "",                                              fNormal, fNormalBold);
+            } else {
+                agregarCeldaDatos(tVehiculo, "Placa: _______________",  fNormal, fNormalBold);
+                agregarCeldaDatos(tVehiculo, "Marca: _______________",  fNormal, fNormalBold);
+                agregarCeldaDatos(tVehiculo, "Modelo: _______________", fNormal, fNormalBold);
+                agregarCeldaDatos(tVehiculo, "Año: _____",              fNormal, fNormalBold);
+                //agregarCeldaDatos(tVehiculo, "Color: _______________",  fNormal, fNormalBold);
+                agregarCeldaDatos(tVehiculo, "",                        fNormal, fNormalBold);
+            }
+            document.add(tVehiculo);
+            document.add(Chunk.NEWLINE);
+
+// ── Información casa ───────────────────────────────────────────
+            document.add(new Paragraph("Información Casa – Asistencia Hogar (Tarjeta Gold)", fDatosLabel));
+            com.itextpdf.text.pdf.PdfPTable tCasa = new com.itextpdf.text.pdf.PdfPTable(2);
+            tCasa.setWidthPercentage(100);
+            tCasa.setWidths(new float[]{50f, 50f});
+
+            AfiliadoHogar afiliadoHogar = afiliadoHogarService.buscarPorDui(dui);
+            if (afiliadoHogar != null) {
+                // Dirección completa — colspan 2
+                com.itextpdf.text.pdf.PdfPCell cDirHogar = new com.itextpdf.text.pdf.PdfPCell(
+                        new Paragraph("Dirección Completa: " + nvl(afiliadoHogar.getDireccion()), fNormal));
+                cDirHogar.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+                cDirHogar.setColspan(2);
+                cDirHogar.setPaddingBottom(3);
+                tCasa.addCell(cDirHogar);
+
+                // Depto y municipio — 1 celda cada uno (completan la fila de 2)
+                String deptoHogar = "";
+                String munHogar   = "";
+                try {
+                    Departamento dpto = departamentoService.getDepartamentosByIdDepto(afiliadoHogar.getIdDepto());
+                    if (dpto != null) {
+                        deptoHogar = dpto.getNombreDepartamento();
+                        Municipio mun = municipioService.getMunicipiosByDepto(dpto.getIdDepto()).stream()
+                                .filter(m -> m.getIdMunicipio().equals(afiliadoHogar.getIdMunicipio()))
+                                .findFirst().orElse(null);
+                        if (mun != null) munHogar = mun.getMunNombre();
+                    }
+                } catch (Exception ignored) {}
+
+                agregarCeldaDatos(tCasa, "Departamento: " + deptoHogar, fNormal, fNormalBold);
+                agregarCeldaDatos(tCasa, "Municipio: "    + munHogar,   fNormal, fNormalBold);
+            } else {
+                com.itextpdf.text.pdf.PdfPCell cDirVacia = new com.itextpdf.text.pdf.PdfPCell(
+                        new Paragraph("Dirección Completa: _______________________________________________", fNormal));
+                cDirVacia.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+                cDirVacia.setColspan(2);
+                cDirVacia.setPaddingBottom(3);
+                tCasa.addCell(cDirVacia);
+                agregarCeldaDatos(tCasa, "Departamento: _______________", fNormal, fNormalBold);
+                agregarCeldaDatos(tCasa, "Municipio: _______________",    fNormal, fNormalBold);
+            }
+            document.add(tCasa);
+            document.add(Chunk.NEWLINE);
+            document.add(Chunk.NEWLINE);
+
+            // Firma final página 2
+            com.itextpdf.text.pdf.PdfPTable tablaFirmas2 = new com.itextpdf.text.pdf.PdfPTable(2);
+            tablaFirmas2.setWidthPercentage(100);
+
+            com.itextpdf.text.pdf.PdfPCell cFirma2 = new com.itextpdf.text.pdf.PdfPCell();
+            cFirma2.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            if (urlFirma != null && !urlFirma.isBlank()) {
+                try {
+                    Image imgFirma2 = Image.getInstance(new java.net.URL(urlFirma));
+                    imgFirma2.scaleToFit(140, 55);
+                    cFirma2.addElement(imgFirma2);
+                } catch (Exception ignored) {
+                    cFirma2.addElement(new Paragraph("Aún no ha firmado", fPie));
+                }
+            } else {
+                cFirma2.addElement(new Paragraph("Aún no ha firmado", fPie));
+            }
+            cFirma2.addElement(new Paragraph("\n_____________________________________", fNormal));
+            cFirma2.addElement(new Paragraph("EL CLIENTE", fNormalBold));
+            cFirma2.addElement(new Paragraph("Titular o Representante Legal", fNormal));
+            tablaFirmas2.addCell(cFirma2);
+
+            com.itextpdf.text.pdf.PdfPCell cVendedor2 = new com.itextpdf.text.pdf.PdfPCell();
+            cVendedor2.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+            cVendedor2.addElement(new Paragraph("\n\n_____________________________________", fNormal));
+            cVendedor2.addElement(new Paragraph("Nombre del Vendedor: " + nombreVendedor, fNormalBold));
+            cVendedor2.addElement(new Paragraph("Código Vendedor: " + codigoVendedor, fNormal));
+            tablaFirmas2.addCell(cVendedor2);
+            document.add(tablaFirmas2);
+
+            // Pie página 2
+            document.add(Chunk.NEWLINE);
+            Paragraph pie2 = new Paragraph();
+            pie2.add(new Chunk("www.asistenciaelsalvador.com\n", fFooterWeb));
+            pie2.add(new Chunk("info@asistenciaelsalvador.com\n", fFooterWeb));
+            pie2.add(new Chunk("Oficinas 2200-7000. WhatsApp: 7355-8877\n", fFooterWeb));
+            pie2.add(new Chunk("Calle y Colonia Roma No 22 A1, San Salvador, El Salvador", fFooterWeb));
+            pie2.setAlignment(Element.ALIGN_RIGHT);
+            document.add(pie2);
+
+            document.close();
+
+            // ── 11. RESPUESTA HTTP ─────────────────────────────────────────
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline",
+                    "contrato_" + dui.replace("-", "") + ".pdf");
+            headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+            return new ResponseEntity<>(baos.toByteArray(), headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // ── MÉTODO AUXILIAR: agrega celda sin borde a tablas de datos ──────────
+    private void agregarCeldaDatos(com.itextpdf.text.pdf.PdfPTable tabla,
+                                   String texto, Font fTexto, Font fBold) {
+        com.itextpdf.text.pdf.PdfPCell celda = new com.itextpdf.text.pdf.PdfPCell(
+                new Paragraph(texto, fTexto));
+        celda.setBorder(com.itextpdf.text.pdf.PdfPCell.NO_BORDER);
+        celda.setPaddingBottom(3);
+        tabla.addCell(celda);
+    }
+
+    // ── MÉTODO AUXILIAR: null-safe string ─────────────────────────────────
+    private String nvl(Object valor) {
+        return (valor != null) ? valor.toString() : "_______________";
     }
 
 }

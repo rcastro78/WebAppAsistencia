@@ -37,6 +37,51 @@ public class ConsultaMedicaController {
     // ← AGREGAR ESTA INYECCIÓN
     @Autowired private SimpMessagingTemplate messagingTemplate;
 
+
+    @GetMapping("/auth/webview-session")
+    @ResponseBody
+    public ResponseEntity<Void> crearSesionWebView(
+            HttpServletRequest request,
+            HttpSession session) {
+
+        // Si ya hay sesión activa, no hacer nada
+        UsuarioResponse usuarioActual = (UsuarioResponse) session.getAttribute("usuario");
+        if (usuarioActual != null) {
+            log.info(">>> WebView session ya existe para: {}", usuarioActual.getDui());
+            return ResponseEntity.ok().build();
+        }
+
+        // El JWT ya fue validado por Spring Security antes de llegar aquí
+        // Obtenemos el usuario autenticado del contexto de seguridad
+        org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder
+                        .getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            log.warn(">>> WebView session: no autenticado");
+            return ResponseEntity.status(401).build();
+        }
+
+        String dui = auth.getName();
+        log.info(">>> Creando sesión WebView para DUI: {}", dui);
+
+        Usuario usuario = usuarioService.getUsuarioById(dui)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + dui));
+
+        UsuarioResponse usuarioResponse = new UsuarioResponse();
+        usuarioResponse.setDui(usuario.getDui());
+        usuarioResponse.setNombre(usuario.getNombre());
+        usuarioResponse.setApellido(usuario.getApellido());
+        usuarioResponse.setRol(usuario.getRol());
+        usuarioResponse.setActivo(usuario.getActivo());
+
+        session.setAttribute("usuario", usuarioResponse);
+
+        log.info(">>> Sesión WebView creada OK para: {}", dui);
+        return ResponseEntity.ok().build();
+    }
+
+
     @GetMapping("/consulta/sala/{roomId}")
     public String sala(@PathVariable String roomId,
                        HttpSession session,

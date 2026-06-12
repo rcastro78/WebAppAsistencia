@@ -35,18 +35,23 @@ public class ServicioPlanProveedorController {
         return "servicios_proveedor";
     }
 
-    @GetMapping({"/lista","/lista/"})
-    public String listarServiciosPlan(@RequestParam("idPlan") Integer idPlan,
-                                               HttpSession session,
-                                               Model model){
-        //List<ServicioDetalleProveedorDTO> servicios = servicioPlanProveedorService.findServiciosConPlan(idPlan);
-        Integer idPlanSesion = (Integer) session.getAttribute("idPlan");
+    @GetMapping({"/lista", "/lista/"})
+    public String listarServiciosPlan(HttpSession session, Model model) {
+
+        // Tomar el idPlan directo de la sesión, no de la URL
+        Integer idPlan = (Integer) session.getAttribute("idPlan");
+
+        if (idPlan == null) {
+            return "redirect:/login";
+        }
+
         List<ProveedorPlanCobertura> servicios = proveedorPlanCoberturaService.listarPorPlan(idPlan);
         List<Cobertura> coberturas = coberturaService.listarActivas();
+
         model.addAttribute("servicios", servicios);
         model.addAttribute("coberturas", coberturas);
         model.addAttribute("idPlan", idPlan);
-        model.addAttribute("idPlanSesion", idPlanSesion); // Para validar en la vista
+
         return "servicios_proveedor";
     }
 

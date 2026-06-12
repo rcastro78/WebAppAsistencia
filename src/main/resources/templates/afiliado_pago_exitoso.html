@@ -267,8 +267,8 @@
                     <a th:href="@{/afiliado/plan}" class="btn btn-secondary">
                         <i class="fas fa-home"></i> Ir a Mi Plan
                     </a>
-                    <a href="#" onclick="window.print(); return false;" class="btn btn-outline">
-                        <i class="fas fa-print"></i> Imprimir
+                    <a href="@{/afiliado?page=1}" th:if="${session.rol == 1}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
                     </a>
                 </div>
             </div>

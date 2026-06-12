@@ -75,11 +75,9 @@ public class UsuarioService {
     }
 
     public UsuarioResponse login(LoginRequest request) {
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByDui(request.getDui());
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByDuiAndActivo(request.getDui(),true);
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-
-
             System.out.println("DUI encontrado: " + usuario.getDui());
             System.out.println("Activo: " + usuario.getActivo());
             System.out.println("Contrasena recibida: " + request.getContrasena());

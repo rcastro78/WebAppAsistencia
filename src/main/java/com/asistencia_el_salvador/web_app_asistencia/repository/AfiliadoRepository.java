@@ -16,6 +16,9 @@ public interface AfiliadoRepository extends JpaRepository<Afiliado, String> {
     // Métodos personalizados opcionales
     List<Afiliado> findByNombreContainingIgnoreCase(String nombre);
 
+    //Patrocinados
+    List<Afiliado> findByPatrocinadorDUIAndEstado(String patrocinadorDUI,int estado);
+
     // Buscar por correo
     Optional<Afiliado> findByEmail(String email);
 

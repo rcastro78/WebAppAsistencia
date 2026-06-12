@@ -420,7 +420,7 @@
                         <td th:if="${!session.patrocinio}">
                             <div class="acciones-td">
 
-                                <a th:href="@{/pdf/contrato/{dui}(dui=${afiliado.dui})}"
+                                <a th:href="@{/afiliado/contrato/{dui}(dui=${afiliado.dui})}"
                                    class="action-btn action-print" data-tooltip="Imprimir contrato" target="_blank">
                                     <i class="fas fa-print"></i>
                                 </a>
@@ -467,12 +467,12 @@
                         <!-- Acciones PATROCINADOR -->
                         <td th:if="${session.patrocinio}">
                             <div class="acciones-td">
-                                <a th:href="@{/pdf/contrato/{dui}(dui=${afiliado.dui})}"
+                                <a th:href="@{/afiliado/contrato/{dui}(dui=${afiliado.dui})}"
                                    class="action-btn action-print" data-tooltip="Imprimir contrato" target="_blank">
                                     <i class="fas fa-print"></i>
                                 </a>
-                                <a th:href="${afiliado.linkPago}"
-                                   class="action-btn action-pay" data-tooltip="Realizar pago" target="_blank">
+                                <a th:href="@{/afiliado/pagarCuotaPatrocinado/{dui}(dui=${afiliado.dui})}"
+                                   class="action-btn action-pay" data-tooltip="Realizar pago">
                                     <i class="fas fa-dollar-sign"></i>
                                 </a>
                             </div>

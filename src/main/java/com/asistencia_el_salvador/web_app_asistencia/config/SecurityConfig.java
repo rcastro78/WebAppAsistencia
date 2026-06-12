@@ -36,6 +36,10 @@ public class SecurityConfig {
 
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/api/v1/**", "/usuarios/api/**", "/public_api/**")
+                        .ignoringRequestMatchers(
+                                "/telemedicina/consulta/solicitar",
+                                "/telemedicina/auth/webview-session"
+                        )
                 )
 
                 .httpBasic(basic -> basic.disable())
@@ -45,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/**").authenticated()
                         .requestMatchers("/clientesCorporativos/**").permitAll()
                         .requestMatchers("/pagosAfiliados", "/pagosAfiliados/**").permitAll()
+                        .requestMatchers("/auth/webview-session").authenticated()
+                        .requestMatchers("/cobrar", "/cobrarPatrocinio").permitAll()
                         .anyRequest().permitAll()
                 )
 

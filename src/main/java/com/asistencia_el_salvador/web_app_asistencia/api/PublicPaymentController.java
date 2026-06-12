@@ -179,7 +179,7 @@ public class PublicPaymentController {
                     emailService.enviarEmailHtml(emailAfiliado,
                             "Firma tu contrato",
                             "Entra aquí para firmar tu contrato: " +
-                                    "<a href='http://webappasistencia.fly.dev/firmar/nuevo/" + dui + "'>Firma aquí</a>");
+                                    "<a href='http://asistenciaelsalvador.online/firmar/nuevo/" + dui + "'>Firma aquí</a>");
                 }
             }
 

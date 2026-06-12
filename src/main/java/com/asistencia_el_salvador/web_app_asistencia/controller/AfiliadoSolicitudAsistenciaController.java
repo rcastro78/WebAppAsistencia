@@ -89,14 +89,14 @@ public class AfiliadoSolicitudAsistenciaController {
         model.addAttribute("enProceso", enProceso);
         model.addAttribute("completadas", completadas);
         model.addAttribute("estadosSolicitud", estados);
-        model.addAttribute("estadosMap", estadosMap); // ✅ Agregar el Map al modelo
+        model.addAttribute("estadosMap", estadosMap);
         model.addAttribute("session", session);
 
         Optional<PlanAfiliadoResumen> planAfiliado = afiliadoService.getPlanAfiliadoResumen(dui);
         int carnetActivo = planAfiliado.get().getCarnetActivo();
         if (carnetActivo == 0) {
             redirectAttributes.addFlashAttribute("error", "Tu carnet no está activo...");
-            return "redirect:/afiliado/historial/" + dui;
+            return "redirect:/afiliado/historial/";
         } else {
             return "solicitud_asistencia";
         }
@@ -222,7 +222,7 @@ public class AfiliadoSolicitudAsistenciaController {
         if(rol==3) {
             if (carnetActivo == 0) {
                 redirectAttributes.addFlashAttribute("error", "Tu carnet no está activo. Por favor ponte al día con tus pagos para poder solicitar asistencias.");
-                return "redirect:/afiliado/historial/" + dui; // Redirigir a la página de pagos
+                return "redirect:/afiliado/historial/"; // Redirigir a la página de pagos
             } else {
                 return "solicitar_servicio";
             }
@@ -551,7 +551,6 @@ public class AfiliadoSolicitudAsistenciaController {
                 log.info("Actualizando solicitud...");
                 service.actualizar(solicitud);
                 log.info("Solicitud actualizada exitosamente");
-
                 redirectAttributes.addFlashAttribute("mensaje", "Solicitud actualizada exitosamente");
                 redirectAttributes.addFlashAttribute("tipo", "success");
             }

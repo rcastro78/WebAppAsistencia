@@ -17,4 +17,8 @@ public class DepartamentoService {
     public List<Departamento> getDepartamentosByPais(Integer idPais) {
         return departamentoRepository.findByIdPais(idPais);
     }
+
+    public Departamento getDepartamentosByIdDepto(Integer idDepto) {
+        return departamentoRepository.findById(idDepto).get();
+    }
 }

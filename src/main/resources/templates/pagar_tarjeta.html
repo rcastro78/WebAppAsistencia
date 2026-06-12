@@ -130,8 +130,10 @@
     <div class="monto-badge">
         <div>
             <div class="label">Monto a pagar</div>
+            <br/>
+            <span class="label" th:text="|Plan seleccionado: ${plan}|"></span>
             <div class="valor">
-                <span th:text="${simbolo}">$</span>
+                <!--<span th:text="${simbolo}">$</span>-->
                 <span th:text="${monto}">0.01</span>
                 <span th:text="${moneda}">USD</span>
             </div>
@@ -168,7 +170,22 @@
         <input type="hidden" name="monto" value="0.01"/>
         <input type="hidden" name="idPais" value="SV"/>
 
-        <!-- Periodo a pagar -->
+
+        <div class="form-card">
+            <div class="section-title"><i class="fas fa-user"></i> Datos del usuario</div>
+            <div class="periodo-info">
+                <span th:text="|Nombre del afiliado: ${nombre}|"></span>
+            </div>
+
+            <div class="periodo-info">
+                <span th:text="|Documento No: ${docNumero}|"></span>
+            </div>
+
+        </div>
+
+
+
+            <!-- Periodo a pagar -->
         <div class="form-card">
             <div class="section-title"><i class="fas fa-calendar-check"></i> Periodo a pagar</div>
 

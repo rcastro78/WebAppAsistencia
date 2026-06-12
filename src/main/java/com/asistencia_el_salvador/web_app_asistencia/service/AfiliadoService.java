@@ -51,6 +51,7 @@ public class AfiliadoService {
         return porcentajeEntero + "%";
     }
 
+
     public String getPorcentajeAfiliacionVendedorRegistro(String duiEjecutivo) {
         long totalEjecutivo = afiliadoRepository.countByCreatedBy(duiEjecutivo);
         long totalAfiliados = afiliadoRepository.countByEstado(1);
@@ -117,7 +118,9 @@ public class AfiliadoService {
         return afiliadoRepository.findAllActive(pageable);
     }
 
-
+    public List<Afiliado> listarPatrocinadosActivos(String dui) {
+        return afiliadoRepository.findByPatrocinadorDUIAndEstado(dui, 1);
+    }
 
     // Obtener todos
     public List<Afiliado> getAllAfiliados() {

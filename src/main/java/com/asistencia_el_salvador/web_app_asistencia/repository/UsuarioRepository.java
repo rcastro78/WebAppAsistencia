@@ -15,6 +15,7 @@ import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, String> {
     Optional<Usuario> findByDui(String dui);
+    Optional<Usuario> findByDuiAndActivo(String dui,  boolean activo);
     boolean existsByDui(String dui);
     long countByActivo(boolean activo);
     long countByActivoAndRol(boolean activo, Integer rol);

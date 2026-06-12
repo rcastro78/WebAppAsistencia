@@ -94,7 +94,7 @@
                 <i class="fas fa-face-smile"></i>
                 <span>Beneficios de mi plan</span>
             </a>
-            <a th:href="@{/proveedores/serviciosProveedor/lista(idPlan=${session.idPlan})}" class="nav-item">
+            <a th:href="@{/proveedores/serviciosProveedor/lista}" class="nav-item">
                 <i class="fas fa-truck"></i>
                 <span>Servicios de mi plan</span>
             </a>
@@ -205,13 +205,12 @@
                         <div class="filter-group">
                             <select id="estadoFiltro" onchange="filtrarPorEstado()">
                                 <option value="">Todos los estados</option>
-                                <option value="0">Solicitada</option>
-                                <option value="1">Completada</option>
-                                <option value="2">Observación</option>
-                                <option value="3">En Proceso</option>
-                                <option value="4">Pendiente</option>
-                                <option value="5">Rechazada</option>
-                                <option value="5">Suspendida</option>
+                                <option value="1">Pendiente</option>
+                                <option value="2">En Proceso</option>
+                                <option value="3">Completada</option>
+                                <option value="4">Suspendida</option>
+                                <option value="5">En Observación</option>
+                                <option value="6">Rechazada</option>
                             </select>
                         </div>
                     </div>
@@ -273,10 +272,12 @@
                         </td>
                         <td>
                             <span class="badge"
-                                  th:classappend="${sol.estado.toString() == '0' ? 'badge-pendiente' :
-               (sol.estado.toString() == '1' ? 'badge-proceso' :
-               (sol.estado.toString() == '2' ? 'badge-completada' : 'badge-cancelada'))}"
-                                  th:text="${estadosMap[sol.estado.toString()]}"></span>
+                                  th:classappend="${sol.estado.toString() == '1' ? 'badge-pendiente' :
+               (sol.estado.toString() == '2' ? 'badge-proceso' :
+               (sol.estado.toString() == '3' ? 'badge-completada' :
+               (sol.estado.toString() == '4' ? 'badge-suspendida' :
+               (sol.estado.toString() == '5' ? 'badge-observacion' :
+               (sol.estado.toString() == '6' ? 'badge-rechazada' : 'badge-default')))))}"></span>
                         </td>
                         <td th:text="${#temporals.format(sol.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</td>
                         <td>

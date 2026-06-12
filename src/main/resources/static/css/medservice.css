@@ -1,0 +1,463 @@
+
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+        :root {
+            --purple:      #667eea;
+            --purple-dark: #764ba2;
+            --bg:          #0d0f1a;
+            --surface:     #161827;
+            --surface2:    #1e2035;
+            --border:      rgba(102,126,234,0.2);
+            --text:        #e8eaf6;
+            --muted:       #6b7280;
+            --green:       #22c55e;
+            --red:         #ef4444;
+            --amber:       #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 28px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .logo-dot {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; color: white;
+        }
+
+        .topbar-brand {
+            font-size: 1rem; font-weight: 700; color: var(--text);
+        }
+
+        .topbar-brand span {
+            color: var(--purple);
+        }
+
+        .topbar-right {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.85rem; color: var(--muted);
+        }
+
+        .user-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; color: white;
+        }
+
+        /* ── MAIN ── */
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* ── ESTADOS: formulario / espera ── */
+        #vistaFormulario, #vistaEspera { width: 100%; max-width: 560px; }
+        #vistaEspera { display: none; }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+            padding: 28px 32px;
+            display: flex; align-items: center; gap: 14px;
+        }
+
+        .card-header-icon {
+            width: 48px; height: 48px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; color: white;
+            flex-shrink: 0;
+        }
+
+        .card-header-text h2 {
+            font-size: 1.2rem; font-weight: 700; color: white;
+            margin-bottom: 2px;
+        }
+
+        .card-header-text p {
+            font-size: 0.82rem; color: rgba(255,255,255,0.75);
+        }
+
+        .card-body { padding: 32px; }
+
+        /* ── TIPO CONSULTA ── */
+        .tipo-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .tipo-card {
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--surface2);
+            text-align: center;
+        }
+
+        .tipo-card:hover {
+            border-color: var(--purple);
+            background: rgba(102,126,234,0.06);
+        }
+
+        .tipo-card.selected {
+            border-color: var(--purple);
+            background: rgba(102,126,234,0.1);
+        }
+
+        .tipo-card.selected-urgente {
+            border-color: var(--red);
+            background: rgba(239,68,68,0.08);
+        }
+
+        .tipo-card .tipo-icon {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .tipo-card .tipo-label {
+            font-size: 0.88rem; font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .tipo-card .tipo-desc {
+            font-size: 0.75rem; color: var(--muted);
+        }
+
+        .badge-urgente {
+            display: inline-block;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: var(--red);
+            font-size: 0.65rem; font-weight: 700;
+            padding: 2px 8px; border-radius: 20px;
+            margin-top: 4px; letter-spacing: 0.05em;
+        }
+
+        /* ── FORM ── */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.85rem; font-weight: 600;
+            color: var(--text); margin-bottom: 8px;
+        }
+
+        .form-label i { color: var(--purple); }
+
+        .form-control {
+            width: 100%;
+            background: var(--surface2);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+            resize: none;
+        }
+
+        .form-control:focus { border-color: var(--purple); }
+        .form-control::placeholder { color: var(--muted); }
+
+        .form-control.urgente:focus { border-color: var(--red); }
+
+        /* Contador de caracteres */
+        .char-count {
+            text-align: right;
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* ── SÍNTOMAS RÁPIDOS ── */
+        .sintomas-label {
+            font-size: 0.8rem; color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .sintomas-chips {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .chip {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: var(--surface2);
+            color: var(--muted);
+            font-size: 0.78rem; font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .chip:hover { border-color: var(--purple); color: var(--purple); }
+
+        .chip.active {
+            border-color: var(--purple);
+            background: rgba(102,126,234,0.12);
+            color: var(--purple);
+        }
+
+        /* ── DIVIDER ── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 24px 0;
+        }
+
+        /* ── INFO BOX ── */
+        .info-box {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex; gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .info-box i { color: var(--amber); margin-top: 2px; font-size: 0.9rem; }
+
+        .info-box p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+        /* ── BTN PRINCIPAL ── */
+        .btn-solicitar {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem; font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(102,126,234,0.3);
+        }
+
+        .btn-solicitar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(102,126,234,0.4);
+        }
+
+        .btn-solicitar:disabled {
+            opacity: 0.6; cursor: not-allowed; transform: none;
+        }
+
+        .btn-solicitar.urgente {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 20px rgba(239,68,68,0.3);
+        }
+
+        .btn-solicitar.urgente:hover {
+            box-shadow: 0 8px 28px rgba(239,68,68,0.4);
+        }
+
+        /* ── VISTA DE ESPERA ── */
+        .espera-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 32px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .espera-pulse {
+            position: relative;
+            width: 100px; height: 100px;
+            margin: 0 auto 32px;
+        }
+
+        .espera-pulse-ring {
+            position: absolute; inset: 0;
+            border-radius: 50%;
+            border: 3px solid var(--red);
+            animation: espera-ring 1.5s ease-out infinite;
+        }
+
+        .espera-pulse-ring:nth-child(2) { animation-delay: 0.5s; }
+        .espera-pulse-ring:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes espera-ring {
+            0%   { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+
+        .espera-icon {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(239,68,68,0.12);
+            border-radius: 50%;
+            border: 2px solid rgba(239,68,68,0.3);
+            font-size: 2rem; color: var(--red);
+        }
+
+        .espera-title {
+            font-size: 1.3rem; font-weight: 700; margin-bottom: 8px;
+        }
+
+        .espera-subtitle {
+            font-size: 0.9rem; color: var(--muted); margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        /* Detalle de la solicitud */
+        .espera-detalle {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 28px;
+        }
+
+        .espera-detalle-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.85rem;
+        }
+
+        .espera-detalle-row:last-child { border-bottom: none; }
+        .espera-detalle-row .ed-label { color: var(--muted); }
+        .espera-detalle-row .ed-value { color: var(--text); font-weight: 600; text-align: right; max-width: 60%; }
+
+        /* Timer de espera */
+        .espera-timer {
+            font-family: 'DM Mono', monospace;
+            font-size: 2rem; font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .espera-timer-label {
+            font-size: 0.78rem; color: var(--muted); margin-bottom: 28px;
+        }
+
+        /* Doctores buscando */
+        .buscando-doctors {
+            display: flex; align-items: center; justify-content: center;
+            gap: 10px; margin-bottom: 28px;
+        }
+
+        .doc-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; color: var(--muted);
+            animation: doc-pulse 2s infinite;
+        }
+
+        .doc-avatar:nth-child(2) { animation-delay: 0.3s; }
+        .doc-avatar:nth-child(3) { animation-delay: 0.6s; }
+        .doc-avatar.activo {
+            border-color: var(--green);
+            color: var(--green);
+            background: rgba(34,197,94,0.08);
+        }
+
+        @keyframes doc-pulse {
+            0%, 100% { opacity: 0.5; transform: scale(0.95); }
+            50%       { opacity: 1;   transform: scale(1.05); }
+        }
+
+        .buscando-text {
+            font-size: 0.82rem; color: var(--muted);
+        }
+
+        /* Estado: doctor encontrado */
+        .encontrado-badge {
+            display: none;
+            align-items: center; justify-content: center; gap: 8px;
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.3);
+            color: var(--green);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600; font-size: 0.9rem;
+            margin-bottom: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .encontrado-badge.show { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Btn cancelar */
+        .btn-cancelar {
+            width: 100%;
+            padding: 13px;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            background: transparent;
+            color: var(--muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem; font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancelar:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
