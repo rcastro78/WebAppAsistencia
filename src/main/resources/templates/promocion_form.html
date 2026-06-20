@@ -3,337 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${esEdicion ? 'Editar Promoción' : 'Nueva Promoción'} + ' - Asistencia El Salvador'">Promoción - Asistencia El Salvador</title>
+    <title th:text="${esEdicion == 1} ? 'Editar Promoción' : 'Nueva Promoción'">Promoción - Asistencia El Salvador</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/empresa.css}">
+    <link rel="stylesheet" th:href="@{/css/promocion.css}">
 </head>
 <body>
 <div class="app">
-    <div class="header" th:if="${session.rol<1}">
-        <h1 th:text="${esEdicion ? 'Editar Promoción' : 'Nueva Promoción'}">Promoción</h1>
-        <span class="subtitle" th:text="${esEdicion ? 'Modifica la información de la promoción' : 'Completa la información para registrar una nueva promoción'}"></span>
+
+    <!-- HEADER -->
+    <div class="header">
+        <a th:href="@{/comercios/promociones/{nit}(nit=${empresaAfiliada.nit})}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Volver a promociones
+        </a>
+
+        <h1>
+            <span class="icon">
+                <i th:class="${esEdicion == 1} ? 'fas fa-pen-to-square' : 'fas fa-tag'"></i>
+            </span>
+            <span th:text="${esEdicion == 1} ? 'Editar Promoción' : 'Nueva Promoción'">Promoción</span>
+        </h1>
+
+        <span class="subtitle"
+              th:text="${esEdicion == 1} ? 'Modifica los datos de la promoción.' : 'Completa el formulario para registrar una nueva promoción.'">
+        </span>
+
+        <div class="comercio-chip" th:if="${empresaAfiliada != null}">
+            <i class="fas fa-store"></i>
+            <span th:text="${empresaAfiliada.nombreEmpresa}">Comercio</span>
+            <span style="opacity:.6;">·</span>
+            <span th:text="${empresaAfiliada.nit}" style="font-weight:400; opacity:.8;">NIT</span>
+        </div>
     </div>
 
+    <!-- EDIT BANNER (solo en modo edición) -->
+    <div class="edit-banner" th:if="${esEdicion == 1}">
+        <i class="fas fa-triangle-exclamation"></i>
+        Estás editando una promoción existente. Los cambios se aplicarán de inmediato al guardar.
+    </div>
+
+    <!-- CARD FORM -->
     <div class="card">
         <div class="card-header">
+            <span class="step-badge" th:text="${esEdicion == 1} ? 'EDITAR' : 'NUEVO'">NUEVO</span>
             <h2>Datos de la promoción</h2>
         </div>
+
         <div class="card-body">
-            <form th:action="@{/comerciosAfiliados/promociones/guardar}"
+            <!--
+                Rutas reales (controller bajo @RequestMapping("/comercios")):
+                  Nuevo  → POST /comercios/promociones/{nit}/guardar
+                  Editar → POST /comercios/promociones/{nit}/actualizar/{id}
+            -->
+            <form id="promocionForm"
+                  th:action="${esEdicion == 1}
+                        ? @{/comercios/promociones/{nit}/actualizar/{id}(nit=${empresaAfiliada.nit}, id=${promocion.id})}
+                        : @{/comercios/promociones/{nit}/guardar(nit=${empresaAfiliada.nit})}"
                   th:object="${promocion}"
-                  method="post"
-                  id="promocionForm">
+                  method="post">
 
-                <!-- Campo oculto para el NIT -->
-                <input type="hidden" name="nitEmpresa" th:value="${nit}">
-
-                <!-- Campo oculto para el ID en modo edición -->
-                <input type="hidden" th:if="${esEdicion}" th:field="*{idPromocion}">
+                <!-- Campo oculto en edición para enviar el ID -->
+                <input type="hidden" th:if="${esEdicion == 1}" th:field="*{id}">
 
                 <div class="form-grid">
-                    <!-- NIT (solo lectura) -->
-                    <div class="form-group">
-                        <label for="nitDisplay"><i class="fas fa-id-card"></i> NIT Empresa</label>
-                        <input type="text" id="nitDisplay" class="input" th:value="${nit}" readonly>
+
+                    <!-- ─ Nombre del descuento ─ -->
+                    <div class="form-group full-width">
+                        <label for="nombreDescuento"><i class="fas fa-tag"></i> Nombre de la promoción</label>
+                        <input type="text" th:field="*{nombreDescuento}" id="nombreDescuento" class="input"
+                               placeholder="Ej. 20% en compras con Plan Gold" maxlength="45" required>
                     </div>
 
-                    <!-- Nombre de la Promoción -->
-                    <div class="form-group">
-                        <label for="nombrePromo"><i class="fas fa-tag"></i> Nombre de la Promoción</label>
-                        <input type="text" th:field="*{nombrePromo}" id="nombrePromo" class="input" placeholder="Ingrese el nombre de la promoción" maxlength="200" required>
+                    <!-- ─ DIVIDER ─ -->
+                    <div class="section-divider">
+                        <span>Descuento</span><hr>
                     </div>
 
-                    <!-- Fecha Inicio -->
-                    <div class="form-group">
-                        <label for="fechaInicio"><i class="fas fa-calendar-alt"></i> Fecha de Inicio</label>
-                        <input type="date" th:field="*{fechaInicio}" id="fechaInicio" class="input" required>
+                    <!-- ─ Tipo de descuento ─ -->
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-percent"></i> Tipo de descuento</label>
+                        <div class="tipo-group">
+
+                            <div class="tipo-option">
+                                <input type="radio" id="tipoPct" th:field="*{tipoDescuento}" value="1"
+                                       onchange="actualizarSufijo()">
+                                <label for="tipoPct">
+                                    <i class="fas fa-percent"></i>
+                                    Porcentaje
+                                </label>
+                            </div>
+
+                            <div class="tipo-option">
+                                <input type="radio" id="tipoCant" th:field="*{tipoDescuento}" value="2"
+                                       onchange="actualizarSufijo()">
+                                <label for="tipoCant">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    Cantidad fija
+                                </label>
+                            </div>
+
+                        </div>
                     </div>
 
-                    <!-- Fecha Fin -->
+                    <!-- ─ Valor del descuento ─ -->
                     <div class="form-group">
-                        <label for="fechaFin"><i class="fas fa-calendar-check"></i> Fecha de Finalización</label>
-                        <input type="date" th:field="*{fechaFin}" id="fechaFin" class="input" required>
+                        <label for="valorDescuento"><i class="fas fa-hashtag"></i> Valor del descuento</label>
+                        <div class="input-with-suffix">
+                            <input type="number" th:field="*{valorDescuento}" id="valorDescuento"
+                                   class="input" placeholder="0" min="0" step="0.01" required>
+                            <span class="input-suffix" id="sufijo">%</span>
+                        </div>
+                        <small class="helper">Ingresa el valor numérico según el tipo seleccionado.</small>
                     </div>
 
-                    <!-- Plan -->
+                    <!-- ─ Plan ─ -->
                     <div class="form-group">
-                        <label for="plan"><i class="fas fa-clipboard-list"></i> Plan</label>
-                        <select id="plan" th:field="*{idPlan}" class="input" required>
-                            <option value="-1">Seleccione un plan</option>
-                            <option th:each="p : ${planes}"
-                                    th:value="${p.idPlan}"
-                                    th:text="${p.nombrePlan}"></option>
+                        <label for="idPlan"><i class="fas fa-list-check"></i> Plan aplicable</label>
+                        <select id="idPlan" th:field="*{idPlan}" class="input">
+                            <option value="">— Todos los planes —</option>
+                            <option th:each="plan : ${planes}"
+                                    th:value="${plan.idPlan}"
+                                    th:text="${plan.nombrePlan}">
+                            </option>
                         </select>
+                        <small class="helper">Deja en blanco para que aplique a todos los planes.</small>
                     </div>
 
-                    <!-- Monto -->
-                    <div class="form-group">
-                        <label for="monto"><i class="fas fa-dollar-sign"></i> Monto/Descuento</label>
-                        <input type="number" th:field="*{monto}" id="monto" class="input" placeholder="0.00" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="estado"><i class="fas fa-info"></i> Estado</label>
-                        <select id="estado" th:field="*{estado}" class="input" required>
-                            <option value="-1">Seleccione un estado</option>
-                            <option value="1">Activo</option>
-                            <option value="0">Inactivo</option>
-                        </select>
+                    <!-- ─ DIVIDER ─ -->
+                    <div class="section-divider">
+                        <span>Límites de canje</span><hr>
                     </div>
 
-                    <!-- Estado -->
-                    <!--<div class="form-group">
-                        <label><i class="fas fa-toggle-on"></i> Estado</label>
-                        <select th:field="*{estado}" class="input" required>
+                    <!-- ─ Canjes por usuario ─ -->
+                    <div class="form-group">
+                        <label for="canjesPorUsuario"><i class="fas fa-user-check"></i> Canjes por usuario</label>
+                        <input type="number" th:field="*{canjesPorUsuario}" id="canjesPorUsuario" class="input"
+                               placeholder="Ej. 1" min="1" step="1">
+                        <small class="helper">Cuántas veces puede usar esta promoción cada afiliado.</small>
+                    </div>
+
+                    <!-- ─ Máximo de canjes ─ -->
+                    <div class="form-group">
+                        <label for="maxCanjes"><i class="fas fa-layer-group"></i> Máximo de canjes totales</label>
+                        <input type="number" th:field="*{maxCanjes}" id="maxCanjes" class="input"
+                               placeholder="Ej. 100" min="1" step="1">
+                        <small class="helper">Deja en blanco para canjes ilimitados.</small>
+                    </div>
+
+                    <!-- ─ DIVIDER ─ -->
+                    <div class="section-divider">
+                        <span>Vigencia y estado</span><hr>
+                    </div>
+
+                    <!-- Fecha inicio -->
+                    <input type="datetime-local"
+                           id="fechaInicio"
+                           name="fechaInicio"
+                           class="input"
+                           th:value="${promocion.fechaInicio != null ?
+           #temporals.format(promocion.fechaInicio, 'yyyy-MM-dd''T''HH:mm') : ''}">
+
+                    <!-- Fecha fin -->
+                    <input type="datetime-local"
+                           id="fechaFin"
+                           name="fechaFin"
+                           class="input"
+                           th:value="${promocion.fechaFin != null ?
+           #temporals.format(promocion.fechaFin, 'yyyy-MM-dd''T''HH:mm') : ''}">
+
+                    <!-- ─ Activo ─ -->
+                    <div class="form-group">
+                        <label for="activo"><i class="fas fa-toggle-on"></i> Estado</label>
+                        <select th:field="*{activo}" id="activo" class="input" required>
                             <option value="">Seleccione el estado</option>
                             <option value="1">Activo</option>
                             <option value="0">Inactivo</option>
                         </select>
-                    </div>-->
-
-                    <!-- Detalle (ocupa todo el ancho) -->
-                    <div class="form-group full-width">
-                        <label for="detalle"><i class="fas fa-align-left"></i> Detalle de la Promoción</label>
-                        <textarea th:field="*{detalle}" id="detalle" class="input textarea" placeholder="Describe los detalles de la promoción" rows="4" maxlength="500"></textarea>
                     </div>
-                </div>
 
+                </div><!-- /form-grid -->
+
+                <!-- ACCIONES -->
                 <div class="actions">
-                    <button type="submit" class="btn">
-                        <i th:class="${esEdicion ? 'fas fa-edit' : 'fas fa-save'}"></i>
-                        <span th:text="${esEdicion ? 'Actualizar' : 'Guardar'}">Guardar</span>
+                    <button type="submit" class="btn primary">
+                        <i th:class="${esEdicion == 1} ? 'fas fa-floppy-disk' : 'fas fa-save'"></i>
+                        <span th:text="${esEdicion == 1} ? 'Actualizar' : 'Guardar'">Guardar</span>
                     </button>
-
-                    <a th:href="@{/comerciosAfiliados/promociones(nit=${nit})}" class="btn secondary">
+                    <a th:href="@{/comercios/promociones/{nit}(nit=${empresaAfiliada.nit})}" class="btn secondary">
                         <i class="fas fa-times"></i> Cancelar
                     </a>
                 </div>
+
             </form>
         </div>
     </div>
+
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Validación del formulario
-        const form = document.getElementById('promocionForm');
+    function actualizarSufijo() {
+        const pctSeleccionado = document.getElementById('tipoPct').checked;
+        document.getElementById('sufijo').textContent = pctSeleccionado ? '%' : '$';
+    }
 
-        form.addEventListener('submit', function(e) {
-            const nombrePromo = document.getElementById('nombrePromo').value.trim();
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-            const plan = document.getElementById('plan').value;
-            const monto = document.getElementById('monto').value;
-            const estado = document.querySelector('select[name="estado"]').value;
+    // Validación de fechas
+    document.getElementById('promocionForm').addEventListener('submit', function (e) {
+        const inicio = document.getElementById('fechaInicio').value;
+        const fin    = document.getElementById('fechaFin').value;
 
-            if (!nombrePromo || !fechaInicio || !fechaFin || !plan || !monto || !estado) {
-                alert('Por favor complete todos los campos requeridos');
-                e.preventDefault();
-                return false;
-            }
-
-            // Validar que la fecha de fin sea posterior a la fecha de inicio
-            if (fechaInicio && fechaFin) {
-                const inicio = new Date(fechaInicio);
-                const fin = new Date(fechaFin);
-
-                if (fin < inicio) {
-                    alert('La fecha de finalización debe ser posterior a la fecha de inicio');
-                    e.preventDefault();
-                    return false;
-                }
-            }
-
-            if (nombrePromo.length > 200) {
-                alert('El nombre de la promoción no puede exceder 200 caracteres');
-                e.preventDefault();
-                return false;
-            }
-
-            if (parseFloat(monto) < 0) {
-                alert('El monto debe ser un valor positivo');
-                e.preventDefault();
-                return false;
-            }
-
-            return true;
-        });
-
-        // Contador de caracteres para nombre de promoción
-        const nombrePromoInput = document.getElementById('nombrePromo');
-        if (nombrePromoInput) {
-            const maxLength = 200;
-            const counterDiv = document.createElement('small');
-            counterDiv.className = 'form-text';
-            counterDiv.style.color = '#6c757d';
-            nombrePromoInput.parentNode.appendChild(counterDiv);
-
-            function updateCounter() {
-                const currentLength = nombrePromoInput.value.length;
-                counterDiv.textContent = `${currentLength}/${maxLength} caracteres`;
-
-                if (currentLength > maxLength * 0.9) {
-                    counterDiv.style.color = '#dc3545';
-                } else {
-                    counterDiv.style.color = '#6c757d';
-                }
-            }
-
-            nombrePromoInput.addEventListener('input', updateCounter);
-            updateCounter();
+        if (inicio && fin && inicio > fin) {
+            alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+            e.preventDefault();
+            return false;
         }
 
-        // Contador de caracteres para detalle
-        const detalleInput = document.getElementById('detalle');
-        if (detalleInput) {
-            const maxLength = 500;
-            const counterDiv = document.createElement('small');
-            counterDiv.className = 'form-text';
-            counterDiv.style.color = '#6c757d';
-            detalleInput.parentNode.appendChild(counterDiv);
-
-            function updateDetalleCounter() {
-                const currentLength = detalleInput.value.length;
-                counterDiv.textContent = `${currentLength}/${maxLength} caracteres`;
-
-                if (currentLength > maxLength * 0.9) {
-                    counterDiv.style.color = '#dc3545';
-                } else {
-                    counterDiv.style.color = '#6c757d';
-                }
-            }
-
-            detalleInput.addEventListener('input', updateDetalleCounter);
-            updateDetalleCounter();
+        const tipo = document.querySelector('input[name="tipoDescuento"]:checked');
+        if (!tipo) {
+            alert('Por favor selecciona el tipo de descuento.');
+            e.preventDefault();
+            return false;
         }
 
-        // Estilo para campo readonly
-        const nitDisplay = document.getElementById('nitDisplay');
-        if (nitDisplay) {
-            nitDisplay.style.backgroundColor = '#e9ecef';
-            nitDisplay.style.cursor = 'not-allowed';
-        }
-
-        // Validación en tiempo real de fechas
-        const fechaInicio = document.getElementById('fechaInicio');
-        const fechaFin = document.getElementById('fechaFin');
-
-        function validarFechas() {
-            if (fechaInicio.value && fechaFin.value) {
-                const inicio = new Date(fechaInicio.value);
-                const fin = new Date(fechaFin.value);
-
-                if (fin < inicio) {
-                    fechaFin.setCustomValidity('La fecha de finalización debe ser posterior a la fecha de inicio');
-                } else {
-                    fechaFin.setCustomValidity('');
-                }
-            }
-        }
-
-        fechaInicio.addEventListener('change', validarFechas);
-        fechaFin.addEventListener('change', validarFechas);
+        return true;
+    });
+    // Inicializar sufijo al cargar (útil en modo edición)
+    document.addEventListener('DOMContentLoaded', function () {
+        actualizarSufijo();
     });
 </script>
-
-<style>
-    .form-text {
-        display: block;
-        margin-top: 5px;
-        font-size: 0.85rem;
-        color: #6c757d;
-        font-style: italic;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-group.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .form-group label {
-        margin-bottom: 8px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .form-group label i {
-        margin-right: 8px;
-        color: #007bff;
-    }
-
-    .input {
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        transition: border-color 0.3s;
-    }
-
-    .textarea {
-        resize: vertical;
-        min-height: 100px;
-        font-family: inherit;
-    }
-
-    .input:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-    }
-
-    .input[readonly] {
-        background-color: #e9ecef;
-        cursor: not-allowed;
-        color: #495057;
-    }
-
-    .actions {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-        padding-top: 20px;
-        border-top: 1px solid #eee;
-    }
-
-    .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background-color: #007bff;
-        color: white;
-    }
-
-    .btn:hover {
-        background-color: #0056b3;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn.secondary {
-        background-color: #6c757d;
-    }
-
-    .btn.secondary:hover {
-        background-color: #545b62;
-    }
-</style>
 </body>
 </html>

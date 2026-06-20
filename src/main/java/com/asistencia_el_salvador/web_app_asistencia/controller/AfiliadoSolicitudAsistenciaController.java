@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -466,7 +467,8 @@ public class AfiliadoSolicitudAsistenciaController {
                                 proveedor.getNombreProveedor()+", para la fecha:"+solicitud.getFechaAsistencia()+" a las "+solicitud.getHoraAsistencia()+"\\nNumero de DUI: "+dui);
 
                 log.info("Guardando nueva solicitud en BD...");
-
+                //La fecha y hora en la que se solicita el servicio
+                solicitud.setFechaHoraSolicitud(LocalDateTime.now());
                 //Verificar que la asistencia tenga todavia disponibilidad de eventos
                 //si tiene 0 siempre dejarla pasar, si tiene un numero controlar cuantas ya fueron realizadas
                 //los eventos son por año
@@ -537,6 +539,14 @@ public class AfiliadoSolicitudAsistenciaController {
                 solicitud.setDuiAfiliado(solicitudExistente.getDuiAfiliado());
                 solicitud.setIdPlan(solicitudExistente.getIdPlan());
                 //.setFechaAsistencia(solicitudExistente.getFechaAsistencia());
+                if(solicitudExistente.getEstado().equals("2")) {
+                    solicitud.setFechaHoraContacto(LocalDateTime.now());
+                }
+
+                if(solicitudExistente.getEstado().equals("3")) {
+                    solicitud.setFechaHoraFinalizacion(LocalDateTime.now());
+                }
+
 
                 log.info("Campos mantenidos desde solicitud existente");
 

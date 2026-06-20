@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promociones - Asistencia El Salvador</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    /* ── Progress ring (idéntico al dashboard) ── */
+    .progress-container {
+        position: relative;
+        display: inline-block;
+        margin: 0 auto 20px;
+        text-align: center;
+        width: 100%;
+    }
+
+    .progress-ring {
+        transform: rotate(-90deg);
+        display: block;
+        margin: 0 auto;
+    }
+
+    .progress-ring-circle {
+        transition: stroke-dashoffset 0.5s ease;
+        stroke-linecap: round;
+    }
+
+    .percentage {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 14px;
+        font-weight: bold;
+        color: #4A90E2;
+    }
+
+    .progress-container p {
+        margin-top: 10px;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .text-pct {
+        font-weight: bold;
+        color: #4A90E2;
+    }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+        font-size: 14px;
+        color: #7f8c8d;
+    }
+
+    .breadcrumb a { color: #4A90E2; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* ── COMERCIO HEADER (logo + nombre) ── */
+    .comercio-banner {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 22px 26px;
+        margin-bottom: 28px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.07);
+    }
+
+    .comercio-banner-logo {
+        width: 64px; height: 64px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #4A90E2, #357ABD);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .comercio-banner-logo img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+    }
+
+    .comercio-banner-logo i {
+        color: #fff;
+        font-size: 1.7rem;
+    }
+
+    .comercio-banner-text .eyebrow {
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #4A90E2;
+    }
+
+    .comercio-banner-text h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin-top: 2px;
+    }
+
+    /* ── SECTION INTRO ── */
+    .promos-intro {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .promos-intro h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1a202c;
+    }
+
+    .promos-count {
+        font-size: .8rem;
+        color: #718096;
+        background: #f7fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 4px 12px;
+    }
+
+    /* ── GRID DE PROMOCIONES ── */
+    .promos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px;
+    }
+
+    .promo-card {
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,.06);
+        display: flex;
+        flex-direction: column;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .promo-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,.1);
+    }
+
+    .promo-card-top {
+        background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+        padding: 18px 20px 14px;
+        color: #fff;
+        position: relative;
+    }
+
+    .promo-badge-tipo {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: rgba(255,255,255,.2);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: .7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 8px;
+    }
+
+    .promo-card-top h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .promo-valor {
+        font-size: 1.9rem;
+        font-weight: 800;
+        margin-top: 6px;
+        letter-spacing: -.02em;
+    }
+
+    .promo-valor small {
+        font-size: .85rem;
+        font-weight: 600;
+        opacity: .85;
+    }
+
+    /* ── QR ZONE ── */
+    .promo-qr-zone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 22px 20px 16px;
+        gap: 10px;
+    }
+
+    .promo-qr-box {
+        background: #fff;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .promo-qr-box img,
+    .promo-qr-box canvas {
+        display: block;
+        width: 140px !important;
+        height: 140px !important;
+    }
+
+    .promo-qr-label {
+        font-size: .72rem;
+        color: #a0aec0;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        font-weight: 700;
+    }
+
+    /* ── FOOTER DE LA CARD ── */
+    .promo-card-footer {
+        padding: 14px 20px 18px;
+        border-top: 1px solid #f0f4f8;
+    }
+
+    .promo-vigencia {
+        display: flex; align-items: center; gap: 6px;
+        font-size: .78rem;
+        color: #718096;
+        margin-bottom: 6px;
+    }
+
+    .promo-vigencia i { color: #4A90E2; width: 14px; text-align: center; }
+
+    .promo-plan-tag {
+        display: inline-flex; align-items: center; gap: 5px;
+        font-size: .75rem;
+        color: #2b6cb0;
+        background: #ebf8ff;
+        border-radius: 20px;
+        padding: 3px 10px;
+        margin-top: 4px;
+    }
+
+    /* ── EMPTY STATE ── */
+    .promos-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 70px 20px;
+        text-align: center;
+        color: #a0aec0;
+        background: #fff;
+        border-radius: 16px;
+    }
+
+    .promos-empty i { font-size: 3rem; margin-bottom: 14px; color: #cbd5e0; }
+    .promos-empty h3 { font-size: 1.1rem; color: #718096; margin-bottom: 6px; }
+    .promos-empty p { font-size: .875rem; }
+
+    @media (max-width: 480px) {
+        .comercio-banner { padding: 18px; }
+        .comercio-banner-text h1 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard-container">
+
+  <!-- Sidebar (idéntico al dashboard del afiliado) -->
+  <div class="sidebar">
+    <div class="logo">
+      <i class="fas fa-shield-alt"></i>
+      <img th:src="@{/images/asistencia.jpeg}" style="width: 224px; height: 64px;" alt="Logo">
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-avatar">
+        <img src="https://via.placeholder.com/60x60/4A90E2/FFFFFF?text=HM" alt="Profile">
+      </div>
+      <h3 th:text="|${session.nombre} ${session.apellido}|"></h3>
+      <p class="tutor-id" th:text="|DUI Afiliado: ${session.dui}|">Afiliado ID: 135246</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a th:href="@{/afiliado/nuevo/patrocinio}" class="nav-item">
+        <i class="fas fa-user-plus"></i>
+        <span>Patrocina a alguien</span>
+      </a>
+
+      <a th:href="@{/comerciosAfiliados}" class="nav-item active">
+        <i class="fas fa-store"></i>
+        <span>Comercios afiliados</span>
+      </a>
+
+      <a th:href="@{/planesCobertura}" class="nav-item">
+        <i class="fas fa-face-smile"></i>
+        <span>Beneficios de mi plan</span>
+      </a>
+
+      <a th:href="@{/proveedores/serviciosProveedor/lista}" class="nav-item">
+        <i class="fas fa-truck"></i>
+        <span>Servicios de mi plan</span>
+      </a>
+
+      <a th:href="@{/afiliado/historial/}" class="nav-item">
+        <i class="fas fa-credit-card"></i>
+        <span>Pagos</span>
+      </a>
+      <a th:href="@{/afiliado/miTarjeta}" class="nav-item">
+        <i class="fas fa-id-card"></i>
+        <span>Mi tarjeta</span>
+      </a>
+
+      <a th:href="@{/afiliado/contrato/{dui}(dui=${session.dui})}" class="nav-item">
+        <i class="fas fa-file-pdf"></i>
+        <span>Mi Contrato</span>
+      </a>
+
+      <a th:href="@{/afiliado/patrocinados/}" class="nav-item">
+        <i class="fas fa-user-group"></i>
+        <span>Mis patrocinados</span>
+      </a>
+
+      <a th:href="@{/telemedicina/consulta/solicitar}" class="nav-item">
+        <i class="fas fa-hospital"></i>
+        <span>Solicitar consulta de emergencia</span>
+      </a>
+
+      <a th:href="@{/usuarios/login}" class="nav-item">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Cerrar Sesión</span>
+      </a>
+    </nav>
+
+    <div class="profile-completion">
+      <div class="progress-container" th:data-pct="${pct}">
+        <svg class="progress-ring" width="60" height="60">
+          <circle class="progress-ring-circle" stroke="#e6e6e6" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+          <circle class="progress-ring-circle progress" stroke="#4A90E2" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+        </svg>
+        <span class="percentage"></span>
+        <p>Perfil Completado: <span class="text-pct" th:text="${porcentaje} + '%'"></span></p>
+      </div>
+
+      <div class="completion-steps">
+        <div class="step completed">
+          <i class="fas fa-check"></i>
+          <span>Información Personal</span>
+        </div>
+        <div class="step completed">
+          <i class="fas fa-check"></i>
+          <span>Documentación</span>
+        </div>
+        <div class="step">
+          <i class="fas fa-circle"></i>
+          <span>Datos Médicos</span>
+        </div>
+        <div class="step">
+          <i class="fas fa-circle"></i>
+          <span>Beneficiarios</span>
+        </div>
+        <div class="step">
+          <i class="fas fa-circle"></i>
+          <span>Evaluación</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h1>Promociones</h1>
+        <p>Promociones activas disponibles en este comercio afiliado.</p>
+
+        <nav class="breadcrumb">
+          <a th:href="@{/usuarios/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+          <i class="fas fa-chevron-right"></i>
+          <a th:href="@{/comerciosAfiliados}">Comercios afiliados</a>
+          <i class="fas fa-chevron-right"></i>
+          <span>Promociones</span>
+        </nav>
+      </div>
+      <div class="header-right">
+        <div class="user-menu">
+          <span th:text="|${session.nombre} ${session.apellido}|"></span>
+          <i class="fas fa-bell"></i>
+          <i class="fas fa-bars"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comercio banner: solo logo + nombre -->
+    <div class="comercio-banner">
+      <div class="comercio-banner-logo">
+        <img th:if="${empresaAfiliada.imagenURL != null && !empresaAfiliada.imagenURL.isEmpty()}"
+             th:src="${empresaAfiliada.imagenURL}"
+             th:alt="${empresaAfiliada.nombreEmpresa}"
+             onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<i class=\'fas fa-building\'></i>';">
+        <i th:if="${empresaAfiliada.imagenURL == null || empresaAfiliada.imagenURL.isEmpty()}"
+           class="fas fa-building"></i>
+      </div>
+      <div class="comercio-banner-text">
+        <span class="eyebrow">Comercio afiliado</span>
+        <h1 th:text="${empresaAfiliada.nombreEmpresa}">Nombre del comercio</h1>
+      </div>
+    </div>
+
+    <!-- Intro de la sección -->
+    <div class="promos-intro">
+      <h2><i class="fas fa-tags" style="color:#4A90E2; margin-right:6px;"></i> Promociones disponibles</h2>
+      <span class="promos-count" th:text="${#lists.size(promociones)} + ' activas'">0 activas</span>
+    </div>
+
+    <!-- Empty state -->
+    <div class="promos-empty" th:if="${#lists.isEmpty(promociones)}">
+      <i class="fas fa-tag"></i>
+      <h3>Este comercio no tiene promociones activas</h3>
+      <p>Vuelve a revisar más adelante, las promociones se actualizan constantemente.</p>
+    </div>
+
+    <!-- Grid de promociones -->
+    <div class="promos-grid" th:if="${!#lists.isEmpty(promociones)}">
+      <div class="promo-card" th:each="promo, iter : ${promociones}">
+
+        <div class="promo-card-top">
+                    <span class="promo-badge-tipo">
+                        <i th:class="${promo.tipoDescuento == 1} ? 'fas fa-percent' : 'fas fa-dollar-sign'"></i>
+                        <span th:text="${promo.tipoDescuento == 1} ? 'Porcentaje' : 'Cantidad fija'"></span>
+                    </span>
+          <h3 th:text="${promo.nombreDescuento}">Nombre de la promoción</h3>
+          <div class="promo-valor">
+            <span th:if="${promo.tipoDescuento == 1}" th:text="${promo.valorDescuento} + '%'">0%</span>
+            <span th:if="${promo.tipoDescuento == 2}" th:text="'$' + ${promo.valorDescuento}">$0</span>
+            <small>de descuento</small>
+          </div>
+        </div>
+
+        <div class="promo-qr-zone">
+          <div class="promo-qr-box"
+               th:id="${'qr-' + promo.id}"
+               th:data-qr="${qrJsons[iter.index]}">
+          </div>
+          <span class="promo-qr-label">Muestra este QR en caja</span>
+        </div>
+
+        <div class="promo-card-footer">
+          <div class="promo-vigencia" th:if="${promo.fechaInicio != null && promo.fechaFin != null}">
+            <i class="fas fa-calendar-days"></i>
+            <span th:text="${#temporals.format(promo.fechaInicio,'dd/MM/yyyy')} + ' – ' + ${#temporals.format(promo.fechaFin,'dd/MM/yyyy')}"></span>
+          </div>
+          <div class="promo-plan-tag" th:if="${promo.nombrePlan != null}">
+            <i class="fas fa-list-check"></i>
+            <span th:text="${promo.nombrePlan}">Plan</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Círculo de progreso del perfil (idéntico al dashboard)
+  document.addEventListener("DOMContentLoaded", function () {
+      const container = document.querySelector('.progress-container');
+      if (container) {
+          const pctData = container.dataset.pct;
+          const pct = parseFloat(pctData);
+
+          if (!isNaN(pct)) {
+              const circle = container.querySelector('.progress');
+              const percentageText = container.querySelector('.percentage');
+              const radius = 26;
+              const circumference = 2 * Math.PI * radius;
+
+              circle.style.strokeDasharray = `${circumference} ${circumference}`;
+              const offset = circumference - (pct / 100) * circumference;
+              circle.style.strokeDashoffset = offset;
+              percentageText.textContent = `${Math.round(pct)}%`;
+          }
+      }
+
+      // Generar los QR reales a partir del qrCode (UUID) de cada promoción
+      document.querySelectorAll('.promo-qr-box').forEach(function (box) {
+          const contenido = box.getAttribute('data-qr');
+          if (contenido) {
+              new QRCode(box, {
+                  text: contenido,
+                  width: 140,
+                  height: 140,
+                  colorDark: "#1a202c",
+                  colorLight: "#ffffff",
+                  correctLevel: QRCode.CorrectLevel.M
+              });
+          }
+      });
+  });
+</script>
+</body>
+</html>

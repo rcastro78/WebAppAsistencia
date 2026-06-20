@@ -552,6 +552,7 @@
                     <thead>
                     <tr>
                         <th><i class="fas fa-hashtag"></i> ID Casa</th>
+                        <th><i class="fas fa-calendar-plus"></i> NIC</th>
                         <th><i class="fas fa-id-card"></i> DUI Afiliado</th>
                         <th><i class="fas fa-map-marker-alt"></i> Dirección</th>
                         <th><i class="fas fa-bed"></i> Habitaciones</th>
@@ -566,6 +567,10 @@
                         <!-- ID Casa -->
                         <td>
                             <span class="id-casa-badge" th:text="${casa.idCasa}"></span>
+                        </td>
+
+                        <td>
+                            <span class="id-casa-badge" th:text="${casa.NIC}"></span>
                         </td>
 
                         <!-- DUI -->

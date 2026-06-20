@@ -55,6 +55,22 @@ public class AfiliadoSolicitudAsistencia {
     @Column(name = "calificacion")
     private Double calificacion;
 
+    @Column(name = "fechaHoraSolicitud")
+    private LocalDateTime fechaHoraSolicitud;
+
+    @Column(name = "fechaHoraContacto")
+    private LocalDateTime fechaHoraContacto;
+
+    @Column(name = "fechaHoraFinalizacion")
+    private LocalDateTime fechaHoraFinalizacion;
+
+    @Column(name = "latitudServicio")
+    private Double latitudServicio;
+
+    @Column(name = "longitudServicio")
+    private Double longitudServicio;
+
+
     // Constructor sin parámetros
     public AfiliadoSolicitudAsistencia() {
     }
@@ -192,6 +208,46 @@ public class AfiliadoSolicitudAsistencia {
 
     public void setCalificacion(Double calificacion) {
         this.calificacion = calificacion;
+    }
+
+    public LocalDateTime getFechaHoraSolicitud() {
+        return fechaHoraSolicitud;
+    }
+
+    public void setFechaHoraSolicitud(LocalDateTime fechaHoraSolicitud) {
+        this.fechaHoraSolicitud = fechaHoraSolicitud;
+    }
+
+    public LocalDateTime getFechaHoraContacto() {
+        return fechaHoraContacto;
+    }
+
+    public void setFechaHoraContacto(LocalDateTime fechaHoraContacto) {
+        this.fechaHoraContacto = fechaHoraContacto;
+    }
+
+    public LocalDateTime getFechaHoraFinalizacion() {
+        return fechaHoraFinalizacion;
+    }
+
+    public void setFechaHoraFinalizacion(LocalDateTime fechaHoraFinalizacion) {
+        this.fechaHoraFinalizacion = fechaHoraFinalizacion;
+    }
+
+    public Double getLatitudServicio() {
+        return latitudServicio;
+    }
+
+    public void setLatitudServicio(Double latitudServicio) {
+        this.latitudServicio = latitudServicio;
+    }
+
+    public Double getLongitudServicio() {
+        return longitudServicio;
+    }
+
+    public void setLongitudServicio(Double longitudServicio) {
+        this.longitudServicio = longitudServicio;
     }
 
     // Método lifecycle para establecer createdAt automáticamente

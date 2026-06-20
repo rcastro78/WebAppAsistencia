@@ -26,6 +26,10 @@ public class SolicitudAsistenciaRequest {
 
     private String  detalle;
 
+    private Double latitudServicio;
+
+    private Double longitudServicio;
+
     // Solo Admin puede enviar estos campos en updates
     private String  estado;
     private Double  tarifaAplicada;
@@ -66,4 +70,20 @@ public class SolicitudAsistenciaRequest {
 
     public String getObservacion()          { return observacion; }
     public void   setObservacion(String v)  { this.observacion = v; }
+
+    public Double getLatitudServicio() {
+        return latitudServicio;
+    }
+
+    public void setLatitudServicio(Double latitudServicio) {
+        this.latitudServicio = latitudServicio;
+    }
+
+    public Double getLongitudServicio() {
+        return longitudServicio;
+    }
+
+    public void setLongitudServicio(Double longitudServicio) {
+        this.longitudServicio = longitudServicio;
+    }
 }

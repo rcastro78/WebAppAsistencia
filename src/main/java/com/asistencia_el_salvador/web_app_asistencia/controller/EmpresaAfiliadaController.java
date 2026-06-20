@@ -1,8 +1,12 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
-import com.asistencia_el_salvador.web_app_asistencia.model.EmpresaAfiliada;
-import com.asistencia_el_salvador.web_app_asistencia.model.Institucion;
+import com.asistencia_el_salvador.web_app_asistencia.dto.PromocionDTO;
+import com.asistencia_el_salvador.web_app_asistencia.model.*;
+import com.asistencia_el_salvador.web_app_asistencia.repository.PromocionRepository;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
+import com.asistencia_el_salvador.web_app_asistencia.utils.Utilidades;
+import com.google.gson.Gson;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +28,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Controller
 @RequestMapping("/comercios")
 public class EmpresaAfiliadaController {
@@ -41,6 +50,19 @@ public class EmpresaAfiliadaController {
     @Autowired
     private FirebaseStorageService firebaseStorageService;
 
+    @Autowired
+    private PromocionService promocionService;
+
+    @Autowired
+    private ComercioAfiliadoService comercioAfiliadoService;
+
+    @Autowired
+    private PlanService planService;
+
+    @Autowired
+    private PromocionRepository promocionRepository;
+
+
     @GetMapping({"/",""})
     public String listarComercios(@RequestParam(defaultValue = "0") int page, Model model){
         Page<EmpresaAfiliada> empresasAfiliadas = empresaAfiliadaService.listarPaginados(PageRequest.of(page, 10));
@@ -49,6 +71,105 @@ public class EmpresaAfiliadaController {
         return "comercios_afiliados2";
     }
 
+    @GetMapping("/promociones/{nit}/cliente")
+    public String listarPromocionesCliente(@PathVariable String nit, Model model, HttpSession session) {
+
+        String  dui    = (String)  session.getAttribute("dui");
+        Integer idPlan = (Integer) session.getAttribute("idPlan");
+
+        EmpresaAfiliada    empresaAfiliada = empresaAfiliadaService.getEmpresaAfiliadaByNit(nit);
+        List<PromocionDTO> promociones = promocionService.findPromocionesActivasEmpresa(nit)
+                .stream()
+                .filter(promo -> idPlan.equals(promo.getIdPlan()))
+                .collect(Collectors.toList());
+
+        List<String> qrJsons = promociones.stream()
+                .map(promo -> {
+                    Map<String, Object> json = new LinkedHashMap<>();
+                    json.put("idPlan", idPlan != null ? idPlan : 0);
+                    json.put("dui", dui != null ? dui : "");
+                    json.put("qrCode", promo.getQrCode());
+                    json.put("nombreDescuento", promo.getNombreDescuento());
+                    return new Gson().toJson(json);
+                })
+                .collect(Collectors.toList());
+
+        model.addAttribute("empresaAfiliada", empresaAfiliada);
+        model.addAttribute("promociones",     promociones);
+        model.addAttribute("qrJsons",         qrJsons);
+
+        return "promociones_cliente";
+    }
+
+        @GetMapping("/promociones/{nit}")
+    public String listarPromociones(Model model,
+                                    @PathVariable String nit){
+        List<PromocionDTO> promociones = promocionService.findPromocionesEmpresa(nit);
+        model.addAttribute("promociones", promociones);
+        return "promociones";
+    }
+    /*
+    @GetMapping("/promociones/{nit}/nuevo")
+    public String nuevaPromocion(@PathVariable String nit, Model model){
+        model.addAttribute("promocion", new Promocion());
+        EmpresaAfiliada empresaAfiliada = empresaAfiliadaService.getEmpresaAfiliadaByNit(nit);
+        List<Plan> planes = planService.listarActivos();
+        model.addAttribute("esEdicion", 0);
+        model.addAttribute("empresaAfiliada", empresaAfiliada);
+        model.addAttribute("planes", planes);
+
+        return "promocion_form";
+    }
+*/
+    @PostMapping("/promociones/{nit}/guardar")
+    public String guardarPromocion(@PathVariable String nit,
+                                   @ModelAttribute Promocion promocion,
+                                   RedirectAttributes redirectAttributes,
+                                   HttpSession session) {
+
+        Object esComercio = session.getAttribute("esUsuarioComercio");
+
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        logger.info("=================== INICIO GUARDAR PROMOCIÓN ===================");
+
+        try {
+            promocion.setNitEmpresa(nit);
+
+            // Generar QR como ID único
+            String qrGenerado = Utilidades.generarStringAleatorio(8);
+            promocion.setQrCode(qrGenerado);
+            logger.info("✓ QR generado para la promoción: {}", qrGenerado);
+
+            logger.info("=== DATOS ANTES DE GUARDAR PROMOCIÓN ===");
+            logger.info("NIT Empresa: {}", promocion.getNitEmpresa());
+            logger.info("Nombre Descuento: {}", promocion.getNombreDescuento());
+            logger.info("Tipo descuento: {}", promocion.getTipoDescuento());
+            logger.info("Valor descuento: {}", promocion.getValorDescuento());
+            logger.info("Activo: {}", promocion.getActivo());
+
+            promocionRepository.save(promocion);
+
+            logger.info("✓ Promoción guardada correctamente");
+            logger.info("=================== FIN PROCESO EXITOSO ===================");
+
+            redirectAttributes.addFlashAttribute("success", "Promoción guardada exitosamente");
+
+        } catch (Exception e) {
+            logger.error("❌ ERROR GENERAL: {}", e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "Error al guardar la promoción: " + e.getMessage());
+            if (esComercio != null && (Boolean) esComercio) {
+                return "redirect:/usuarios/comercio_dashboard";
+            }else {
+                return "redirect:/comercios/promociones/" + nit + "/nuevo";
+            }
+        }
+        if (esComercio != null && (Boolean) esComercio) {
+            return "redirect:/usuarios/comercio_dashboard";
+        }else {
+            return "redirect:/comercios/promociones/" + nit;
+        }
+
+    }
 
     @GetMapping({"/nuevo/","/nuevo"})
     public String nuevaEmpresaAfiliada(Model model){
@@ -263,6 +384,65 @@ public class EmpresaAfiliadaController {
         }
     }
 
+    //Promociones
+    // Mostrar formulario para NUEVA promoción
+    @GetMapping("/promociones/{nit}/nuevo")
+    public String mostrarFormularioNuevaPromocion(@PathVariable String nit, Model model) {
+        ComercioAfiliado empresaAfiliada = comercioAfiliadoService.listarTodos().stream()
+                .filter(c -> c.getNit().equals(nit))
+                .findFirst()
+                .orElse(null);
+
+        model.addAttribute("empresaAfiliada", empresaAfiliada);
+        model.addAttribute("promocion", new Promocion());
+        model.addAttribute("planes", planService.listarActivos());
+        model.addAttribute("esEdicion", 0);
+
+        return "promocion_form"; // ajusta al nombre real de tu template
+    }
+
+    // Mostrar formulario para EDITAR promoción existente
+    @GetMapping("/promociones/{nit}/editar/{id}")
+    public String mostrarFormularioEditarPromocion(@PathVariable String nit,
+                                                   @PathVariable Long id,
+                                                   Model model) {
+        ComercioAfiliado empresaAfiliada = comercioAfiliadoService.listarTodos().stream()
+                .filter(c -> c.getNit().equals(nit))
+                .findFirst()
+                .orElse(null);
+
+        Promocion promocion = promocionService.findById(id);
+
+
+        model.addAttribute("empresaAfiliada", empresaAfiliada);
+        model.addAttribute("promocion", promocion);
+        model.addAttribute("planes", planService.listarActivos());
+        model.addAttribute("esEdicion", 1);
+
+        return "promocion_form";
+    }
+
+    // Procesar la ACTUALIZACIÓN
+    @PostMapping("/promociones/{nit}/actualizar/{id}")
+    public String actualizarPromocion(@PathVariable String nit,
+                                      @PathVariable Long id,
+                                      @ModelAttribute("promocion") Promocion promocion,
+                                      RedirectAttributes redirectAttributes,
+                                      HttpSession session) {
+        try {
+            promocionService.actualizarPromocion(promocion, id);
+            redirectAttributes.addFlashAttribute("mensaje", "Promoción actualizada correctamente.");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", "No se pudo actualizar la promoción: " + e.getMessage());
+        }
+        Object esComercio = session.getAttribute("esUsuarioComercio");
+        if (esComercio != null && (Boolean) esComercio) {
+            return "redirect:/usuarios/comercio_dashboard";
+        }else{
+            return "redirect:/comercios/promociones/" + nit;
+        }
+
+    }
 
     // Método auxiliar para validar archivos de imagen
     private boolean isValidImageFile(MultipartFile file) {

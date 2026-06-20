@@ -3,6 +3,9 @@ package com.asistencia_el_salvador.web_app_asistencia.api;
 
 import com.asistencia_el_salvador.web_app_asistencia.dto.*;
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
+import com.asistencia_el_salvador.web_app_asistencia.repository.CanjePromocionRepository;
+import com.asistencia_el_salvador.web_app_asistencia.repository.EmpresaAfiliadaRepository;
+import com.asistencia_el_salvador.web_app_asistencia.request.ComercioLoginRequest;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -19,6 +23,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -38,7 +43,7 @@ public class AsistenciaApiController {
 
     private static final Logger log = LoggerFactory.getLogger(AsistenciaApiController.class);
 
-    private final AfiliadoSolicitudAsistenciaService service;
+    private final AfiliadoSolicitudAsistenciaService afiliadoSolicitudAsistenciaervice;
     private final EstadoSolicitudServicioService estadoSolicitudServicioService;
     private final PlanService planService;
     private final PlanesCoberturaService planesCoberturaService;
@@ -63,8 +68,14 @@ public class AsistenciaApiController {
     private final NotificacionUsuarioService notificacionUsuarioService;
     private final MedConsultaService consultaService;
     private final MedDoctorService doctorService;
+    private final PromocionService promocionService;
+    private final EmpresaAfiliadaRepository empresaAfiliadaRepository;
+    private final UsuarioComercioAfiliadoService usuarioComercioAfiliadoService;
+    private final UsuarioComercioService usuarioComercioService;
+    private final CanjePromocionService canjePromocionService;
+
     public AsistenciaApiController(
-            AfiliadoSolicitudAsistenciaService service,
+            AfiliadoSolicitudAsistenciaService afiliadoSolicitudAsistenciaervice,
             EstadoSolicitudServicioService estadoSolicitudServicioService,
             PlanService planService,
             PlanesCoberturaService planesCoberturaService,
@@ -88,8 +99,13 @@ public class AsistenciaApiController {
             UsuarioService usuarioService,
             NotificacionUsuarioService notificacionUsuarioService,
             MedConsultaService consultaService,
-            MedDoctorService doctorService) {
-        this.service = service;
+            MedDoctorService doctorService,
+            EmpresaAfiliadaRepository empresaAfiliadaRepository,
+            PromocionService promocionService,
+            UsuarioComercioAfiliadoService usuarioComercioAfiliadoService,
+            UsuarioComercioService usuarioComercioService,
+            CanjePromocionService canjePromocionService) {
+        this.afiliadoSolicitudAsistenciaervice = afiliadoSolicitudAsistenciaervice;
         this.estadoSolicitudServicioService = estadoSolicitudServicioService;
         this.planService = planService;
         this.planesCoberturaService = planesCoberturaService;
@@ -114,6 +130,11 @@ public class AsistenciaApiController {
         this.notificacionUsuarioService = notificacionUsuarioService;
         this.consultaService = consultaService;
         this.doctorService = doctorService;
+        this.empresaAfiliadaRepository = empresaAfiliadaRepository;
+        this.promocionService = promocionService;
+        this.usuarioComercioAfiliadoService = usuarioComercioAfiliadoService;
+        this.usuarioComercioService = usuarioComercioService;
+        this.canjePromocionService = canjePromocionService;
     }
 
 
@@ -154,6 +175,7 @@ public class AsistenciaApiController {
   "idRegion": "SV-SS"
 }
     * */
+
 
 
     @PostMapping("/procesarPago")
@@ -318,6 +340,8 @@ public class AsistenciaApiController {
     }
 
 
+
+
     // ════════════════════════════════════════════════════════
     // GET /api/v1/asistencia/solicitudes
     // Lista las solicitudes del afiliado autenticado
@@ -350,6 +374,13 @@ public class AsistenciaApiController {
         }
     }
 
+    @PostMapping("/datosComercioAfiliado")
+    public ResponseEntity<ApiResponse<UsuarioComercio>> mostrarDatosComercio(
+            @RequestBody ComercioLoginRequest request
+    ) {
+        UsuarioComercio usuario = usuarioComercioService.loginComercio(request);
+        return ResponseEntity.ok(ApiResponse.ok(usuario, "usuarioComercio"));
+    }
 
     // ════════════════════════════════════════════════════════
     // GET /api/v1/asistencia/pagos/{dui}
@@ -614,7 +645,7 @@ public class AsistenciaApiController {
             List<AfiliadoSolicitudAsistenciaProv> solicitudes =
                     afiliadoSolicitudAsistenciaProvService.mostrarTodos();
 
-            List<AfiliadoSolicitudAsistencia> raw = service.obtenerTodas();
+            List<AfiliadoSolicitudAsistencia> raw = afiliadoSolicitudAsistenciaervice.obtenerTodas();
             Map<String, Object> body = new HashMap<>();
             body.put("solicitudes", solicitudes);
             body.put("totalSolicitudes", raw.size());
@@ -643,7 +674,7 @@ public class AsistenciaApiController {
             Integer rol = resolverRol(session);
             if (dui == null) return sinSesion();
 
-            AfiliadoSolicitudAsistencia solicitud = service.obtenerPorId(id)
+            AfiliadoSolicitudAsistencia solicitud = afiliadoSolicitudAsistenciaervice.obtenerPorId(id)
                     .orElse(null);
             if (solicitud == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -779,6 +810,87 @@ public class AsistenciaApiController {
             log.error("Error listando sucursales: ", e);
             return serverError(e);
         }
+    }
+
+    @PostMapping("/promociones/canjear/")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> canjearPromocion(
+            @RequestBody CanjePromocion canjePromocion
+            ) {
+        String dui    = canjePromocion.getDuiAfiliado();
+        String qrCode = canjePromocion.getQrCode();
+        try {
+            // 1. Una sola consulta para obtener la promoción
+            Promocion promocion = promocionService.getPromocionQR(qrCode);
+            int maxCanjesUsuario   = promocion.getCanjesPorUsuario(); // límite por afiliado
+            int maxCanjesPromocion = promocion.getMaxCanjes();        // límite total del QR
+
+            //Verificar que el plan del afiliado concuerde con el plan de la promocion
+            int idPlanPromo = promocion.getIdPlan();
+            int idPlanAfiliado = planAfiliadoService.findByDui(dui).get(0).getIdPlan();
+
+            Optional<PlanAfiliadoResumen> plan = afiliadoService.getPlanAfiliadoResumen(dui);
+            if (plan.isEmpty() || plan.get().getCarnetActivo() == 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error("Tu carnet no está activo. Por favor ponerse al día con tus pagos."));
+            }
+
+
+            if(idPlanAfiliado != idPlanPromo) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error("Error, esta promoción no corresponde al plan del afiliado"));
+            }
+
+            //Verificar si está activa
+            int activa = promocion.getActivo();
+            if(activa==0){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error("Error, la promoción ya no está disponible"));
+            }
+
+            // 2. Contar canjes actuales
+            int totalCanjesUsuario = canjePromocionService.totalCanjeadosAfiliadoQR(dui, qrCode);
+            int totalCanjesQR      = canjePromocionService.totalCanjeadosQR(qrCode);
+
+            // 3. Validaciones
+            if (totalCanjesUsuario >= maxCanjesUsuario) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error("Ya no puedes canjear esta promoción"));
+            }
+            if (totalCanjesQR >= maxCanjesPromocion) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(ApiResponse.error("Promoción agotada"));
+            }
+
+            // 4. Guardar
+            canjePromocion.setDuiAfiliado(dui);
+            canjePromocion.setQrCode(qrCode);
+            CanjePromocion guardado = canjePromocionService.canjear(canjePromocion);
+
+            //Desactivar
+            int nuevosCanjesQR = totalCanjesQR + 1;
+            if (nuevosCanjesQR >= maxCanjesPromocion) {
+                promocionService.desactivarPromocion(promocion);
+            }
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("canje", guardado);
+            data.put("totalCanjes", totalCanjesUsuario + 1); // ya se guardó, evitas otra consulta
+
+
+
+            return ResponseEntity.ok(ApiResponse.ok("Guardado exitoso", data));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+
+    @GetMapping("promociones/comercio/{nit}")
+    public ResponseEntity<ApiResponse<List<PromocionDTO>>> promocionesComercio(@PathVariable String nit, HttpServletRequest session) {
+        List<PromocionDTO> promociones = promocionService.findPromocionesActivasEmpresa(nit);
+        return ResponseEntity.ok(ApiResponse.ok(promociones, "promociones"));
     }
 
     @GetMapping("/sucursales/proveedor/{nombre}")
@@ -959,6 +1071,11 @@ public class AsistenciaApiController {
             solicitud.setHoraAsistencia(req.getHoraAsistencia());
             solicitud.setDetalle(req.getDetalle());
             solicitud.setEstado("0");
+
+            solicitud.setFechaHoraSolicitud(LocalDateTime.now());
+            solicitud.setLatitudServicio(req.getLatitudServicio());
+            solicitud.setLongitudServicio(req.getLongitudServicio());
+
             solicitud.setTarifaAplicada(req.getTarifaAplicada() != null ? req.getTarifaAplicada() : 0.0);
             solicitud.setCostosExtra(req.getCostosExtra()    != null ? req.getCostosExtra()    : 0.0);
 
@@ -972,7 +1089,7 @@ public class AsistenciaApiController {
 
             if (pc != null && pc.getEventos() != 0 && pc.getEventos() > 0) {
                 int  anio             = LocalDate.now().getYear();
-                Long eventosAprobados = service.totalAsistenciasSolicitadas(
+                Long eventosAprobados = afiliadoSolicitudAsistenciaervice.totalAsistenciasSolicitadas(
                         solicitud.getDuiAfiliado(), idPlanFinal, idAsistencia, anio);
 
                 if (eventosAprobados >= pc.getEventos()) {
@@ -983,7 +1100,7 @@ public class AsistenciaApiController {
             }
 
             // Guardar
-            AfiliadoSolicitudAsistencia guardada = service.guardar(solicitud);
+            AfiliadoSolicitudAsistencia guardada = afiliadoSolicitudAsistenciaervice.guardar(solicitud);
 
             // Notificar al proveedor
             try {
@@ -1030,7 +1147,7 @@ public class AsistenciaApiController {
             Integer rol = resolverRol(session);
             if (dui == null) return sinSesion();
 
-            AfiliadoSolicitudAsistencia existente = service.obtenerPorId(id).orElse(null);
+            AfiliadoSolicitudAsistencia existente = afiliadoSolicitudAsistenciaervice.obtenerPorId(id).orElse(null);
             if (existente == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ApiResponse.error("Solicitud no encontrada"));
@@ -1079,7 +1196,7 @@ public class AsistenciaApiController {
             Integer rol = resolverRol(session);
             if (dui == null) return sinSesion();
 
-            AfiliadoSolicitudAsistencia solicitud = service.obtenerPorId(id).orElse(null);
+            AfiliadoSolicitudAsistencia solicitud = afiliadoSolicitudAsistenciaervice.obtenerPorId(id).orElse(null);
             if (solicitud == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ApiResponse.error("Solicitud no encontrada"));
@@ -1091,7 +1208,7 @@ public class AsistenciaApiController {
                             .body(ApiResponse.error("Solo se pueden eliminar solicitudes pendientes"));
             }
 
-            service.eliminar(id);
+            afiliadoSolicitudAsistenciaervice.eliminar(id);
             return ResponseEntity.ok(ApiResponse.<Void>ok("Solicitud eliminada exitosamente", (Void) null));
         } catch (Exception e) {
             log.error("Error al eliminar solicitud: ", e);
@@ -1113,7 +1230,7 @@ public class AsistenciaApiController {
             Integer rol = resolverRol(session);
             if (dui == null) return sinSesion();
 
-            AfiliadoSolicitudAsistencia solicitud = service.obtenerPorId(id).orElse(null);
+            AfiliadoSolicitudAsistencia solicitud = afiliadoSolicitudAsistenciaervice.obtenerPorId(id).orElse(null);
             if (solicitud == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(ApiResponse.error("Solicitud no encontrada"));
@@ -1129,7 +1246,7 @@ public class AsistenciaApiController {
                         .body(ApiResponse.error("La calificación debe estar entre 1 y 5"));
 
             solicitud.setCalificacion(cal.doubleValue());
-            service.guardar(solicitud);
+            afiliadoSolicitudAsistenciaervice.guardar(solicitud);
             return ResponseEntity.ok(ApiResponse.<Void>ok("Calificación guardada", (Void) null));
 
         } catch (Exception e) {
@@ -1273,7 +1390,7 @@ public class AsistenciaApiController {
     private Map<String, Object> buildListadoStats(
             List<AfiliadoSolicitudAsistenciaProv> solicitudes, String dui) {
 
-        List<AfiliadoSolicitudAsistencia> raw = service.obtenerPorDui(dui);
+        List<AfiliadoSolicitudAsistencia> raw = afiliadoSolicitudAsistenciaervice.obtenerPorDui(dui);
         Map<String, Object> body = new HashMap<>();
         body.put("solicitudes",      solicitudes);
         body.put("totalSolicitudes", raw.size());

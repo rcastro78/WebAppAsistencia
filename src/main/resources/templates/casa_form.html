@@ -137,6 +137,22 @@
                         <i class="fas fa-map-marker-alt"></i> Ubicación
                     </div>
 
+                    <!-- NIC (ancho completo) -->
+                    <div class="form-group full-width">
+                        <label for="NIC">
+                            <i class="fas fa-road"></i> NIC
+                            <span style="color:#e74c3c">*</span>
+                        </label>
+                        <input type="text"
+                               th:field="*{NIC}"
+                               id="nic"
+                               class="input"
+                               placeholder="NIC (no. en el recibo de luz)"
+                               maxlength="45"
+                               required>
+                        <small id="nicCounter" style="color:#aaa;">Máximo 8 caracteres – debe ser única en el sistema.</small>
+                    </div>
+
                     <!-- Dirección (ancho completo) -->
                     <div class="form-group full-width">
                         <label for="direccion">

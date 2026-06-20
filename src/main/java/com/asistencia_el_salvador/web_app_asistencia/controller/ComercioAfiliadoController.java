@@ -4,6 +4,7 @@ import com.asistencia_el_salvador.web_app_asistencia.model.*;
 import com.asistencia_el_salvador.web_app_asistencia.repository.ComercioAfiliadoPromocionRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.UsuarioComercioAfiliadoRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.UsuarioComercioRepository;
+import com.asistencia_el_salvador.web_app_asistencia.repository.UsuarioRepository;
 import com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -36,17 +37,22 @@ public class ComercioAfiliadoController {
     @Autowired
     private UsuarioComercioAfiliadoService usuarioComercioAfiliadoService;
     @Autowired
+    private UsuarioService usuarioService;
+    @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
     private EmailService emailService;
+    private final UsuarioRepository usuarioRepository;
 
 
     @Autowired
 
     public ComercioAfiliadoController(ComercioAfiliadoService comercioService,
-                                      ComercioAfiliadoPromocionService comercioAfiliadoPromocionService) {
+                                      ComercioAfiliadoPromocionService comercioAfiliadoPromocionService,
+                                      UsuarioRepository usuarioRepository) {
         this.comercioService = comercioService;
         this.comercioAfiliadoPromocionService = comercioAfiliadoPromocionService;
+        this.usuarioRepository = usuarioRepository;
     }
 
 
@@ -69,12 +75,12 @@ public class ComercioAfiliadoController {
 
     @PostMapping("/usuariosComercio/guardar")
     public String guardarUsuario(
-            @ModelAttribute UsuarioComercioAfiliado usuario,
+            @ModelAttribute UsuarioComercioAfiliado usuarioComercio,
             RedirectAttributes redirectAttributes) {
 
         try {
             // Determinar si es edición o creación
-            UsuarioComercioAfiliadoId id = new UsuarioComercioAfiliadoId(usuario.getNit(), usuario.getDui());
+            UsuarioComercioAfiliadoId id = new UsuarioComercioAfiliadoId(usuarioComercio.getNit(), usuarioComercio.getDui());
             Optional<UsuarioComercioAfiliado> usuarioExistente = usuarioComercioAfiliadoRepository.findById(id);
 
             boolean esEdicion = usuarioExistente.isPresent();
@@ -84,36 +90,36 @@ public class ComercioAfiliadoController {
                 UsuarioComercioAfiliado usuarioActualizar = usuarioExistente.get();
 
                 // Actualizar campos básicos
-                usuarioActualizar.setNombre(usuario.getNombre());
-                usuarioActualizar.setApellido(usuario.getApellido());
-                usuarioActualizar.setEmailAsociado(usuario.getEmailAsociado());
-                usuarioActualizar.setTelefono(usuario.getTelefono());
-                usuarioActualizar.setEstado(usuario.getEstado());
+                usuarioActualizar.setNombre(usuarioComercio.getNombre());
+                usuarioActualizar.setApellido(usuarioComercio.getApellido());
+                usuarioActualizar.setEmailAsociado(usuarioComercio.getEmailAsociado());
+                usuarioActualizar.setTelefono(usuarioComercio.getTelefono());
+                usuarioActualizar.setEstado(usuarioComercio.getEstado());
 
                 // Solo actualizar contraseña si se proporcionó una nueva
-                if (StringUtils.hasText(usuario.getClaveCifrada())) {
+                if (StringUtils.hasText(usuarioComercio.getClaveCifrada())) {
                     // Guardar clave sin cifrar para el email
-                    String claveSinCifrar = usuario.getClaveCifrada();
+                    String claveSinCifrar = usuarioComercio.getClaveCifrada();
 
                     // Encriptar la contraseña
                     String passwordEncriptada = passwordEncoder.encode(claveSinCifrar);
                     usuarioActualizar.setClaveCifrada(passwordEncriptada);
 
                     // Enviar email con nueva contraseña
-                    ComercioAfiliado comercioAfiliado = comercioService.getComercioByNIT(usuario.getNit());
+                    ComercioAfiliado comercioAfiliado = comercioService.getComercioByNIT(usuarioComercio.getNit());
                     emailService.enviarEmailHtml(
-                            usuario.getEmailAsociado(),
+                            usuarioComercio.getEmailAsociado(),
                             "Contraseña actualizada",
                             "Se ha actualizado tu contraseña para el comercio: " + comercioAfiliado.getNombreEmpresa() +
                                     " en el sistema de Asistencia El Salvador.\nTus credenciales son:\nUsuario: " +
-                                    usuario.getEmailAsociado() + "\nNueva clave: " + claveSinCifrar
+                                    usuarioComercio.getEmailAsociado() + "\nNueva clave: " + claveSinCifrar
                     );
                 }
 
                 // Manejar eliminación lógica según el estado
-                if (usuario.getEstado() == 0 && usuarioActualizar.getDeletedAt() == null) {
+                if (usuarioComercio.getEstado() == 0 && usuarioActualizar.getDeletedAt() == null) {
                     usuarioActualizar.setDeletedAt(LocalDateTime.now());
-                } else if (usuario.getEstado() == 1) {
+                } else if (usuarioComercio.getEstado() == 1) {
                     usuarioActualizar.setDeletedAt(null);
                 }
 
@@ -122,52 +128,69 @@ public class ComercioAfiliadoController {
 
             } else {
                 // Modo creación
-                ComercioAfiliado comercioAfiliado = comercioService.getComercioByNIT(usuario.getNit());
+                ComercioAfiliado comercioAfiliado = comercioService.getComercioByNIT(usuarioComercio.getNit());
 
                 // Validar que la contraseña no esté vacía en creación
-                if (!StringUtils.hasText(usuario.getClaveCifrada())) {
+                if (!StringUtils.hasText(usuarioComercio.getClaveCifrada())) {
                     redirectAttributes.addFlashAttribute("error", "La contraseña es obligatoria para nuevos usuarios");
-                    return "redirect:/comerciosAfiliados/usuarios/registro?nit=" + usuario.getNit();
+                    return "redirect:/comerciosAfiliados/usuarios/registro?nit=" + usuarioComercio.getNit();
                 }
 
                 // IMPORTANTE: Guardar la clave sin cifrar ANTES de encriptarla
-                String claveSinCifrar = usuario.getClaveCifrada();
+                String claveSinCifrar = usuarioComercio.getClaveCifrada();
 
                 // Encriptar la contraseña
                 String passwordEncriptada = passwordEncoder.encode(claveSinCifrar);
-                usuario.setClaveCifrada(passwordEncriptada);
+                usuarioComercio.setClaveCifrada(passwordEncriptada);
 
                 // Establecer fecha de creación si no existe
-                if (usuario.getCreatedAt() == null) {
-                    usuario.setCreatedAt(LocalDateTime.now());
+                if (usuarioComercio.getCreatedAt() == null) {
+                    usuarioComercio.setCreatedAt(LocalDateTime.now());
                 }
 
                 // Manejar deletedAt según estado inicial
-                if (usuario.getEstado() == 0) {
-                    usuario.setDeletedAt(LocalDateTime.now());
+                if (usuarioComercio.getEstado() == 0) {
+                    usuarioComercio.setDeletedAt(LocalDateTime.now());
                 }
 
                 // Guardar primero en BD
-                usuarioComercioAfiliadoRepository.save(usuario);
+                usuarioComercioAfiliadoRepository.save(usuarioComercio);
+                //Guardar en la tabla de usuarios, esto para que use la app
+
+                Usuario usuario = new Usuario();
+                usuario.setActivo(true);
+                usuario.setContrasena(passwordEncriptada);
+                usuario.setNombre(usuarioComercio.getNombre());
+                usuario.setApellido(usuarioComercio.getApellido());
+                usuario.setEmail(usuarioComercio.getEmailAsociado());
+                usuario.setTelefono(usuarioComercio.getTelefono());
+                usuario.setCreatedAt(LocalDateTime.now());
+                usuario.setRol(8);
+                usuario.setDui(usuarioComercio.getDui());
+                usuario.setEmail(usuarioComercio.getEmailAsociado());
+
+                usuarioRepository.save(usuario);
+
+
 
                 // Enviar email con la clave sin cifrar
                 emailService.enviarEmailHtml(
-                        usuario.getEmailAsociado(),
+                        usuarioComercio.getEmailAsociado(),
                         "Nuevo usuario creado",
                         "Se ha creado tu usuario para el comercio: " + comercioAfiliado.getNombreEmpresa() +
                                 " en el sistema de Asistencia El Salvador.\n\nTus credenciales son:\nUsuario: " +
-                                usuario.getEmailAsociado() + "\nClave: " + claveSinCifrar +
+                                usuarioComercio.getEmailAsociado() + "\nClave: " + claveSinCifrar +
                                 "\n\nPor favor, guarda esta información de forma segura."
                 );
 
                 redirectAttributes.addFlashAttribute("mensaje", "Usuario creado exitosamente. Se ha enviado un correo con las credenciales.");
             }
 
-            return "redirect:/comerciosAfiliados/usuariosComercio/?nit=" + usuario.getNit();
+            return "redirect:/comerciosAfiliados/usuariosComercio/?nit=" + usuarioComercio.getNit();
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al guardar el usuario: " + e.getMessage());
-            return "redirect:/comerciosAfiliados/usuariosComercio/?nit=" + usuario.getNit();
+            return "redirect:/comerciosAfiliados/usuariosComercio/?nit=" + usuarioComercio.getNit();
         }
     }
 
@@ -230,8 +253,9 @@ public class ComercioAfiliadoController {
     @PostMapping("/promociones/guardar")
     public String guardarPromocion(
             @ModelAttribute ComercioAfiliadoPromocion promocion,
-            RedirectAttributes redirectAttributes) {
-
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+        Object esComercio = session.getAttribute("esUsuarioComercio");
         try {
             // Verificar si es edición o creación
             boolean esEdicion = promocion.getIdPromocion() > 0;
@@ -243,7 +267,11 @@ public class ComercioAfiliadoController {
 
                 if (!existente.isPresent()) {
                     redirectAttributes.addFlashAttribute("error", "No se encontró la promoción a editar");
-                    return "redirect:/comerciosAfiliados/promociones?nit=" + promocion.getNitEmpresa();
+                    if(esComercio!=null && (Boolean) esComercio) {
+                        return "redirect:/usuarios/comercio_dashboard";
+                    }else {
+                        return "redirect:/comerciosAfiliados/promociones?nit=" + promocion.getNitEmpresa();
+                    }
                 }
 
                 redirectAttributes.addFlashAttribute("mensaje", "Promoción actualizada exitosamente");
@@ -255,13 +283,20 @@ public class ComercioAfiliadoController {
             promocion.setEstado(1);
             comercioAfiliadoPromocionRepository.save(promocion);
 
-            //return "redirect:/comerciosAfiliados/promociones?nit=" + promocion.getNitEmpresa();
-            return "redirect:/usuarios/comercio_dashboard";
+            if(esComercio!=null && (Boolean) esComercio) {
+                return "redirect:/usuarios/comercio_dashboard";
+            }else {
+                return "redirect:/comerciosAfiliados/promociones?nit=" + promocion.getNitEmpresa();
+            }
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al guardar la promoción: " + e.getMessage());
             //return "redirect:/comerciosAfiliados/promociones?nit=" + promocion.getNitEmpresa();
-            return "redirect:/usuarios/comercio_dashboard";
+            if(esComercio!=null && (Boolean) esComercio) {
+                return "redirect:/usuarios/comercio_dashboard";
+            }else {
+                return "redirect:/comerciosAfiliados/promociones?nit=" + promocion.getNitEmpresa();
+            }
         }
     }
 
@@ -269,15 +304,20 @@ public class ComercioAfiliadoController {
     @GetMapping("/promociones/eliminar/{id}")
     public String eliminarPromocion(
             @PathVariable int id,
-            RedirectAttributes redirectAttributes) {
-
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+        Object esComercio = session.getAttribute("esUsuarioComercio");
         try {
             Optional<ComercioAfiliadoPromocion> existente =
                     comercioAfiliadoPromocionRepository.findByIdPromocion(id);
 
             if (!existente.isPresent()) {
                 redirectAttributes.addFlashAttribute("error", "No se encontró la promoción a eliminar");
-                return "redirect:/comerciosAfiliados/promociones";
+                if(esComercio!=null && (Boolean) esComercio) {
+                    return "redirect:/usuarios/comercio_dashboard";
+                }else {
+                    return "redirect:/comerciosAfiliados/promociones";
+                }
             }
 
             ComercioAfiliadoPromocion promocion = existente.get();
@@ -285,11 +325,19 @@ public class ComercioAfiliadoController {
             comercioAfiliadoPromocionRepository.save(promocion);
 
             redirectAttributes.addFlashAttribute("mensaje", "Promoción eliminada exitosamente");
-            return "redirect:/comerciosAfiliados/promociones?nit=" + promocion.getNitEmpresa();
+            if(esComercio!=null && (Boolean) esComercio) {
+                return "redirect:/usuarios/comercio_dashboard";
+            }else {
+                return "redirect:/comerciosAfiliados/promociones?nit=" + promocion.getNitEmpresa();
+            }
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al eliminar la promoción: " + e.getMessage());
-            return "redirect:/comerciosAfiliados/promociones";
+            if(esComercio!=null && (Boolean) esComercio) {
+                return "redirect:/usuarios/comercio_dashboard";
+            }else {
+                return "redirect:/comerciosAfiliados/promociones";
+            }
         }
     }
 

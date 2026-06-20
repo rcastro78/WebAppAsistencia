@@ -1,6 +1,8 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
+import com.asistencia_el_salvador.web_app_asistencia.dto.PromocionDTO;
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
+import com.asistencia_el_salvador.web_app_asistencia.repository.PromocionRepository;
 import com.asistencia_el_salvador.web_app_asistencia.request.ComercioLoginRequest;
 import com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest;
 import com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse;
@@ -20,8 +22,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import com.asistencia_el_salvador.web_app_asistencia.request.RegistroRequest;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -43,18 +47,23 @@ public class UsuarioController {
     private PlanService planService;
     @Autowired
     private ComercioAfiliadoService comercioService;
+    @Autowired
+    private PromocionService promocionService;
+    private final PromocionRepository promocionRepository;
 
     public UsuarioController(UsuarioService usuarioService,
                              UsuarioComercioService usuarioComercioService,
                              EmpresaAfiliadaService empresaAfiliadaService,
                              ServicioPlanEmpresaService servicioPlanEmpresaService,
-                             AccessLogService accessLogService, EmailService emailService) {
+                             AccessLogService accessLogService, EmailService emailService,
+                             PromocionRepository promocionRepository) {
         this.usuarioService = usuarioService;
         this.usuarioComercioService = usuarioComercioService;
         this.empresaAfiliadaService = empresaAfiliadaService;
         this.servicioPlanEmpresaService = servicioPlanEmpresaService;
         this.accessLogService = accessLogService;
         this.emailService = emailService;
+        this.promocionRepository = promocionRepository;
     }
 
 
@@ -216,7 +225,7 @@ public class UsuarioController {
     }
 
     // Endpoint GET para mostrar el dashboard
-    @GetMapping("/comercio_dashboard")
+    /*@GetMapping("/comercio_dashboard")
     public String mostrarDashboardComercio(HttpSession session, Model model) {
         UsuarioComercio usuario = (UsuarioComercio) session.getAttribute("usuarioComercio");
         String nitComercio = usuario.getNit();
@@ -236,7 +245,44 @@ public class UsuarioController {
 
 
         return "comercio_dashboard";
-       }
+       }*/
+
+    @GetMapping("/comercio_dashboard")
+    public String mostrarDashboardComercio1(HttpSession session, Model model) {
+        UsuarioComercio usuario = (UsuarioComercio) session.getAttribute("usuarioComercio");
+        if (usuario == null) {
+            return "redirect:/usuarios/login";
+        }
+        String nitComercio = usuario.getNit();
+
+        // Recuperar el comercio
+        ComercioAfiliado comercio = comercioService.listarTodos().stream()
+                .filter(it -> it.getNit().equals(nitComercio))
+                .findFirst()
+                .orElse(null);
+
+        // Recuperar las promociones de este comercio (nunca null)
+        List<PromocionDTO> promociones = promocionService.findPromocionesActivasEmpresa(nitComercio);
+        if (promociones == null) {
+            promociones = Collections.emptyList();
+        }
+        session.setAttribute("esUsuarioComercio", true);
+        model.addAttribute("nit", nitComercio);
+        model.addAttribute("promociones", promociones); // <-- esto faltaba
+        model.addAttribute("comercio", comercio != null ? comercio.getNombreEmpresa() : "Comercio no encontrado");
+
+        // Nombre del plan: solo si hay al menos una promoción con plan asignado
+        if (!promociones.isEmpty() && promociones.get(0).getIdPlan() != null) {
+            planService.getPlanById(promociones.get(0).getIdPlan())
+                    .ifPresent(plan -> model.addAttribute("nombrePlan", plan.getNombrePlan()));
+        }
+
+        return "comercio_dashboard";
+    }
+
+
+
+
 
     //Mostrar pagina para editar el usuario
     @GetMapping("/editar/{dui}")

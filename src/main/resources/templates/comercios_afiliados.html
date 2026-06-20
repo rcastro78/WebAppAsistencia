@@ -7,6 +7,22 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/comercios.css}">
     <style>
+
+        .card-actions-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.card-actions-stack .action-btn {
+    position: relative;
+    width: 100%;
+    text-align: center;
+}
+
         .breadcrumb {
             display: flex;
             align-items: center;
@@ -331,22 +347,31 @@
                             </div>
                         </div>
 
-                        <a th:href="@{/beneficiosComercioAfiliado/comercio/{nit}(nit=${comercio.nit})}"
-                           class="action-btn primary">
-                            <i class="fas fa-sack-dollar"></i> Ver Beneficios
-                        </a>
-                        <p/>
-                        <a th:href="@{/comercios/sucursales/{nit}(nit=${comercio.nit})}"
-                           th:if="${session.rol == 1}"
-                           class="action-btn secondary">
-                            <i class="fas fa-code-branch"></i> Ver Sucursales
-                        </a>
-                        <span></span>
-                        <a th:href="@{/comerciosAfiliados/usuariosComercio/(nit=${comercio.nit})}"
-                           th:if="${session.rol == 1}"
-                           class="action-btn secondary">
-                            <i class="fas fa-users"></i> Ver Usuarios
-                        </a>
+                        <div class="card-actions-stack">
+                            <a  th:href="@{/comercios/promociones/{nit}(nit=${comercio.nit})}"
+                                th:if="${session.rol == 1}"
+                               class="action-btn primary">
+                                <i class="fas fa-tags"></i> Ver Promociones
+                            </a>
+
+                            <a th:href="@{/comercios/promociones/{nit}/cliente(nit=${comercio.nit})}"
+                               th:if="${session.rol == 3}"
+                               class="action-btn primary">
+                                <i class="fas fa-tags"></i> Ver Promociones
+                            </a>
+
+                            <a th:href="@{/comercios/sucursales/{nit}(nit=${comercio.nit})}"
+                               th:if="${session.rol == 1}"
+                               class="action-btn secondary">
+                                <i class="fas fa-code-branch"></i> Ver Sucursales
+                            </a>
+                            <a th:href="@{/comerciosAfiliados/usuariosComercio/(nit=${comercio.nit})}"
+                               th:if="${session.rol == 1}"
+                               class="action-btn secondary">
+                                <i class="fas fa-users"></i> Ver Usuarios
+                            </a>
+                        </div>
+
 
                     </div>
                 </div>

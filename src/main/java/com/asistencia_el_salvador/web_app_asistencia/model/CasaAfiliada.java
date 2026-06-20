@@ -35,13 +35,16 @@ public class CasaAfiliada {
     @Column(name = "deletedAt")
     private LocalDateTime deletedAt;
 
+    @Column(name = "NIC", length = 45)
+    private String NIC;
+
     // ── Constructor vacío ──────────────────────────────────────────────────────
     public CasaAfiliada() {}
 
     // ── Constructor completo ───────────────────────────────────────────────────
     public CasaAfiliada(Integer idCasa, String direccion, String duiUsuario,
                         Integer numHabitaciones, Integer idDepto,
-                        Integer idMunicipio, Integer idDistrito) {
+                        Integer idMunicipio, Integer idDistrito, String NIC) {
         this.idCasa          = idCasa;
         this.direccion       = direccion;
         this.duiUsuario      = duiUsuario;
@@ -49,6 +52,7 @@ public class CasaAfiliada {
         this.idDepto         = idDepto;
         this.idMunicipio     = idMunicipio;
         this.idDistrito      = idDistrito;
+        this.NIC             = NIC;
     }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -84,6 +88,14 @@ public class CasaAfiliada {
 
     public LocalDateTime getDeletedAt() { return deletedAt; }
     public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
+
+    public String getNIC() {
+        return NIC;
+    }
+
+    public void setNIC(String NIC) {
+        this.NIC = NIC;
+    }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
     public boolean isActivo() { return this.deletedAt == null; }

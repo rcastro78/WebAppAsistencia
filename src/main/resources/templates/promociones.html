@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promociones - Asistencia El Salvador</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/comercios.css}">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f4f8;
+        color: #2d3748;
+    }
+
+    .layout {
+        display: flex;
+        min-height: 100vh;
+    }
+
+    /* ── SIDEBAR (igual que proveedor.html) ── */
+    .sidebar {
+        width: 260px;
+        background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0; left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        z-index: 100;
+    }
+
+    .logo {
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo img {
+        max-width: 140px;
+        border-radius: 8px;
+    }
+
+    .sidebar-profile {
+        padding: 16px 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .profile-avatar {
+        width: 42px; height: 42px;
+        background: #4A90E2;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: .9rem;
+        margin-bottom: 8px;
+    }
+
+    .sidebar-profile h3 { font-size: .9rem; font-weight: 600; }
+    .sidebar-profile p  { font-size: .72rem; color: #a0aec0; }
+
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+
+    .nav-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 10px 20px;
+        color: #cbd5e0;
+        text-decoration: none;
+        font-size: .85rem;
+        transition: background .2s, color .2s;
+    }
+
+    .nav-item:hover, .nav-item.active {
+        background: rgba(74,144,226,.2);
+        color: #fff;
+    }
+
+    .nav-item i { width: 18px; text-align: center; }
+
+    /* ── MAIN ── */
+    .main {
+        margin-left: 260px;
+        flex: 1;
+        padding: 28px 32px;
+    }
+
+    .page-header {
+        margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #1a202c;
+    }
+
+    .page-header p {
+        color: #718096;
+        margin-top: 4px;
+        font-size: .9rem;
+    }
+
+    .breadcrumb {
+        display: flex; align-items: center; gap: 8px;
+        margin-top: 8px;
+        font-size: .8rem;
+        color: #718096;
+    }
+
+    .breadcrumb a { color: #4A90E2; text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* ── FLASH ── */
+    .flash-success, .flash-error {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex; align-items: center; gap: 10px;
+        font-size: .875rem;
+    }
+
+    .flash-success { background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; }
+    .flash-error   { background: #fed7d7; color: #9b2c2c; border: 1px solid #fc8181; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+        display: flex; align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .toolbar-left  { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .toolbar-right { display: flex; gap: 10px; align-items: center; }
+
+    .search-box {
+        display: flex; align-items: center;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 14px;
+        gap: 8px;
+    }
+
+    .search-box i   { color: #a0aec0; }
+    .search-box input {
+        border: none; outline: none;
+        font-size: .875rem;
+        width: 220px;
+        color: #2d3748;
+    }
+
+    .btn-create {
+        display: flex; align-items: center; gap: 8px;
+        background: #4A90E2;
+        color: #fff;
+        border: none;
+        padding: 9px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: .875rem;
+        font-weight: 600;
+        transition: background .2s;
+        text-decoration: none;
+    }
+
+    .btn-create:hover { background: #357abd; }
+
+    .stats-summary {
+        display: flex; gap: 10px;
+    }
+
+    .stat-item {
+        display: flex; align-items: center; gap: 6px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: .8rem;
+        color: #718096;
+    }
+
+    .stat-number { font-weight: 700; color: #2d3748; }
+
+    /* ── TABLA CARD ── */
+    .tabla-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        overflow: hidden;
+    }
+
+    .tabla-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .tabla-header h3 { font-size: .95rem; font-weight: 600; }
+    .registro-count  { font-size: .8rem; color: #718096; background: #f7fafc; padding: 4px 10px; border-radius: 20px; border: 1px solid #e2e8f0; }
+
+    /* ── TABLE ── */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead th {
+        background: #f7fafc;
+        padding: 12px 16px;
+        text-align: left;
+        font-size: .78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: #718096;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    tbody tr {
+        border-bottom: 1px solid #f0f4f8;
+        transition: background .15s;
+    }
+
+    tbody tr:hover { background: #f7fafc; }
+
+    tbody td {
+        padding: 13px 16px;
+        font-size: .875rem;
+        color: #2d3748;
+        vertical-align: middle;
+    }
+
+    /* ── BADGE ── */
+    .badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: .75rem;
+        font-weight: 600;
+    }
+
+    .badge-activo    { background: #c6f6d5; color: #276749; }
+    .badge-inactivo  { background: #fed7d7; color: #9b2c2c; }
+    .badge-pct       { background: #e9d8fd; color: #6b46c1; }
+    .badge-monto     { background: #bee3f8; color: #2c5282; }
+
+    /* ── ACCIONES ── */
+    .action-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: .78rem;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: opacity .2s;
+    }
+
+    .action-btn:hover { opacity: .8; }
+    .action-btn.edit    { background: #ebf8ff; color: #2b6cb0; }
+    .action-btn.danger  { background: #fff5f5; color: #c53030; }
+
+    /* ── EMPTY / LOADING ── */
+    .empty-state {
+        display: none;
+        flex-direction: column; align-items: center; justify-content: center;
+        gap: 12px;
+        padding: 60px 20px;
+        color: #a0aec0;
+    }
+
+    .empty-state i   { font-size: 3rem; }
+    .empty-state h3  { font-size: 1.1rem; color: #718096; }
+    .empty-state p   { font-size: .875rem; }
+
+    .btn-back {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        color: #4A90E2;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background .2s;
+    }
+
+    .btn-back:hover { background: #ebf8ff; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img th:src="@{/images/asistencia.jpeg}" src="/images/asistencia.jpeg" alt="Logo Asistencia El Salvador">
+    </div>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar">JO</div>
+      <h3>Jorge Orellana</h3>
+      <p>jorge.orellana@asistenciaelsalvador.com</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a th:href="@{/plan}"                         href="#" class="nav-item"><i class="fas fa-list-check"></i><span>Planes</span></a>
+      <a th:href="@{/coberturas}"                   href="#" class="nav-item"><i class="fas fa-umbrella"></i><span>Coberturas</span></a>
+      <a th:href="@{/categorias}"                   href="#" class="nav-item"><i class="fas fa-layer-group"></i><span>Categorías</span></a>
+      <a th:href="@{/proveedores/}"                 href="#" class="nav-item"><i class="fas fa-truck-fast"></i><span>Proveedores de servicios</span></a>
+      <a th:href="@{/clientesCorporativos/}"        href="#" class="nav-item"><i class="fas fa-suitcase"></i><span>Clientes Corporativos</span></a>
+      <a th:href="@{/asistencia/todas}"             href="#" class="nav-item"><i class="fas fa-circle-info"></i><span>Solicitudes de servicios</span></a>
+      <a th:href="@{/comerciosAfiliados/}"          href="#" class="nav-item active"><i class="fas fa-store"></i><span>Comercios Afiliados</span></a>
+      <a th:href="@{/vehiculos}"                    href="#" class="nav-item"><i class="fas fa-car"></i><span>Vehículos Afiliados</span></a>
+      <a th:href="@{/casas}"                        href="#" class="nav-item"><i class="fas fa-house"></i><span>Casas Afiliadas</span></a>
+      <a th:href="@{/medicos/listar}"               href="#" class="nav-item"><i class="fas fa-user-doctor"></i><span>Médicos Afiliados</span></a>
+      <a th:href="@{/afiliado/carga-masiva}"        href="#" class="nav-item"><i class="fas fa-file-arrow-up"></i><span>Carga masiva</span></a>
+      <a th:href="@{/admin/dashboard/pagosAfiliados}" href="#" class="nav-item"><i class="fas fa-credit-card"></i><span>Pagos</span></a>
+      <a th:href="@{/admin/vendedores/}"            href="#" class="nav-item"><i class="fas fa-business-time"></i><span>Vendedores</span></a>
+      <a th:href="@{/admin/vendedores/equipos}"     href="#" class="nav-item"><i class="fa-solid fa-users-line"></i><span>Equipos</span></a>
+      <a th:href="@{/admin/configuracion/}"         href="#" class="nav-item"><i class="fas fa-cog"></i><span>Configuración</span></a>
+      <a th:href="@{/reportes}"                     href="#" class="nav-item"><i class="fas fa-file-pdf"></i><span>Reportes</span></a>
+      <a th:href="@{/usuarios/login}"               href="#" class="nav-item"><i class="fas fa-sign-out-alt"></i><span>Cerrar Sesión</span></a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <h1>
+          <i class="fas fa-tags" style="color:#4A90E2; margin-right:8px;"></i>
+          Promociones
+        </h1>
+        <p th:if="${empresaAfiliada != null}" th:text="'Promociones registradas para ' + ${empresaAfiliada.nombreEmpresa}">Promociones del comercio afiliado.</p>
+        <p th:if="${empresaAfiliada == null}">Listado de promociones del comercio afiliado.</p>
+
+        <nav class="breadcrumb">
+          <a th:href="@{/admin/dashboard}"><i class="fas fa-home"></i> Dashboard</a>
+          <i class="fas fa-chevron-right"></i>
+          <a th:href="@{/comerciosAfiliados}">Comercios Afiliados</a>
+          <i class="fas fa-chevron-right"></i>
+          <span>Promociones</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Flash messages -->
+    <div class="flash-success" th:if="${success != null}">
+      <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+    </div>
+    <div class="flash-error" th:if="${error != null}">
+      <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Buscar promoción..." id="searchInput">
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <a th:href="@{/comerciosAfiliados}" class="btn-back">
+          <i class="fas fa-arrow-left"></i> Volver
+        </a>
+        <a th:href="@{/comercios/promociones/{nit}/nuevo(nit=${nit})}" class="btn-create">
+          <i class="fas fa-plus-circle"></i>
+          <span>Nueva Promoción</span>
+        </a>
+        <div class="stats-summary">
+          <div class="stat-item">
+            <i class="fas fa-tags"></i>
+            <span class="stat-number" id="totalCount" th:text="${#lists.size(promociones)}">0</span>
+            <span>Promociones</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla card -->
+    <div class="tabla-card">
+      <div class="tabla-header">
+        <h3>
+          <i class="fas fa-list" style="color:#4A90E2; margin-right:6px; font-size:.85rem;"></i>
+          Listado de Promociones
+        </h3>
+        <span class="registro-count" id="registroCount" th:text="${#lists.size(promociones)} + ' registros'">0 registros</span>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState"
+           th:style="${#lists.isEmpty(promociones)} ? 'display:flex' : 'display:none'">
+        <i class="fas fa-tag-slash" style="font-size:2.5rem; color:#cbd5e0;"></i>
+        <h3>No hay promociones registradas</h3>
+        <p>Agrega la primera promoción para este comercio.</p>
+      </div>
+
+      <div th:if="${!#lists.isEmpty(promociones)}">
+        <table id="promoTable">
+          <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Tipo de descuento</th>
+            <th>Valor</th>
+            <th>Plan</th>
+            <th>Vigencia</th>
+            <th>Canjes</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+          </thead>
+          <tbody id="promoBody">
+          <tr th:each="promo, iter : ${promociones}" th:data-nombre="${promo.nombreDescuento}">
+            <td th:text="${iter.count}">1</td>
+            <td th:text="${promo.nombreDescuento}">Nombre</td>
+            <td>
+                                <span class="badge"
+                                      th:classappend="${promo.tipoDescuento == 1} ? 'badge-pct' : 'badge-monto'"
+                                      th:text="${promo.tipoDescuento == 1} ? 'Porcentaje' : 'Cantidad'">
+                                </span>
+            </td>
+            <td>
+              <span th:if="${promo.tipoDescuento == 1}" th:text="${promo.valorDescuento} + '%'">0%</span>
+              <span th:if="${promo.tipoDescuento == 2}" th:text="'$' + ${promo.valorDescuento}">$0</span>
+            </td>
+            <td th:text="${promo.nombrePlan != null} ? ${promo.nombrePlan} : 'Todos'">Plan</td>
+            <td>
+                                <span th:if="${promo.fechaInicio != null && promo.fechaFin != null}"
+                                      th:text="${#temporals.format(promo.fechaInicio,'dd/MM/yyyy')} + ' - ' + ${#temporals.format(promo.fechaFin,'dd/MM/yyyy')}">
+                                </span>
+              <span th:if="${promo.fechaInicio == null || promo.fechaFin == null}" style="color:#a0aec0;">—</span>
+            </td>
+            <td>
+              <span th:text="${promo.canjesPorUsuario != null} ? ${promo.canjesPorUsuario} : '—'">—</span>
+              <span style="color:#a0aec0;"> / </span>
+              <span th:text="${promo.maxCanjes != null} ? ${promo.maxCanjes} : '∞'">∞</span>
+            </td>
+            <td>
+                                <span class="badge"
+                                      th:classappend="${promo.activo == 1} ? 'badge-activo' : 'badge-inactivo'"
+                                      th:text="${promo.activo == 1} ? 'Activo' : 'Inactivo'">
+                                </span>
+            </td>
+            <td style="display:flex; gap:6px; flex-wrap:wrap;">
+              <a class="action-btn edit"
+                 th:href="@{/comercios/promociones/{nit}/editar/{id}(nit=${nit}, id=${promo.id})}">
+                <i class="fas fa-pen-to-square"></i> Editar
+              </a>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+      searchInput.addEventListener('input', function () {
+          const term  = this.value.toLowerCase().trim();
+          const rows  = document.querySelectorAll('#promoBody tr');
+          let visible = 0;
+
+          rows.forEach(row => {
+              const nombre = (row.dataset.nombre || '').toLowerCase();
+              const show   = nombre.includes(term);
+              row.style.display = show ? '' : 'none';
+              if (show) visible++;
+          });
+
+          const emptyState    = document.getElementById('emptyState');
+          const registroCount = document.getElementById('registroCount');
+          if (emptyState)    emptyState.style.display    = visible === 0 ? 'flex' : 'none';
+          if (registroCount) registroCount.textContent    = visible + ' registros';
+      });
+  }
+</script>
+</body>
+</html>

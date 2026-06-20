@@ -2,7 +2,9 @@ package com.asistencia_el_salvador.web_app_asistencia.service;
 
 import com.asistencia_el_salvador.web_app_asistencia.model.EmpresaAfiliada;
 import com.asistencia_el_salvador.web_app_asistencia.model.Institucion;
+import com.asistencia_el_salvador.web_app_asistencia.model.Promocion;
 import com.asistencia_el_salvador.web_app_asistencia.repository.EmpresaAfiliadaRepository;
+import com.asistencia_el_salvador.web_app_asistencia.repository.PromocionRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,9 +15,12 @@ import java.util.Optional;
 @Service
 public class EmpresaAfiliadaService {
     private final EmpresaAfiliadaRepository empresaAfiliadaRepository;
+    private final PromocionRepository promocionRepository;
 
-    public EmpresaAfiliadaService(EmpresaAfiliadaRepository empresaAfiliadaRepository) {
+    public EmpresaAfiliadaService(EmpresaAfiliadaRepository empresaAfiliadaRepository,
+                                  PromocionRepository promocionRepository) {
         this.empresaAfiliadaRepository = empresaAfiliadaRepository;
+        this.promocionRepository = promocionRepository;
     }
     public List<EmpresaAfiliada> getEmpresasAfiliadasByCat(int catId){
         return empresaAfiliadaRepository.findByIdCategoriaEmpresa(catId);
@@ -23,6 +28,9 @@ public class EmpresaAfiliadaService {
 
     public Optional<EmpresaAfiliada> getEmpresaAfiliada(String id){
         return empresaAfiliadaRepository.findById(id);
+    }
+    public EmpresaAfiliada getEmpresaAfiliadaByNit(String nit){
+        return empresaAfiliadaRepository.findByNit(nit);
     }
 
     public List<EmpresaAfiliada> listarTodas(){
@@ -36,6 +44,26 @@ public class EmpresaAfiliadaService {
     public EmpresaAfiliada saveEmpresaAfiliada(EmpresaAfiliada empresaAfiliada){
         return empresaAfiliadaRepository.save(empresaAfiliada);
     }
+
+    //Actualizar promocion
+    public Promocion actualizarPromocion(Promocion promocion,
+                                         Long idPromocion){
+        return promocionRepository.findById(idPromocion)
+                .map(p->{
+                   p.setActivo(promocion.getActivo());
+                   p.setFechaFin(promocion.getFechaFin());
+                   p.setFechaInicio(promocion.getFechaInicio());
+                   p.setIdPlan(promocion.getIdPlan());
+                   p.setCanjesPorUsuario(promocion.getCanjesPorUsuario());
+                   p.setMaxCanjes(promocion.getMaxCanjes());
+                   p.setValorDescuento(promocion.getValorDescuento());
+                   p.setNombreDescuento(promocion.getNombreDescuento());
+                   p.setTipoDescuento(promocion.getTipoDescuento());
+                   return promocionRepository.save(p);
+                })
+                .orElseThrow(() -> new RuntimeException("Promocion no encontrada"));
+    }
+
 
     //Actualizar
     public EmpresaAfiliada updateEmpresaAfiliada(String nit, EmpresaAfiliada empresaAfiliada){
