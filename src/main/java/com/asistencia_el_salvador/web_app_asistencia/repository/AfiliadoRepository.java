@@ -56,6 +56,18 @@ public interface AfiliadoRepository extends JpaRepository<Afiliado, String> {
             @Param("institucion") Integer institucion,
             @Param("idPlan") int idPlan);
 
+
+    @Query("""
+    SELECT a FROM Afiliado a
+    WHERE a.dui IN (
+        SELECT ac.duiAfiliado FROM AfiliadoCorporativo ac
+        WHERE ac.NITCliente = :nitCliente
+    )
+    """)
+    Page<Afiliado> findAfiliadosByNitCliente(Pageable pageable, @Param("nitCliente") String nitCliente);
+
+
+
     @Modifying
     @Transactional
     @Query("UPDATE Afiliado a SET a.estado = 0 WHERE a.dui IN :duis")

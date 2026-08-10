@@ -79,6 +79,18 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label for="idPlanAsociado"><i class="fas fa-clipboard-list"></i> Plan Asociado</label>
+                        <select th:field="*{idPlanAsociado}" id="idPlanAsociado" class="input" required>
+                            <option value="">Seleccione el plan</option>
+                            <option th:each="plan : ${planes}"
+                                    th:value="${plan.idPlan}"
+                                    th:text="${plan.nombrePlan}">
+                                Nombre del plan
+                            </option>
+                        </select>
+                    </div>
+
                     <!-- Logo/Imagen del Cliente -->
                     <div class="form-group full-width">
                         <label><i class="fas fa-image"></i> Logo del Cliente</label>

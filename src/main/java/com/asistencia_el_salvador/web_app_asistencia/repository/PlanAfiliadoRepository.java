@@ -2,7 +2,9 @@ package com.asistencia_el_salvador.web_app_asistencia.repository;
 
 import com.asistencia_el_salvador.web_app_asistencia.model.PlanAfiliado;
 import com.asistencia_el_salvador.web_app_asistencia.model.PlanAfiliadoID;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -36,6 +38,10 @@ public interface PlanAfiliadoRepository extends JpaRepository<PlanAfiliado, Plan
     @Query(value = "SELECT porcentaje_completitud_afiliado(:dui, :idPlan)", nativeQuery = true)
     Double obtenerPorcentajeCompletitud(@Param("dui") String dui, @Param("idPlan") int idPlan);
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE PlanAfiliado pa SET pa.estado = 0 WHERE pa.dui IN :duis AND pa.idPlan = :idPlan")
+    void desactivarPorDuisYPlan(@Param("duis") List<String> duis, @Param("idPlan") Integer idPlan);
 
     // Verificar si existe combinación DUI + Plan
     boolean existsByDuiAndIdPlan(String dui, Integer idPlan);

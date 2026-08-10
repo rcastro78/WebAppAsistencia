@@ -1,6 +1,7 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
 import com.asistencia_el_salvador.web_app_asistencia.model.Proveedor;
+import com.asistencia_el_salvador.web_app_asistencia.model.ProveedorAfiliado;
 import com.asistencia_el_salvador.web_app_asistencia.model.ProveedorSucursal;
 import com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse;
 import com.asistencia_el_salvador.web_app_asistencia.service.ProveedorService;
@@ -36,12 +37,16 @@ public class ProveedorSucursalController {
     }
 
     @GetMapping("/nueva/{nit}")
-    public String formularioNueva(@PathVariable String nit, Model model) {
+    public String formularioNueva(@PathVariable String nit, HttpSession session, Model model) {
         ProveedorSucursal sucursal = new ProveedorSucursal();
         sucursal.setNITProveedor(nit);
 
+        // Pasar datos del proveedor para el sidebar
+        Proveedor proveedor = proveedorService.buscarProveedorNIT(nit);
         model.addAttribute("sucursal", sucursal);
         model.addAttribute("modoEdicion", false);
+        model.addAttribute("nitProveedor", nit);
+        model.addAttribute("proveedor", proveedor);
         return "proveedor_sucursal_form";
     }
 
@@ -55,18 +60,20 @@ public class ProveedorSucursalController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al guardar la sucursal: " + e.getMessage());
         }
-        return "redirect:/proveedores/sucursales/" + sucursal.getNITProveedor();
+        return "redirect:/usuarios/proveedor_dashboard";
     }
 
     // ── FORMULARIO EDITAR SUCURSAL ────────────────────────────────────────────
     @GetMapping("/editar/{id}")
-    public String formularioEditar(@PathVariable Integer id, Model model) {
+    public String formularioEditar(@PathVariable Integer id, HttpSession session, Model model) {
         ProveedorSucursal sucursal = proveedorSucursalService.findById(String.valueOf(id));
+        Proveedor proveedor = proveedorService.buscarProveedorNIT(sucursal.getNITProveedor());
         model.addAttribute("sucursal", sucursal);
         model.addAttribute("modoEdicion", true);
+        model.addAttribute("nitProveedor", sucursal.getNITProveedor());
+        model.addAttribute("proveedor", proveedor);
         return "proveedor_sucursal_form";
     }
-
     // ── ACTUALIZAR SUCURSAL ───────────────────────────────────────────────────
     @PostMapping("/actualizar/{id}")
     public String actualizar(@PathVariable String id,
@@ -78,7 +85,7 @@ public class ProveedorSucursalController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al actualizar la sucursal: " + e.getMessage());
         }
-        return "redirect:/proveedores/sucursales/" + sucursal.getNITProveedor();
+        return "redirect:/usuarios/proveedor_dashboard";
     }
 
     // ── ELIMINAR SUCURSAL ─────────────────────────────────────────────────────
@@ -93,7 +100,7 @@ public class ProveedorSucursalController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al eliminar la sucursal.");
         }
-        return "redirect:/proveedores/sucursales/" + nit;
+        return "redirect:/usuarios/proveedor_dashboard";
     }
 }
 

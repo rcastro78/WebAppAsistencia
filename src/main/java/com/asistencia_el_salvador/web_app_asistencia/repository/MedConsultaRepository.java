@@ -40,4 +40,18 @@ public interface MedConsultaRepository extends JpaRepository<MedConsulta, Intege
 
     // Verificar si existe roomId
     boolean existsByRoomId(String roomId);
+
+    @org.springframework.data.jpa.repository.Query("""
+    SELECT c FROM MedConsulta c
+    WHERE c.duiDoctor = :duiDoctor
+      AND c.idTipo = 2
+      AND c.rechazada = 0
+      AND c.fechaProgramada BETWEEN :inicioDia AND :finDia
+      AND (:idConsultaExcluir IS NULL OR c.idConsulta <> :idConsultaExcluir)
+""")
+    List<MedConsulta> findCitasDelDiaPorDoctor(
+            @org.springframework.data.repository.query.Param("duiDoctor") String duiDoctor,
+            @org.springframework.data.repository.query.Param("inicioDia") LocalDateTime inicioDia,
+            @org.springframework.data.repository.query.Param("finDia") LocalDateTime finDia,
+            @org.springframework.data.repository.query.Param("idConsultaExcluir") Integer idConsultaExcluir);
 }

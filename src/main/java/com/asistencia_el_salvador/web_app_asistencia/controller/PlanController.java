@@ -4,10 +4,7 @@ import com.asistencia_el_salvador.web_app_asistencia.model.*;
 import com.asistencia_el_salvador.web_app_asistencia.repository.CoparticipacionRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.PlanCoparticipeRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.PlanIntermediarioRepository;
-import com.asistencia_el_salvador.web_app_asistencia.service.PaisService;
-import com.asistencia_el_salvador.web_app_asistencia.service.PlanCoparticipeService;
-import com.asistencia_el_salvador.web_app_asistencia.service.PlanIntermediarioService;
-import com.asistencia_el_salvador.web_app_asistencia.service.PlanService;
+import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +27,7 @@ import java.util.Optional;
 public class PlanController {
     private PlanService planService;
     private PaisService paisService;
+    private PlanTipoService planTipoService;
     private PlanIntermediarioService planIntermediarioService;
     private PlanCoparticipeService planCoparticipeService;
     private final PlanCoparticipeRepository planCoparticipeRepository;
@@ -42,7 +40,8 @@ public class PlanController {
                           PlanCoparticipeService planCoparticipeService,
                           PlanCoparticipeRepository planCoparticipeRepository,
                           PlanIntermediarioRepository planIntermediarioRepository,
-                          CoparticipacionRepository coparticipacionRepository) {
+                          CoparticipacionRepository coparticipacionRepository,
+                          PlanTipoService planTipoService) {
         this.planService = planService;
         this.paisService = paisService;
         this.planIntermediarioService = planIntermediarioService;
@@ -50,6 +49,7 @@ public class PlanController {
         this.planCoparticipeRepository = planCoparticipeRepository;
         this.planIntermediarioRepository = planIntermediarioRepository;
         this.coparticipacionRepository = coparticipacionRepository;
+        this.planTipoService = planTipoService;
     }
 
     @GetMapping({"/", ""})
@@ -93,6 +93,12 @@ public class PlanController {
             return "redirect:/plan/nuevo";
         }
     }
+    @GetMapping("/planesCobertura/seleccionar/{idPlan}")
+    public String seleccionarPlan(@PathVariable Integer idPlan,
+                                  HttpSession session) {
+        session.setAttribute("idPlan", idPlan);
+        return "redirect:/planesCobertura";
+    }
 
     // Mostrar formulario para EDITAR plan
     @GetMapping({"/nuevo", "/nuevo/"})
@@ -102,6 +108,7 @@ public class PlanController {
         model.addAttribute("plan", new Plan());
         model.addAttribute("esEdicion", false);
         model.addAttribute("coparticipes", planCoparticipeService.buscarActivos());
+        model.addAttribute("tiposPlan", planTipoService.listarActivos());
         model.addAttribute("intermediarios", planIntermediarioService.buscarActivos());
         model.addAttribute("coparticipacion", null);
         return "plan";
@@ -116,6 +123,7 @@ public class PlanController {
             model.addAttribute("paises", paises);
             model.addAttribute("plan", planOpt.get());
             model.addAttribute("esEdicion", true);
+            model.addAttribute("tiposPlan", planTipoService.listarActivos());
             model.addAttribute("coparticipes", planCoparticipeService.buscarActivos());
             model.addAttribute("intermediarios", planIntermediarioService.buscarActivos());
 
@@ -154,6 +162,7 @@ public class PlanController {
                 planExistente.setEstado(plan.getEstado());
                 planExistente.setLinkPago(plan.getLinkPago());
                 planExistente.setLinkPagoAnual(plan.getLinkPagoAnual());
+                planExistente.setIdPlanTipo(plan.getIdPlanTipo());
                 planExistente.setCoparticipacion(Boolean.TRUE.equals(tieneCoparticipacion) ? 1 : 0);
                 planService.savePlan(planExistente);
 

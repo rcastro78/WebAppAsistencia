@@ -27,6 +27,10 @@ public class MedConsulta {
     @Column(name = "idTipo")
     private Integer idTipo;
 
+    // NUEVO: 1 = Presencial, 2 = Video. Independiente de idTipo (emergencia/programada).
+    @Column(name = "modalidad")
+    private Integer modalidad;
+
     @Column(name = "motivo", length = 200)
     private String motivo;
 
@@ -38,6 +42,9 @@ public class MedConsulta {
 
     @Column(name = "fechaFin")
     private LocalDateTime fechaFin;
+
+    @Column(name = "idCobertura")
+    private Integer idCobertura;
 
     // Campo generado por la BD, solo lectura
     @Column(name = "duracionMinutos", insertable = false, updatable = false)
@@ -98,6 +105,9 @@ public class MedConsulta {
     public Integer getIdTipo() { return idTipo; }
     public void setIdTipo(Integer idTipo) { this.idTipo = idTipo; }
 
+    public Integer getModalidad() { return modalidad; }
+    public void setModalidad(Integer modalidad) { this.modalidad = modalidad; }
+
     public String getMotivo() { return motivo; }
     public void setMotivo(String motivo) { this.motivo = motivo; }
 
@@ -111,6 +121,7 @@ public class MedConsulta {
     public void setFechaFin(LocalDateTime fechaFin) { this.fechaFin = fechaFin; }
 
     public Integer getDuracionMinutos() { return duracionMinutos; }
+    public void setDuracionMinutos(Integer duracionMinutos) { this.duracionMinutos = duracionMinutos; }
 
     public Integer getRechazada() { return rechazada; }
     public void setRechazada(Integer rechazada) { this.rechazada = rechazada; }
@@ -120,4 +131,9 @@ public class MedConsulta {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public Integer getIdCobertura() { return idCobertura; }
+    public void setIdCobertura(Integer idCobertura) { this.idCobertura = idCobertura; }
+
+
 }

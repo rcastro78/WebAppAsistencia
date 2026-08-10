@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Citas Médicas - Asistencia El Salvador</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+  <link rel="stylesheet" th:href="@{/css/afiliados.css}">
+  <link rel="stylesheet" th:href="@{/css/cita_medica.css}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+  <!--
+      Estilos de paginación. Si prefieres, mueve este bloque a /css/cita_medica.css
+      y bórralo de aquí — usa las mismas variables (--blue-600, --border, etc.)
+      que ya están definidas en tus hojas de estilo externas.
+  -->
+  <style>
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border, #E4E9F1);
+      flex-wrap: wrap;
+    }
+
+    .page-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--blue-600, #2D6FD2);
+      background: var(--blue-100, #E8F1FC);
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+
+    .page-link:hover { background: #D5E6FA; transform: translateY(-1px); }
+
+    .page-link.is-disabled {
+      color: var(--text-faint, #93A0B4);
+      background: #F1F3F7;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .page-status {
+      font-size: 0.85rem;
+      color: var(--text-muted, #66748C);
+      text-align: center;
+    }
+
+    .page-total { color: var(--text-faint, #93A0B4); }
+
+    @media (max-width: 480px) {
+      .pagination { flex-direction: column; }
+    }
+  </style>
+
+</head>
+<body>
+<div class="layout">
+
+  <!-- ══════════════════════════════════════════
+       SIDEBAR — del dashboard
+  ══════════════════════════════════════════ -->
+  <aside class="sidebar" th:if="${session.rol}==1">
+
+    <div class="logo">
+      <img th:src="@{/images/asistencia.jpeg}" src="/images/asistencia.jpeg" alt="Logo Asistencia El Salvador">
+    </div>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar" th:text="${#strings.substring(afiliado.nombre,0,1) + #strings.substring(afiliado.apellido,0,1)}">--</div>
+      <h3 th:text="${afiliado.nombre + ' ' + afiliado.apellido}">Nombre Apellido</h3>
+      <p th:text="${afiliado.email}">email</p>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <a th:href="@{/plan}" href="#" class="nav-item">
+        <i class="fas fa-list-check"></i>
+        <span>Planes</span>
+      </a>
+
+      <a th:href="@{/coberturas}" href="#" class="nav-item">
+        <i class="fas fa-umbrella"></i>
+        <span>Coberturas</span>
+      </a>
+
+      <a th:href="@{/categorias}" href="#" class="nav-item">
+        <i class="fas fa-layer-group"></i>
+        <span>Categorías</span>
+      </a>
+
+      <a th:href="@{/proveedores/}" href="#" class="nav-item">
+        <i class="fas fa-truck-fast"></i>
+        <span>Proveedores de servicios</span>
+      </a>
+
+      <a th:href="@{/clientesCorporativos/}" href="#" class="nav-item">
+        <i class="fas fa-suitcase"></i>
+        <span>Clientes Corporativos</span>
+      </a>
+
+      <a th:href="@{/asistencia/todas}" href="#" class="nav-item">
+        <i class="fas fa-circle-info"></i>
+        <span>Solicitudes de servicios</span>
+      </a>
+
+      <a th:href="@{/comerciosAfiliados/}" href="#" class="nav-item">
+        <i class="fas fa-store"></i>
+        <span>Comercios Afiliados</span>
+      </a>
+
+      <a th:href="@{/vehiculos}" href="#" class="nav-item">
+        <i class="fas fa-car"></i>
+        <span>Vehículos Afiliados</span>
+      </a>
+
+      <a th:href="@{/casas}" href="#" class="nav-item">
+        <i class="fas fa-house"></i>
+        <span>Casas Afiliadas</span>
+      </a>
+
+      <a th:href="@{/medicos/listar}" href="#" class="nav-item">
+        <i class="fas fa-user-doctor"></i>
+        <span>Médicos Afiliados</span>
+      </a>
+
+      <a th:href="@{/afiliado/carga-masiva}" href="#" class="nav-item">
+        <i class="fas fa-file-arrow-up"></i>
+        <span>Carga masiva</span>
+      </a>
+
+      <a th:href="@{/admin/dashboard/pagosAfiliados}" href="#" class="nav-item">
+        <i class="fas fa-credit-card"></i>
+        <span>Pagos</span>
+      </a>
+
+      <a th:href="@{/admin/vendedores/}" href="#" class="nav-item">
+        <i class="fas fa-business-time"></i>
+        <span>Vendedores</span>
+      </a>
+
+      <a th:href="@{/admin/vendedores/equipos}" href="#" class="nav-item">
+        <i class="fa-solid fa-users-line"></i>
+        <span>Equipos</span>
+      </a>
+
+      <a th:href="@{/admin/configuracion/}" href="#" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Configuración</span>
+      </a>
+
+      <a th:href="@{/reportes}" href="#" class="nav-item">
+        <i class="fas fa-file-pdf"></i>
+        <span>Reportes</span>
+      </a>
+
+      <a th:href="@{/usuarios/login}" href="#" class="nav-item">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Cerrar Sesión</span>
+      </a>
+
+    </nav>
+  </aside>
+  <aside class="sidebar" th:if="${session.rol}==3">
+    <div class="logo">
+      <i class="fas fa-shield-alt"></i>
+      <img th:src="@{/images/asistencia.jpeg}" style="width: 224px; height: 64px;" alt="Logo">
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-avatar">
+        <img src="https://via.placeholder.com/60x60/4A90E2/FFFFFF?text=HM" alt="Profile">
+      </div>
+      <h3 th:text="|${session.nombre} ${session.apellido}|"></h3>
+      <p class="tutor-id" th:text="|DUI Afiliado: ${session.dui}|">Afiliado ID: 135246</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a th:href="@{/afiliado/nuevo/patrocinio}" class="nav-item">
+        <i class="fas fa-user-plus"></i>
+        <span>Patrocina a alguien</span>
+      </a>
+
+      <a th:href="@{/comerciosAfiliados}" class="nav-item">
+        <i class="fas fa-store"></i>
+        <span>Comercios afiliados</span>
+      </a>
+
+      <a th:href="@{/planesCobertura}"  class="nav-item">
+        <i class="fas fa-face-smile"></i>
+        <span>Beneficios de mi plan</span>
+      </a>
+
+      <a th:href="@{/proveedores/serviciosProveedor/lista}" class="nav-item">
+        <i class="fas fa-truck"></i>
+        <span>Servicios de mi plan</span>
+      </a>
+
+      <a th:href="@{/afiliado/historial/}" class="nav-item">
+        <i class="fas fa-credit-card"></i>
+        <span>Pagos</span>
+      </a>
+      <a th:href="@{/afiliado/miTarjeta}" class="nav-item">
+        <i class="fas fa-id-card"></i>
+        <span>Mi tarjeta</span>
+      </a>
+
+      <a th:href="@{/afiliado/contrato/{dui}(dui=${session.dui})}" class="nav-item">
+        <i class="fas fa-file-pdf"></i>
+        <span>Mi Contrato</span>
+      </a>
+
+      <a th:href="@{/afiliado/patrocinados/}" class="nav-item">
+        <i class="fas fa-user-group"></i>
+        <span>Mis patrocinados</span>
+      </a>
+
+      <a th:href="@{/telemedicina/consulta/solicitar}" class="nav-item">
+        <i class="fas fa-hospital"></i>
+        <span>Solicitar consulta de emergencia</span>
+      </a>
+
+      <a th:href="@{/telemedicina/citas}" class="nav-item">
+        <i class="fas fa-hospital"></i>
+        <span>Mis citas médicas</span>
+      </a>
+
+
+      <a th:href="@{/usuarios/login}" class="nav-item">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Cerrar Sesión</span>
+      </a>
+    </nav>
+
+    <div class="profile-completion">
+      <div class="progress-container" th:data-pct="${pct}">
+        <svg class="progress-ring" width="60" height="60">
+          <circle class="progress-ring-circle" stroke="#e6e6e6" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+          <circle class="progress-ring-circle progress" stroke="#4A90E2" stroke-width="4" fill="transparent" r="26" cx="30" cy="30"/>
+        </svg>
+        <span class="percentage"></span>
+        <p>Perfil Completado: <span class="text-pct" th:text="${porcentaje} + '%'"></span></p>
+      </div>
+
+      <div class="completion-steps">
+        <div class="step completed">
+          <i class="fas fa-check"></i>
+          <span>Información Personal</span>
+        </div>
+        <div class="step completed">
+          <i class="fas fa-check"></i>
+          <span>Documentación</span>
+        </div>
+        <div class="step">
+          <i class="fas fa-circle"></i>
+          <span>Datos Médicos</span>
+        </div>
+        <div class="step">
+          <i class="fas fa-circle"></i>
+          <span>Beneficiarios</span>
+        </div>
+        <div class="step">
+          <i class="fas fa-circle"></i>
+          <span>Evaluación</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════
+       MAIN
+  ══════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h1>
+          <i class="fas fa-calendar-check" style="color:var(--blue-600); margin-right:10px;"></i>
+          <span>Citas Médicas</span>
+        </h1>
+        <p>Historial y agenda de citas médicas del afiliado.</p>
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a th:href="${rol == 2} ? @{/admin/ventas/dashboard} : @{/admin/dashboard}">
+            <i class="fas fa-home"></i> Dashboard
+          </a>
+          <i class="fas fa-chevron-right"></i>
+          <a th:href="@{/afiliado}">Afiliados</a>
+          <i class="fas fa-chevron-right"></i>
+          <span>Citas Médicas</span>
+        </nav>
+      </div>
+
+      <!-- Botones -->
+      <div class="header-actions">
+        <a th:href="@{/telemedicina/citas/nueva/}"
+           class="btn btn-primary">
+          <i class="fas fa-calendar-plus"></i> Nueva cita
+        </a>
+        <a th:href="@{/telemedicina/consulta/solicitar}"
+           class="btn btn-secondary">
+          <i class="fas fa-video"></i> Nueva cita virtual
+        </a>
+      </div>
+    </div>
+
+    <!-- Flash messages -->
+    <div class="flash-success" th:if="${success != null}">
+      <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+    </div>
+    <div class="flash-error" th:if="${error != null}">
+      <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         RESUMEN DEL AFILIADO
+    ══════════════════════════════════════════ -->
+    <div class="afiliado-resumen" th:if="${afiliado != null}">
+      <div class="avatar-grande"
+           th:text="${#strings.substring(afiliado.nombre,0,1) + #strings.substring(afiliado.apellido,0,1)}">AA</div>
+      <div class="info">
+        <h4 th:text="${afiliado.nombre + ' ' + afiliado.apellido}">Nombre Apellido</h4>
+        <span><i class="fas fa-id-card"></i> <span th:text="${afiliado.dui}">00000000-0</span></span>
+        <span><i class="fas fa-envelope"></i> <span th:text="${afiliado.email}">correo@ejemplo.com</span></span>
+        <span th:if="${afiliado.telefono != null}"><i class="fas fa-phone"></i> <span th:text="${afiliado.telefono}">0000-0000</span></span>
+      </div>
+    </div>
+
+    <!-- Toolbar: búsqueda y contador -->
+    <div class="table-toolbar" th:if="${not #lists.isEmpty(citas)}">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="buscadorCitas" placeholder="Buscar por doctor o especialidad..." oninput="filtrarCitas()">
+        <button type="button" id="btnLimpiar" onclick="limpiarBuscador()" style="display:none;" aria-label="Limpiar búsqueda">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <!--
+          Si totalRegistros viene del backend (total real en todas las páginas), se usa ese.
+          Si no, cae de vuelta al tamaño de la página actual como antes.
+      -->
+      <span id="contadorRegistros" class="contador"
+            th:text="${totalRegistros != null} ? (${totalRegistros} + ' registros') : (${#lists.size(citas)} + ' registros')">0 registros</span>
+    </div>
+
+    <!-- Sin resultados de búsqueda -->
+    <div id="sinResultados" class="sin-resultados" style="display:none;">
+      <i class="fas fa-magnifying-glass-minus" style="margin-right:6px;"></i>
+      No se encontraron citas para "<span id="terminoBusqueda"></span>"
+    </div>
+
+    <!-- Tabla con datos -->
+    <div th:if="${not #lists.isEmpty(citas)}" class="table-wrapper">
+      <table id="tablaCitas">
+        <thead>
+        <tr>
+          <th><i class="fas fa-hashtag"></i> ID</th>
+          <th><i class="fas fa-calendar-day"></i> Fecha</th>
+          <th><i class="fas fa-user-doctor"></i> Doctor</th>
+          <th><i class="fas fa-stethoscope"></i> Especialidad</th>
+          <th><i class="fas fa-laptop-medical"></i> Tipo</th>
+          <th><i class="fas fa-notes-medical"></i> Motivo</th>
+          <th><i class="fas fa-hourglass-half"></i> Duración</th>
+          <th><i class="fas fa-shield-alt"></i> Estado</th>
+          <th class="th-acciones"><i class="fas fa-cogs"></i> Acciones</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:each="cita : ${citas}"
+            class="fade-row"
+            th:classappend="${cita.estadoAgenda == 'PENDIENTE'} ? 'estado-pendiente' : (${cita.estadoAgenda == 'REALIZADA'} ? 'estado-realizada' : (${cita.estadoAgenda == 'EN CURSO'} ? 'estado-encurso' : (${cita.estadoAgenda == 'RECHAZADA'} ? 'estado-rechazada' : (${cita.estadoAgenda == 'NO ASISTIÓ'} ? 'estado-cancelada' : ''))))">
+
+          <!-- ID -->
+          <td>
+                <span class="dui-badge"
+                      th:text="${cita.idConsulta}">1</span>
+          </td>
+
+          <!-- Fecha -->
+          <td>
+            <div th:text="${#temporals.format(cita.fechaProgramada,'dd/MM/yyyy')}">
+              01/01/2026
+            </div>
+
+            <small style="color:var(--text-faint)"
+                   th:text="${#temporals.format(cita.fechaProgramada,'hh:mm a')}">
+              08:00 AM
+            </small>
+          </td>
+
+          <!-- Doctor -->
+          <td>
+            <strong th:text="${cita.doctor}">
+              Dr. Juan Pérez
+            </strong>
+          </td>
+
+          <!-- Especialidad -->
+          <td>
+                <span th:text="${cita.nombreEspecialidad}">
+                    Medicina General
+                </span>
+          </td>
+
+          <!-- Tipo -->
+          <td>
+
+                <span class="tipo-badge"
+                      th:classappend="${cita.roomId != null and !#strings.isEmpty(cita.roomId)} ? ' tipo-telecita' : ' tipo-presencial'">
+
+                    <i th:class="${cita.roomId != null and !#strings.isEmpty(cita.roomId)} ? 'fas fa-video' : 'fas fa-hospital'"></i>
+
+                    <span th:text="${cita.tipoConsulta}">
+                        Teleconsulta
+                    </span>
+
+                </span>
+
+            <div class="room-info"
+                 th:if="${cita.roomId != null and !#strings.isEmpty(cita.roomId)}">
+
+              <i class="fas fa-door-open"></i>
+
+              <span th:text="${cita.roomId}">
+                        room123
+                    </span>
+
+            </div>
+
+          </td>
+
+          <!-- Motivo -->
+          <td class="dir-cell"
+              th:text="${cita.motivo}">
+            Consulta General
+          </td>
+
+          <!-- Duración -->
+          <td>
+
+                <span th:if="${cita.duracionMinutos != null}"
+                      th:text="${cita.duracionMinutos + ' min'}">
+                    20 min
+                </span>
+
+            <span th:unless="${cita.duracionMinutos != null}"
+                  style="color:var(--text-faint)">
+                    -
+                </span>
+
+          </td>
+
+          <!-- Estado -->
+          <td>
+
+                <span th:switch="${cita.estadoAgenda}">
+
+                    <span th:case="'PENDIENTE'"
+                          class="badge badge-pendiente">
+                        <i class="fas fa-clock"></i>
+                        Pendiente
+                    </span>
+
+                    <span th:case="'REALIZADA'"
+                          class="badge badge-completada">
+                        <i class="fas fa-check-double"></i>
+                        Realizada
+                    </span>
+
+                    <span th:case="'EN CURSO'"
+                          class="badge badge-encurso">
+                        <i class="fas fa-spinner"></i>
+                        En curso
+                    </span>
+
+                    <span th:case="'RECHAZADA'"
+                          class="badge badge-rechazada">
+                        <i class="fas fa-ban"></i>
+                        Rechazada
+                    </span>
+
+                    <span th:case="'NO ASISTIÓ'"
+                          class="badge badge-cancelada">
+                        <i class="fas fa-user-slash"></i>
+                        No asistió
+                    </span>
+
+                    <span th:case="*"
+                          class="badge badge-pendiente"
+                          th:text="${cita.estadoAgenda}">
+                    </span>
+
+                </span>
+
+            <i class="fas fa-circle-info motivo-rechazo-icon"
+               th:if="${cita.motivoRechazo != null and !#strings.isEmpty(cita.motivoRechazo)}"
+               th:title="${cita.motivoRechazo}">
+            </i>
+
+          </td>
+
+          <!-- Acciones -->
+          <td>
+
+            <div class="acciones-td">
+
+              <!-- Ver detalle -->
+              <a th:href="@{/telemedicina/citas/detalle/{id}(id=${cita.idConsulta})}"
+                 class="action-btn action-print"
+                 data-tooltip="Ver detalle">
+
+                <i class="fas fa-eye"></i>
+
+              </a>
+
+              <!-- Entrar a videollamada -->
+              <a th:if="${cita.roomId != null and !#strings.isEmpty(cita.roomId) and cita.estadoAgenda == 'PENDIENTE'}"
+                 th:href="@{/telemedicina/consulta/sala/{roomId}(roomId=${cita.roomId})}"
+                 target="_blank"
+                 class="action-btn action-verify"
+                 data-tooltip="Entrar a consulta">
+
+                <i class="fas fa-video"></i>
+
+              </a>
+
+            </div>
+
+          </td>
+
+        </tr>
+
+        </tbody>
+      </table>
+
+      <!-- ══════════════════════════════════════════
+           PAGINACIÓN
+           Asume que el controlador manda al modelo:
+             - pagina         (int, 0-indexado — página actual)
+             - totalPaginas   (int, total de páginas disponibles)
+             - totalRegistros (long, opcional — total de citas en todas las páginas)
+           Ajusta los nombres si tu método ya usa otros.
+      ══════════════════════════════════════════ -->
+      <nav class="pagination"
+           th:if="${totalPaginas != null and totalPaginas > 1}"
+           aria-label="Paginación de citas">
+
+        <a th:href="@{/telemedicina/citas(pagina=${pagina - 1})}" class="page-link">
+
+          <i class="fas fa-chevron-left"></i> Anterior
+        </a>
+        <span th:unless="${pagina > 0}" class="page-link is-disabled" aria-disabled="true">
+          <i class="fas fa-chevron-left"></i> Anterior
+        </span>
+
+        <span class="page-status">
+          Página <strong th:text="${pagina + 1}">1</strong> de <strong th:text="${totalPaginas}">1</strong>
+          <span th:if="${totalRegistros != null}" class="page-total">
+            (<span th:text="${totalRegistros}">0</span> citas en total)
+          </span>
+        </span>
+
+        <a th:if="${pagina < totalPaginas - 1}"
+           th:href="@{/telemedicina/citas(pagina=${pagina + 1})}"
+           class="page-link">
+          Siguiente <i class="fas fa-chevron-right"></i>
+        </a>
+        <span th:unless="${pagina < totalPaginas - 1}" class="page-link is-disabled" aria-disabled="true">
+          Siguiente <i class="fas fa-chevron-right"></i>
+        </span>
+
+      </nav>
+
+    </div>
+
+    <!-- Estado vacío -->
+    <div th:if="${#lists.isEmpty(citas)}" class="empty-state">
+      <i class="fas fa-calendar-xmark"></i>
+      <h3>Aún no hay citas registradas</h3>
+      <p>Cuando el afiliado agende una cita médica o virtual, aparecerá aquí.</p>
+    </div>
+
+  </main>
+</div><!-- /layout -->
+
+
+<script>
+  /* ── Rechazar cita (captura motivoRechazo) ── */
+  function confirmarRechazo(event, btn) {
+    event.preventDefault();
+    const id = btn.dataset.id;
+
+    const motivo = prompt('Ingresa el motivo del rechazo:');
+    if (motivo === null) return; // cancelado por el usuario
+    if (motivo.trim() === '') {
+      alert('Debes ingresar un motivo para rechazar la cita.');
+      return;
+    }
+
+    document.getElementById('motivoRechazoInput-' + id).value = motivo.trim();
+    document.getElementById('rechazarForm-' + id).submit();
+  }
+
+  /* ── Confirmar cita ── */
+  function confirmarAccion(event, btn, mensaje) {
+    event.preventDefault();
+    if (confirm(mensaje)) {
+      window.location.href = btn.href;
+    }
+  }
+
+  /* ── Filtro de búsqueda por medico/especialidad ── */
+  function filtrarCitas() {
+    const termino = document.getElementById('buscadorCitas').value.toLowerCase().trim();
+    const filas = document.querySelectorAll('#tablaCitas tbody .fade-row');
+    const btnLimpiar = document.getElementById('btnLimpiar');
+    const sinResultados = document.getElementById('sinResultados');
+    let visibles = 0;
+
+    btnLimpiar.style.display = termino ? 'block' : 'none';
+
+    filas.forEach(function (fila) {
+      const texto = fila.textContent.toLowerCase();
+      const coincide = texto.includes(termino);
+      fila.style.display = coincide ? '' : 'none';
+      if (coincide) visibles++;
+    });
+
+    sinResultados.style.display = (termino && visibles === 0) ? 'block' : 'none';
+    document.getElementById('terminoBusqueda').textContent = termino;
+  }
+
+  function limpiarBuscador() {
+    document.getElementById('buscadorCitas').value = '';
+    filtrarCitas();
+  }
+
+  /* ── Animacion stagger de filas ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var rows = document.querySelectorAll('.fade-row');
+    rows.forEach(function (row, i) {
+      row.style.opacity   = '0';
+      row.style.transform = 'translateY(14px)';
+      setTimeout(function () {
+        row.style.transition = 'opacity .32s ease, transform .32s ease';
+        row.style.opacity    = '1';
+        row.style.transform  = 'translateY(0)';
+      }, i * 50);
+    });
+  });
+</script>
+
+</body>
+</html>

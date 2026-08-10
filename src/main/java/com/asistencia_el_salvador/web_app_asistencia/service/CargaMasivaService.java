@@ -1,10 +1,7 @@
 package com.asistencia_el_salvador.web_app_asistencia.service;
 
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
-import com.asistencia_el_salvador.web_app_asistencia.repository.AfiliadoCorporativoRepository;
-import com.asistencia_el_salvador.web_app_asistencia.repository.AfiliadoRepository;
-import com.asistencia_el_salvador.web_app_asistencia.repository.PlanAfiliadoRepository;
-import com.asistencia_el_salvador.web_app_asistencia.repository.UsuarioRepository;
+import com.asistencia_el_salvador.web_app_asistencia.repository.*;
 import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +13,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,7 +24,11 @@ public class CargaMasivaService {
     private AfiliadoRepository afiliadoRepository;
 
     @Autowired
-    private AfiliadoCorporativoRepository afiliadoCorporativoRepository;
+    private ClienteCorporativoRepository clienteCorporativoRepository;
+@Autowired
+private AfiliadoCorporativoRepository afiliadoCorporativoRepository;
+    @Autowired
+    private PlanAfiliadoRepository planafiliadoRepository;
 
     @Autowired
     private PaisService paisService;
@@ -52,10 +51,19 @@ public class CargaMasivaService {
     @Autowired
     private PlanAfiliadoRepository planAfiliadoRepository;
 
-    public CargaMasivaResultado procesarArchivoExcel(MultipartFile archivo, int idPlan,
+    public CargaMasivaResultado procesarArchivoExcel(MultipartFile archivo,
                                                      String nitCliente, String tipoCarga) throws IOException {
         CargaMasivaResultado resultado = new CargaMasivaResultado();
 
+        ClienteCorporativo cliente = clienteCorporativoRepository.findByNit(nitCliente);
+        if (cliente == null) {
+            throw new IllegalArgumentException("Cliente corporativo no encontrado: " + nitCliente);
+        }
+        if (cliente.getIdPlanAsociado() == null) {
+            throw new IllegalArgumentException(
+                    "El cliente " + cliente.getNombreCliente() + " no tiene un plan asociado configurado");
+        }
+        int idPlan = cliente.getIdPlanAsociado();
         Plan plan = planService.getPlanById(idPlan)
                 .orElseThrow(() -> new RuntimeException("Plan no encontrado con ID: " + idPlan));
 
@@ -66,32 +74,13 @@ public class CargaMasivaService {
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null) continue;
+                if (row == null || esFilaVacia(row)) continue;
 
                 resultado.setTotalProcesados(resultado.getTotalProcesados() + 1);
 
                 try {
-                    Afiliado afiliado = procesarFila(row, i, 0, nitCliente);
-                    duisEnArchivo.add(afiliado.getDui()); // Registrar DUI leído
-
-                    afiliadoRepository.save(afiliado);
-
-                    PlanAfiliado planAfiliado = new PlanAfiliado(afiliado.getDui(), idPlan, String.valueOf(12), "", "",
-                            plan.getCostoPlan(), plan.getCostoPlanAnual());
-                    planAfiliadoRepository.save(planAfiliado);
-
-                    Usuario usuario = new Usuario();
-                    String passProvisional = passwordEncoder.encode(afiliado.getEmail().split("@")[0]);
-                    usuario.setNombre(afiliado.getNombre());
-                    usuario.setApellido(afiliado.getApellido());
-                    usuario.setActivo(true);
-                    usuario.setContrasena(passProvisional);
-                    usuario.setDui(afiliado.getDui());
-                    usuario.setRol(3);
-                    usuario.setTelefono(afiliado.getTelefono());
-                    usuario.setEmail(afiliado.getEmail());
-                    usuarioRepository.save(usuario);
-
+                    String dui = procesarFila(row, i, nitCliente, idPlan, plan);
+                    duisEnArchivo.add(dui);
                     resultado.setExitosos(resultado.getExitosos() + 1);
 
                 } catch (Exception e) {
@@ -101,102 +90,181 @@ public class CargaMasivaService {
             }
         }
 
-        // Si es REEMPLAZO, desactivar afiliados que no vinieron en el archivo
-        if ("REEMPLAZO".equals(tipoCarga) && !duisEnArchivo.isEmpty()) {
-            int desactivados = desactivarAfiliadosAusentes(1, idPlan, duisEnArchivo);
+        // Si es REEMPLAZO, desactivar afiliados de ESTE cliente que no vinieron en el archivo
+        if ("REEMPLAZO".equals(tipoCarga)) {
+            int desactivados = desactivarAfiliadosAusentes(nitCliente, idPlan, duisEnArchivo);
             resultado.setDesactivados(desactivados);
         }
 
         return resultado;
     }
 
-    private int desactivarAfiliadosAusentes(int idInstitucion, int idPlan, List<String> duisPresentes) {
-        // Traer DUIs activos de ese cliente en ese plan
-        List<String> duisActivos = afiliadoRepository.findDuisActivosByClienteAndPlan(idInstitucion, idPlan);
+    private boolean esFilaVacia(Row row) {
+        Cell c0 = row.getCell(0);
+        String dui = getCellValueAsString(c0);
+        return dui == null || dui.isBlank();
+    }
 
-        List<String> duisADesactivar = duisActivos.stream()
+    /**
+     * Procesa una fila: crea o actualiza Afiliado, AfiliadoCorporativo y PlanAfiliado.
+     * Lanza Exception con mensaje legible si la fila debe marcarse como error.
+     * Devuelve el DUI procesado (para poder registrarlo como "presente" en el archivo).
+     */
+    private String procesarFila(Row row, int numeroFila, String nitCliente,
+                                int idPlan, Plan plan) throws Exception {
+        try {
+            String dui = getCellValueAsString(row.getCell(0));
+            String nombre = getCellValueAsString(row.getCell(1));
+            String apellido = getCellValueAsString(row.getCell(2));
+            String direccion = getCellValueAsString(row.getCell(3));
+            String telefono = getCellValueAsString(row.getCell(4));
+            String email = getCellValueAsString(row.getCell(5));
+
+            LocalDate fechaAfiliacion = null;
+            Cell fechaCell = row.getCell(6);
+            if (fechaCell != null && fechaCell.getCellType() == CellType.NUMERIC
+                    && DateUtil.isCellDateFormatted(fechaCell)) {
+                fechaAfiliacion = fechaCell.getDateCellValue().toInstant()
+                        .atZone(ZoneId.systemDefault()).toLocalDate();
+            }
+
+            Integer idPais = getCellValueAsInteger(row.getCell(7));
+            Integer idDepto = getCellValueAsInteger(row.getCell(8));
+            Integer idMunicipio = getCellValueAsInteger(row.getCell(9));
+            Integer idTipoCliente = getCellValueAsInteger(row.getCell(10));
+
+            validarDatosFila(dui, nombre, apellido, email);
+
+            // ---- 1) Conflicto: DUI ya afiliado ACTIVO a OTRO cliente corporativo ----
+            Optional<AfiliadoCorporativo> acOpt = afiliadoCorporativoRepository.findByDuiAfiliado(dui);
+            if (acOpt.isPresent()) {
+                AfiliadoCorporativo acExistente = acOpt.get();
+                if (Integer.valueOf(1).equals(acExistente.getEstado())
+                        && acExistente.getNITCliente() != null
+                        && !acExistente.getNITCliente().equals(nitCliente)) {
+                    throw new Exception("DUI " + dui + " ya está afiliado activo al cliente "
+                            + acExistente.getNITCliente());
+                }
+            }
+
+            // ---- 2) Crear o actualizar Afiliado ----
+            Optional<Afiliado> afOpt = afiliadoRepository.findById(dui);
+            boolean esNuevo = afOpt.isEmpty();
+            Afiliado afiliado = afOpt.orElseGet(Afiliado::new);
+
+            boolean cambioAfiliado = esNuevo || huboCambiosAfiliado(afiliado, nombre, apellido,
+                    direccion, telefono, email, fechaAfiliacion, idPais, idDepto, idMunicipio, idTipoCliente);
+            boolean reactivarAfiliado = !esNuevo && (afiliado.getEstado() == null || afiliado.getEstado() != 1);
+
+            if (cambioAfiliado || reactivarAfiliado) {
+                afiliado.setDui(dui);
+                afiliado.setNombre(nombre);
+                afiliado.setApellido(apellido);
+                afiliado.setDireccion(direccion);
+                afiliado.setTelefono(telefono);
+                afiliado.setEmail(email);
+                afiliado.setFechaAfiliacion(fechaAfiliacion);
+                afiliado.setIdPais(idPais);
+                afiliado.setIdDepto(idDepto);
+                afiliado.setIdMunicipio(idMunicipio);
+                afiliado.setIdTipoCliente(idTipoCliente);
+                afiliado.setEstado(1);
+                afiliado.setUpdatedAt(LocalDateTime.now());
+                if (esNuevo) {
+                    afiliado.setIdEstadoAfiliado(0);
+                    afiliado.setCreatedBy("carga_masiva");
+                }
+                afiliadoRepository.save(afiliado);
+            }
+
+            // ---- 3) Crear o reactivar AfiliadoCorporativo ----
+            AfiliadoCorporativo ac = acOpt.orElseGet(AfiliadoCorporativo::new);
+            boolean acNuevo = acOpt.isEmpty();
+            boolean acCambio = acNuevo
+                    || !Objects.equals(ac.getNITCliente(), nitCliente)
+                    || ac.getEstado() == null || ac.getEstado() != 1;
+
+            if (acCambio) {
+                ac.setDuiAfiliado(dui);
+                ac.setNITCliente(nitCliente);
+                ac.setFechaAfiliacion(fechaAfiliacion);
+                ac.setEstado(1);
+                ac.setUpdatedAt(LocalDateTime.now());
+                afiliadoCorporativoRepository.save(ac);
+            }
+
+            // ---- 4) Crear o reactivar PlanAfiliado ----
+            Optional<PlanAfiliado> paOpt = planAfiliadoRepository.findByDuiAndIdPlan(dui, idPlan);
+            if (paOpt.isEmpty()) {
+                PlanAfiliado nuevoPa = new PlanAfiliado(dui, idPlan, String.valueOf(12), "", "",
+                        plan.getCostoPlan(), plan.getCostoPlanAnual());
+                planAfiliadoRepository.save(nuevoPa);
+            } else {
+                PlanAfiliado pa = paOpt.get();
+                if (pa.getEstado() == null || pa.getEstado() != 1) {
+                    pa.setEstado(1);
+                    planAfiliadoRepository.save(pa);
+                }
+            }
+
+            // ---- 5) Crear Usuario solo si el afiliado es nuevo y no tiene usuario aún ----
+            if (esNuevo && !usuarioRepository.existsByDui(dui)) {
+                Usuario usuario = new Usuario();
+                String passProvisional = passwordEncoder.encode(email.split("@")[0]);
+                usuario.setNombre(nombre);
+                usuario.setApellido(apellido);
+                usuario.setActivo(true);
+                usuario.setContrasena(passProvisional);
+                usuario.setDui(dui);
+                usuario.setRol(3);
+                usuario.setTelefono(telefono);
+                usuario.setEmail(email);
+                usuarioRepository.save(usuario);
+            }
+
+            return dui;
+
+        } catch (Exception e) {
+            throw new Exception(e.getMessage() != null ? e.getMessage() : "Error procesando la fila");
+        }
+    }
+
+    private boolean huboCambiosAfiliado(Afiliado a, String nombre, String apellido, String direccion,
+                                        String telefono, String email, LocalDate fechaAfiliacion,
+                                        Integer idPais, Integer idDepto, Integer idMunicipio, Integer idTipoCliente) {
+        return !Objects.equals(a.getNombre(), nombre)
+                || !Objects.equals(a.getApellido(), apellido)
+                || !Objects.equals(a.getDireccion(), direccion)
+                || !Objects.equals(a.getTelefono(), telefono)
+                || !Objects.equals(a.getEmail(), email)
+                || !Objects.equals(a.getFechaAfiliacion(), fechaAfiliacion)
+                || !Objects.equals(a.getIdPais(), idPais)
+                || !Objects.equals(a.getIdDepto(), idDepto)
+                || !Objects.equals(a.getIdMunicipio(), idMunicipio)
+                || !Objects.equals(a.getIdTipoCliente(), idTipoCliente);
+    }
+
+    private int desactivarAfiliadosAusentes(String nitCliente, int idPlan, List<String> duisPresentes) {
+        List<AfiliadoCorporativo> activos =
+                afiliadoCorporativoRepository.findAllByNITClienteAndEstado(nitCliente, 1);
+
+        List<String> duisADesactivar = activos.stream()
+                .map(AfiliadoCorporativo::getDuiAfiliado)
                 .filter(dui -> !duisPresentes.contains(dui))
                 .collect(Collectors.toList());
 
         if (!duisADesactivar.isEmpty()) {
-            // Desactivar afiliado y su usuario asociado
             afiliadoRepository.desactivarAfiliados(duisADesactivar);
             afiliadoRepository.desactivarUsuarios(duisADesactivar);
+            afiliadoCorporativoRepository.desactivarPorDuis(duisADesactivar);
+            planAfiliadoRepository.desactivarPorDuisYPlan(duisADesactivar, idPlan);
         }
 
         return duisADesactivar.size();
     }
 
-    private Afiliado procesarFila(Row row, int numeroFila, int idInstitucion,
-                                  String nitCliente) throws Exception {
-        Afiliado afiliado = new Afiliado();
-
-        try {
-            // Mapear cada columna según tu estructura Excel
-            afiliado.setDui(getCellValueAsString(row.getCell(0))); // Columna A
-            afiliado.setNombre(getCellValueAsString(row.getCell(1))); // Columna B
-            afiliado.setApellido(getCellValueAsString(row.getCell(2))); // Columna C
-            afiliado.setDireccion(getCellValueAsString(row.getCell(3))); // Columna D
-            afiliado.setTelefono(getCellValueAsString(row.getCell(4))); // Columna E
-            afiliado.setEmail(getCellValueAsString(row.getCell(5))); // Columna F
-            afiliado.setInstitucion(1);
-            // Para fechas
-            Cell fechaCell = row.getCell(6); // Columna G
-            if (fechaCell != null && fechaCell.getCellType() == CellType.NUMERIC) {
-                if (DateUtil.isCellDateFormatted(fechaCell)) {
-                    Date date = fechaCell.getDateCellValue();
-                    LocalDate localDate = date.toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
-                    afiliado.setFechaAfiliacion(localDate);
-                }
-            }
-
-            // Para IDs numéricos
-            //afiliado.setCreatedAt(new Date());
-            afiliado.setIdPais(getCellValueAsInteger(row.getCell(7))); // Columna H
-            afiliado.setIdDepto(getCellValueAsInteger(row.getCell(8))); // Columna I
-            afiliado.setIdMunicipio(getCellValueAsInteger(row.getCell(9))); // Columna J
-            afiliado.setIdTipoCliente(getCellValueAsInteger(row.getCell(10))); // Columna K
-            afiliado.setEstado(1);
-            afiliado.setCreatedBy("system");
-
-            // Valores por defecto
-            afiliado.setIdEstadoAfiliado(0);
-
-            // Validaciones básicas
-            validarAfiliado(afiliado);
-
-            //Registrar en afiliado corporativo
-            LocalDate fechaAfiliacion = null;  // ← declarar aquí arriba
-
-            if (fechaCell != null && fechaCell.getCellType() == CellType.NUMERIC) {
-                if (DateUtil.isCellDateFormatted(fechaCell)) {
-                    Date date = fechaCell.getDateCellValue();
-                    fechaAfiliacion = date.toInstant()
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate();
-                    afiliado.setFechaAfiliacion(fechaAfiliacion);
-                }
-            }
-
-            AfiliadoCorporativo afiliadoCorporativo = new AfiliadoCorporativo();
-            afiliadoCorporativo.setDuiAfiliado(afiliado.getDui());
-            afiliadoCorporativo.setNITCliente(nitCliente);
-            afiliadoCorporativo.setFechaAfiliacion(fechaAfiliacion);
-            afiliadoCorporativo.setEstado(1);
-            afiliadoCorporativoRepository.save(afiliadoCorporativo);
-
-            return afiliado;
-
-        } catch (Exception e) {
-            throw new Exception("Error procesando datos: " + e.getMessage());
-        }
-    }
-
     private String getCellValueAsString(Cell cell) {
         if (cell == null) return null;
-
         switch (cell.getCellType()) {
             case STRING:
                 return cell.getStringCellValue().trim();
@@ -216,7 +284,6 @@ public class CargaMasivaService {
 
     private Integer getCellValueAsInteger(Cell cell) {
         if (cell == null) return null;
-
         switch (cell.getCellType()) {
             case NUMERIC:
                 return (int) cell.getNumericCellValue();
@@ -231,34 +298,22 @@ public class CargaMasivaService {
         }
     }
 
-    private void validarAfiliado(Afiliado afiliado) throws Exception {
-        if (afiliado.getDui() == null || afiliado.getDui().trim().isEmpty()) {
+    private void validarDatosFila(String dui, String nombre, String apellido, String email) throws Exception {
+        if (dui == null || dui.trim().isEmpty()) {
             throw new Exception("DUI es obligatorio");
         }
-
-        if (afiliado.getNombre() == null || afiliado.getNombre().trim().isEmpty()) {
-            throw new Exception("Nombre es obligatorio");
-        }
-
-        if (afiliado.getApellido() == null || afiliado.getApellido().trim().isEmpty()) {
-            throw new Exception("Apellido es obligatorio");
-        }
-
-        // Validar formato DUI
-        if (!afiliado.getDui().matches("\\d{8}-\\d")) {
+        if (!dui.matches("\\d{8}-\\d")) {
             throw new Exception("Formato de DUI inválido");
         }
-
-        // Verificar si ya existe
-        if (afiliadoRepository.existsByDui(afiliado.getDui())) {
-            throw new Exception("DUI ya existe en el sistema");
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("Nombre es obligatorio");
         }
-
-        // Validar email si se proporciona
-        if (afiliado.getEmail() != null && !afiliado.getEmail().isEmpty()) {
-            if (!afiliado.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                throw new Exception("Formato de email inválido");
-            }
+        if (apellido == null || apellido.trim().isEmpty()) {
+            throw new Exception("Apellido es obligatorio");
+        }
+        if (email == null || email.trim().isEmpty()
+                || !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new Exception("Formato de email inválido");
         }
     }
 }

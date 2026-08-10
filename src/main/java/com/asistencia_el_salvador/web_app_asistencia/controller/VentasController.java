@@ -1,7 +1,10 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
 import com.asistencia_el_salvador.web_app_asistencia.model.AfiliadoCreadoResumen;
+import com.asistencia_el_salvador.web_app_asistencia.model.EstadoPagoAfiliado;
 import com.asistencia_el_salvador.web_app_asistencia.model.SeguimientoLlamada;
+import com.asistencia_el_salvador.web_app_asistencia.model.TotalesAfiliadosPlan;
+import com.asistencia_el_salvador.web_app_asistencia.repository.TotalesAfiliadosPlanRepository;
 import com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import jakarta.servlet.http.HttpSession;
@@ -28,9 +31,12 @@ public class VentasController {
     private PlanService planService;
     @Autowired
     private NotificacionVendedorService notificacionVendedorService;
-
+    @Autowired
+    private EstadoPagoAfiliadoService estadoPagoAfiliadoService;
     @Autowired
     private SeguimientoLlamadaService seguimientoLlamadaService;
+    @Autowired
+    private TotalesAfiliadosPlanService totalesAfiliadosPlanService;
 
     @GetMapping({"", "/"})  // Acepta tanto /admin/dashboard como /admin/dashboard/
     public String mostrarDashboard(HttpSession session, Model model) {
@@ -52,7 +58,11 @@ public class VentasController {
         model.addAttribute("porcentajeAfiliacion",afiliadoService.getPorcentajeAfiliacionVendedor(usuario.getDui()));
         model.addAttribute("porcentajeAfiliacionRegistro",afiliadoService.getPorcentajeAfiliacionVendedorRegistro(usuario.getDui()));
 
+        List<EstadoPagoAfiliado> afiliadosEstado = estadoPagoAfiliadoService.getMisAfiliados(usuario.getDui());
+        model.addAttribute("afiliadosEstado",afiliadosEstado);
 
+        List<TotalesAfiliadosPlan> totalesAfiliadosPlanes = totalesAfiliadosPlanService.getTotalidadPlanesEjecutivo(usuario.getDui());
+        model.addAttribute("totalesAfiliadosPlanes",totalesAfiliadosPlanes);
 
         return "dashboard_vendedor";
     }

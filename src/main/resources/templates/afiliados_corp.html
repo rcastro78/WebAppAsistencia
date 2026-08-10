@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Listado de Afiliados - Asistencia El Salvador</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+    <link rel="stylesheet" th:href="@{/css/afiliados.css}">
+    <link rel="stylesheet" th:href="@{/css/dashb_c.css}">
+    <style>
+        /* ── Sidebar del dashboard ── */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ─── SIDEBAR ─────────────────────────── */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .sidebar .logo {
+            padding: 2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .sidebar .logo img {
+            max-height: 40px;
+            width: auto;
+        }
+
+        .sidebar-profile {
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            overflow: hidden;
+            background: linear-gradient(135deg, #4A90E2, #357ABD);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .sidebar-profile h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-profile p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 1.5rem;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            background: #f8f9ff;
+            color: #4A90E2;
+        }
+
+        .nav-item.active {
+            background: #f8f9ff;
+            color: #4A90E2;
+            border-left-color: #4A90E2;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ─── MAIN ─────────────────────────────── */
+        .main {
+            flex: 1;
+            background: #f8fafc;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+
+    <!-- ══════════════════════════════════════════
+         SIDEBAR — del dashboard
+    ══════════════════════════════════════════ -->
+    <div class="sidebar">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar" th:text="${avatarCliente}">DE</div>
+            <h3 th:text="${clienteCorporativo.nombreCliente}">Nombre</h3>
+            <p th:text="${clienteCorporativo.emailContacto}">correo</p>
+            <span class="badge-rol">Cliente Corporativo</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/portalConvenio/dashboard}" class="nav-item active">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a th:href="@{/portalConvenio/plan}" class="nav-item">
+                <i class="fas fa-list-check"></i>
+                <span>Mi Plan · SaludCare</span>
+            </a>
+
+            <a th:href="@{/portalConvenio/afiliados}" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Afiliados</span>
+            </a>
+
+            <a th:href="@{/portalConvenio/coberturas}" class="nav-item">
+                <i class="fas fa-umbrella"></i>
+                <span>Uso de Coberturas</span>
+            </a>
+
+
+
+            <a th:href="@{/portalConvenio/reportes}" class="nav-item">
+                <i class="fas fa-file-pdf"></i>
+                <span>Reportes</span>
+            </a>
+
+            <a th:href="@{/usuarios/loginCorporativo}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p>Los datos mostrados son agregados y no incluyen detalle clínico individual de los afiliados.</p>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════
+         MAIN
+    ══════════════════════════════════════════ -->
+    <main class="main">
+
+        <!-- Page header -->
+        <div class="page-header">
+            <div>
+                <h1>
+                    <i class="fas fa-users" style="color:var(--accent); margin-right:8px;"></i>
+                    <span>Gestión de afiliados</span>
+                </h1>
+                <p>Administra todos los afiliados registrados en el sistema.</p>
+
+                <!-- Breadcrumb patrocinador -->
+
+
+                <!-- Breadcrumb admin / vendedor -->
+
+            </div>
+
+            <!-- Boton nuevo afiliado solo para admin y vendedor -->
+            <!--<a
+               th:href="@{/afiliado_corp/nuevo}"
+               href="#" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i> Nuevo Afiliado
+            </a>-->
+        </div>
+
+        <!-- Flash messages -->
+        <div class="flash-success" th:if="${success != null}">
+            <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+        </div>
+        <div class="flash-error" th:if="${error != null}">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+             TABLA CARD
+        ══════════════════════════════════════════ -->
+        <div class="tabla-card">
+
+            <div class="tabla-header">
+                <h3>
+                    <i class="fas fa-list" style="color:var(--brand-mid); margin-right:6px; font-size:.85rem;"></i>
+                    <span>Listado</span>
+                </h3>
+                <span class="registro-count" id="contadorRegistros" th:text="${#lists.size(afiliados)} + ' registros'">0 registros</span>
+            </div>
+
+            <!-- Buscador -->
+            <div style="padding: 1rem 1.5rem; border-bottom: 1px solid #f0f0f0;">
+                <div style="position: relative; max-width: 420px;">
+                    <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#aaa; font-size:0.9rem;"></i>
+                    <input
+                            type="text"
+                            id="buscadorAfiliados"
+                            placeholder="Buscar por nombre o DUI..."
+                            oninput="filtrarAfiliados()"
+                            style="
+                            width: 100%;
+                            padding: 0.6rem 1rem 0.6rem 2.4rem;
+                            border: 1px solid #e0e0e0;
+                            border-radius: 8px;
+                            font-size: 0.92rem;
+                            outline: none;
+                            transition: border-color 0.2s;
+                            background: #fafafa;
+                        "
+                            onfocus="this.style.borderColor='#4A90E2'; this.style.background='#fff';"
+                            onblur="this.style.borderColor='#e0e0e0'; this.style.background='#fafafa';"
+                    >
+                    <button
+                            onclick="limpiarBuscador()"
+                            id="btnLimpiar"
+                            title="Limpiar búsqueda"
+                            style="
+                            display: none;
+                            position: absolute;
+                            right: 10px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            background: none;
+                            border: none;
+                            cursor: pointer;
+                            color: #aaa;
+                            font-size: 0.85rem;
+                            padding: 2px 4px;
+                        ">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                <div id="sinResultados" style="display:none; margin-top: 0.75rem; color: #999; font-size: 0.88rem;">
+                    <i class="fas fa-inbox"></i> No se encontraron resultados para "<span id="terminoBusqueda"></span>"
+                </div>
+            </div>
+
+            <!-- Estado vacio: admin o vendedor -->
+            <div th:if="${#lists.isEmpty(afiliados)}" class="empty-state">
+                <i class="fas fa-users"></i>
+                <p>No hay afiliados registrados aun.<br>Empieza registrando el primero.</p>
+
+            </div>
+
+
+
+            <!-- Tabla con datos -->
+            <div th:if="${not #lists.isEmpty(afiliados)}" class="table-wrapper">
+                <table>
+                    <thead>
+                    <tr>
+                        <th><i class="fas fa-id-card"></i> DUI</th>
+                        <th><i class="fas fa-user"></i> Nombre Completo</th>
+                        <th><i class="fas fa-envelope"></i> Correo</th>
+                        <th><i class="fas fa-phone"></i> Telefono</th>
+                        <th><i class="fas fa-shield-alt"></i> Estado</th>
+                        <th><i class="fas fa-map-marker-alt"></i> Direccion</th>
+                        <th class="th-acciones"><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="afiliado, stat : ${afiliados}" class="fade-row">
+
+                        <!-- DUI -->
+                        <td>
+                            <span class="dui-badge" th:text="${afiliado.dui}">000000000</span>
+                        </td>
+
+                        <!-- Nombre + avatar mini -->
+                        <td>
+                            <div class="nombre-cell">
+                                <div class="avatar-mini"
+                                     th:text="${#strings.substring(afiliado.nombre,0,1)
+                                + #strings.substring(afiliado.apellido,0,1)}">AA</div>
+                                <strong th:text="${afiliado.nombre + ' ' + afiliado.apellido}">Nombre Apellido</strong>
+                            </div>
+                        </td>
+
+                        <!-- Email -->
+                        <td class="email-cell" th:text="${afiliado.email}">correo@ejemplo.com</td>
+
+                        <!-- Telefono -->
+                        <td>
+                <span th:if="${afiliado.telefono != null}" class="tel-cell">
+                  <i class="fas fa-phone"></i>
+                  <span th:text="${afiliado.telefono}">0000-0000</span>
+                </span>
+                            <span th:if="${afiliado.telefono == null}" style="color:var(--text-soft);">-</span>
+                        </td>
+
+                        <!-- Estado -->
+                        <td>
+                <span class="badge badge-success" th:if="${afiliado.estado == 1}">
+                  <i class="fas fa-check-circle"></i> Verificado
+                </span>
+                            <span class="badge badge-warning" th:if="${afiliado.estado == 0}">
+                  <i class="fas fa-clock"></i> Pendiente
+                </span>
+                        </td>
+
+                        <!-- Direccion -->
+                        <td class="dir-cell" th:text="${afiliado.direccion}">Direccion</td>
+
+                        <!-- Acciones -->
+                        <td>
+                            <div class="acciones-td">
+
+                                <a th:href="@{/afiliado/contrato/{dui}(dui=${afiliado.dui})}"
+                                   class="action-btn action-print" data-tooltip="Imprimir contrato" target="_blank">
+                                    <i class="fas fa-print"></i>
+                                </a>
+
+                                <a th:href="|https://wa.me/${afiliado.telefono.replace('-','')}?text=Hola ${afiliado.nombre} ${afiliado.apellido}, necesito hablar contigo sobre tu afiliacion.|"
+                                   class="action-btn action-whatsapp" data-tooltip="Enviar WhatsApp" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+
+
+
+
+                                <a th:href="@{/afiliado/editar/{dui}(dui=${afiliado.dui})}"
+                                   class="action-btn action-edit" data-tooltip="Editar afiliado">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+
+
+                                <!-- Form oculto para eliminar con CSRF -->
+                                <form th:id="'deleteForm-' + ${afiliado.dui}"
+                                      th:action="@{/afiliado/delete/{dui}(dui=${afiliado.dui})}"
+                                      method="post" style="display:none;">
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                </form>
+
+                            </div>
+                        </td>
+
+
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginacion -->
+            <div class="paginacion" th:if="${totalPaginas > 1}">
+                <a class="page-btn"
+                   th:classappend="${paginaActual == 0} ? 'disabled'"
+                   th:href="@{/afiliado(page=${paginaActual - 1})}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                <a th:each="i : ${#numbers.sequence(0, totalPaginas - 1)}"
+                   class="page-btn"
+                   th:classappend="${i == paginaActual} ? 'active'"
+                   th:href="@{/afiliado(page=${i})}"
+                   th:text="${i + 1}">1</a>
+                <a class="page-btn"
+                   th:classappend="${paginaActual == totalPaginas - 1} ? 'disabled'"
+                   th:href="@{/afiliado(page=${paginaActual + 1})}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+
+        </div><!-- /tabla-card -->
+
+    </main>
+</div><!-- /layout -->
+
+
+<script>
+    /* ── Eliminar afiliado (doble confirmacion) ── */
+    function confirmarEliminacion(event, btn) {
+      event.preventDefault();
+      const dui    = btn.dataset.dui;
+      const nombre = btn.dataset.nombre;
+
+      if (!confirm('Eliminar a ' + nombre + '?\n\nEsta accion no se puede deshacer.')) return;
+
+      const input = prompt('Para confirmar, escribe exactamente: CONFIRMAR');
+      if (input === 'CONFIRMAR') {
+        document.getElementById('deleteForm-' + dui).submit();
+      } else {
+        alert('Eliminacion cancelada. El texto no coincide.');
+      }
+    }
+
+    /* ── Cambiar estado de verificacion ── */
+    function confirmarEstado(event, btn) {
+      event.preventDefault();
+      const accion = btn.classList.contains('action-verify') ? 'verificar' : 'desverificar';
+      if (confirm('Deseas ' + accion + ' este afiliado?')) {
+        window.location.href = btn.href;
+      }
+    }
+
+    /* ── Animacion stagger de filas ── */
+    document.addEventListener('DOMContentLoaded', function () {
+      var rows = document.querySelectorAll('.fade-row');
+      rows.forEach(function (row, i) {
+        row.style.opacity   = '0';
+        row.style.transform = 'translateY(14px)';
+        setTimeout(function () {
+          row.style.transition = 'opacity .32s ease, transform .32s ease';
+          row.style.opacity    = '1';
+          row.style.transform  = 'translateY(0)';
+        }, i * 50);
+      });
+    });
+</script>
+
+</body>
+</html>

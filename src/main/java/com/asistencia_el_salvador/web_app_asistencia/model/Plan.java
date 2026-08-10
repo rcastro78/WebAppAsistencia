@@ -30,6 +30,9 @@ public class Plan {
     @Column(name="coparticipacion")
     private int coparticipacion=0;
 
+    @Column(name = "idPlanTipo")
+    private int idPlanTipo = 1;
+
 
     public int getIdPlan() {
         return idPlan;
@@ -112,6 +115,14 @@ public class Plan {
         this.coparticipacion = coparticipacion;
     }
 
+    public int getIdPlanTipo() {
+        return idPlanTipo;
+    }
+
+    public void setIdPlanTipo(int idPlanTipo) {
+        this.idPlanTipo = idPlanTipo;
+    }
+
     public String getSimboloMoneda() {
         if (this.moneda == null) return "$";
 
@@ -125,4 +136,6 @@ public class Plan {
             default: return "$";
         }
     }
+
+
 }

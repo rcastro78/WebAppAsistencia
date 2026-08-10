@@ -34,6 +34,21 @@
                 <input type="hidden" id="idCoberturaPreseleccionada" th:value="${idCoberturaPreseleccionada}">
                 <input type="hidden" id="idProveedorPreseleccionado" th:value="${idProveedorPreseleccionado}">
 
+                <!-- Flag esProveedor para JS -->
+                <input type="hidden" id="esProveedorFlag" th:value="${esProveedor != null ? esProveedor : false}">
+
+                <!-- Hidden para enviar idProveedor cuando el select está disabled (caso proveedor) -->
+                <input type="hidden"
+                       th:if="${esProveedor}"
+                       name="idProveedor"
+                       th:value="${idProveedorPreseleccionado}">
+
+                <!-- Hidden para enviar idAsistencia cuando el select está disabled -->
+                <input type="hidden"
+                       th:if="${esProveedor}"
+                       name="idAsistencia"
+                       th:value="${idCoberturaPreseleccionada}">
+
                 <div class="form-grid">
                     <!-- DUI Afiliado -->
                     <div class="form-group" th:classappend="${session.rol == 1 ? '' : 'full-width'}">
@@ -45,12 +60,12 @@
                                placeholder="00000000-0"
                                pattern="[0-9]{8}-[0-9]"
                                required
-                               th:readonly="${session.rol == 3}"
-                               th:style="${session.rol == 3 ? 'background-color: #f5f5f5;' : ''}">
+                               th:readonly="${session.rol == 3 || esProveedor == true}"
+                               th:style="${(session.rol == 3 || esProveedor == true) ? 'background-color: #f5f5f5;' : ''}">
                     </div>
 
                     <!-- Nombre Afiliado (solo Admin) -->
-                    <div class="form-group" th:if="${session.rol == 1}">
+                    <div class="form-group" th:if="${session.rol == 1 || esProveedor == true} ">
                         <label for="nombreAfiliado"><i class="fas fa-user"></i> Nombre Afiliado</label>
                         <input type="text"
                                id="nombreAfiliado"
@@ -74,17 +89,32 @@
                     <!-- Tipo de Asistencia -->
                     <div class="form-group">
                         <label for="idAsistencia"><i class="fas fa-hands-helping"></i> Tipo de Asistencia</label>
-                        <select id="idAsistencia"
-                                th:field="*{idAsistencia}"
-                                class="input"
-                                required
-                                th:disabled="${(solicitud.id != null && session.rol == 1) || (solicitud.id !=null && session.rol==3 && solicitud.estado!=0)}">
-                            <option value="">Seleccione tipo de asistencia</option>
-                            <option th:each="asist : ${tiposAsistencia}"
-                                    th:value="${asist.idCobertura}"
-                                    th:text="${asist.nombreCobertura}"
-                                    th:selected="${asist.idCobertura == idCoberturaPreseleccionada}"></option>
-                        </select>
+
+                        <!-- Si es proveedor en modo edición: mostrar texto, no select -->
+                        <th:block th:if="${esProveedor && solicitud.id != null}">
+                            <input type="text"
+                                   th:value="${nombreCobertura}"
+                                   class="input"
+                                   readonly
+                                   style="background-color: #f5f5f5;">
+                            <!-- Hidden para enviar el valor al POST -->
+                            <input type="hidden" th:field="*{idAsistencia}">
+                        </th:block>
+
+                        <!-- Caso normal: admin o afiliado -->
+                        <th:block th:unless="${esProveedor && solicitud.id != null}">
+                            <select id="idAsistencia"
+                                    th:field="*{idAsistencia}"
+                                    class="input"
+                                    required
+                                    th:disabled="${(solicitud.id != null && session.rol == 1) || (solicitud.id != null && session.rol == 3 && solicitud.estado != 0)}">
+                                <option value="">Seleccione tipo de asistencia</option>
+                                <option th:each="asist : ${tiposAsistencia}"
+                                        th:value="${asist.idCobertura}"
+                                        th:text="${asist.nombreCobertura}"
+                                        th:selected="${asist.idCobertura == idCoberturaPreseleccionada}"></option>
+                            </select>
+                        </th:block>
                     </div>
 
                     <!-- Proveedor -->
@@ -94,8 +124,8 @@
                                 th:field="*{idProveedor}"
                                 class="input"
                                 required
-                                th:disabled="${(solicitud.id != null && session.rol == 1) || (solicitud.id !=null && session.rol==3 && solicitud.estado!=0)}">
-                            <option value="">Primero seleccione tipo de asistencia</option>
+                                th:disabled="${esProveedor || ((solicitud.id != null && session.rol == 1) || (solicitud.id != null && session.rol == 3 && solicitud.estado != 0))}">
+                            <option value="">Primero selecciona el tipo de asistencia</option>
                         </select>
                     </div>
 
@@ -103,11 +133,10 @@
                     <div class="form-group">
                         <label><i class="fas fa-calendar-alt"></i> Fecha de asistencia</label>
                         <input type="date"
-                               th:value="${#temporals.format(solicitud.fechaAsistencia, 'yyyy-MM-dd')}"
+                               th:value="${solicitud.fechaAsistencia != null ? #temporals.format(solicitud.fechaAsistencia, 'yyyy-MM-dd') : ''}"
                                name="fechaAsistencia"
                                class="input"
-                               required
-                               >
+                               required>
                     </div>
 
                     <!-- Hora de Asistencia -->
@@ -121,8 +150,44 @@
                                th:readonly="${solicitud.id != null && solicitud.estado != '0' && session.rol != 1}">
                     </div>
 
+                    <!-- Fecha de solicitud -->
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Fecha y hora de solicitud</label>
+                        <input type="datetime-local"
+                               th:value="${solicitud.fechaHoraSolicitud != null ?
+                                   #temporals.format(solicitud.fechaHoraSolicitud, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                               name="fechaHoraSolicitud"
+                               class="input"
+                               readonly
+                        />
+                    </div>
+
+                    <!-- Fecha de contacto -->
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Fecha y hora de contacto</label>
+                        <input type="datetime-local"
+                               th:value="${solicitud.fechaHoraContacto != null ?
+                                   #temporals.format(solicitud.fechaHoraContacto, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                               name="fechaHoraContacto"
+                               class="input"
+                               readonly
+                        />
+                    </div>
+
+                    <!-- Fecha de finalización -->
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Fecha y hora de finalización</label>
+                        <input type="datetime-local"
+                               th:value="${solicitud.fechaHoraFinalizacion != null ?
+                                   #temporals.format(solicitud.fechaHoraFinalizacion, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                               name="fechaHoraFinalizacion"
+                               class="input"
+                               readonly
+                        />
+                    </div>
+
                     <!-- Tarifa Aplicada (solo Admin) -->
-                    <div class="form-group" th:if="${session.rol == 1}">
+                    <div class="form-group" th:if="${session.rol == 1 || esProveedor == true}">
                         <label for="tarifaAplicada"><i class="fas fa-dollar-sign"></i> Tarifa Aplicada</label>
                         <input type="number"
                                th:field="*{tarifaAplicada}"
@@ -135,7 +200,7 @@
                     </div>
 
                     <!-- Costos Extra (solo Admin) -->
-                    <div class="form-group" th:if="${session.rol == 1}">
+                    <div class="form-group" th:if="${session.rol == 1 || esProveedor == true}">
                         <label for="costosExtra"><i class="fas fa-money-bill-wave"></i> Costos Extra</label>
                         <input type="number"
                                th:field="*{costosExtra}"
@@ -148,7 +213,7 @@
                     </div>
 
                     <!-- Total (solo Admin - calculado automáticamente) -->
-                    <div class="form-group" th:if="${session.rol == 1}">
+                    <div class="form-group" th:if="${session.rol == 1 || esProveedor == true}">
                         <label for="totalCosto"><i class="fas fa-calculator"></i> Total</label>
                         <input type="text"
                                id="totalCosto"
@@ -183,18 +248,6 @@
                     <!-- Estado (solo visible en edición) -->
                     <div class="form-group" th:if="${solicitud.id != null}">
                         <label for="estado"><i class="fas fa-info-circle"></i> Estado</label>
-
-                        <!--
-                        <select id="pais" th:field="*{idPais}" class="input" onchange="loadDepartamentos(this.value)" required>
-                            <option value="">Seleccione un país</option>
-                            <option th:each="p : ${paises}"
-                                    th:value="${p.idPais}"
-                                    th:text="${p.nombrePais}"
-                                    th:selected="${p.idPais == afiliado.idPais}"></option>
-                        </select>
-                        -->
-
-
                         <select id="estado"
                                 th:field="*{estado}"
                                 class="input"
@@ -216,7 +269,7 @@
                 <div class="actions">
                     <button type="submit"
                             class="btn"
-                            th:disabled="${solicitud.id != null && solicitud.estado != '0' && session.rol != 1}">
+                            th:disabled="${solicitud.id != null && solicitud.estado != '0' && session.rol != 1 && !esProveedor}">
                         <i class="fas fa-save"></i>
                         <span th:text="${solicitud.id != null ? 'Actualizar' : 'Guardar'}">Guardar</span>
                     </button>
@@ -252,6 +305,9 @@
         const idCoberturaPreseleccionada = document.getElementById('idCoberturaPreseleccionada')?.value;
         const idProveedorPreseleccionado = document.getElementById('idProveedorPreseleccionado')?.value;
 
+        // Flag de proveedor inyectado desde Thymeleaf
+        const esProveedor = document.getElementById('esProveedorFlag')?.value === 'true';
+
         // ========== CÁLCULO AUTOMÁTICO DE TOTAL (solo Admin) ==========
         const esAdmin = /*[[${session.rol}]]*/ 3 === 1;
 
@@ -270,7 +326,6 @@
             if (tarifaInput && costosInput) {
                 tarifaInput.addEventListener('input', calcularTotal);
                 costosInput.addEventListener('input', calcularTotal);
-                // Calcular al cargar
                 calcularTotal();
             }
         }
@@ -286,7 +341,6 @@
                 }
                 e.target.value = value;
 
-                // Buscar afiliado cuando el DUI esté completo
                 if (value.length === 10) {
                     clearTimeout(timeoutId);
                     timeoutId = setTimeout(() => {
@@ -306,9 +360,7 @@
 
             fetch(`/afiliado/buscar/${dui}`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Afiliado no encontrado');
-                    }
+                    if (!response.ok) throw new Error('Afiliado no encontrado');
                     return response.json();
                 })
                 .then(afiliado => {
@@ -316,14 +368,10 @@
                     if (planInput && afiliado.nombrePlan) {
                         planInput.value = afiliado.nombrePlan;
                     }
-
-                    // Actualizar el plan hidden si viene en la respuesta
                     if (afiliado.idPlan) {
                         document.getElementById('idPlanHidden').value = afiliado.idPlan;
-                        // Recargar tipos de asistencia
                         cargarTiposAsistencia(afiliado.idPlan);
                     }
-
                     duiInput.style.borderColor = '#28a745';
                     setTimeout(() => duiInput.style.borderColor = '', 2000);
                 })
@@ -363,9 +411,7 @@
 
             return fetch(`/asistencia/proveedores/${idPlan}/${idCobertura}`)
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Error al cargar proveedores');
-                    }
+                    if (!response.ok) throw new Error('Error al cargar proveedores');
                     return response.json();
                 })
                 .then(proveedores => {
@@ -389,7 +435,11 @@
                         proveedorSelect.appendChild(option);
                     });
 
-                    proveedorSelect.disabled = false;
+                    // Solo habilitar si NO es proveedor
+                    if (!esProveedor) {
+                        proveedorSelect.disabled = false;
+                    }
+
                     proveedorSelect.style.animation = 'fadeIn 0.3s ease-in';
                 })
                 .catch(error => {
@@ -402,37 +452,40 @@
         // ========== PRESELECCIÓN AUTOMÁTICA AL CARGAR ==========
         if (idCoberturaPreseleccionada && idCoberturaPreseleccionada !== '') {
             setTimeout(() => {
+                // Forzar selección del tipo de asistencia (String para que coincida con el value del option)
+                asistenciaSelect.value = String(idCoberturaPreseleccionada);
+
                 cargarProveedores(idCoberturaPreseleccionada, idProveedorPreseleccionado)
                     .then(() => {
+                        // Si es proveedor, dejar ambos selects deshabilitados visualmente
+                        if (esProveedor) {
+                            asistenciaSelect.disabled = true;
+                            proveedorSelect.disabled = true;
+                        }
                         asistenciaSelect.style.borderColor = '#28a745';
                         proveedorSelect.style.borderColor = '#28a745';
                         setTimeout(() => {
                             asistenciaSelect.style.borderColor = '';
                             proveedorSelect.style.borderColor = '';
                         }, 2000);
+                    })
+                    .catch(() => {
+                        // Si falla la carga de proveedores, igual mostrar la asistencia seleccionada
+                        if (esProveedor) {
+                            asistenciaSelect.disabled = true;
+                        }
                     });
             }, 100);
         }
 
         // ========== ESCUCHAR CAMBIOS EN TIPO DE ASISTENCIA ==========
-        asistenciaSelect.addEventListener('change', function() {
-            const idCobertura = this.value;
-            cargarProveedores(idCobertura);
-        });
-
-        // ========== VALIDACIÓN DE FECHA MÍNIMA (HOY) ==========
-        const fechaInput = document.getElementById('fechaAsistencia');
-        if (fechaInput && !fechaInput.readOnly) {
-            const hoy = new Date().toISOString().split('T')[0];
-            fechaInput.setAttribute('min', hoy);
-
-            fechaInput.addEventListener('change', function() {
-                if (this.value < hoy) {
-                    alert('La fecha de asistencia no puede ser anterior a hoy.');
-                    this.value = hoy;
-                }
+        // Solo si no es proveedor (para admin y afiliado)
+        if (!esProveedor) {
+            asistenciaSelect.addEventListener('change', function() {
+                cargarProveedores(this.value);
             });
         }
+
 
         // ========== VALIDACIÓN ANTES DE ENVIAR ==========
         const form = document.getElementById('solicitudForm');
@@ -446,7 +499,7 @@
                 return false;
             }
 
-            const fechaAsistencia = document.getElementById('fechaAsistencia').value;
+            const fechaAsistencia = document.querySelector('input[name="fechaAsistencia"]').value;
             const horaAsistencia = document.getElementById('horaAsistencia').value;
 
             if (!fechaAsistencia || !horaAsistencia) {
@@ -455,8 +508,12 @@
                 return false;
             }
 
-            const proveedor = proveedorSelect.value;
-            if (!proveedor) {
+            // Validar proveedor: si es proveedor viene del hidden, si no del select
+            const proveedorVal = esProveedor
+                ? document.querySelector('input[name="idProveedor"]')?.value
+                : proveedorSelect.value;
+
+            if (!proveedorVal) {
                 e.preventDefault();
                 alert('Por favor seleccione un proveedor.');
                 return false;
@@ -553,7 +610,6 @@
         transition: border-color 0.3s ease;
     }
 
-    /* Estilos especiales para campos de admin */
     #tarifaAplicada, #costosExtra {
         border-left: 3px solid #4A90E2;
     }

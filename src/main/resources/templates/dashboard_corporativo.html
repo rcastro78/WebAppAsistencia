@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Portal Cliente Corporativo</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/dashb_c.css}">
+</head>
+<body>
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-avatar" th:text="${avatarCliente}">DE</div>
+      <h3 th:text="${nombreCliente}">Nombre</h3>
+      <p th:text="${emailCliente}">correo</p>
+      <span class="badge-rol">Cliente Corporativo</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a th:href="@{/portalConvenio/dashboard}" class="nav-item active">
+        <i class="fas fa-chart-pie"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <a th:href="@{/portalConvenio/plan}" class="nav-item">
+        <i class="fas fa-list-check"></i>
+        <span>Mi Plan · SaludCare</span>
+      </a>
+
+      <a th:href="@{/afiliado/corporativos}" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span>Afiliados</span>
+      </a>
+
+      <a th:href="@{/usuarios/corporativos}" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span>Usuarios</span>
+      </a>
+
+      <a th:href="@{/coberturas/corporativo/uso-coberturas}" class="nav-item">
+        <i class="fas fa-umbrella"></i>
+        <span>Uso de Coberturas</span>
+      </a>
+
+
+
+      <a th:href="@{/reportes/reportesCorporativos}" class="nav-item">
+        <i class="fas fa-file-pdf"></i>
+        <span>Reportes</span>
+      </a>
+
+      <a th:href="@{/usuarios/loginCorporativo}" class="nav-item">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Cerrar Sesión</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p>Los datos mostrados son agregados y no incluyen detalle clínico individual de los afiliados.</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h1 th:text="'¡Hola, ' + ${nombreCliente} + '!'">Hola</h1>
+        <p>Aquí puedes ver cómo tus colaboradores están usando su cobertura de salud.</p>
+
+        <div class="cobertura-item" th:each="plan : ${planesAfiliadosResumen}">
+          <div class="cobertura-top">
+            <span class="plan-chip" th:text="|afiliados con plan ${plan.nombrePlan}|">Plan SaludCare asignado</span>
+            <span class="cobertura-cifra"></span>
+            <span th:text="${plan.cantidad}">0</span>
+          </div>
+      </div>
+      </div>
+      <div class="user-info">
+        <div class="user-avatar" th:text="${avatarCliente}">DE</div>
+        <div class="user-details">
+          <h4>Panel de Convenio</h4>
+          <p>Solo lectura · Vista agregada</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <div class="stat-header">
+          <div class="stat-title">Afiliados Activos</div>
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+        </div>
+        <div class="stat-number" th:text="${afiliadosActivos}">0</div>
+        <div class="stat-change neutral">
+          <i class="fas fa-hourglass-half"></i>
+          <span>Convenio recién iniciado</span>
+        </div>
+      </div>
+
+      <div class="stat-card teal">
+        <div class="stat-header">
+          <div class="stat-title">Consultas Este Mes</div>
+          <div class="stat-icon"><i class="fas fa-stethoscope"></i></div>
+        </div>
+        <div class="stat-number" th:text="${afiliadosConsultaron}">-</div>
+        <div class="stat-label">consultas utilizadas</div>
+        <div class="stat-change neutral">
+          <i class="fas fa-equals"></i>
+          <span>Sin actividad aún</span>
+        </div>
+      </div>
+
+      <div class="stat-card orange">
+        <div class="stat-header">
+          <div class="stat-title">Próximas Programadas</div>
+          <div class="stat-icon"><i class="fas fa-calendar-days"></i></div>
+        </div>
+        <div class="stat-number" th:text="${afiliadosConCita}">-</div>
+        <div class="stat-label">citas agendadas</div>
+        <div class="stat-change neutral">
+          <i class="fas fa-clock"></i>
+          <span>Próximos 7 días</span>
+        </div>
+      </div>
+
+      <div class="stat-card purple">
+        <div class="stat-header">
+          <div class="stat-title">Uso Promedio del Plan</div>
+          <div class="stat-icon"><i class="fas fa-chart-simple"></i></div>
+        </div>
+        <div class="stat-number" th:text="${usoPromedioPlan} + '%'">0%</div>
+        <div class="stat-label">de los eventos disponibles</div>
+      </div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-sections">
+      <div class="content-card">
+        <h3 class="section-title">Uso por Cobertura</h3>
+        <p class="section-subtitle">Coberturas incluidas en el plan</p>
+
+        <div class="cobertura-item" th:each="cobertura : ${coberturasResumen}">
+          <div class="cobertura-top">
+            <span class="cobertura-nombre" th:text="${cobertura.nombreCobertura}">Consulta médica en línea</span>
+
+            <span class="cobertura-cifra" th:if="${!cobertura.ilimitado}"
+                  th:text="${cobertura.usados} + ' / ' + ${cobertura.total} + ' eventos usados'">
+      3 / 6 eventos usados
+    </span>
+
+            <span class="cobertura-cifra" th:if="${cobertura.ilimitado}"
+                  th:text="${cobertura.usados} + ' eventos usados · Sin límite'">
+      5 eventos usados · Sin límite
+    </span>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill" th:classappend="${cobertura.claseProgreso}"
+                 th:style="'width: ' + (${cobertura.ilimitado} ? 100 : ${cobertura.porcentaje}) + '%;'">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <h3 class="section-title">Actividad Reciente</h3>
+        <p class="section-subtitle">Últimos movimientos del convenio</p>
+
+        <div class="cobertura-item">
+          <div class="cobertura-top">
+            <span class="cobertura-nombre">Cliente corporativo aceptado</span>
+            <span class="cobertura-cifra">Ago 2026</span>
+          </div>
+        </div>
+
+        <div class="cobertura-item">
+          <div class="cobertura-top">
+            <span class="cobertura-nombre">Plan SaludCare asignado</span>
+            <span class="cobertura-cifra">Ago 2026</span>
+          </div>
+        </div>
+
+        <div class="cobertura-item">
+          <div class="cobertura-top">
+            <span class="cobertura-nombre">A la espera de carga de afiliados</span>
+            <span class="cobertura-cifra">Pendiente</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent requests table -->
+    <div style="padding: 0 2rem 2rem 2rem;">
+      <div class="content-card">
+        <h3 class="section-title">Últimas Solicitudes de Consulta</h3>
+        <p class="section-subtitle">Vista de ejemplo — se listarán aquí conforme haya afiliados activos</p>
+
+        <table class="tabla-solicitudes">
+          <thead>
+          <tr>
+            <th>Afiliado</th>
+            <th>Cobertura</th>
+            <th>Modalidad</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="s : ${ultimasSolicitudes}">
+            <td th:text="${s.afiliado}">María R.</td>
+            <td th:text="${s.nombreCobertura}">Consulta en línea</td>
+            <td class="modalidad-tag" th:text="${s.tipo}">En línea</td>
+            <td th:text="${#temporals.format(s.fechaProgramada, 'dd MMM yyyy')}">28 Ago 2026</td>
+            <td>
+      <span class="estado-pill"
+            th:classappend="${s.estadoAgenda == 'Atendida'} ? 'estado-atendida' : (${s.estadoAgenda == 'Programada'} ? 'estado-programada' : 'estado-cancelada')"
+            th:text="${s.estadoAgenda}">Atendida</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

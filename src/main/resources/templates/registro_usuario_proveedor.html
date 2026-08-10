@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${esEdicion} ? 'Editar Usuario' : 'Registro de Usuario'">Usuario Proveedor</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:       #1a56db;
+      --primary-dark:  #1e429f;
+      --primary-light: #ebf0ff;
+      --success:       #10b981;
+      --danger:        #ef4444;
+      --text-main:     #111827;
+      --text-muted:    #6b7280;
+      --border:        #e5e7eb;
+      --bg:            #f3f4f6;
+      --white:         #ffffff;
+      --shadow-md:     0 4px 16px rgba(0,0,0,.10);
+      --radius:        12px;
+      --radius-sm:     8px;
+      --transition:    .2s ease;
+    }
+
+    body.modo-edicion {
+      --primary:       #d97706;
+      --primary-dark:  #b45309;
+      --primary-light: #fffbeb;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    .page-wrapper { max-width: 860px; margin: 0 auto; padding: 32px 20px 60px; }
+
+    /* ── Header ── */
+    .page-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px; margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-icon {
+      width: 52px; height: 52px; border-radius: var(--radius-sm);
+      background: var(--primary);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,.20);
+    }
+    .header-icon i { color: var(--white); font-size: 22px; }
+    .header-text h1 { font-size: 22px; font-weight: 700; color: var(--text-main); line-height: 1.25; }
+
+    .mode-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px; margin-top: 5px;
+    }
+    .mode-badge.nuevo  { background: #dbeafe; color: #1e40af; }
+    .mode-badge.editar { background: #fef3c7; color: #92400e; }
+
+    .breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-muted); margin-top: 6px; flex-wrap: wrap;
+    }
+    .breadcrumb a { color: var(--primary); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb i { font-size: 9px; }
+
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--white); color: var(--text-main);
+      font-size: 14px; font-weight: 500; text-decoration: none;
+      transition: var(--transition); white-space: nowrap;
+    }
+    .btn-back:hover { background: var(--bg); border-color: #d1d5db; }
+
+    /* ── Alerts ── */
+    .alert {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px; border-radius: var(--radius-sm);
+      font-size: 14px; margin-bottom: 24px;
+    }
+    .alert-success { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; }
+    .alert-danger  { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+
+    /* ── Card ── */
+    .form-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; }
+
+    .form-card-header {
+      padding: 20px 28px; border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--white) 100%);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .form-card-header i { color: var(--primary); font-size: 18px; }
+    .form-card-header h2 { font-size: 16px; font-weight: 600; color: var(--text-main); }
+
+    .form-card-body { padding: 28px; }
+
+    /* ── Edit notice ── */
+    .edit-notice {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 16px; background: #fffbeb;
+      border: 1px solid #fcd34d; border-radius: var(--radius-sm);
+      margin-bottom: 24px; font-size: 13px; color: #92400e;
+    }
+    .edit-notice i { font-size: 15px; margin-top: 1px; flex-shrink: 0; color: #d97706; }
+
+    /* ── Section divider ── */
+    .section-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 8px 0 20px;
+      color: var(--text-muted); font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Form grid ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-grid .full { grid-column: 1 / -1; }
+
+    /* ── Field ── */
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: 13px; font-weight: 600; color: var(--text-main);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .field label i { color: var(--primary); font-size: 13px; }
+    .field .hint { font-size: 12px; color: var(--text-muted); margin-top: -2px; }
+
+    .field input, .field select {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 14px; color: var(--text-main); background: var(--white);
+      transition: border-color var(--transition), box-shadow var(--transition);
+      outline: none; appearance: none;
+    }
+    .field select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+    }
+
+    .field-readonly input {
+      background: #f9fafb; color: var(--text-muted);
+      cursor: not-allowed; border-style: dashed;
+    }
+    .readonly-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600; color: #6b7280;
+      background: #f3f4f6; border: 1px solid var(--border);
+      border-radius: 4px; padding: 2px 7px; margin-left: 6px;
+    }
+
+    /* ── Toggle estado ── */
+    .estado-toggle { display: flex; gap: 10px; }
+    .toggle-opt {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      padding: 11px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      cursor: pointer; transition: var(--transition); user-select: none;
+    }
+    .toggle-opt:hover { border-color: var(--primary); background: var(--primary-light); }
+    .toggle-opt.active-on  { border-color: var(--success); background: #ecfdf5; }
+    .toggle-opt.active-off { border-color: var(--danger);  background: #fef2f2; }
+    .toggle-opt input[type="radio"] { display: none; }
+    .toggle-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; transition: var(--transition); }
+    .toggle-opt.active-on  .toggle-dot { border-color: var(--success); background: var(--success); }
+    .toggle-opt.active-off .toggle-dot { border-color: var(--danger);  background: var(--danger); }
+    .toggle-opt span { font-size: 14px; font-weight: 500; }
+
+    /* ── Summary ── */
+    .summary-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 16px; margin-top: 24px;
+    }
+    .summary-box h4 {
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px;
+    }
+    .summary-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 7px 0; border-bottom: 1px dashed var(--border); font-size: 14px;
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .s-label { color: var(--text-muted); }
+    .s-value { font-weight: 600; color: var(--text-main); }
+
+    /* ── Footer actions ── */
+    .form-actions {
+      display: flex; align-items: center; justify-content: flex-end; gap: 12px;
+      padding: 20px 28px; border-top: 1px solid var(--border); background: #fafafa; flex-wrap: wrap;
+    }
+    .btn-cancel {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--white); color: var(--text-main);
+      font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-cancel:hover { background: var(--bg); border-color: #d1d5db; }
+    .btn-submit {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 28px; border: none; border-radius: var(--radius-sm);
+      background: var(--primary); color: var(--white);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.18);
+      transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .btn-submit:hover  { background: var(--primary-dark); box-shadow: 0 4px 14px rgba(0,0,0,.22); transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-card-body { padding: 20px; }
+      .form-actions { justify-content: stretch; }
+      .btn-cancel, .btn-submit { flex: 1; justify-content: center; }
+      .page-header { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body th:classappend="${esEdicion} ? 'modo-edicion'">
+<div class="page-wrapper">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="fas" th:classappend="${esEdicion} ? 'fa-user-pen' : 'fa-user-plus'"></i>
+      </div>
+      <div class="header-text">
+        <h1 th:text="${esEdicion} ? 'Editar Usuario' : 'Nuevo Usuario'">Usuario</h1>
+        <span class="mode-badge" th:classappend="${esEdicion} ? 'editar' : 'nuevo'">
+          <i class="fas" th:classappend="${esEdicion} ? 'fa-pencil' : 'fa-plus'"></i>
+          <span th:text="${esEdicion} ? 'Modo edición' : 'Nuevo usuario'"></span>
+        </span>
+        <div class="breadcrumb">
+          <a th:href="@{/usuarios/proveedor_dashboard}"><i class="fas fa-home"></i> Inicio</a>
+          <i class="fas fa-chevron-right"></i>
+          <a th:href="@{/usuarioProveedor/proveedor/{nit}(nit=${nit})}">Usuarios</a>
+          <i class="fas fa-chevron-right"></i>
+          <span th:text="${esEdicion} ? 'Editar' : 'Nuevo'"></span>
+        </div>
+      </div>
+    </div>
+    <a th:href="@{/usuarioProveedor/proveedor/{nit}(nit=${nit})}" class="btn-back">
+      <i class="fas fa-arrow-left"></i> Volver
+    </a>
+  </div>
+
+  <!-- ── Flash messages ── -->
+  <div class="alert alert-success" th:if="${success}">
+    <i class="fas fa-circle-check"></i>
+    <span th:text="${success}"></span>
+  </div>
+  <div class="alert alert-danger" th:if="${error}">
+    <i class="fas fa-circle-exclamation"></i>
+    <span th:text="${error}"></span>
+  </div>
+
+  <!-- ── Main card ── -->
+  <div class="form-card">
+
+    <div class="form-card-header">
+      <i class="fas" th:classappend="${esEdicion} ? 'fa-file-pen' : 'fa-file-medical'"></i>
+      <h2 th:text="${esEdicion} ? 'Modificar datos del usuario' : 'Datos del nuevo usuario'">Datos</h2>
+    </div>
+
+    <div class="form-card-body">
+
+      <!-- Aviso modo edición -->
+      <div class="edit-notice" th:if="${esEdicion}">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div>
+          <strong>Modo edición:</strong> el <strong>DUI</strong> es la clave del usuario
+          y no puede modificarse. Solo puedes actualizar los demás datos.
+        </div>
+      </div>
+
+      <form th:action="${esEdicion} ? '/usuarioProveedor/actualizar' : '/usuarioProveedor/guardar'"
+            method="post" id="formUsuario">
+
+        <input type="hidden" name="nit" th:value="${nit}">
+
+        <!-- ── Identificación ── -->
+        <div class="section-divider">Identificación</div>
+        <div class="form-grid">
+
+          <!-- DUI -->
+          <div class="field" th:classappend="${esEdicion} ? 'field-readonly'">
+            <label for="dui">
+              <i class="fas fa-id-card"></i> DUI
+              <span class="readonly-badge" th:if="${esEdicion}">
+                <i class="fas fa-lock"></i> Bloqueado
+              </span>
+            </label>
+            <p class="hint" th:text="${esEdicion} ? 'No modificable — clave del usuario.' : 'Formato: 12345678-9'"></p>
+            <input type="text" id="dui" name="dui"
+                   th:value="${usuario.dui}"
+                   class="input"
+                   placeholder="00000000-0"
+                   pattern="[0-9]{8}-[0-9]"
+                   title="Formato: 12345678-9"
+                   th:readonly="${esEdicion}"
+                   required>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="field">
+            <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
+            <p class="hint">Formato: 1234-5678</p>
+            <input type="tel" id="telefono" name="telefono"
+                   th:value="${usuario.telefono}"
+                   placeholder="0000-0000"
+                   pattern="[0-9]{4}-[0-9]{4}"
+                   title="Formato: 1234-5678">
+          </div>
+
+        </div>
+
+        <!-- ── Datos personales ── -->
+        <div class="section-divider" style="margin-top:28px;">Datos personales</div>
+        <div class="form-grid">
+
+          <!-- Nombre -->
+          <div class="field">
+            <label for="nombre"><i class="fas fa-user"></i> Nombre</label>
+            <p class="hint">Nombre(s) del usuario.</p>
+            <input type="text" id="nombre" name="nombre"
+                   th:value="${usuario.nombre}"
+                   placeholder="Ingrese el nombre"
+                   maxlength="45" required>
+          </div>
+
+          <!-- Apellido -->
+          <div class="field">
+            <label for="apellido"><i class="fas fa-user"></i> Apellido</label>
+            <p class="hint">Apellido(s) del usuario.</p>
+            <input type="text" id="apellido" name="apellido"
+                   th:value="${usuario.apellido}"
+                   placeholder="Ingrese el apellido"
+                   maxlength="45" required>
+          </div>
+
+          <!-- Email -->
+          <div class="field full">
+            <label for="emailAsociado"><i class="fas fa-envelope"></i> Correo electrónico</label>
+            <p class="hint">Se usará para notificaciones y acceso al sistema.</p>
+            <input type="email" id="emailAsociado" name="emailAsociado"
+                   th:value="${usuario.emailAsociado}"
+                   placeholder="correo@ejemplo.com"
+                   maxlength="45" required>
+          </div>
+
+        </div>
+
+        <!-- ── Estado ── -->
+        <div class="section-divider" style="margin-top:28px;">Estado</div>
+        <div class="form-grid">
+          <div class="field full">
+            <label><i class="fas fa-toggle-on"></i> Estado del usuario</label>
+            <p class="hint" th:text="${esEdicion} ? 'Actualiza el estado activo/inactivo.' : 'Indica si el usuario estará activo al crearse.'"></p>
+            <div class="estado-toggle">
+              <label class="toggle-opt"
+                     th:classappend="${usuario.estado == 1 or usuario.estado == null} ? 'active-on'"
+                     id="lblActivo">
+                <input type="radio" name="estado" value="1"
+                       th:checked="${usuario.estado == 1 or usuario.estado == null}"
+                       onchange="updateToggle(this)">
+                <span class="toggle-dot"></span>
+                <span>Activo</span>
+              </label>
+              <label class="toggle-opt"
+                     th:classappend="${usuario.estado == 0} ? 'active-off'"
+                     id="lblInactivo">
+                <input type="radio" name="estado" value="0"
+                       th:checked="${usuario.estado == 0}"
+                       onchange="updateToggle(this)">
+                <span class="toggle-dot"></span>
+                <span>Inactivo</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Resumen ── -->
+        <div class="summary-box">
+          <h4><i class="fas fa-list-check"></i> Resumen del usuario</h4>
+          <div class="summary-row">
+            <span class="s-label">DUI</span>
+            <span class="s-value" id="sDui">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Nombre completo</span>
+            <span class="s-value" id="sNombre">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Email</span>
+            <span class="s-value" id="sEmail">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Teléfono</span>
+            <span class="s-value" id="sTelefono">—</span>
+          </div>
+          <div class="summary-row">
+            <span class="s-label">Estado</span>
+            <span class="s-value" id="sEstado">—</span>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="form-actions">
+      <a th:href="@{/usuarioProveedor/proveedor/{nit}(nit=${nit})}" class="btn-cancel">
+        <i class="fas fa-xmark"></i> Cancelar
+      </a>
+      <button type="submit" form="formUsuario" class="btn-submit" id="btnGuardar">
+        <i class="fas" th:classappend="${esEdicion} ? 'fa-pen-to-square' : 'fa-floppy-disk'"></i>
+        <span th:text="${esEdicion} ? 'Actualizar usuario' : 'Guardar usuario'">Guardar</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  // ── Toggle estado ──────────────────────────────────────────────
+  function updateToggle(radio) {
+    const lblActivo   = document.getElementById('lblActivo');
+    const lblInactivo = document.getElementById('lblInactivo');
+    lblActivo.classList.remove('active-on');
+    lblInactivo.classList.remove('active-off');
+    if (radio.value === '1') {
+      lblActivo.classList.add('active-on');
+      document.getElementById('sEstado').textContent = 'Activo';
+    } else {
+      lblInactivo.classList.add('active-off');
+      document.getElementById('sEstado').textContent = 'Inactivo';
+    }
+  }
+
+  // ── Resumen en vivo ────────────────────────────────────────────
+  function updateSummary() {
+    const dui      = document.getElementById('dui');
+    const nombre   = document.getElementById('nombre');
+    const apellido = document.getElementById('apellido');
+    const email    = document.getElementById('emailAsociado');
+    const telefono = document.getElementById('telefono');
+
+    document.getElementById('sDui').textContent      = dui?.value      || '—';
+    document.getElementById('sNombre').textContent   = ((nombre?.value || '') + ' ' + (apellido?.value || '')).trim() || '—';
+    document.getElementById('sEmail').textContent    = email?.value    || '—';
+    document.getElementById('sTelefono').textContent = telefono?.value || '—';
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    updateSummary();
+    const radioChecked = document.querySelector('input[name="estado"]:checked');
+    if (radioChecked) updateToggle(radioChecked);
+
+    ['dui','nombre','apellido','emailAsociado','telefono'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', updateSummary);
+    });
+  });
+  /*]]>*/
+</script>
+</body>
+</html>

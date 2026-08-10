@@ -32,6 +32,8 @@ public class ClienteCorporativo implements Serializable {
     private String imagenURL;
     @Column(name = "telefono", length = 15)
     private String telefono;
+    @Column(name = "idPlanAsociado")
+    private Integer idPlanAsociado;
     public String getNit() {
         return nit;
     }
@@ -102,5 +104,13 @@ public class ClienteCorporativo implements Serializable {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public Integer getIdPlanAsociado() {
+        return idPlanAsociado;
+    }
+
+    public void setIdPlanAsociado(Integer idPlanAsociado) {
+        this.idPlanAsociado = idPlanAsociado;
     }
 }

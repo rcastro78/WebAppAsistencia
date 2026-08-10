@@ -137,10 +137,12 @@
 
         <div class="sidebar-profile">
             <div class="profile-avatar">JO</div>
-            <h3>Jorge Orellana</h3>
-            <p>jorge.orellana@asistenciaelsalvador.com</p>
+            <span th:text="${session.patrocinio == true ? 'Mis Patrocinados' : 'Listado de Afiliados'}">Listado</span>
+            <h3 th:text="${session.patrocinio == true ? session.nombre + ' ' + session.apellido : 'Jorge Orellana'}">
+                Jorge Orellana
+            </h3>
+            <p th:text="${session.patrocinio==true ? session.email : 'jorge.orellana@asistenciaelsalvador.com'}">jorge.orellana@asistenciaelsalvador.com</p>
         </div>
-
         <nav class="sidebar-nav">
 
             <a th:href="@{/plan}" href="#" class="nav-item">

@@ -104,28 +104,25 @@
         ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
         @media(max-width:768px){.info-panel{display:none}.local-wrapper{width:120px;height:90px;bottom:110px;right:12px}.chat-panel{width:90vw;right:5vw}}
 
-
         /* ── Límite de tiempo ── */
-.timer.warning { color: var(--amber); border: 1px solid rgba(245,158,11,.4); }
-.timer.critical { color: var(--red);   border: 1px solid rgba(239,68,68,.4); animation: blink-red 1s infinite; }
-@keyframes blink-red { 0%,100%{opacity:1} 50%{opacity:.5} }
+        .timer.warning { color: var(--amber); border: 1px solid rgba(245,158,11,.4); }
+        .timer.critical { color: var(--red);   border: 1px solid rgba(239,68,68,.4); animation: blink-red 1s infinite; }
+        @keyframes blink-red { 0%,100%{opacity:1} 50%{opacity:.5} }
 
-.time-limit-toast {
-    position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-    background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.5);
-    color: var(--amber); padding: 14px 24px; border-radius: 14px;
-    font-size: .9rem; font-weight: 600; z-index: 200;
-    display: none; align-items: center; gap: 10px;
-    box-shadow: 0 8px 32px rgba(0,0,0,.4);
-}
-.time-limit-toast.show { display: flex; }
-.time-limit-toast.critical-toast {
-    background: rgba(239,68,68,.15);
-    border-color: rgba(239,68,68,.5);
-    color: var(--red);
-}
-
-
+        .time-limit-toast {
+            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.5);
+            color: var(--amber); padding: 14px 24px; border-radius: 14px;
+            font-size: .9rem; font-weight: 600; z-index: 200;
+            display: none; align-items: center; gap: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,.4);
+        }
+        .time-limit-toast.show { display: flex; }
+        .time-limit-toast.critical-toast {
+            background: rgba(239,68,68,.15);
+            border-color: rgba(239,68,68,.5);
+            color: var(--red);
+        }
     </style>
 </head>
 <body>
@@ -263,454 +260,466 @@
         </div>
     </div>
 </div>
+
 <div class="toast" id="toast"></div>
 
-<!-- ═══ SCRIPT — sin th:inline ═══ -->
-<!-- ═══ SCRIPT CORREGIDO — reemplaza el bloque <script> en consulta_medica.html ═══ -->
+<!-- FIX: markup que faltaba para el aviso de límite de tiempo -->
+<div class="time-limit-toast" id="timeLimitToast">
+    <i class="fas fa-clock"></i>
+    <span id="timeLimitMsg"></span>
+</div>
+
+<!-- ═══ SCRIPT ═══ -->
 <script>
     // ── Leer vars desde hidden inputs ─────────────────────────────────────────────
-const ROOM_ID     = document.getElementById('v-room-id').value;
-const ROL         = document.getElementById('v-rol').value;
-const MI_DUI      = document.getElementById('v-dui').value;
-const CONSULTA_ID = document.getElementById('v-consulta-id').value;
-const REMOTE_NAME = document.getElementById('v-remote-name').value;
+    const ROOM_ID     = document.getElementById('v-room-id').value;
+    const ROL         = document.getElementById('v-rol').value;
+    const MI_DUI      = document.getElementById('v-dui').value;
+    const CONSULTA_ID = document.getElementById('v-consulta-id').value;
+    const REMOTE_NAME = document.getElementById('v-remote-name').value;
 
-// MI_USERNAME: debe ser único y no vacío. Combinamos DUI + ROL para garantizarlo.
-// Si el DUI está vacío (error de sesión), usamos un UUID local como fallback.
-const MI_USERNAME = (MI_DUI || ('anon_' + Math.random().toString(36).slice(2))) + '_' + ROL;
+    // MI_USERNAME: debe ser único y no vacío. Combinamos DUI + ROL para garantizarlo.
+    const MI_USERNAME = (MI_DUI || ('anon_' + Math.random().toString(36).slice(2))) + '_' + ROL;
 
-console.log('✅ ROOM_ID:', ROOM_ID, '| ROL:', ROL, '| MI_USERNAME:', MI_USERNAME);
+    console.log('✅ ROOM_ID:', ROOM_ID, '| ROL:', ROL, '| MI_USERNAME:', MI_USERNAME);
 
-const isInitiator = (ROL === 'PACIENTE');   // el PACIENTE siempre crea la oferta
+    const isInitiator = (ROL === 'PACIENTE');   // el PACIENTE siempre crea la oferta
 
-const ICE_SERVERS = {
-    iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
-    ]
-};
+    const ICE_SERVERS = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+    };
 
-let stompClient    = null;
-let peerConnection = null;
-let localStream    = null;
-let micOn = true, camOn = true;
-let timerInterval  = null;
-let callStartTime  = null;
-let joinInterval   = null;
+    let stompClient    = null;
+    let peerConnection = null;
+    let localStream    = null;
+    let micOn = true, camOn = true;
+    let timerInterval  = null;
+    let callStartTime  = null;
+    let joinInterval   = null;
 
-// FIX CLAVE: estos flags controlan que no se dupliquen offer/answer
-let offerCreado    = false;   // solo el PACIENTE lo usa
-let peerPresente   = false;   // true cuando ya detectamos al otro participante
+    let offerCreado    = false;   // solo el PACIENTE lo usa
+    let peerPresente   = false;   // true cuando ya detectamos al otro participante
+    let yaFinalizando  = false;   // evita llamadas duplicadas a finalizarConsulta()
 
-// ─────────────────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async () => {
-    await initMedia();
-    connectWebSocket();
-    makeDraggable(
-        document.getElementById('localWrapper'),
-        document.getElementById('videoArea')
-    );
-});
-
-// ── Media ─────────────────────────────────────────────────────────────────────
-async function initMedia() {
-    try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        document.getElementById('localVideo').srcObject = localStream;
-        showToast('🎥 Cámara y micrófono activos');
-    } catch (e) {
-        showToast('⚠️ No se pudo acceder a la cámara/micrófono', 4000);
-        console.error('getUserMedia error:', e);
-    }
-}
-
-// ── WebSocket ─────────────────────────────────────────────────────────────────
-function connectWebSocket() {
-    const socket = new SockJS('/ws-signal');
-    stompClient  = Stomp.over(socket);
-    stompClient.debug = null;   // silenciar debug en producción
-
-    stompClient.connect({ dui: MI_DUI }, frame => {
-        console.log('[WS] Conectado. Principal:', frame.headers['user-name'] || '(ninguno)');
-        setStatus('connected', 'Sala activa');
-
-        // ── Suscribirse al topic de la sala ──────────────────────────────────
-        stompClient.subscribe(`/topic/signal/${ROOM_ID}`, msg => {
-            try {
-                const data = JSON.parse(msg.body);
-                // FILTRO CRÍTICO: ignorar los mensajes que yo mismo envié.
-                // Comparación estricta con MI_USERNAME.
-                if (data.from === MI_USERNAME) {
-                    return;
-                }
-                console.log('[WS] ←', data.type, '| de:', data.from);
-                handleSignal(data);
-            } catch (e) {
-                console.error('[WS] Error parseando señal:', e);
-            }
-        });
-
-        // ── Anunciar presencia ───────────────────────────────────────────────
-        sendSignal({ type: 'join' });
-
-        // ── Re-anunciar cada 3s hasta que el otro llegue ────────────────────
-        // Cubre el caso en que uno entra antes que el otro ya esté suscrito.
-        joinInterval = setInterval(() => {
-            if (!peerPresente) {
-                console.log('[WS] Re-join (esperando peer)…');
-                sendSignal({ type: 'join' });
-            } else {
-                clearInterval(joinInterval);
-            }
-        }, 3000);
-
-    }, err => {
-        console.error('[WS] Error conexión:', err);
-        setStatus('disconnected', 'Sin conexión');
-        showToast('❌ Error de conexión al servidor', 4000);
+    // ─────────────────────────────────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', async () => {
+        await initMedia();
+        connectWebSocket();
+        makeDraggable(
+            document.getElementById('localWrapper'),
+            document.getElementById('videoArea')
+        );
     });
-}
 
-// ── Enviar señal ──────────────────────────────────────────────────────────────
-// Siempre incluimos "from" para que el receptor pueda filtrar sus propios mensajes.
-function sendSignal(payload) {
-    if (!stompClient?.connected) return;
-    payload.from = MI_USERNAME;
-    console.log('[WS] →', payload.type);
-    stompClient.send(`/app/signal/${ROOM_ID}`, {}, JSON.stringify(payload));
-}
+    // ── Media ─────────────────────────────────────────────────────────────────────
+    async function initMedia() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('localVideo').srcObject = localStream;
+            showToast('🎥 Cámara y micrófono activos');
+        } catch (e) {
+            showToast('⚠️ No se pudo acceder a la cámara/micrófono', 4000);
+            console.error('getUserMedia error:', e);
+        }
+    }
 
-// ── Manejar señales entrantes ─────────────────────────────────────────────────
-async function handleSignal(msg) {
-    switch (msg.type) {
+    // ── WebSocket ─────────────────────────────────────────────────────────────────
+    function connectWebSocket() {
+        const socket = new SockJS('/ws-signal');
+        stompClient  = Stomp.over(socket);
+        stompClient.debug = null;
 
-        case 'join':
-            // Marcar que el peer llegó
-            peerPresente = true;
-            clearInterval(joinInterval);
+        stompClient.connect({ dui: MI_DUI }, frame => {
+            console.log('[WS] Conectado. Principal:', frame.headers['user-name'] || '(ninguno)');
+            setStatus('connected', 'Sala activa');
 
-            if (isInitiator && !offerCreado) {
-                // Soy PACIENTE y el doctor acaba de llegar → crear oferta UNA sola vez
-                offerCreado = true;
-                console.log('[WebRTC] Paciente → createOffer()');
-                await createOffer();
-            } else if (!isInitiator) {
-                // Soy DOCTOR → responder join para que el paciente sepa que llegué.
-                // Solo si el peerConnection aún no existe (no repetir si ya hay llamada).
-                if (!peerConnection) {
-                    console.log('[WebRTC] Doctor → respondiendo join al paciente');
-                    sendSignal({ type: 'join' });
-                }
-            }
-            break;
-
-        case 'offer':
-            if (!isInitiator) {
-                // Soy DOCTOR → recibo la oferta del paciente
-                console.log('[WebRTC] Doctor → handleOffer()');
-                peerPresente = true;
-                clearInterval(joinInterval);
-                await handleOffer(msg.payload);
-            }
-            break;
-
-        case 'answer':
-            if (isInitiator && peerConnection) {
-                // Soy PACIENTE → recibo la respuesta del doctor
-                console.log('[WebRTC] Paciente → setRemoteDescription(answer)');
-                if (peerConnection.signalingState === 'have-local-offer') {
-                    await peerConnection.setRemoteDescription(
-                        new RTCSessionDescription(msg.payload)
-                    );
-                } else {
-                    console.warn('[WebRTC] signalingState inesperado:', peerConnection.signalingState);
-                }
-            }
-            break;
-
-        case 'ice-candidate':
-            if (peerConnection && msg.payload) {
+            stompClient.subscribe(`/topic/signal/${ROOM_ID}`, msg => {
                 try {
-                    // Si el remoteDescription aún no está listo, esperar un tick
-                    if (peerConnection.remoteDescription) {
-                        await peerConnection.addIceCandidate(new RTCIceCandidate(msg.payload));
-                    } else {
-                        // Encolar el candidato y reintentarlo cuando remoteDescription esté listo
-                        pendingCandidates.push(msg.payload);
+                    const data = JSON.parse(msg.body);
+                    if (data.from === MI_USERNAME) return;
+                    console.log('[WS] ←', data.type, '| de:', data.from);
+                    handleSignal(data);
+                } catch (e) {
+                    console.error('[WS] Error parseando señal:', e);
+                }
+            });
+
+            // Notificaciones de usuario (ej. CONSULTA_FINALIZADA desde el otro lado vía REST)
+            stompClient.subscribe(`/user/queue/notificaciones`, msg => {
+                try {
+                    const data = JSON.parse(msg.body);
+                    if (data.tipo === 'CONSULTA_FINALIZADA') {
+                        showToast('📴 El otro participante finalizó la consulta', 3000);
+                        setTimeout(() => finalizarConsulta(true), 1500);
                     }
                 } catch (e) {
-                    console.warn('[ICE] addIceCandidate error:', e.message);
+                    console.error('[WS] Error en notificación:', e);
                 }
-            }
-            break;
+            });
 
-        case 'chat':
-            appendChatMessage(msg.text, msg.sender || msg.from, false);
-            break;
+            sendSignal({ type: 'join' });
 
-        case 'hangup':
-            handleRemoteHangup();
-            break;
+            joinInterval = setInterval(() => {
+                if (!peerPresente) {
+                    console.log('[WS] Re-join (esperando peer)…');
+                    sendSignal({ type: 'join' });
+                } else {
+                    clearInterval(joinInterval);
+                }
+            }, 3000);
+
+        }, err => {
+            console.error('[WS] Error conexión:', err);
+            setStatus('disconnected', 'Sin conexión');
+            showToast('❌ Error de conexión al servidor', 4000);
+        });
     }
-}
 
-// ── Cola de ICE candidates que llegan antes del remoteDescription ─────────────
-const pendingCandidates = [];
-
-async function flushPendingCandidates() {
-    while (pendingCandidates.length > 0) {
-        const c = pendingCandidates.shift();
-        try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); }
-        catch (e) { console.warn('[ICE] flush error:', e.message); }
+    function sendSignal(payload) {
+        if (!stompClient?.connected) return;
+        payload.from = MI_USERNAME;
+        console.log('[WS] →', payload.type);
+        stompClient.send(`/app/signal/${ROOM_ID}`, {}, JSON.stringify(payload));
     }
-}
 
-// ── WebRTC ────────────────────────────────────────────────────────────────────
-function createPeerConnection() {
-    if (peerConnection) return;   // no duplicar
+    async function handleSignal(msg) {
+        switch (msg.type) {
 
-    peerConnection = new RTCPeerConnection(ICE_SERVERS);
+            case 'join':
+                peerPresente = true;
+                clearInterval(joinInterval);
 
-    // Agregar tracks locales
-    localStream?.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
+                if (isInitiator && !offerCreado) {
+                    offerCreado = true;
+                    console.log('[WebRTC] Paciente → createOffer()');
+                    await createOffer();
+                } else if (!isInitiator) {
+                    if (!peerConnection) {
+                        console.log('[WebRTC] Doctor → respondiendo join al paciente');
+                        sendSignal({ type: 'join' });
+                    }
+                }
+                break;
 
-    // Video remoto recibido
-    peerConnection.ontrack = e => {
-        console.log('[WebRTC] ontrack → video remoto recibido');
-        document.getElementById('remoteVideo').srcObject = e.streams[0];
-        document.getElementById('remotePlaceholder').style.display = 'none';
-        document.getElementById('remoteName').style.display = 'block';
-        document.getElementById('remoteName').textContent = REMOTE_NAME;
-        startTimer();
-        setStatus('connected', 'En llamada');
-    };
+            case 'offer':
+                if (!isInitiator) {
+                    console.log('[WebRTC] Doctor → handleOffer()');
+                    peerPresente = true;
+                    clearInterval(joinInterval);
+                    await handleOffer(msg.payload);
+                }
+                break;
 
-    // Enviar ICE candidates al peer
-    peerConnection.onicecandidate = e => {
-        if (e.candidate) {
-            sendSignal({ type: 'ice-candidate', payload: e.candidate });
+            case 'answer':
+                if (isInitiator && peerConnection) {
+                    console.log('[WebRTC] Paciente → setRemoteDescription(answer)');
+                    if (peerConnection.signalingState === 'have-local-offer') {
+                        await peerConnection.setRemoteDescription(
+                            new RTCSessionDescription(msg.payload)
+                        );
+                    } else {
+                        console.warn('[WebRTC] signalingState inesperado:', peerConnection.signalingState);
+                    }
+                }
+                break;
+
+            case 'ice-candidate':
+                if (peerConnection && msg.payload) {
+                    try {
+                        if (peerConnection.remoteDescription) {
+                            await peerConnection.addIceCandidate(new RTCIceCandidate(msg.payload));
+                        } else {
+                            pendingCandidates.push(msg.payload);
+                        }
+                    } catch (e) {
+                        console.warn('[ICE] addIceCandidate error:', e.message);
+                    }
+                }
+                break;
+
+            case 'chat':
+                appendChatMessage(msg.text, msg.sender || msg.from, false);
+                break;
+
+            case 'hangup':
+                handleRemoteHangup();
+                break;
         }
-    };
+    }
 
-    peerConnection.oniceconnectionstatechange = () => {
-        const s = peerConnection.iceConnectionState;
-        console.log('[WebRTC] ICE state:', s);
-        if (s === 'failed') {
-            setStatus('disconnected', 'Conexión fallida');
-            showToast('⚠️ Conexión fallida — intentando reconectar', 4000);
-            peerConnection.restartIce();
-        } else if (s === 'disconnected') {
-            setStatus('disconnected', 'Conexión perdida');
-        } else if (s === 'connected' || s === 'completed') {
+    const pendingCandidates = [];
+
+    async function flushPendingCandidates() {
+        while (pendingCandidates.length > 0) {
+            const c = pendingCandidates.shift();
+            try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); }
+            catch (e) { console.warn('[ICE] flush error:', e.message); }
+        }
+    }
+
+    // ── WebRTC ────────────────────────────────────────────────────────────────────
+    function createPeerConnection() {
+        if (peerConnection) return;
+
+        peerConnection = new RTCPeerConnection(ICE_SERVERS);
+
+        localStream?.getTracks().forEach(t => peerConnection.addTrack(t, localStream));
+
+        peerConnection.ontrack = e => {
+            console.log('[WebRTC] ontrack → video remoto recibido');
+            document.getElementById('remoteVideo').srcObject = e.streams[0];
+            document.getElementById('remotePlaceholder').style.display = 'none';
+            document.getElementById('remoteName').style.display = 'block';
+            document.getElementById('remoteName').textContent = REMOTE_NAME;
+            startTimer();
             setStatus('connected', 'En llamada');
+        };
+
+        peerConnection.onicecandidate = e => {
+            if (e.candidate) {
+                sendSignal({ type: 'ice-candidate', payload: e.candidate });
+            }
+        };
+
+        peerConnection.oniceconnectionstatechange = () => {
+            const s = peerConnection.iceConnectionState;
+            console.log('[WebRTC] ICE state:', s);
+            if (s === 'failed') {
+                setStatus('disconnected', 'Conexión fallida');
+                showToast('⚠️ Conexión fallida — intentando reconectar', 4000);
+                peerConnection.restartIce();
+            } else if (s === 'disconnected') {
+                setStatus('disconnected', 'Conexión perdida');
+            } else if (s === 'connected' || s === 'completed') {
+                setStatus('connected', 'En llamada');
+            }
+        };
+    }
+
+    async function createOffer() {
+        createPeerConnection();
+        try {
+            const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
+            await peerConnection.setLocalDescription(offer);
+            sendSignal({ type: 'offer', payload: offer });
+            console.log('[WebRTC] Offer enviado');
+        } catch (e) {
+            console.error('[WebRTC] Error creando offer:', e);
+            offerCreado = false;
         }
-    };
-}
-
-async function createOffer() {
-    createPeerConnection();
-    try {
-        const offer = await peerConnection.createOffer({ offerToReceiveVideo: true, offerToReceiveAudio: true });
-        await peerConnection.setLocalDescription(offer);
-        sendSignal({ type: 'offer', payload: offer });
-        console.log('[WebRTC] Offer enviado');
-    } catch (e) {
-        console.error('[WebRTC] Error creando offer:', e);
-        offerCreado = false;   // permitir reintento
     }
-}
 
-async function handleOffer(offer) {
-    createPeerConnection();
-    try {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        await flushPendingCandidates();   // aplicar candidatos que llegaron antes
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        sendSignal({ type: 'answer', payload: answer });
-        console.log('[WebRTC] Answer enviado');
-    } catch (e) {
-        console.error('[WebRTC] Error manejando offer:', e);
+    async function handleOffer(offer) {
+        createPeerConnection();
+        try {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            await flushPendingCandidates();
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            sendSignal({ type: 'answer', payload: answer });
+            console.log('[WebRTC] Answer enviado');
+        } catch (e) {
+            console.error('[WebRTC] Error manejando offer:', e);
+        }
     }
-}
 
-// ── Controles ─────────────────────────────────────────────────────────────────
-function toggleMic() {
-    if (!localStream) return;
-    micOn = !micOn;
-    localStream.getAudioTracks().forEach(t => t.enabled = micOn);
-    document.getElementById('micIcon').className = micOn ? 'fas fa-microphone' : 'fas fa-microphone-slash';
-    document.getElementById('btnMic').className  = `ctrl-btn ${micOn ? 'default' : 'off'}`;
-    showToast(micOn ? '🎙️ Micrófono activado' : '🔇 Micrófono silenciado');
-}
-
-function toggleCam() {
-    if (!localStream) return;
-    camOn = !camOn;
-    localStream.getVideoTracks().forEach(t => t.enabled = camOn);
-    document.getElementById('camIcon').className = camOn ? 'fas fa-video' : 'fas fa-video-slash';
-    document.getElementById('btnCam').className  = `ctrl-btn ${camOn ? 'default' : 'off'}`;
-    showToast(camOn ? '📹 Cámara activada' : '📵 Cámara apagada');
-}
-
-function toggleChat() {
-    const panel = document.getElementById('chatPanel');
-    const open  = panel.classList.toggle('open');
-    document.getElementById('btnChat').className = `ctrl-btn ${open ? 'active-chat' : 'default'}`;
-}
-
-function toggleFullscreen() {
-    const icon = document.getElementById('fsIcon');
-    if (!document.fullscreenElement) {
-        document.getElementById('videoArea').requestFullscreen();
-        icon.className = 'fas fa-compress';
-    } else {
-        document.exitFullscreen();
-        icon.className = 'fas fa-expand';
+    // ── Controles ─────────────────────────────────────────────────────────────────
+    function toggleMic() {
+        if (!localStream) return;
+        micOn = !micOn;
+        localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+        document.getElementById('micIcon').className = micOn ? 'fas fa-microphone' : 'fas fa-microphone-slash';
+        document.getElementById('btnMic').className  = `ctrl-btn ${micOn ? 'default' : 'off'}`;
+        showToast(micOn ? '🎙️ Micrófono activado' : '🔇 Micrófono silenciado');
     }
-}
 
-function openHangupModal()  { document.getElementById('hangupModal').classList.add('open'); }
-function closeHangupModal() { document.getElementById('hangupModal').classList.remove('open'); }
+    function toggleCam() {
+        if (!localStream) return;
+        camOn = !camOn;
+        localStream.getVideoTracks().forEach(t => t.enabled = camOn);
+        document.getElementById('camIcon').className = camOn ? 'fas fa-video' : 'fas fa-video-slash';
+        document.getElementById('btnCam').className  = `ctrl-btn ${camOn ? 'default' : 'off'}`;
+        showToast(camOn ? '📹 Cámara activada' : '📵 Cámara apagada');
+    }
 
-function hangup() {
-    sendSignal({ type: 'hangup' });
-    finalizarConsulta();
-}
+    function toggleChat() {
+        const panel = document.getElementById('chatPanel');
+        const open  = panel.classList.toggle('open');
+        document.getElementById('btnChat').className = `ctrl-btn ${open ? 'active-chat' : 'default'}`;
+    }
 
-function handleRemoteHangup() {
-    showToast('📴 El otro participante finalizó la llamada', 4000);
-    setTimeout(() => finalizarConsulta(), 2000);
-}
+    function toggleFullscreen() {
+        const icon = document.getElementById('fsIcon');
+        if (!document.fullscreenElement) {
+            document.getElementById('videoArea').requestFullscreen();
+            icon.className = 'fas fa-compress';
+        } else {
+            document.exitFullscreen();
+            icon.className = 'fas fa-expand';
+        }
+    }
 
-function finalizarConsulta() {
-    clearInterval(joinInterval);
-    stopTimer();
-    peerConnection?.close();
-    localStream?.getTracks().forEach(t => t.stop());
-    fetch(`/telemedicina/consulta/${CONSULTA_ID}/finalizar`, { method: 'PUT' })
-        .finally(() => {
+    function openHangupModal()  { document.getElementById('hangupModal').classList.add('open'); }
+    function closeHangupModal() { document.getElementById('hangupModal').classList.remove('open'); }
+
+    function hangup() {
+        sendSignal({ type: 'hangup' });
+        finalizarConsulta(false);
+    }
+
+    function handleRemoteHangup() {
+        showToast('📴 El otro participante finalizó la llamada', 4000);
+        setTimeout(() => finalizarConsulta(true), 2000);
+    }
+
+    // remoto=true evita reenviar el PUT /finalizar si ya lo hizo el otro participante
+    function finalizarConsulta(remoto) {
+        if (yaFinalizando) return;
+        yaFinalizando = true;
+
+        clearInterval(joinInterval);
+        stopTimer();
+        peerConnection?.close();
+        localStream?.getTracks().forEach(t => t.stop());
+
+        const redirigir = () => {
             window.location.href = ROL === 'DOCTOR'
                 ? '/telemedicina/dashboard'
                 : '/telemedicina/mis-consultas';
-        });
-}
+        };
 
-// ── Chat ──────────────────────────────────────────────────────────────────────
-function sendChatMessage() {
-    const input = document.getElementById('chatInput');
-    _enviarChat(input);
-}
-
-function sendChatMessagePanel() {
-    const input = document.getElementById('chatInputPanel');
-    _enviarChat(input);
-}
-
-function _enviarChat(input) {
-    const text = input.value.trim();
-    if (!text) return;
-    sendSignal({ type: 'chat', text, sender: MI_USERNAME });
-    appendChatMessage(text, 'Yo', true);
-    input.value = '';
-}
-
-function appendChatMessage(text, sender, mine) {
-    const html = `<div class="chat-msg ${mine ? 'mine' : 'other'}">
-        ${!mine ? `<div class="msg-sender">${sender}</div>` : ''}
-        ${text}
-    </div>`;
-    ['chatMessages', 'chatMessagesPanel'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.insertAdjacentHTML('beforeend', html); el.scrollTop = el.scrollHeight; }
-    });
-}
-
-// ── Tabs (panel doctor) ───────────────────────────────────────────────────────
-function switchTab(name, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => {
-        t.classList.remove('active');
-        t.style.display = 'none';
-    });
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    const tab = document.getElementById(`tab-${name}`);
-    if (tab) { tab.style.display = 'flex'; tab.classList.add('active'); }
-    btn.classList.add('active');
-}
-
-// ── Timer ─────────────────────────────────────────────────────────────────────
-const MAX_CALL_SECONDS = 15 * 60;
-let warned2min = false;
-let warned30s  = false;
-
-function startTimer() {
-    if (timerInterval) return;
-    callStartTime = Date.now();
-    warned2min = false;
-    warned30s  = false;
-
-    timerInterval = setInterval(() => {
-        const elapsed   = Math.floor((Date.now() - callStartTime) / 1000);
-        const remaining = MAX_CALL_SECONDS - elapsed;
-
-        if (remaining <= 0) {
-            clearInterval(timerInterval);
-            document.getElementById('timerDisplay').textContent = '00:00';
-            showTimeLimitToast('Tiempo agotado — cerrando consulta…', true);
-            setTimeout(() => { sendSignal({ type: 'hangup' }); finalizarConsulta(); }, 2000);
+        if (remoto) {
+            // el otro participante ya llamó al endpoint; solo salimos de la vista
+            redirigir();
             return;
         }
 
-        const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
-        const ss = String(remaining % 60).padStart(2, '0');
-        const display = document.getElementById('timerDisplay');
-        display.textContent = `${mm}:${ss}`;
-        display.className = 'timer' +
-            (remaining <= 30  ? ' critical' :
-             remaining <= 120 ? ' warning'  : '');
+        fetch(`/telemedicina/consulta/${CONSULTA_ID}/finalizar`, { method: 'PUT' })
+            .then(res => {
+                if (!res.ok) console.warn('[finalizar] respuesta no OK:', res.status);
+            })
+            .catch(err => console.error('[finalizar] error de red:', err))
+            .finally(redirigir);
+    }
 
-        if (!warned2min && remaining <= 120) { warned2min = true; showTimeLimitToast('⏳ Quedan 2 minutos para finalizar la consulta', false); }
-        if (!warned30s  && remaining <= 30)  { warned30s  = true; showTimeLimitToast('La consulta se cerrará en 30 segundos', true); }
-    }, 1000);
-}
+    // ── Chat ──────────────────────────────────────────────────────────────────────
+    function sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        _enviarChat(input);
+    }
 
-function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
+    function sendChatMessagePanel() {
+        const input = document.getElementById('chatInputPanel');
+        _enviarChat(input);
+    }
 
-function showTimeLimitToast(msg, critical) {
-    const toast = document.getElementById('timeLimitToast');
-    const span  = document.getElementById('timeLimitMsg');
-    if (!toast || !span) return;
-    span.textContent = msg;
-    toast.classList.toggle('critical-toast', critical);
-    toast.classList.add('show');
-    if (!critical) setTimeout(() => toast.classList.remove('show'), 6000);
-}
+    function _enviarChat(input) {
+        const text = input.value.trim();
+        if (!text) return;
+        sendSignal({ type: 'chat', text, sender: MI_USERNAME });
+        appendChatMessage(text, 'Yo', true);
+        input.value = '';
+    }
 
-// ── UI helpers ────────────────────────────────────────────────────────────────
-function setStatus(type, text) {
-    document.getElementById('statusBadge').className = `status-badge ${type}`;
-    document.getElementById('statusText').textContent = text;
-}
+    function appendChatMessage(text, sender, mine) {
+        const html = `<div class="chat-msg ${mine ? 'mine' : 'other'}">
+            ${!mine ? `<div class="msg-sender">${sender}</div>` : ''}
+            ${text}
+        </div>`;
+        ['chatMessages', 'chatMessagesPanel'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.insertAdjacentHTML('beforeend', html); el.scrollTop = el.scrollHeight; }
+        });
+    }
 
-function showToast(msg, duration = 2500) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), duration);
-}
+    // ── Tabs (panel doctor) ───────────────────────────────────────────────────────
+    function switchTab(name, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => {
+            t.classList.remove('active');
+            t.style.display = 'none';
+        });
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        const tab = document.getElementById(`tab-${name}`);
+        if (tab) { tab.style.display = 'flex'; tab.classList.add('active'); }
+        btn.classList.add('active');
+    }
 
-function makeDraggable(el, container) {
-    let dragging = false, ox = 0, oy = 0;
-    el.addEventListener('mousedown', e => { dragging = true; ox = e.clientX - el.offsetLeft; oy = e.clientY - el.offsetTop; });
-    document.addEventListener('mousemove', e => {
-        if (!dragging) return;
-        el.style.left   = Math.max(0, Math.min(e.clientX - ox, container.offsetWidth  - el.offsetWidth))  + 'px';
-        el.style.top    = Math.max(0, Math.min(e.clientY - oy, container.offsetHeight - el.offsetHeight)) + 'px';
-        el.style.right  = 'auto';
-        el.style.bottom = 'auto';
-    });
-    document.addEventListener('mouseup', () => dragging = false);
-}
+    // ── Timer ─────────────────────────────────────────────────────────────────────
+    const MAX_CALL_SECONDS = 15 * 60;
+    let warned2min = false;
+    let warned30s  = false;
+
+    function startTimer() {
+        if (timerInterval) return;
+        callStartTime = Date.now();
+        warned2min = false;
+        warned30s  = false;
+
+        timerInterval = setInterval(() => {
+            const elapsed   = Math.floor((Date.now() - callStartTime) / 1000);
+            const remaining = MAX_CALL_SECONDS - elapsed;
+
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerDisplay').textContent = '00:00';
+                showTimeLimitToast('Tiempo agotado — cerrando consulta…', true);
+                setTimeout(() => { sendSignal({ type: 'hangup' }); finalizarConsulta(false); }, 2000);
+                return;
+            }
+
+            const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
+            const ss = String(remaining % 60).padStart(2, '0');
+            const display = document.getElementById('timerDisplay');
+            display.textContent = `${mm}:${ss}`;
+            display.className = 'timer' +
+                (remaining <= 30  ? ' critical' :
+                 remaining <= 120 ? ' warning'  : '');
+
+            if (!warned2min && remaining <= 120) { warned2min = true; showTimeLimitToast('⏳ Quedan 2 minutos para finalizar la consulta', false); }
+            if (!warned30s  && remaining <= 30)  { warned30s  = true; showTimeLimitToast('La consulta se cerrará en 30 segundos', true); }
+        }, 1000);
+    }
+
+    function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
+
+    function showTimeLimitToast(msg, critical) {
+        const toast = document.getElementById('timeLimitToast');
+        const span  = document.getElementById('timeLimitMsg');
+        if (!toast || !span) return;
+        span.textContent = msg;
+        toast.classList.toggle('critical-toast', critical);
+        toast.classList.add('show');
+        if (!critical) setTimeout(() => toast.classList.remove('show'), 6000);
+    }
+
+    // ── UI helpers ────────────────────────────────────────────────────────────────
+    function setStatus(type, text) {
+        document.getElementById('statusBadge').className = `status-badge ${type}`;
+        document.getElementById('statusText').textContent = text;
+    }
+
+    function showToast(msg, duration = 2500) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), duration);
+    }
+
+    function makeDraggable(el, container) {
+        let dragging = false, ox = 0, oy = 0;
+        el.addEventListener('mousedown', e => { dragging = true; ox = e.clientX - el.offsetLeft; oy = e.clientY - el.offsetTop; });
+        document.addEventListener('mousemove', e => {
+            if (!dragging) return;
+            el.style.left   = Math.max(0, Math.min(e.clientX - ox, container.offsetWidth  - el.offsetWidth))  + 'px';
+            el.style.top    = Math.max(0, Math.min(e.clientY - oy, container.offsetHeight - el.offsetHeight)) + 'px';
+            el.style.right  = 'auto';
+            el.style.bottom = 'auto';
+        });
+        document.addEventListener('mouseup', () => dragging = false);
+    }
 </script>
 </body>
 </html>

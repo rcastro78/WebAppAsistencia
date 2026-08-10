@@ -15,4 +15,5 @@ public interface PlanRepository extends JpaRepository<Plan, Integer> {
     Page<Plan> findByEstadoTrue(Pageable pageable);
     long countByEstado(int estado);
     List<Plan> findByIdPais(int idPais);
+    List<Plan> findByIdPlanTipo(int planTipo);
 }

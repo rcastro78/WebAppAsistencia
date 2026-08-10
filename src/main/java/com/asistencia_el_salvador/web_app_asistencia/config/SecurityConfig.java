@@ -32,6 +32,7 @@ public class SecurityConfig {
                 // ── Sin sesión SOLO para rutas de API ─────────────────
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+
                 )
 
                 .csrf(csrf -> csrf
@@ -51,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/pagosAfiliados", "/pagosAfiliados/**").permitAll()
                         .requestMatchers("/auth/webview-session").authenticated()
                         .requestMatchers("/cobrar", "/cobrarPatrocinio").permitAll()
+                        .requestMatchers("/promociones/**").permitAll()
                         .anyRequest().permitAll()
                 )
 

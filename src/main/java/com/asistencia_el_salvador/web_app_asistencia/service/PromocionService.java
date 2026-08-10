@@ -102,6 +102,10 @@ public class PromocionService {
                 .orElseThrow(() -> new RuntimeException("Promocion no encontrada"));
     }
 
+    public Promocion guardar(Promocion promocion) {
+        return promocionRepository.save(promocion);
+    }
+
 
     public void desactivarPromocion(Promocion promocion){
         promocion.setActivo(0);

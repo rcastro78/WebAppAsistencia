@@ -64,20 +64,20 @@
                     <label for="idInstitucion"><i class="fas fa-building"></i> Cliente corporativo</label>
                     <select id="idInstitucion" name="nitCliente" class="form-control" style="padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 1rem; background: #f8f9fa;" required>
                         <option value="">Seleccione un cliente</option>
-                        <option th:each="c : ${clientes}" th:value="${c.nit}" th:text="${c.nombreCliente}"></option>
+                        <option th:each="c : ${clientes}"
+                                th:value="${c.nit}"
+                                th:text="${c.nombreCliente}"
+                                th:attr="data-plan-nombre=${nombresPlanPorCliente.get(c.nit)}">
+                        </option>
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="idPlan"><i class="fas fa-clipboard-list"></i> Plan</label>
-                    <select id="idPlan" name="idPlan" class="form-control" style="padding: 15px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 1rem; background: #f8f9fa;" required>
-                        <option value="">Seleccione un plan</option>
-                        <option th:each="plan : ${planes}" th:value="${plan.idPlan}"
-                                th:text="${plan.nombrePlan}"></option>
 
-                    </select>
-
+                <div class="form-group" id="planInfoGroup" style="display:none;">
+                    <label><i class="fas fa-clipboard-list"></i> Plan asociado</label>
+                    <div id="planInfoTexto" style="padding: 12px 15px; background:#f0f4f8; border-radius:12px; color:#333;"></div>
                 </div>
+
 
                 <div class="form-group">
                     <label for="tipoCarga"><i class="fas fa-sliders-h"></i> Tipo de Carga</label>
@@ -138,6 +138,27 @@
 
 const tipoCarga = document.getElementById('tipoCarga');
 const tipoCargaInfo = document.getElementById('tipoCargaInfo');
+
+const institucion = document.getElementById('idInstitucion');
+const planInfoGroup = document.getElementById('planInfoGroup');
+const planInfoTexto = document.getElementById('planInfoTexto');
+
+institucion.addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    const nombrePlan = opt.getAttribute('data-plan-nombre');
+
+    if (nombrePlan && nombrePlan !== 'null' && nombrePlan.trim() !== '') {
+        planInfoGroup.style.display = 'block';
+        planInfoTexto.textContent = nombrePlan;
+        planInfoTexto.style.color = '#333';
+    } else if (this.value) {
+        planInfoGroup.style.display = 'block';
+        planInfoTexto.textContent = '⚠️ Este cliente no tiene un plan asociado configurado';
+        planInfoTexto.style.color = '#dc3545';
+    } else {
+        planInfoGroup.style.display = 'none';
+    }
+});
 
 tipoCarga.addEventListener('change', function() {
     if (this.value === 'INCREMENTAL') {

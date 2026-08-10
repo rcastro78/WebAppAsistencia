@@ -1,5 +1,7 @@
 package com.asistencia_el_salvador.web_app_asistencia.service;
 
+import com.asistencia_el_salvador.web_app_asistencia.model.Afiliado;
+import com.asistencia_el_salvador.web_app_asistencia.model.AfiliadoVehiculo;
 import com.asistencia_el_salvador.web_app_asistencia.model.VehiculoAfiliado;
 import com.asistencia_el_salvador.web_app_asistencia.repository.VehiculoAfiliadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,10 @@ public class VehiculoAfiliadoService {
     }
 
     // ── Consultas ─────────────────────────────────────────────────────────────
+
+    public VehiculoAfiliado buscarPorPlacaVehiculo(String placaVehiculo) {
+        return vehiculoRepo.findByPlacaVehiculo(placaVehiculo);
+    }
 
     @Transactional(readOnly = true)
     public Page<VehiculoAfiliado> listarPaginado(int pagina, int tamano) {

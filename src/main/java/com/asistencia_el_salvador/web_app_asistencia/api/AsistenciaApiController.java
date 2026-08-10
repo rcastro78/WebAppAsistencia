@@ -5,11 +5,14 @@ import com.asistencia_el_salvador.web_app_asistencia.dto.*;
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
 import com.asistencia_el_salvador.web_app_asistencia.repository.CanjePromocionRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.EmpresaAfiliadaRepository;
+import com.asistencia_el_salvador.web_app_asistencia.repository.PromocionRepository;
 import com.asistencia_el_salvador.web_app_asistencia.request.ComercioLoginRequest;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
+import com.asistencia_el_salvador.web_app_asistencia.utils.Utilidades;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.math3.geometry.euclidean.threed.Plane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,9 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -69,10 +74,27 @@ public class AsistenciaApiController {
     private final MedConsultaService consultaService;
     private final MedDoctorService doctorService;
     private final PromocionService promocionService;
-    private final EmpresaAfiliadaRepository empresaAfiliadaRepository;
-    private final UsuarioComercioAfiliadoService usuarioComercioAfiliadoService;
+    private final NotificacionVendedorService notificacionVendedorService;
     private final UsuarioComercioService usuarioComercioService;
     private final CanjePromocionService canjePromocionService;
+    private final PromocionRepository promocionRepository;
+    private final EstadoPagoAfiliadoService estadoPagoAfiliadoService;
+    private final TotalesAfiliadosPlanService totalesAfiliadosPlanService;
+    private final NotificacionesAfiliadoVendedorService  notificacionesAfiliadoVendedorService;
+    private final SeguimientoLlamadaService seguimientoLlamadaService;
+
+    @Autowired
+    private FirebaseStorageService firebaseStorageService;
+    @Autowired
+    private PaisService paisService;
+    @Autowired
+    private EstadoCivilService estadoCivilService;
+    @Autowired
+    private DepartamentoService departamentoService;
+    @Autowired
+    private MunicipioService municipioService;
+
+
 
     public AsistenciaApiController(
             AfiliadoSolicitudAsistenciaService afiliadoSolicitudAsistenciaervice,
@@ -100,11 +122,13 @@ public class AsistenciaApiController {
             NotificacionUsuarioService notificacionUsuarioService,
             MedConsultaService consultaService,
             MedDoctorService doctorService,
-            EmpresaAfiliadaRepository empresaAfiliadaRepository,
+            NotificacionVendedorService notificacionVendedorService,
             PromocionService promocionService,
-            UsuarioComercioAfiliadoService usuarioComercioAfiliadoService,
             UsuarioComercioService usuarioComercioService,
-            CanjePromocionService canjePromocionService) {
+            CanjePromocionService canjePromocionService,
+            PromocionRepository promocionRepository,
+            EstadoPagoAfiliadoService estadoPagoAfiliadoService,
+            TotalesAfiliadosPlanService totalesAfiliadosPlanService, NotificacionesAfiliadoVendedorService notificacionesAfiliadoVendedorService, SeguimientoLlamadaService seguimientoLlamadaService) {
         this.afiliadoSolicitudAsistenciaervice = afiliadoSolicitudAsistenciaervice;
         this.estadoSolicitudServicioService = estadoSolicitudServicioService;
         this.planService = planService;
@@ -130,13 +154,35 @@ public class AsistenciaApiController {
         this.notificacionUsuarioService = notificacionUsuarioService;
         this.consultaService = consultaService;
         this.doctorService = doctorService;
-        this.empresaAfiliadaRepository = empresaAfiliadaRepository;
         this.promocionService = promocionService;
-        this.usuarioComercioAfiliadoService = usuarioComercioAfiliadoService;
+        this.notificacionVendedorService = notificacionVendedorService;
         this.usuarioComercioService = usuarioComercioService;
         this.canjePromocionService = canjePromocionService;
+        this.promocionRepository = promocionRepository;
+        this.estadoPagoAfiliadoService = estadoPagoAfiliadoService;
+        this.totalesAfiliadosPlanService = totalesAfiliadosPlanService;
+        this.notificacionesAfiliadoVendedorService = notificacionesAfiliadoVendedorService;
+        this.seguimientoLlamadaService = seguimientoLlamadaService;
     }
 
+    //Pais
+    @GetMapping("/paises")
+    public ResponseEntity<ApiResponse<List<Pais>>> getPaises() {
+        List<Pais> paises = paisService.listarTodos();
+        return ResponseEntity.ok(ApiResponse.ok(paises, "paises"));
+    }
+
+    @GetMapping("/departamentos/{idPais}")
+    public ResponseEntity<ApiResponse<List<Departamento>>> getDeptos(@PathVariable Long idPais) {
+        List<Departamento> departamentos =  departamentoService.getDepartamentosByPais(Integer.valueOf(idPais.toString()));
+        return ResponseEntity.ok(ApiResponse.ok(departamentos, "departamentos"));
+    }
+
+    @GetMapping("/municipios/{idDepto}")
+    public ResponseEntity<ApiResponse<List<Municipio>>> getMunicipios(@PathVariable Long idDepto) {
+        List<Municipio> municipios =  municipioService.getMunicipiosByDepto(Integer.valueOf(idDepto.toString()));
+        return ResponseEntity.ok(ApiResponse.ok(municipios, "municipios"));
+    }
 
     // ════════════════════════════════════════════════════════
     // GET /api/v1/getWompiKeys
@@ -149,33 +195,6 @@ public class AsistenciaApiController {
         data.put("token", tokenResult.getAccess_token());
         return ResponseEntity.ok(ApiResponse.ok(data, "wompi"));
     }
-
-    //Procesar pago
-    /*
-    * Ejemplo de body:
-    *
-    {
-  "tarjetaCreditoDebido": {
-    "numeroTarjeta": "4111111111111111",
-    "cvv": "123",
-    "mesVencimiento": 12,
-    "anioVencimiento": 2026
-  },
-  "monto": 2.99,
-  "urlRedirect": "https://tuapp.com/pago-completado",
-  "nombre": "Juan",
-  "apellido": "Pérez",
-  "email": "juan@ejemplo.com",
-  "ciudad": "San Salvador",
-  "direccion": "Colonia Escalón, Calle El Mirador",
-  "codigoPostal": "01101",
-  "telefono": "78901234",
-  "moneda": "USD",
-  "idPais": "SV",
-  "idRegion": "SV-SS"
-}
-    * */
-
 
 
     @PostMapping("/procesarPago")
@@ -494,6 +513,12 @@ public class AsistenciaApiController {
 
     }
 
+    @GetMapping("/planes")
+    public ResponseEntity<ApiResponse<List<Plan>>> listadoPlanes(HttpServletRequest session) {
+        List<Plan> planes = planService.listarActivos();
+        return ResponseEntity.ok(ApiResponse.ok(planes, "planes"));
+    }
+
     //Proximo pago
     @GetMapping("/proximo-pago/{dui}")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getProximoPago(
@@ -809,6 +834,84 @@ public class AsistenciaApiController {
         } catch (Exception e) {
             log.error("Error listando sucursales: ", e);
             return serverError(e);
+        }
+    }
+
+    @PostMapping("promocion/editar")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> editarPromocion(
+            @RequestBody Promocion promocion
+    ){
+        Promocion p = promocionService.findById(
+                promocion.getId().longValue()
+        );
+        if (p == null) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Promoción no encontrada"));
+        }
+        p.setValorDescuento(promocion.getValorDescuento());
+        p.setMaxCanjes(promocion.getMaxCanjes());
+        p.setNombreDescuento(promocion.getNombreDescuento());
+        p.setFechaFin(promocion.getFechaFin());
+        p.setFechaInicio(promocion.getFechaInicio());
+        p.setActivo(promocion.getActivo());
+        p.setCanjesPorUsuario(promocion.getCanjesPorUsuario());
+
+        promocionRepository.save(p);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("idPromocion", p.getId());
+        return ResponseEntity.ok(ApiResponse.ok("Guardado exitoso", data));
+    }
+
+    @PostMapping("promocion/eliminar")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> eliminarPromocion(
+            @RequestBody EliminarPromocionRequest request
+    ){
+        Promocion p = promocionService.findById(request.getIdPromocion());
+        p.setActivo(0);
+        promocionRepository.save(p);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("idPromocion", p.getId());
+        return ResponseEntity.ok(ApiResponse.ok("Desactivación exitosa", data));
+    }
+
+
+    @PostMapping("/promociones/{nit}/guardar")
+    public ResponseEntity<ApiResponse<Void>> guardarPromocion(
+            @PathVariable String nit,
+            HttpServletRequest request,
+            @RequestBody Promocion promocion
+    ) {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        logger.info("=================== INICIO GUARDAR PROMOCIÓN (API) ===================");
+
+        try {
+            promocion.setNitEmpresa(nit);
+
+            String qrGenerado = Utilidades.generarStringAleatorio(8);
+            promocion.setQrCode(qrGenerado);
+            logger.info("✓ QR generado para la promoción: {}", qrGenerado);
+
+            logger.info("=== DATOS ANTES DE GUARDAR PROMOCIÓN ===");
+            logger.info("NIT Empresa: {}", promocion.getNitEmpresa());
+            logger.info("Nombre Descuento: {}", promocion.getNombreDescuento());
+            logger.info("Tipo descuento: {}", promocion.getTipoDescuento());
+            logger.info("Valor descuento: {}", promocion.getValorDescuento());
+            logger.info("Activo: {}", promocion.getActivo());
+
+            promocionService.guardar(promocion);
+            logger.info("✓ Promoción guardada correctamente");
+            logger.info("=================== FIN PROCESO EXITOSO ===================");
+
+            return ResponseEntity.ok(ApiResponse.ok("guardado exitoso",null,""));
+
+        } catch (Exception e) {
+            logger.error("❌ ERROR GENERAL: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("Error"));
+
         }
     }
 
@@ -1357,6 +1460,247 @@ public class AsistenciaApiController {
         return ResponseEntity.ok(ApiResponse.ok(planesCobertura,"planesCobertura"));
     }
 
+    // ════════════════════════════════════════════════════════
+    // Venta de servicios
+    // ════════════════════════════════════════════════════════
+
+    //Registrar afiliado
+    // ════════════════════════════════════════════════════════
+// POST /api/v1/asistencia/afiliado/registrar/{duiVendedor}
+// Registra un nuevo afiliado (usado por el vendedor/ejecutivo)
+// ════════════════════════════════════════════════════════
+    @PostMapping("/afiliado/registrar/{duiVendedor}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> registrarAfiliado(
+            @PathVariable String duiVendedor,
+            @ModelAttribute Afiliado afiliado,
+            @RequestParam(value = "fotoDUIFrenteFile", required = false) MultipartFile frenteFile,
+            @RequestParam(value = "fotoDUIVueltoFile", required = false) MultipartFile vueltoFile,
+            HttpServletRequest request) {
+
+        log.info("=================== INICIO REGISTRO AFILIADO (API) ===================");
+        log.info("Ejecutivo/vendedor asignado: {}", duiVendedor);
+
+        try {
+            // 1. VERIFICAR QUE EL VENDEDOR EXISTE
+            Usuario vendedor = usuarioService.getUsuarioById(duiVendedor).orElse(null);
+            if (vendedor == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.error("No se encontró el vendedor/ejecutivo con DUI: " + duiVendedor));
+            }
+
+            // 2. VERIFICAR FORMULARIO
+            String contentType = request.getContentType();
+            log.info("Content-Type recibido: {}", contentType);
+
+            if (contentType == null || !contentType.contains("multipart/form-data")) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("Error: la petición debe ser multipart/form-data"));
+            }
+
+            // 3. PROCESAR ARCHIVO FRENTE Y SUBIR A FIREBASE
+            if (frenteFile != null && !frenteFile.isEmpty()) {
+                log.info("=== PROCESANDO ARCHIVO FRENTE === Nombre: {}, Tamaño: {} bytes",
+                        frenteFile.getOriginalFilename(), frenteFile.getSize());
+
+                if (!isValidImageFile(frenteFile)) {
+                    return ResponseEntity.badRequest()
+                            .body(ApiResponse.error("El archivo del DUI frente debe ser una imagen"));
+                }
+                try {
+                    String urlFrente = firebaseStorageService.uploadFile(frenteFile, "dui_frente_" + afiliado.getDui());
+                    afiliado.setFotoDUIFrenteURL(urlFrente);
+                    log.info("✓ Archivo frente subido a Firebase: {}", urlFrente);
+                } catch (IOException e) {
+                    log.error("❌ Error al subir archivo frente a Firebase: {}", e.getMessage());
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(ApiResponse.error("Error al subir imagen del DUI frente"));
+                }
+            } else {
+                log.warn("⚠️ No se recibió archivo frente o está vacío");
+            }
+
+            // 4. PROCESAR ARCHIVO REVERSO Y SUBIR A FIREBASE
+            if (vueltoFile != null && !vueltoFile.isEmpty()) {
+                log.info("=== PROCESANDO ARCHIVO REVERSO === Nombre: {}, Tamaño: {} bytes",
+                        vueltoFile.getOriginalFilename(), vueltoFile.getSize());
+
+                if (!isValidImageFile(vueltoFile)) {
+                    return ResponseEntity.badRequest()
+                            .body(ApiResponse.error("El archivo del DUI reverso debe ser una imagen"));
+                }
+                try {
+                    String urlVuelto = firebaseStorageService.uploadFile(vueltoFile, "dui_reverso_" + afiliado.getDui());
+                    afiliado.setFotoDUIVueltoURL(urlVuelto);
+                    log.info("✓ Archivo reverso subido a Firebase: {}", urlVuelto);
+                } catch (IOException e) {
+                    log.error("❌ Error al subir archivo reverso a Firebase: {}", e.getMessage());
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(ApiResponse.error("Error al subir imagen del DUI reverso"));
+                }
+            } else {
+                log.warn("⚠️ No se recibió archivo reverso o está vacío");
+            }
+
+            // 5. CAMPOS POR DEFECTO Y ASIGNACIÓN DE EJECUTIVO
+            afiliado.setEstado(1);
+            afiliado.setEstadoContrato(0); // Pasa a 1 cuando pague su primera cuota (TRIGGER)
+            afiliado.setEjecutivoAsignado(duiVendedor); // ⚠️ ajusta el nombre del setter al de tu entidad Afiliado
+
+            log.info("=== DATOS ANTES DE GUARDAR EN BD === Nombre: {}, DUI: {}, Ejecutivo: {}",
+                    afiliado.getNombre(), afiliado.getDui(), duiVendedor);
+
+            // 6. GUARDAR AFILIADO
+            Afiliado afiliadoGuardado = afiliadoService.guardarAfiliado(afiliado);
+            if (afiliadoGuardado == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(ApiResponse.error("Error al guardar el afiliado"));
+            }
+            log.info("✓ Afiliado guardado con DUI: {}", afiliadoGuardado.getDui());
+
+            // 7. CREAR USUARIO PARA EL AFILIADO
+            // usuario: dui, password: parte local del email cifrada con BCrypt
+            String passCifrado = usuarioService.encodePassword(afiliado.getEmail().split("@")[0]);
+            Usuario usuario = new Usuario();
+            usuario.setActivo(false);
+            usuario.setDui(afiliado.getDui());
+            usuario.setEmail(afiliado.getEmail());
+            usuario.setRol(3);
+            usuario.setNombre(afiliado.getNombre());
+            usuario.setApellido(afiliado.getApellido());
+            usuario.setContrasena(passCifrado);
+            usuarioService.registrar(usuario);
+
+            // 8. EMAIL DE BIENVENIDA (no debe tumbar la transacción si falla)
+            try {
+                emailService.enviarEmailBienvenidaAfiliado(
+                        afiliado.getNombre() + " " + afiliado.getApellido(),
+                        afiliado.getEmail(), afiliado.getDui(), afiliado.getEmail().split("@")[0]
+                );
+            } catch (Exception e) {
+                log.warn("No se pudo enviar el email de bienvenida: {}", e.getMessage());
+            }
+
+            // 9. RESPUESTA
+            Map<String, Object> data = new LinkedHashMap<>();
+            data.put("dui", afiliadoGuardado.getDui());
+            data.put("nombre", afiliadoGuardado.getNombre());
+            data.put("apellido", afiliadoGuardado.getApellido());
+            data.put("ejecutivoAsignado", duiVendedor);
+            data.put("fotoDUIFrenteURL", afiliadoGuardado.getFotoDUIFrenteURL());
+            data.put("fotoDUIVueltoURL", afiliadoGuardado.getFotoDUIVueltoURL());
+
+            log.info("=================== FIN REGISTRO EXITOSO ===================");
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.ok("Afiliado guardado exitosamente", data));
+
+        } catch (Exception e) {
+            log.error("❌ ERROR GENERAL: {}", e.getMessage(), e);
+            return serverError(e);
+        }
+    }
+
+    //Dashboard
+    @GetMapping("dashboardVendedor/{dui}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>>  dashboardVendedor(HttpSession session,
+                                                                               @PathVariable String dui){
+        Usuario usuario = usuarioService.getUsuarioById(dui).get();
+        long totalAfiliadosVendedor = afiliadoService.getTotalAfiliadosVendedor(usuario.getDui());
+        long afiliados = afiliadoService.getTotalAfiliadosActivos();
+        long pagados = notificacionVendedorService.getPagados(usuario.getDui());
+        Map<String, Object> data = new HashMap<>();
+        data.put("dui",dui);
+        data.put("totalAfiliadosVendedor",totalAfiliadosVendedor);
+        data.put("afiliados",afiliados);
+        data.put("pagaron",pagados);
+        data.put("pendientesPago",afiliadoService.getAfiliadosPagoPendiente(usuario.getDui()));
+        data.put("porcentajePagaron",afiliadoService.getPorcentajePagadoMes(usuario.getDui()));
+        data.put("porcentajeNoPagaron",afiliadoService.getPorcentajeNoPagadoMes(usuario.getDui()));
+        data.put("pagoTotalRecibidoMes",afiliadoService.getCantidadPagadaMes(usuario.getDui()));
+        data.put("porcentajeAfiliacion",afiliadoService.getPorcentajeAfiliacionVendedor(usuario.getDui()));
+        data.put("porcentajeAfiliacionRegistro",afiliadoService.getPorcentajeAfiliacionVendedorRegistro(usuario.getDui()));
+        List<EstadoPagoAfiliado> afiliadosEstado = estadoPagoAfiliadoService.getMisAfiliados(usuario.getDui());
+        data.put("afiliadosEstado",afiliadosEstado);
+        List<NotificacionesAfiliadoVendedor> notificaciones = notificacionesAfiliadoVendedorService.findByEjecutivoAsignado(usuario.getDui());
+        List<TotalesAfiliadosPlan> totalesAfiliadosPlanes = totalesAfiliadosPlanService.getTotalidadPlanesEjecutivo(usuario.getDui());
+        data.put("totalesAfiliadosPlanes",totalesAfiliadosPlanes);
+        data.put("notificaciones",notificaciones);
+        return ResponseEntity.ok(ApiResponse.ok(data,"datosVendedor"));
+
+    }
+
+    //Datos de llamadas
+    @GetMapping("vendedor/datosLlamadas/{dui}")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> datosLlamadas(@PathVariable String dui){
+        long totalLlamadas = seguimientoLlamadaService.totalLlamadas(dui);
+        SeguimientoLlamadaService.EstadisticasLlamadas estadistica = seguimientoLlamadaService.obtenerEstadisticas(dui);
+        long contestaron = estadistica.getContestaron();
+        long noContestaron = estadistica.getNoContestaron();
+        long pendientesHoy = estadistica.getPendientesHoy();
+        long buzon = estadistica.getBuzon();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("totalLlamadas",totalLlamadas);
+        data.put("contestaron",contestaron);
+        data.put("noContestaron",noContestaron);
+        data.put("pendientesHoy",pendientesHoy);
+        data.put("buzon",buzon);
+        return ResponseEntity.ok(ApiResponse.ok(data,"datosLlamadas"));
+    }
+
+    //Registro de llamadas del vendedor
+    @GetMapping("vendedor/llamadas/{dui}")
+    public ResponseEntity<ApiResponse<List<SeguimientoLlamada>>> vendedorLlamadas(@PathVariable String dui){
+        List<SeguimientoLlamada> llamadas = seguimientoLlamadaService.listarPorEjecutivo(dui);
+        return ResponseEntity.ok(ApiResponse.ok(llamadas,"llamadas"));
+    }
+
+    //Registrar llamada
+    @PostMapping("vendedor/registrarLlamada/{duiVendedor}")
+    public ResponseEntity<ApiResponse<Boolean>> vendedorRegistrarLlamada(HttpSession session,
+                                                                         @PathVariable String duiVendedor,
+                                                                         @RequestBody SeguimientoLlamada req){
+      SeguimientoLlamada llamada = new SeguimientoLlamada();
+      try {
+          llamada.setDuiAfiliado(req.getDuiAfiliado());
+          llamada.setDuiEjecutivo(duiVendedor);
+          llamada.setEmail(req.getEmail());
+          llamada.setEsAfiliado(true);
+          llamada.setDuracionMinutos(req.getDuracionMinutos());
+          llamada.setFechaProxima(req.getFechaProxima());
+          llamada.setIdPlanInteres(req.getIdPlanInteres());
+          llamada.setNombreContacto(req.getNombreContacto());
+          llamada.setNotas(req.getNotas());
+          llamada.setTelefono(req.getTelefono());
+          llamada.setProximaAccion(req.getProximaAccion());
+          llamada.setResultado(req.getResultado());
+          llamada.setDuracionMinutos(req.getDuracionMinutos());
+          seguimientoLlamadaService.guardar(llamada);
+          return ResponseEntity.ok(ApiResponse.ok("guardado exitoso",null,""));
+      } catch (Exception e) {
+
+          return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                  .body(ApiResponse.error("Error"));
+
+      }
+
+
+
+
+    }
+    //Planes de cobertura con su beneficio
+    @GetMapping("planesCobertura/{idPlan}")
+    public ResponseEntity<ApiResponse<List<PlanesCobertura>>> obtenerPlanesCobertura(HttpSession session, @PathVariable String idPlan){
+        List<PlanesCobertura> planesCoberturas = planesCoberturaService.listarTodosByPlan(Integer.parseInt(idPlan));
+        return ResponseEntity.ok(ApiResponse.ok(planesCoberturas, "planesCobertura"));
+    }
+
+    //Afiliados asignados a este vendedor
+    @GetMapping("afiliado/{dui}/vendedor")
+    public ResponseEntity<ApiResponse<List<Afiliado>>> obtenerAfiliadosEjecutivo(@PathVariable("dui") String dui) {
+        List<Afiliado> afiliados = afiliadoService.getAllAfiliadosVendedor(dui);
+        return ResponseEntity.ok(ApiResponse.ok(afiliados, "afiliadosVendedor"));
+    }
+
 
     // ════════════════════════════════════════════════════════
     // Helpers privados
@@ -1459,5 +1803,23 @@ public class AsistenciaApiController {
     private String formatearUltimoPago(PagoAfiliado pago) {
         String mesNombre = obtenerNombreMes(pago.getMes());
         return mesNombre + " " + pago.getAnio();
+    }
+
+    // Método auxiliar para validar archivos de imagen
+    private boolean isValidImageFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return false;
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            return false;
+        }
+
+        return contentType.startsWith("image/") &&
+                (contentType.equals("image/jpeg") ||
+                        contentType.equals("image/jpg") ||
+                        contentType.equals("image/png") ||
+                        contentType.equals("image/gif"));
     }
 }

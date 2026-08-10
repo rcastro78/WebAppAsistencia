@@ -1,11 +1,10 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
-import com.asistencia_el_salvador.web_app_asistencia.model.AfiliadoPagoEstado;
-import com.asistencia_el_salvador.web_app_asistencia.model.AfiliadoSolicitudAsistenciaProv;
-import com.asistencia_el_salvador.web_app_asistencia.model.PagoAfiliado;
-import com.asistencia_el_salvador.web_app_asistencia.service.AfiliadoPagoEstadoService;
-import com.asistencia_el_salvador.web_app_asistencia.service.AfiliadoSolicitudAsistenciaProvService;
-import com.asistencia_el_salvador.web_app_asistencia.service.PagoAfiliadoService;
+import com.asistencia_el_salvador.web_app_asistencia.dto.CoberturaUsoDTO;
+import com.asistencia_el_salvador.web_app_asistencia.interfaces.AfiliadoUsoProjection;
+import com.asistencia_el_salvador.web_app_asistencia.model.*;
+import com.asistencia_el_salvador.web_app_asistencia.repository.ClienteCorporativoRepository;
+import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.poi.ss.usermodel.*;
@@ -15,11 +14,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RequestMapping("/reportes")
@@ -31,6 +34,16 @@ public class ReportesController {
     private AfiliadoSolicitudAsistenciaProvService afiliadoSolicitudAsistenciaProvService;
     @Autowired
     private AfiliadoPagoEstadoService afiliadoPagoEstadoService;
+    @Autowired
+    private AfiliadoCorporativoService afiliadoCorporativoService;
+    @Autowired
+    private ClienteCorporativoService clienteCorporativoService;
+    @Autowired
+    private MedCitaService  medCitaService;
+    @Autowired
+    private ClienteCorporativoRepository clienteCorporativoRepository;
+    @Autowired
+    private PlanService planService;
     @GetMapping({"/",""})
     public String mostrarReportes(Model model, HttpSession session){
         return "reportes";
@@ -269,6 +282,126 @@ public class ReportesController {
         // Escribir a la respuesta
         workbook.write(response.getOutputStream());
         workbook.close();
+    }
+
+
+    @GetMapping("/reportesCorporativos")
+    public String reportesCorporativos(HttpSession session, Model model,
+                                       @RequestParam(required = false, defaultValue = "mensual") String periodo,
+                                       @RequestParam(required = false) String desde,
+                                       @RequestParam(required = false) String hasta) {
+
+        String nit = (String) session.getAttribute("nitClienteCorp");
+        ClienteCorporativo cliente = clienteCorporativoService.buscarPorNit(nit);
+        if (cliente == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("cliente", cliente);
+
+        long idPlanAsociado = medCitaService.getPlanClienteCorporativo(nit);
+
+        // ── 1. Uso por cobertura (dato real) ──
+        List<CoberturaUsoDTO> coberturasRaw = clienteCorporativoRepository
+                .sumarPorCoberturaByPlan(idPlanAsociado, nit)
+                .stream()
+                .map(CoberturaUsoDTO::new)
+                .toList();
+        model.addAttribute("usoCobertura", armarUsoCobertura(coberturasRaw));
+
+
+        // ── 3. Tasa de adopción ──
+        // TODO: falta contarAfiliadosConAlMenosUnaCita(nit) — pendiente de confirmar si existe
+        model.addAttribute("adopcion", armarAdopcionPlaceholder(nit));
+
+        // ── 4. Uso del beneficio por periodo (tendencia mensual) ──
+        // TODO: falta query de citas agrupadas por mes
+        model.addAttribute("usoPeriodo", armarUsoPeriodoPlaceholder(nit));
+
+        // ── 5. Vigencia y facturación (parcialmente real) ──
+        long totalidadEventos = medCitaService.getTotalidadEventos(nit);
+        double usoPromedio = clienteCorporativoService.calcularUsoPromedioPlan(coberturasRaw);
+
+        model.addAttribute("convenio", armarConvenio(cliente, totalidadEventos, usoPromedio));
+
+        return "reporte_corporativo";
+    }
+
+    private List<Map<String, Object>> armarUsoCobertura(List<CoberturaUsoDTO> raw) {
+        if (raw == null || raw.isEmpty()) return List.of();
+
+        BigDecimal total = raw.stream()
+                .map(CoberturaUsoDTO::getTotal)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);// confirmar getter real
+        String[] colores = {"var(--purple-600)", "var(--blue-600)", "var(--teal-600)", "var(--orange-600)"};
+
+        List<Map<String, Object>> resultado = new ArrayList<>();
+        int i = 0;
+        for (CoberturaUsoDTO c : raw) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("nombreCobertura", c.getNombreCobertura()); // confirmar getter real
+            item.put("cantidad", c.getUsados());                 // confirmar getter real
+            long pct = 0;
+            if (total.compareTo(BigDecimal.ZERO) > 0 && c.getTotal() != null) {
+                pct = c.getTotal()
+                        .multiply(BigDecimal.valueOf(100))
+                        .divide(total, 0, RoundingMode.HALF_UP)
+                        .longValue();
+            }
+            item.put("porcentaje", pct);
+            item.put("color", colores[i % colores.length]);
+            resultado.add(item);
+            i++;
+        }
+        return resultado;
+    }
+
+    private Map<String, Object> armarAdopcionPlaceholder(String nit) {
+        AfiliadoUsoProjection uso = clienteCorporativoService.obtenerUsosAfiliados(nit);
+        Map<String, Object> m = new HashMap<>();
+        m.put("totalAfiliados", uso.getTotal());
+        m.put("afiliadosConUso", uso.getTotalHanUtilizado());
+        m.put("afiliadosSinUso", uso.getNoHanUtilizado());
+        if(uso.getTotal()>0)
+            m.put("porcentajeAdopcion",  uso.getTotalHanUtilizado()*100/uso.getTotal());
+        else
+            m.put("porcentajeAdopcion",0);
+
+        return m;
+    }
+
+    private Map<String, Object> armarUsoPeriodoPlaceholder(String nit) {
+        Map<String, Object> m = new HashMap<>();
+        long totalCitas = medCitaService.totalCitasPeriodo(nit);
+        long totalidadEventos = medCitaService.getTotalidadEventos(nit);
+        AfiliadoUsoProjection uso = clienteCorporativoService.obtenerUsosPeriodoAfiliados(nit);
+        m.put("totalRealizadas", totalCitas);
+        m.put("totalDisponibles",totalidadEventos);
+        if(totalidadEventos > 0){
+            m.put("porcentajeUso", totalCitas*100/totalidadEventos);
+        }else{
+            m.put("porcentajeUso", 0);
+        }
+        m.put("tendenciaPositiva", true);
+        m.put("variacionPct", 0);
+        m.put("meses", List.of());
+        return m;
+    }
+
+    private Map<String, Object> armarConvenio(ClienteCorporativo cliente, long totalidadEventos, double usoPromedio) {
+        Map<String, Object> m = new HashMap<>();
+        int idPlanCorp = cliente.getIdPlanAsociado();
+        Plan plan = planService.getPlanById(idPlanCorp).get();
+        m.put("nombrePlan", plan.getNombrePlan());
+        m.put("estadoTexto", (cliente.getEstado() != null && cliente.getEstado() == 1) ? "Vigente" : "Inactivo");
+        m.put("fechaInicio", cliente.getCreatedAt());
+        m.put("fechaRenovacion", cliente.getCreatedAt().plusYears(1));
+        m.put("eventosContratados", totalidadEventos);
+        long eventosUsados = Math.round((usoPromedio / 100.0) * totalidadEventos);
+        m.put("eventosUsados", eventosUsados);
+        m.put("porcentajeEventosUsados", Math.round(usoPromedio));
+        return m;
     }
 
 }

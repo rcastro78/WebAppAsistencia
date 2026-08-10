@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Panel de Convenio</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" th:href="@{/css/rpt_corp.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside class="sidebar">
+    <div class="brand">
+        <i class="fas fa-shield-heart"></i>
+        <div>Asistencia<span class="sub">EL SALVADOR</span></div>
+    </div>
+
+    <div class="profile">
+        <div class="avatar" th:text="${#strings.substring(cliente.nombreCliente,0,2)}">De</div>
+        <h4 th:text="${cliente.nombreCliente}">Del Sur</h4>
+        <div class="email" th:text="${cliente.emailContacto}">d@d.com</div>
+        <span class="role-badge">Cliente Corporativo</span>
+    </div>
+
+    <nav class="menu">
+        <a th:href="@{/corporativo/dashboard}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+        <a th:href="@{/corporativo/mi-plan}"><i class="fas fa-list-check"></i> Mi Plan</a>
+        <a th:href="@{/corporativo/afiliados}"><i class="fas fa-users"></i> Afiliados</a>
+        <a th:href="@{/corporativo/usuarios}"><i class="fas fa-user-group"></i> Usuarios</a>
+        <a th:href="@{/corporativo/coberturas}"><i class="fas fa-hand-holding-medical"></i> Uso de Coberturas</a>
+        <a th:href="@{/corporativo/actividad-consultas}"><i class="fas fa-calendar-check"></i> Actividad de Consultas</a>
+        <a th:href="@{/corporativo/reportes}" class="active"><i class="fas fa-file-lines"></i> Reportes</a>
+        <a th:href="@{/logout}" class="logout"><i class="fas fa-right-from-bracket"></i> Cerrar Sesión</a>
+    </nav>
+
+    <div class="disclaimer">
+        Los datos mostrados son agregados y no incluyen información clínica individual de los afiliados.
+    </div>
+</aside>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main>
+
+    <div class="page-header">
+        <div>
+            <h1>Reportes</h1>
+            <p>Vista agregada del uso de tu convenio de salud. Sin datos clínicos individuales.</p>
+        </div>
+
+        <div class="toolbar">
+            <select id="filtroPeriodo" name="periodo">
+                <option value="mensual" selected>Vista mensual</option>
+                <option value="trimestral">Vista trimestral</option>
+            </select>
+            <input type="date" id="filtroDesde" name="desde">
+            <input type="date" id="filtroHasta" name="hasta">
+            <a class="btn-export secondary" th:href="@{/corporativo/reportes/exportar-excel(nit=${cliente.nit})}">
+                <i class="fas fa-file-excel"></i> Excel
+            </a>
+            <a class="btn-export" th:href="@{/corporativo/reportes/exportar-pdf(nit=${cliente.nit})}">
+                <i class="fas fa-file-pdf"></i> Exportar todo a PDF
+            </a>
+        </div>
+    </div>
+
+    <div class="grid">
+
+        <!-- ── 1. Uso del beneficio por periodo ── -->
+        <section class="card top-blue span-8">
+            <div class="card-head">
+                <div class="titles">
+                    <div class="eyebrow">Tendencia</div>
+                    <h3>Uso del beneficio por periodo</h3>
+                </div>
+                <div class="icon-badge icon-blue"><i class="fas fa-chart-column"></i></div>
+            </div>
+            <div class="card-body">
+
+                <div class="kpi-row">
+                    <div class="kpi-mini">
+                        <span class="value" th:text="${usoPeriodo.totalRealizadas}">18</span>
+                        <div class="label">Consultas realizadas</div>
+                    </div>
+                    <div class="kpi-mini">
+                        <span class="value" th:text="${usoPeriodo.totalDisponibles}">144</span>
+                        <div class="label">Eventos disponibles</div>
+                    </div>
+                    <div class="kpi-mini">
+                        <span class="value" th:text="${usoPeriodo.porcentajeUso} + '%'">12%</span>
+                        <div class="label">Uso del plan</div>
+                        <span class="delta up" th:if="${usoPeriodo.tendenciaPositiva}">
+                            <i class="fas fa-arrow-up"></i> <span th:text="${usoPeriodo.variacionPct} + '%'">3%</span> vs. periodo anterior
+                        </span>
+                        <span class="delta down" th:unless="${usoPeriodo.tendenciaPositiva}">
+                            <i class="fas fa-arrow-down"></i> <span th:text="${usoPeriodo.variacionPct} + '%'">3%</span> vs. periodo anterior
+                        </span>
+                    </div>
+                </div>
+
+                <div class="trend">
+                    <div class="col" th:each="mes : ${usoPeriodo.meses}">
+                        <div class="bars">
+                            <div class="bar realizadas" th:style="'height:' + ${mes.alturaRealizadas} + '%'"></div>
+                            <div class="bar disponibles" th:style="'height:' + ${mes.alturaDisponibles} + '%'"></div>
+                        </div>
+                        <span class="month-label" th:text="${mes.etiqueta}">Ene</span>
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <span><i class="dot" style="background:var(--blue-600);"></i>Realizadas</span>
+                    <span><i class="dot" style="background:#DCE6F7;"></i>Disponibles</span>
+                </div>
+            </div>
+            <div class="card-foot">
+                <span>Datos agregados, actualizados al cierre de cada mes.</span>
+                <a th:href="@{/corporativo/reportes/uso-periodo/pdf(nit=${cliente.nit})}">Descargar PDF <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </section>
+
+        <!-- ── 2. Tasa de adopción ── -->
+        <section class="card top-teal span-4">
+            <div class="card-head">
+                <div class="titles">
+                    <div class="eyebrow">Adopción</div>
+                    <h3>Uso del beneficio</h3>
+                </div>
+                <div class="icon-badge icon-teal"><i class="fas fa-user-check"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="adopcion-wrap">
+                    <div class="donut" th:style="'--pct:' + ${adopcion.porcentajeAdopcion}">
+                        <div class="donut-label">
+                            <span class="num" th:text="${adopcion.porcentajeAdopcion} + '%'">62%</span>
+                            <span class="txt">han usado el plan</span>
+                        </div>
+                    </div>
+                    <div class="adopcion-stats">
+                        <div class="stat-line">
+                            <span>Afiliados activos</span>
+                            <span class="val" th:text="${adopcion.totalAfiliados}">10</span>
+                        </div>
+                        <div class="stat-line">
+                            <span>Han usado el plan</span>
+                            <span class="val" th:text="${adopcion.afiliadosConUso}">6</span>
+                        </div>
+                        <div class="stat-line">
+                            <span>Nunca lo han usado</span>
+                            <span class="val" th:text="${adopcion.afiliadosSinUso}">4</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="toggle-privacidad">
+                    <i class="fas fa-lock"></i>
+                    Vista agregada. El detalle nominal de afiliados sin uso está disponible en
+                    <a th:href="@{/corporativo/afiliados}" style="color:var(--blue-600); font-weight:700;">Afiliados</a>.
+                </div>
+            </div>
+            <div class="card-foot">
+                <span>Útil para campañas internas de RRHH.</span>
+            </div>
+        </section>
+
+        <!-- ── 3. Uso por cobertura ── -->
+        <section class="card top-purple span-6">
+            <div class="card-head">
+                <div class="titles">
+                    <div class="eyebrow">Coberturas</div>
+                    <h3>Uso por tipo de cobertura</h3>
+                </div>
+                <div class="icon-badge icon-purple"><i class="fas fa-layer-group"></i></div>
+            </div>
+            <div class="card-body">
+                <div th:each="cov, iter : ${usoCobertura}" class="cov-row">
+                    <div class="cov-top">
+                        <span class="name" th:text="${cov.nombreCobertura}">Cita médica presencial</span>
+                        <span class="pct" th:text="${cov.cantidad} + ' eventos · ' + ${cov.porcentaje} + '%'">24 eventos · 40%</span>
+                    </div>
+                    <div class="cov-track">
+                        <div class="cov-fill"
+                             th:style="'width:' + ${cov.porcentaje} + '%; background:' + ${cov.color}"></div>
+                    </div>
+                </div>
+
+                <div th:if="${#lists.isEmpty(usoCobertura)}" style="color:var(--ink-400); font-size:0.85rem; text-align:center; padding:20px 0;">
+                    Aún no hay eventos registrados en este periodo.
+                </div>
+            </div>
+            <div class="card-foot">
+                <span>Ayuda a validar si el plan contratado está bien dimensionado.</span>
+            </div>
+        </section>
+
+        <!-- ── 4. Vigencia del convenio y facturación de uso ── -->
+        <section class="card top-orange span-6">
+            <div class="card-head">
+                <div class="titles">
+                    <div class="eyebrow">Convenio</div>
+                    <h3>Vigencia y uso</h3>
+                </div>
+                <div class="icon-badge icon-orange"><i class="fas fa-file-contract"></i></div>
+            </div>
+            <div class="card-body">
+                <div class="vigencia-top">
+                    <div>
+                        <div class="lbl" style="font-size:0.68rem; color:var(--ink-400); text-transform:uppercase;">Plan contratado</div>
+                        <div style="font-weight:700;" th:text="${convenio.nombrePlan}">SaludCare</div>
+                    </div>
+                    <span class="estado" th:text="${convenio.estadoTexto}">Vigente</span>
+                </div>
+
+                <div class="vigencia-dates">
+                    <div>
+                        <div class="lbl">Inicio de plan</div>
+                        <div class="val" th:text="${#temporals.format(convenio.fechaInicio, 'dd/MM/yyyy')}">01/08/2026</div>
+                    </div>
+                    <div>
+                        <div class="lbl">Próxima renovación</div>
+                        <div class="val" th:text="${#temporals.format(convenio.fechaRenovacion, 'dd/MM/yyyy')}">01/08/2027</div>
+                    </div>
+                </div>
+
+                <div class="eventos-track">
+                    <div class="eventos-fill" th:style="'width:' + ${convenio.porcentajeEventosUsados} + '%'"></div>
+                </div>
+                <div class="eventos-label">
+                    <span th:text="${convenio.eventosUsados} + ' de ' + ${convenio.eventosContratados} + ' eventos consumidos'">14 de 120 eventos consumidos</span>
+                    <span th:text="${convenio.porcentajeEventosUsados} + '%'">12%</span>
+                </div>
+            </div>
+            <div class="card-foot">
+                <span>Base para la conversación de renovación del contrato.</span>
+            </div>
+        </section>
+
+        <!-- ── 5. Historial de carga de afiliados ── -->
+        <section class="card top-green span-12">
+            <div class="card-head">
+                <div class="titles">
+                    <div class="eyebrow">Auditoría</div>
+                    <h3>Historial de carga de afiliados</h3>
+                </div>
+                <div class="icon-badge icon-green"><i class="fas fa-file-arrow-up"></i></div>
+            </div>
+            <div class="card-body">
+                <table class="report-table">
+                    <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo de carga</th>
+                        <th>Total procesados</th>
+                        <th>Exitosos</th>
+                        <th>Errores</th>
+                        <th>Desactivados</th>
+                        <th>Archivo</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="log : ${historialCarga}">
+                        <td th:text="${#temporals.format(log.fechaEjecucion, 'dd/MM/yyyy HH:mm')}">05/08/2026 10:32</td>
+                        <td>
+                            <span class="tag incremental" th:if="${log.tipoCarga == 'INCREMENTAL'}" th:text="${log.tipoCarga}">INCREMENTAL</span>
+                            <span class="tag reemplazo" th:if="${log.tipoCarga == 'REEMPLAZO'}" th:text="${log.tipoCarga}">REEMPLAZO</span>
+                        </td>
+                        <td th:text="${log.totalProcesados}">12</td>
+                        <td th:text="${log.exitosos}">11</td>
+                        <td th:text="${log.errores}">1</td>
+                        <td th:text="${log.desactivados}">0</td>
+                        <td th:text="${log.nombreArchivo}">plantilla_afiliados.xlsx</td>
+                    </tr>
+                    <tr class="empty-row" th:if="${#lists.isEmpty(historialCarga)}">
+                        <td colspan="7">Todavía no se ha registrado ninguna carga de afiliados para este convenio.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-foot">
+                <span>Cada carga masiva queda registrada automáticamente para trazabilidad.</span>
+                <a th:href="@{/corporativo/reportes/historial-carga/pdf(nit=${cliente.nit})}">Ver historial completo <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<script>
+    // Los filtros de periodo/fecha recargan la página con query params;
+    // el controlador se encarga de recalcular los datasets de cada card.
+    function aplicarFiltros() {
+        const periodo = document.getElementById('filtroPeriodo').value;
+        const desde = document.getElementById('filtroDesde').value;
+        const hasta = document.getElementById('filtroHasta').value;
+        const params = new URLSearchParams(window.location.search);
+        params.set('periodo', periodo);
+        if (desde) params.set('desde', desde); else params.delete('desde');
+        if (hasta) params.set('hasta', hasta); else params.delete('hasta');
+        window.location.search = params.toString();
+    }
+
+    document.getElementById('filtroPeriodo').addEventListener('change', aplicarFiltros);
+    document.getElementById('filtroDesde').addEventListener('change', aplicarFiltros);
+    document.getElementById('filtroHasta').addEventListener('change', aplicarFiltros);
+</script>
+
+</body>
+</html>

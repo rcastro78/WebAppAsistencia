@@ -6,461 +6,553 @@
   <title th:text="${modoEdicion} ? 'Editar Sucursal' : 'Nueva Sucursal'">Sucursal</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <link rel="stylesheet" th:href="@{/css/empresa.css}">
   <style>
-    /* ── Mapa ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sidebar-w: 260px;
+      --accent:    #1A6FBF;
+      --accent-dk: #134F8A;
+      --accent-lt: #E8F1FB;
+      --green:     #1A9E6F;
+      --green-lt:  #E6F7F1;
+      --amber:     #C87C1A;
+      --amber-lt:  #FEF3E2;
+      --red:       #C0392B;
+      --red-lt:    #FDECEA;
+      --gray-50:   #F7F8FA;
+      --gray-100:  #EEF0F4;
+      --gray-200:  #DDE1E9;
+      --gray-400:  #9CA3AF;
+      --gray-600:  #5A6272;
+      --gray-800:  #1F2533;
+      --text:      #1F2533;
+      --text-muted:#6B7280;
+      --radius:    10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,.07);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.10);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--gray-50);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: #fff;
+      border-right: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .sidebar-logo img { max-height: 38px; width: auto; }
+    .sidebar-profile {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .profile-avatar {
+      width: 44px; height: 44px;
+      background: var(--accent-lt);
+      color: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .profile-info h3 {
+      font-size: .875rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;
+    }
+    .profile-info p { font-size: .75rem; color: var(--text-muted); margin-top: 2px; }
+    .sidebar-nav { padding: 1rem 0; flex: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .65rem 1.5rem;
+      color: var(--gray-600); text-decoration: none;
+      font-size: .875rem; font-weight: 500;
+      transition: background .15s, color .15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: var(--gray-50); color: var(--accent); }
+    .nav-item.active { background: var(--accent-lt); color: var(--accent); border-left-color: var(--accent); }
+    .nav-item i { width: 18px; text-align: center; font-size: .95rem; }
+    .sidebar-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--gray-100); }
+    .sidebar-footer a {
+      display: flex; align-items: center; gap: .75rem;
+      color: var(--red); text-decoration: none; font-size: .875rem; font-weight: 500; padding: .5rem 0;
+    }
+    .sidebar-footer a:hover { opacity: .8; }
+
+    /* ── Main ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 90;
+    }
+    .topbar-left h1 { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .75rem; color: var(--text-muted); margin-top: 3px;
+    }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb i { font-size: .6rem; }
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .proveedor-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent-lt); color: var(--accent);
+      padding: 5px 12px; border-radius: 20px; font-size: .8rem; font-weight: 600;
+    }
+
+    /* ── Page body ── */
+    .page-body { padding: 1.75rem 2rem; flex: 1; }
+
+    /* ── Formulario card ── */
+    .form-card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      max-width: 900px;
+    }
+    .form-card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .form-card-header i { color: var(--accent); font-size: 1.1rem; }
+    .form-card-header h2 { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .form-card-body { padding: 1.5rem; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: .4rem; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: .82rem; font-weight: 600; color: var(--gray-600);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .form-group label i { color: var(--accent); }
+    .form-group input,
+    .form-group select {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 9px 13px;
+      font-size: .875rem;
+      color: var(--text);
+      background: var(--gray-50);
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(26,111,191,.1);
+      background: #fff;
+    }
+
+    /* ── Mapa ── */
     #map {
-        width: 100%;
-        height: 420px;
-        border-radius: 12px;
-        border: 2px solid #e0e7ef;
-        box-shadow: 0 4px 18px rgba(74,144,226,0.10);
-        z-index: 0;
+      width: 100%; height: 400px;
+      border-radius: var(--radius);
+      border: 2px solid var(--gray-200);
+      box-shadow: var(--shadow-sm);
+      z-index: 0;
     }
-
-    .map-section {
-        margin-top: 8px;
-    }
-
     .map-toolbar {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px; flex-wrap: wrap;
     }
-
     .map-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 8px 16px;
-        border: none;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border: none; border-radius: var(--radius);
+      font-size: .8rem; font-weight: 600; cursor: pointer;
+      transition: all .2s;
     }
-
-    .map-btn.locate {
-        background: linear-gradient(135deg, #4A90E2, #357ABD);
-        color: white;
-        box-shadow: 0 3px 8px rgba(74,144,226,0.3);
-    }
-
-    .map-btn.locate:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 5px 14px rgba(74,144,226,0.4);
-    }
-
-    .map-btn.clear {
-        background: #f8f9fa;
-        color: #6c757d;
-        border: 1px solid #dee2e6;
-    }
-
-    .map-btn.clear:hover {
-        background: #e9ecef;
-    }
-
-    .coords-display {
-        display: flex;
-        gap: 12px;
-        margin-top: 10px;
-        flex-wrap: wrap;
-    }
-
-    .coord-box {
-        flex: 1;
-        min-width: 180px;
-        background: #f0f6ff;
-        border: 1px solid #c8dff7;
-        border-radius: 8px;
-        padding: 10px 14px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .coord-box i {
-        color: #4A90E2;
-        font-size: 16px;
-    }
-
-    .coord-box span {
-        font-size: 13px;
-        color: #555;
-    }
-
-    .coord-box strong {
-        display: block;
-        font-size: 14px;
-        color: #1a3a5c;
-        font-family: 'Courier New', monospace;
-    }
-
-    .map-hint {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 12.5px;
-        color: #7a8fa8;
-        margin-top: 8px;
-        padding: 8px 12px;
-        background: #f8fbff;
-        border-radius: 8px;
-        border-left: 3px solid #4A90E2;
-    }
-
-    .map-hint i { color: #4A90E2; }
-
-    /* ── Geolocation permission banner ───────────────── */
-    #geo-banner {
-        display: none;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        background: #fff3cd;
-        border: 1px solid #ffc107;
-        border-radius: 8px;
-        margin-bottom: 12px;
-        font-size: 13px;
-        color: #856404;
-    }
-
-    #geo-banner i { font-size: 18px; }
-
-    /* ── Estado del marcador ─────────────────────────── */
+    .map-btn.locate { background: var(--accent); color: #fff; }
+    .map-btn.locate:hover { background: var(--accent-dk); }
+    .map-btn.clear { background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200); }
+    .map-btn.clear:hover { background: var(--gray-200); }
     .marker-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 20px;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: .75rem; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px;
+    }
+    .marker-status.set   { background: var(--green-lt); color: var(--green); }
+    .marker-status.unset { background: var(--red-lt);   color: var(--red); }
+    .coords-display { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+    .coord-box {
+      flex: 1; min-width: 180px;
+      background: var(--accent-lt); border: 1px solid #c8dff7;
+      border-radius: var(--radius); padding: 10px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .coord-box i { color: var(--accent); }
+    .coord-box span { font-size: .75rem; color: var(--text-muted); }
+    .coord-box strong { display: block; font-size: .875rem; color: var(--text); font-family: monospace; }
+    .map-hint {
+      display: flex; align-items: center; gap: 8px;
+      font-size: .78rem; color: var(--text-muted);
+      margin-top: 8px; padding: 8px 12px;
+      background: var(--gray-50); border-radius: var(--radius);
+      border-left: 3px solid var(--accent);
+    }
+    .map-hint i { color: var(--accent); }
+    #geo-banner {
+      display: none; align-items: center; gap: 12px;
+      padding: 12px 16px; background: var(--amber-lt);
+      border: 1px solid #ffc107; border-radius: var(--radius);
+      margin-bottom: 12px; font-size: .82rem; color: #856404;
     }
 
-    .marker-status.set {
-        background: #d4edda;
-        color: #155724;
+    /* ── Form actions ── */
+    .form-actions {
+      display: flex; align-items: center; gap: .75rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--gray-100);
+      margin-top: 1.25rem;
     }
+    .btn-submit {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: var(--radius);
+      padding: 10px 20px; font-size: .875rem; font-weight: 600;
+      cursor: pointer; transition: background .2s, transform .15s;
+    }
+    .btn-submit:hover { background: var(--accent-dk); transform: translateY(-1px); }
+    .btn-cancel {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--gray-100); color: var(--gray-600);
+      border: 1px solid var(--gray-200); border-radius: var(--radius);
+      padding: 10px 20px; font-size: .875rem; font-weight: 600;
+      text-decoration: none; transition: background .15s;
+    }
+    .btn-cancel:hover { background: var(--gray-200); }
 
-    .marker-status.unset {
-        background: #f8d7da;
-        color: #721c24;
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .page-body { padding: 1rem; }
+      .topbar { padding: .75rem 1rem; }
     }
   </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <h1 th:text="${modoEdicion} ? 'Editar Sucursal' : 'Nueva Sucursal'">Sucursal</h1>
-    <span class="subtitle"
-          th:text="${modoEdicion}
-                ? 'Modifica la información de la sucursal'
-                : 'Completa la información para registrar una nueva sucursal'">
-        </span>
+
+<!-- ═══════════════════════ SIDEBAR ═══════════════════════ -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <img th:src="@{/images/asistencia.jpeg}" alt="Asistencia El Salvador">
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <h2 th:text="${modoEdicion} ? 'Editar datos de la sucursal' : 'Datos de la sucursal'">Datos</h2>
+  <div class="sidebar-profile">
+    <div class="profile-avatar">
+      <i class="fas fa-truck-fast"></i>
     </div>
-    <div class="card-body">
-
-      <form th:action="${modoEdicion}
-                                ? @{/proveedores/sucursales/actualizar/{id}(id=${sucursal.idSucursal})}
-                                : @{/proveedores/sucursales/guardar}"
-            th:object="${sucursal}"
-            method="post"
-            id="sucursalForm">
-
-        <!-- NIT oculto para asociar la sucursal al proveedor -->
-        <input type="hidden" th:field="*{NITProveedor}" id="NITProveedor">
-
-        <div class="form-grid">
-
-          <!-- Contacto -->
-          <div class="form-group">
-            <label for="contacto"><i class="fas fa-user"></i> Contacto</label>
-            <input type="text" th:field="*{contacto}" id="contacto" class="input"
-                   placeholder="Nombre del contacto" required>
-          </div>
-
-          <!-- Teléfono -->
-          <div class="form-group">
-            <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
-            <input type="tel" th:field="*{telefono}" id="telefono" class="input"
-                   placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}" required>
-          </div>
-
-          <!-- Dirección -->
-          <div class="form-group full-width">
-            <label for="direccion"><i class="fas fa-map-marker-alt"></i> Dirección</label>
-            <input type="text" th:field="*{direccion}" id="direccion" class="input"
-                   placeholder="Ingrese la dirección completa de la sucursal" required>
-          </div>
-
-          <!-- Estado -->
-          <div class="form-group">
-            <label><i class="fas fa-toggle-on"></i> Estado</label>
-            <select th:field="*{estado}" class="input" required>
-              <option value="">Seleccione el estado</option>
-              <option value="1">Activo</option>
-              <option value="0">Inactivo</option>
-            </select>
-          </div>
-
-          <!-- Coordenadas (ocultas, se llenan desde el mapa) -->
-          <input type="hidden" th:field="*{latitud}"  id="latitud">
-          <input type="hidden" th:field="*{longitud}" id="longitud">
-
-          <!-- ── SECCIÓN MAPA ───────────────────────────────── -->
-          <div class="form-group full-width map-section">
-            <label><i class="fas fa-map"></i> Ubicación en el mapa</label>
-
-            <!-- Banner de permiso de geolocalización -->
-            <div id="geo-banner">
-              <i class="fas fa-exclamation-triangle"></i>
-              <div>
-                <strong>Permiso de ubicación requerido.</strong>
-                Tu navegador bloqueó el acceso a la ubicación.
-                Actívala en la configuración del navegador o ubica el marcador manualmente.
-              </div>
-            </div>
-
-            <!-- Barra de herramientas del mapa -->
-            <div class="map-toolbar">
-              <button class="map-btn"
-                      th:if="${sucursal.latitud != null && sucursal.longitud != null}"
-                      th:data-lat="${sucursal.latitud}"
-                      th:data-lng="${sucursal.longitud}"
-                      th:data-dir="${sucursal.direccion}"
-                      onclick="verEnMapa(this)">
-                <i class="fas fa-map"></i> Ver en mapa
-              </button>
-
-              <button class="action-btn delete"
-                      th:data-id="${sucursal.idSucursal}"
-                      th:data-nit="${sucursal.NITProveedor}"
-                      onclick="eliminarSucursal(this)">
-                <i class="fas fa-trash"></i> Eliminar
-              </button>
-
-
-              <button type="button" class="map-btn clear" onclick="clearMarker()">
-                <i class="fas fa-times"></i> Limpiar marcador
-              </button>
-              <span id="markerStatus" class="marker-status unset">
-                                <i class="fas fa-circle" style="font-size:8px;"></i> Sin ubicación
-                            </span>
-            </div>
-
-            <!-- Mapa -->
-            <div id="map"></div>
-
-            <!-- Display de coordenadas -->
-            <div class="coords-display">
-              <div class="coord-box">
-                <i class="fas fa-arrows-up-down"></i>
-                <div>
-                  <span>Latitud</span>
-                  <strong id="displayLat">—</strong>
-                </div>
-              </div>
-              <div class="coord-box">
-                <i class="fas fa-arrows-left-right"></i>
-                <div>
-                  <span>Longitud</span>
-                  <strong id="displayLng">—</strong>
-                </div>
-              </div>
-            </div>
-
-            <div class="map-hint">
-              <i class="fas fa-info-circle"></i>
-              Haz clic en el mapa para colocar el marcador, o arrástralo hasta la ubicación exacta de la sucursal.
-            </div>
-          </div>
-          <!-- ── FIN SECCIÓN MAPA ───────────────────────────── -->
-
-        </div>
-
-        <div class="actions">
-          <button type="submit" class="btn" id="submitBtn">
-            <i class="fas fa-save"></i>
-            <span th:text="${modoEdicion} ? 'Actualizar' : 'Guardar'">Guardar</span>
-          </button>
-          <a th:href="@{/proveedores/sucursales/{nit}(nit=${sucursal.NITProveedor})}"
-             class="btn secondary">
-            <i class="fas fa-times"></i> Cancelar
-          </a>
-        </div>
-      </form>
+    <div class="profile-info">
+      <h3 th:text="${proveedor != null ? proveedor.getNombreProveedor() : 'Mi Empresa'}">Mi Empresa</h3>
+      <p th:text="'NIT: ' + ${nitProveedor}">NIT: 0000-000000-000-0</p>
     </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a th:href="@{/usuarios/proveedor_dashboard}" class="nav-item">
+      <i class="fas fa-house"></i>
+      <span>Inicio</span>
+    </a>
+    <a th:href="@{/proveedores/sucursales/{nit}(nit=${nitProveedor})}" class="nav-item active">
+      <i class="fas fa-code-branch"></i>
+      <span>Mis Sucursales</span>
+    </a>
+    <a href="#" class="nav-item">
+      <i class="fas fa-clipboard-list"></i>
+      <span>Solicitudes de Servicio</span>
+    </a>
+    <a href="#" class="nav-item">
+      <i class="fas fa-star"></i>
+      <span>Beneficios</span>
+    </a>
+    <a href="#" class="nav-item">
+      <i class="fas fa-building"></i>
+      <span>Mi Perfil</span>
+    </a>
+    <a href="#" class="nav-item">
+      <i class="fas fa-cog"></i>
+      <span>Configuración</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a th:href="@{/usuarios/loginProveedor}">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Cerrar Sesión</span>
+    </a>
   </div>
 </div>
 
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 th:text="${modoEdicion} ? 'Editar Sucursal' : 'Nueva Sucursal'">Sucursal</h1>
+      <div class="breadcrumb">
+        <a th:href="@{/usuarios/proveedor_dashboard}"><i class="fas fa-home"></i> Inicio</a>
+        <i class="fas fa-chevron-right"></i>
+        <a th:href="@{/proveedores/sucursales/{nit}(nit=${nitProveedor})}">Sucursales</a>
+        <i class="fas fa-chevron-right"></i>
+        <span th:text="${modoEdicion} ? 'Editar' : 'Nueva'">Nueva</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="proveedor-badge">
+        <i class="fas fa-truck-fast"></i>
+        <span th:text="${proveedor != null ? proveedor.getNombreProveedor() : 'Proveedor'}">Proveedor</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="form-card">
+      <div class="form-card-header">
+        <i class="fas fa-code-branch"></i>
+        <h2 th:text="${modoEdicion} ? 'Editar datos de la sucursal' : 'Datos de la nueva sucursal'">Datos</h2>
+      </div>
+      <div class="form-card-body">
+
+        <form th:action="${modoEdicion}
+                          ? @{/proveedores/sucursales/actualizar/{id}(id=${sucursal.idSucursal})}
+                          : @{/proveedores/sucursales/guardar}"
+              th:object="${sucursal}"
+              method="post"
+              id="sucursalForm">
+
+          <input type="hidden" th:field="*{NITProveedor}">
+          <input type="hidden" th:field="*{latitud}"  id="latitud">
+          <input type="hidden" th:field="*{longitud}" id="longitud">
+
+          <div class="form-grid">
+
+            <!-- Contacto -->
+            <div class="form-group">
+              <label for="contacto"><i class="fas fa-user"></i> Contacto</label>
+              <input type="text" th:field="*{contacto}" id="contacto"
+                     placeholder="Nombre del contacto" required>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-group">
+              <label for="telefono"><i class="fas fa-phone"></i> Teléfono</label>
+              <input type="tel" th:field="*{telefono}" id="telefono"
+                     placeholder="0000-0000" pattern="[0-9]{4}-[0-9]{4}" required>
+            </div>
+
+            <!-- Dirección -->
+            <div class="form-group full-width">
+              <label for="direccion"><i class="fas fa-map-marker-alt"></i> Dirección</label>
+              <input type="text" th:field="*{direccion}" id="direccion"
+                     placeholder="Ingrese la dirección completa de la sucursal" required>
+            </div>
+
+            <!-- Estado -->
+            <div class="form-group">
+              <label><i class="fas fa-toggle-on"></i> Estado</label>
+              <select th:field="*{estado}" required>
+                <option value="">Seleccione el estado</option>
+                <option value="1">Activo</option>
+                <option value="0">Inactivo</option>
+              </select>
+            </div>
+
+            <!-- Mapa -->
+            <div class="form-group full-width" style="margin-top:.5rem;">
+              <label><i class="fas fa-map"></i> Ubicación en el mapa</label>
+
+              <div id="geo-banner">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                  <strong>Permiso de ubicación requerido.</strong>
+                  Tu navegador bloqueó el acceso. Actívala en configuración o ubica el marcador manualmente.
+                </div>
+              </div>
+
+              <div class="map-toolbar">
+                <button type="button" class="map-btn locate" onclick="locateMe()">
+                  <i class="fas fa-location-crosshairs"></i> Mi ubicación
+                </button>
+                <button type="button" class="map-btn clear" onclick="clearMarker()">
+                  <i class="fas fa-times"></i> Limpiar marcador
+                </button>
+                <span id="markerStatus" class="marker-status unset">
+                  <i class="fas fa-circle" style="font-size:8px;"></i> Sin ubicación
+                </span>
+              </div>
+
+              <div id="map"></div>
+
+              <div class="coords-display">
+                <div class="coord-box">
+                  <i class="fas fa-arrows-up-down"></i>
+                  <div><span>Latitud</span><strong id="displayLat">—</strong></div>
+                </div>
+                <div class="coord-box">
+                  <i class="fas fa-arrows-left-right"></i>
+                  <div><span>Longitud</span><strong id="displayLng">—</strong></div>
+                </div>
+              </div>
+
+              <div class="map-hint">
+                <i class="fas fa-info-circle"></i>
+                Haz clic en el mapa para colocar el marcador, o arrástralo hasta la ubicación exacta.
+              </div>
+            </div>
+
+          </div><!-- /form-grid -->
+
+          <div class="form-actions">
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-save"></i>
+              <span th:text="${modoEdicion} ? 'Actualizar sucursal' : 'Guardar sucursal'">Guardar</span>
+            </button>
+            <a th:href="@{/usuarios/proveedor_dashboard" class="btn-cancel">
+              <i class="fas fa-times"></i> Cancelar
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div><!-- /page-body -->
+</div><!-- /main -->
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script th:inline="javascript">
-  // ── Coordenadas guardadas (edición) ───────────────────────────────────────
   const savedLat = /*[[${sucursal.latitud}]]*/ null;
   const savedLng = /*[[${sucursal.longitud}]]*/ null;
 
-  // ── Inicializar mapa ──────────────────────────────────────────────────────
-  // Centro por defecto: El Salvador
-  const DEFAULT_LAT = 13.6929;
-  const DEFAULT_LNG = -89.2182;
-  const DEFAULT_ZOOM = 13;
-
-  const map = L.map('map').setView([DEFAULT_LAT, DEFAULT_LNG], DEFAULT_ZOOM);
-
+  const map = L.map('map').setView([13.6929, -89.2182], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19
   }).addTo(map);
 
-  // ── Ícono personalizado ───────────────────────────────────────────────────
   const customIcon = L.divIcon({
-      html: '<div style="background:#4A90E2;width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>',
-      iconSize: [18, 18],
-      iconAnchor: [9, 18],
-      className: ''
+    html: '<div style="background:#1A6FBF;width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>',
+    iconSize: [18, 18], iconAnchor: [9, 18], className: ''
   });
 
   let marker = null;
 
-
-  function verEnMapa(btn) {
-    const lat = btn.getAttribute('data-lat');
-    const lng = btn.getAttribute('data-lng');
-    const url = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=17`;
-    window.open(url, '_blank');
-}
-
-function eliminarSucursal(btn) {
-    const idSucursal = btn.getAttribute('data-id');
-    const nit        = btn.getAttribute('data-nit');
-    if (!confirm('¿Estás seguro de que deseas eliminar esta sucursal?')) return;
-    window.location.href = `/proveedores/sucursales/eliminar/${idSucursal}?nit=${nit}`;
-}
-
-  // ── Funciones de coordenadas ──────────────────────────────────────────────
   function setCoords(lat, lng) {
-      document.getElementById('latitud').value    = lat.toFixed(9);
-      document.getElementById('longitud').value   = lng.toFixed(9);
-      document.getElementById('displayLat').textContent = lat.toFixed(7);
-      document.getElementById('displayLng').textContent = lng.toFixed(7);
-
-      const status = document.getElementById('markerStatus');
-      status.className = 'marker-status set';
-      status.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Ubicación establecida';
+    document.getElementById('latitud').value       = lat.toFixed(9);
+    document.getElementById('longitud').value      = lng.toFixed(9);
+    document.getElementById('displayLat').textContent = lat.toFixed(7);
+    document.getElementById('displayLng').textContent = lng.toFixed(7);
+    const s = document.getElementById('markerStatus');
+    s.className = 'marker-status set';
+    s.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Ubicación establecida';
   }
 
   function clearCoords() {
-      document.getElementById('latitud').value    = '';
-      document.getElementById('longitud').value   = '';
-      document.getElementById('displayLat').textContent = '—';
-      document.getElementById('displayLng').textContent = '—';
-
-      const status = document.getElementById('markerStatus');
-      status.className = 'marker-status unset';
-      status.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Sin ubicación';
+    document.getElementById('latitud').value       = '';
+    document.getElementById('longitud').value      = '';
+    document.getElementById('displayLat').textContent = '—';
+    document.getElementById('displayLng').textContent = '—';
+    const s = document.getElementById('markerStatus');
+    s.className = 'marker-status unset';
+    s.innerHTML = '<i class="fas fa-circle" style="font-size:8px;"></i> Sin ubicación';
   }
 
   function placeMarker(lat, lng) {
-      if (marker) {
-          marker.setLatLng([lat, lng]);
-      } else {
-          marker = L.marker([lat, lng], { icon: customIcon, draggable: true }).addTo(map);
-
-          // Arrastrar marcador
-          marker.on('dragend', function (e) {
-              const pos = e.target.getLatLng();
-              setCoords(pos.lat, pos.lng);
-          });
-      }
-      setCoords(lat, lng);
+    if (marker) {
+      marker.setLatLng([lat, lng]);
+    } else {
+      marker = L.marker([lat, lng], { icon: customIcon, draggable: true }).addTo(map);
+      marker.on('dragend', e => {
+        const p = e.target.getLatLng();
+        setCoords(p.lat, p.lng);
+      });
+    }
+    setCoords(lat, lng);
   }
 
   function clearMarker() {
-      if (marker) {
-          map.removeLayer(marker);
-          marker = null;
-      }
-      clearCoords();
+    if (marker) { map.removeLayer(marker); marker = null; }
+    clearCoords();
   }
 
-  // ── Click en el mapa → colocar marcador ──────────────────────────────────
-  map.on('click', function (e) {
-      placeMarker(e.latlng.lat, e.latlng.lng);
-  });
-
-  // ── Botón "Mi ubicación" ──────────────────────────────────────────────────
   function locateMe() {
-      if (!navigator.geolocation) {
-          alert('Tu navegador no soporta geolocalización.');
-          return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-          function (pos) {
-              const lat = pos.coords.latitude;
-              const lng = pos.coords.longitude;
-              map.setView([lat, lng], 17);
-              placeMarker(lat, lng);
-              document.getElementById('geo-banner').style.display = 'none';
-          },
-          function (err) {
-              document.getElementById('geo-banner').style.display = 'flex';
-              console.warn('Geolocalización denegada:', err.message);
-          },
-          { enableHighAccuracy: true, timeout: 8000 }
-      );
+    if (!navigator.geolocation) { alert('Tu navegador no soporta geolocalización.'); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        map.setView([pos.coords.latitude, pos.coords.longitude], 17);
+        placeMarker(pos.coords.latitude, pos.coords.longitude);
+        document.getElementById('geo-banner').style.display = 'none';
+      },
+      () => { document.getElementById('geo-banner').style.display = 'flex'; },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
   }
 
-  // ── Si estamos en edición, cargar coordenadas guardadas ───────────────────
+  map.on('click', e => placeMarker(e.latlng.lat, e.latlng.lng));
+
+  // Cargar coords si es edición
   if (savedLat && savedLng) {
-      const lat = parseFloat(savedLat);
-      const lng = parseFloat(savedLng);
-      map.setView([lat, lng], 17);
-      placeMarker(lat, lng);
+    const lat = parseFloat(savedLat), lng = parseFloat(savedLng);
+    map.setView([lat, lng], 17);
+    placeMarker(lat, lng);
   } else {
-      // Intentar geolocalizar automáticamente al abrir la página
-      if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-              function (pos) {
-                  map.setView([pos.coords.latitude, pos.coords.longitude], 15);
-              },
-              function () {
-                  document.getElementById('geo-banner').style.display = 'flex';
-              },
-              { timeout: 5000 }
-          );
-      }
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => map.setView([pos.coords.latitude, pos.coords.longitude], 15),
+        ()  => document.getElementById('geo-banner').style.display = 'flex',
+        { timeout: 5000 }
+      );
+    }
   }
 
-  // ── Formateo teléfono ─────────────────────────────────────────────────────
-  document.addEventListener('DOMContentLoaded', function () {
-      const telInput = document.getElementById('telefono');
-      if (telInput) {
-          telInput.addEventListener('input', function (e) {
-              let v = e.target.value.replace(/\D/g, '');
-              e.target.value = v.length >= 4 ? v.slice(0,4) + '-' + v.slice(4,8) : v;
-          });
-      }
+  // Formateo teléfono
+  document.getElementById('telefono').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, '');
+    e.target.value = v.length >= 4 ? v.slice(0,4) + '-' + v.slice(4,8) : v;
   });
 
-  // ── Validación antes de guardar ───────────────────────────────────────────
-  document.getElementById('sucursalForm').addEventListener('submit', function (e) {
-      const lat = document.getElementById('latitud').value;
-      const lng = document.getElementById('longitud').value;
-      if (!lat || !lng) {
-          e.preventDefault();
-          alert('Por favor, selecciona la ubicación de la sucursal en el mapa antes de guardar.');
-      }
+  // Validación al guardar
+  document.getElementById('sucursalForm').addEventListener('submit', function(e) {
+    if (!document.getElementById('latitud').value) {
+      e.preventDefault();
+      alert('Por favor, selecciona la ubicación de la sucursal en el mapa antes de guardar.');
+    }
   });
 </script>
 </body>

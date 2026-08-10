@@ -279,17 +279,25 @@
                     <span th:text="${esEdicion} ? 'Modo edición' : 'Nueva cobertura'"></span>
                 </span>
                 <div class="breadcrumb">
-                    <a th:href="@{/usuarios/dashboard}"><i class="fas fa-home"></i> Inicio</a>
+                    <a th:href="@{/usuarios/dashboard}" th:if="${session.rol==3}"><i class="fas fa-home"></i> Inicio</a>
+                    <a th:href="@{/usuarios/proveedor_dashboard}" th:if="${session.rol==9}"><i class="fas fa-home"></i> Inicio</a>
                     <i class="fas fa-chevron-right"></i>
-                    <a href="#">Proveedores</a>
-                    <i class="fas fa-chevron-right"></i>
-                    <a th:href="@{/proveedores/cobertura/(idProveedor=${idProveedor})}">Coberturas</a>
+
+                    <a th:href="${esProveedor} ?
+    '/proveedores/cobertura/' + ${nitProveedor} :
+    '/proveedores/cobertura/?idProveedor=' + ${idProveedor}">
+                        Coberturas
+                    </a>
+
                     <i class="fas fa-chevron-right"></i>
                     <span th:text="${esEdicion} ? 'Editar' : 'Nueva'"></span>
                 </div>
             </div>
         </div>
-        <a th:href="@{/proveedores/cobertura/(idProveedor=${idProveedor})}" class="btn-back">
+        <a th:href="${esProveedor} ?
+    '/proveedores/cobertura/' + ${nitProveedor} :
+    '/proveedores/cobertura/?idProveedor=' + ${idProveedor}"
+           class="btn-back">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
     </div>
@@ -341,7 +349,7 @@
                   id="formCobertura" novalidate>
 
                 <!-- Hiddens de contexto -->
-                <input type="hidden" name="idProveedor" th:value="${idProveedor}">
+
                 <!-- Bandera que lee el controller para decidir INSERT vs UPDATE -->
                 <input type="hidden" name="esEdicion"   th:value="${esEdicion}">
 
@@ -366,7 +374,7 @@
 
                         <!-- EDICIÓN: hidden con valor real + select visual deshabilitado -->
                         <th:block th:if="${esEdicion}">
-                            <input type="hidden" name="idPlan" th:value="${idPlanActual}">
+
                             <select id="idPlan" disabled>
                                 <option th:each="plan : ${planes}"
                                         th:value="${plan.idPlan}"
@@ -408,7 +416,6 @@
 
                         <!-- EDICIÓN: hidden + select visual deshabilitado -->
                         <th:block th:if="${esEdicion}">
-                            <input type="hidden" name="idCobertura" th:value="${idCoberturaActual}">
                             <select id="idCobertura" disabled>
                                 <option th:each="cobertura : ${coberturas}"
                                         th:value="${cobertura.idCobertura}"
@@ -524,7 +531,10 @@
 
         <!-- ── Footer ── -->
         <div class="form-actions">
-            <a th:href="@{/proveedores/cobertura/(idProveedor=${idProveedor})}" class="btn-cancel">
+            <a th:href="${esProveedor} ?
+    '/proveedores/cobertura/' + ${nitProveedor} :
+    '/proveedores/cobertura/?idProveedor=' + ${idProveedor}"
+               class="btn-cancel">
                 <i class="fas fa-xmark"></i> Cancelar
             </a>
             <button type="submit" form="formCobertura" class="btn-submit" id="btnGuardar">

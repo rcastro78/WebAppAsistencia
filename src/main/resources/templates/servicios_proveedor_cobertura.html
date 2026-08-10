@@ -26,8 +26,11 @@
                     <i class="fas fa-home"></i> Inicio
                 </a>
                 <i class="fas fa-chevron-right"></i>
-                <a th:href="@{/proveedores}">
+                <a th:href="@{/proveedores}" th:if="${session.rol == 1}">
                     Proveedores
+                </a>
+                <a th:href="@{/usuarios/proveedor_dashboard}" th:if="${esProveedor==true}">
+                    Dashboard
                 </a>
                 <i class="fas fa-chevron-right"></i>
                 <span>Coberturas</span>
@@ -38,9 +41,14 @@
                 <i class="fas fa-arrow-left"></i>
                 Volver
             </a>
-            <a th:href="@{/proveedores/cobertura/nuevo(idProveedor=${idProveedor})}" class="btn-nuevo">
+            <a th:href="@{/proveedores/cobertura/nuevo(idProveedor=${idProveedor})}" th:if="${session.rol==1}" class="btn-nuevo">
                 <i class="fas fa-plus-circle"></i>
                 <span>Agregar cobertura</span>
+            </a>
+
+            <a th:href="@{/proveedores/cobertura/nuevo/{nit}(nit=${nitProveedor})}" th:if="${esProveedor==true}" class="btn-nuevo">
+                <i class="fas fa-plus-circle"></i>
+                <span>Agregar nueva cobertura</span>
             </a>
         </div>
 
@@ -118,16 +126,30 @@
 
                 <!-- Botones para admin (rol 1) -->
                 <div class="card-footer-actions" th:if="${session.rol == 1}">
-                    <a th:href="@{/proveedores/cobertura/editar(idProveedor=${idProveedor},idCobertura=${servicio.idCobertura},idPlan=${servicio.idPlan})}"
-                       class="btn-solicitar">
-                        <i class="fas fa-edit"></i>
-                        Editar
-                    </a>
+                    <form th:action="@{/proveedores/cobertura/editar}" method="post" style="display:inline">
+                        <input type="hidden" name="idCobertura" th:value="${servicio.idCobertura}">
+                        <input type="hidden" name="idPlan"      th:value="${servicio.idPlan}">
+                        <button type="submit" class="btn-solicitar">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </form>
                     <button class="btn-secondary"
                             th:onclick="|eliminarServicio(${idProveedor}, ${servicio.idCobertura}, ${servicio.idPlan})|">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
+
+                <div class="card-footer-actions" th:if="${esProveedor==true}">
+                    <form th:action="@{/proveedores/cobertura/editar}" method="post">
+                        <input type="hidden" name="idCobertura" th:value="${servicio.idCobertura}">
+                        <input type="hidden" name="idPlan"      th:value="${servicio.idPlan}">
+                        <button type="submit" class="btn-solicitar">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                    </form>
+                </div>
+
+
             </div>
         </div>
     </div>

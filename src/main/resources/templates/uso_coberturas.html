@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uso de Coberturas - Portal Cliente Corporativo</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/dashb_c.css}">
+
+  <style>
+    /* ── Estilos propios de esta vista ── */
+    .resumen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .resumen-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .resumen-card .resumen-label {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 0.4rem;
+    }
+
+    .resumen-card .resumen-valor {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .resumen-card .resumen-valor.alerta { color: #e67e22; }
+    .resumen-card .resumen-valor.ok { color: #27ae60; }
+
+    .badge-ilimitado {
+      display: inline-block;
+      background: #ede7ff;
+      color: #6c5ce7;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-left: 6px;
+    }
+
+    .progress-track {
+      background: #f0f0f0;
+      border-radius: 20px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 20px;
+      background: #4A90E2; /* bajo uso */
+      transition: width 0.4s ease;
+    }
+
+    .progress-fill.medio { background: #f5a623; }
+    .progress-fill.alto { background: #e74c3c; }
+    .progress-fill.ilimitado {
+      background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+    }
+
+    .cobertura-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cobertura-item:last-child { border-bottom: none; }
+
+    .cobertura-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+
+    .cobertura-nombre {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.95rem;
+    }
+
+    .cobertura-cifra {
+      font-size: 0.85rem;
+      color: #777;
+      white-space: nowrap;
+    }
+
+    .empty-state-mini {
+      text-align: center;
+      padding: 2rem;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard-container">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <img th:src="@{/images/asistencia.jpeg}" alt="Logo Asistencia El Salvador">
+    </div>
+
+    <div class="profile-section">
+      <div class="profile-avatar" th:text="${avatarCliente}">DE</div>
+      <h3 th:text="${nombreCliente}">Nombre</h3>
+      <p th:text="${emailCliente}">correo</p>
+      <span class="badge-rol">Cliente Corporativo</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a th:href="@{/portalConvenio/dashboard}" class="nav-item">
+        <i class="fas fa-chart-pie"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <a th:href="@{/portalConvenio/plan}" class="nav-item">
+        <i class="fas fa-list-check"></i>
+        <span>Mi Plan · SaludCare</span>
+      </a>
+
+      <a th:href="@{/afiliado/corporativos}" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span>Afiliados</span>
+      </a>
+
+      <a th:href="@{/portalConvenio/coberturas}" class="nav-item active">
+        <i class="fas fa-umbrella"></i>
+        <span>Uso de Coberturas</span>
+      </a>
+
+
+
+      <a th:href="@{/portalConvenio/reportes}" class="nav-item">
+        <i class="fas fa-file-pdf"></i>
+        <span>Reportes</span>
+      </a>
+
+      <a th:href="@{/usuarios/loginCorporativo}" class="nav-item">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Cerrar Sesión</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p>Los datos mostrados son agregados y no incluyen detalle clínico individual de los afiliados.</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-left">
+        <h1>Uso de Coberturas</h1>
+        <p>Consumo del plan <strong th:text="${nombrePlan}">SaludCare</strong> durante el año <span th:text="${#calendars.format(#calendars.createNow(), 'yyyy')}">2026</span>.</p>
+      </div>
+      <div class="user-info">
+        <div class="user-avatar" th:text="${avatarCliente}">DE</div>
+        <div class="user-details">
+          <h4>Panel de Convenio</h4>
+          <p>Solo lectura · Vista agregada</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen general -->
+    <div class="resumen-grid">
+      <div class="resumen-card">
+        <div class="resumen-label"><i class="fas fa-chart-simple"></i> Uso promedio del plan</div>
+        <div class="resumen-valor"
+             th:classappend="${usoPromedioPlan >= 80} ? 'alerta' : (${usoPromedioPlan <= 40} ? 'ok' : '')"
+             th:text="${usoPromedioPlan} + '%'">0%</div>
+      </div>
+
+      <div class="resumen-card">
+        <div class="resumen-label"><i class="fas fa-list-check"></i> Eventos disponibles (con límite)</div>
+        <div class="resumen-valor" th:text="${totalEventosDisponibles}">0</div>
+      </div>
+
+      <div class="resumen-card">
+        <div class="resumen-label"><i class="fas fa-check-double"></i> Eventos usados este año</div>
+        <div class="resumen-valor" th:text="${totalEventosUsados}">0</div>
+      </div>
+
+      <div class="resumen-card">
+        <div class="resumen-label"><i class="fas fa-triangle-exclamation"></i> Coberturas cerca del límite</div>
+        <div class="resumen-valor" th:classappend="${coberturasEnAlerta > 0} ? 'alerta' : 'ok'"
+             th:text="${coberturasEnAlerta}">0</div>
+      </div>
+    </div>
+
+    <!-- Detalle por cobertura -->
+    <div class="content-sections">
+      <div class="content-card" style="grid-column: 1 / -1;">
+        <h3 class="section-title">Detalle por Cobertura</h3>
+        <p class="section-subtitle">Eventos consumidos frente al total disponible por año</p>
+
+        <div th:if="${#lists.isEmpty(coberturasResumen)}" class="empty-state-mini">
+          <i class="fas fa-umbrella" style="font-size:2rem; color:#ccc; margin-bottom:0.5rem;"></i>
+          <p>Aún no hay coberturas registradas para este plan.</p>
+        </div>
+
+        <div class="cobertura-item" th:each="cobertura : ${coberturasResumen}">
+          <div class="cobertura-top">
+            <span class="cobertura-nombre">
+              <span th:text="${cobertura.nombreCobertura}">Consulta médica en línea</span>
+              <span class="badge-ilimitado" th:if="${cobertura.ilimitado}">Sin límite</span>
+            </span>
+
+            <span class="cobertura-cifra" th:if="${!cobertura.ilimitado}"
+                  th:text="${cobertura.usados} + ' / ' + ${cobertura.total} + ' eventos usados'">
+              3 / 6 eventos usados
+            </span>
+            <span class="cobertura-cifra" th:if="${cobertura.ilimitado}"
+                  th:text="${cobertura.usados} + ' eventos usados'">
+              5 eventos usados
+            </span>
+          </div>
+
+          <div class="progress-track">
+            <div class="progress-fill" th:classappend="${cobertura.claseProgreso}"
+                 th:style="'width: ' + (${cobertura.ilimitado} ? 100 : ${cobertura.porcentaje}) + '%;'">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Historial reciente -->
+    <div style="padding: 0 0 2rem 0;">
+      <div class="content-card">
+        <h3 class="section-title">Últimas Solicitudes de Consulta</h3>
+        <p class="section-subtitle">Eventos más recientes que consumieron cobertura</p>
+
+        <div th:if="${#lists.isEmpty(ultimasSolicitudes)}" class="empty-state-mini">
+          <i class="fas fa-calendar-xmark" style="font-size:2rem; color:#ccc; margin-bottom:0.5rem;"></i>
+          <p>No hay solicitudes registradas todavía.</p>
+        </div>
+
+        <table class="tabla-solicitudes" th:if="${!#lists.isEmpty(ultimasSolicitudes)}">
+          <thead>
+          <tr>
+            <th>Afiliado</th>
+            <th>Cobertura</th>
+            <th>Modalidad</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="s : ${ultimasSolicitudes}">
+            <td th:text="${s.afiliado}">María R.</td>
+            <td th:text="${s.nombreCobertura}">Consulta en línea</td>
+            <td class="modalidad-tag" th:text="${s.tipo}">En línea</td>
+            <td th:text="${#temporals.format(s.fechaProgramada, 'dd MMM yyyy')}">28 Ago 2026</td>
+            <td>
+              <span class="estado-pill"
+                    th:classappend="${s.estadoAgenda == 'Atendida'} ? 'estado-atendida' : (${s.estadoAgenda == 'Programada'} ? 'estado-programada' : 'estado-cancelada')"
+                    th:text="${s.estadoAgenda}">Atendida</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Proveedor - Asistencia El Salvador</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sidebar-w: 260px;
+      --accent:    #1A6FBF;
+      --accent-dk: #134F8A;
+      --accent-lt: #E8F1FB;
+      --green:     #1A9E6F;
+      --green-lt:  #E6F7F1;
+      --amber:     #C87C1A;
+      --amber-lt:  #FEF3E2;
+      --red:       #C0392B;
+      --red-lt:    #FDECEA;
+      --gray-50:   #F7F8FA;
+      --gray-100:  #EEF0F4;
+      --gray-200:  #DDE1E9;
+      --gray-400:  #9CA3AF;
+      --gray-600:  #5A6272;
+      --gray-800:  #1F2533;
+      --text:      #1F2533;
+      --text-muted:#6B7280;
+      --radius:    10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 4px rgba(0,0,0,.07);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.10);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--gray-50);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: #fff;
+      border-right: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .sidebar-logo img { max-height: 38px; width: auto; }
+
+    .sidebar-profile {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .profile-avatar {
+      width: 44px; height: 44px;
+      background: var(--accent-lt);
+      color: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .profile-info h3 {
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+    .profile-info p {
+      font-size: .75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0;
+      flex: 1;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .65rem 1.5rem;
+      color: var(--gray-600);
+      text-decoration: none;
+      font-size: .875rem;
+      font-weight: 500;
+      transition: background .15s, color .15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: var(--gray-50); color: var(--accent); }
+    .nav-item.active {
+      background: var(--accent-lt);
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+    .nav-item i { width: 18px; text-align: center; font-size: .95rem; }
+
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--gray-100);
+    }
+    .sidebar-footer a {
+      display: flex; align-items: center; gap: .75rem;
+      color: var(--red); text-decoration: none; font-size: .875rem; font-weight: 500;
+      padding: .5rem 0;
+    }
+    .sidebar-footer a:hover { opacity: .8; }
+
+    /* ── Main ───────────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Topbar ─────────────────────────────────────────── */
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 90;
+    }
+    .topbar-left h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .75rem; color: var(--text-muted); margin-top: 3px;
+    }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb i { font-size: .6rem; }
+
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .proveedor-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--accent-lt);
+      color: var(--accent);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+
+    /* ── Page body ──────────────────────────────────────── */
+    .page-body { padding: 1.75rem 2rem; flex: 1; }
+
+    /* ── Stats row ──────────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-icon {
+      width: 46px; height: 46px;
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .stat-icon.blue  { background: var(--accent-lt); color: var(--accent); }
+    .stat-icon.green { background: var(--green-lt);  color: var(--green); }
+    .stat-icon.amber { background: var(--amber-lt);  color: var(--amber); }
+    .stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1; color: var(--text); }
+    .stat-label { font-size: .75rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── Toolbar ────────────────────────────────────────── */
+    .toolbar {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .toolbar-left  { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .toolbar-right { display: flex; align-items: center; gap: .75rem; }
+
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 7px 12px;
+    }
+    .search-box i { color: var(--gray-400); font-size: .875rem; }
+    .search-box input {
+      border: none; background: transparent; outline: none;
+      font-size: .875rem; color: var(--text); width: 200px;
+    }
+    .search-box input::placeholder { color: var(--gray-400); }
+
+    .filter-select {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 7px 12px;
+      font-size: .875rem;
+      color: var(--text);
+      background: var(--gray-50);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .btn-nueva {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--accent);
+      color: #fff;
+      border: none; border-radius: var(--radius);
+      padding: 8px 16px;
+      font-size: .875rem; font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .btn-nueva:hover { background: var(--accent-dk); transform: translateY(-1px); }
+
+    .view-toggle { display: flex; gap: 4px; }
+    .view-btn {
+      width: 34px; height: 34px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      background: var(--gray-50);
+      color: var(--gray-400);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .875rem;
+      transition: all .15s;
+    }
+    .view-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* ── Alerts ─────────────────────────────────────────── */
+    .alert {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 1.25rem;
+      font-size: .875rem;
+      font-weight: 500;
+    }
+    .alert-success { background: var(--green-lt); color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error   { background: var(--red-lt);   color: var(--red);   border: 1px solid #f5c6cb; }
+
+    /* ── Sucursales grid ────────────────────────────────── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .section-header h2 {
+      font-size: 1rem; font-weight: 700; color: var(--text);
+    }
+
+    .sucursales-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .sucursal-card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .sucursal-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .card-top {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dk) 100%);
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-top-icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.18);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.1rem;
+    }
+    .card-top-id {
+      font-size: .75rem; color: rgba(255,255,255,.75); font-weight: 600;
+    }
+
+    .card-body { padding: 1.1rem 1.25rem; }
+
+    .sucursal-nombre {
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      margin-bottom: .5rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .estado-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .72rem; font-weight: 600;
+      margin-bottom: .85rem;
+    }
+    .estado-badge.activo   { background: var(--green-lt); color: var(--green); }
+    .estado-badge.inactivo { background: var(--red-lt);   color: var(--red); }
+    .estado-badge i { font-size: 7px; }
+
+    .info-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+    .info-row {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: .82rem; color: var(--text-muted);
+    }
+    .info-row i { color: var(--accent); font-size: .8rem; margin-top: 1px; min-width: 14px; }
+    .info-row span { line-height: 1.4; }
+
+    .cat-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--accent-lt);
+      color: var(--accent);
+      padding: 3px 10px; border-radius: 20px;
+      font-size: .72rem; font-weight: 600;
+      margin-bottom: .85rem;
+    }
+
+    .card-actions {
+      display: flex; gap: .6rem; flex-wrap: wrap;
+      padding-top: .75rem;
+      border-top: 1px solid var(--gray-100);
+    }
+
+    .btn-action {
+      flex: 1;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 7px 12px;
+      border: none; border-radius: var(--radius);
+      font-size: .8rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: opacity .15s, transform .15s;
+    }
+    .btn-action:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-action.edit   { background: var(--amber-lt); color: var(--amber); }
+    .btn-action.delete { background: var(--red-lt);   color: var(--red); }
+    .btn-action.map    { background: var(--green-lt);  color: var(--green); }
+
+    /* ── Empty state ────────────────────────────────────── */
+    .empty-state {
+      grid-column: 1/-1;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .empty-state i { font-size: 3.5rem; color: var(--gray-200); margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: .4rem; }
+    .empty-state p  { font-size: .875rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+
+    /* ── Lista view ─────────────────────────────────────── */
+    .sucursales-list {
+      display: flex; flex-direction: column; gap: .75rem;
+    }
+    .sucursales-list .sucursal-card {
+      display: flex; flex-direction: row;
+    }
+    .sucursales-list .card-top {
+      width: 90px; min-width: 90px;
+      border-radius: 0;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    .sucursales-list .card-body {
+      flex: 1; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+    }
+    .sucursales-list .sucursal-nombre { flex: 0 0 180px; margin-bottom: 0; }
+    .sucursales-list .info-list { flex: 1; flex-direction: row; flex-wrap: wrap; gap: 1rem; margin-bottom: 0; }
+    .sucursales-list .card-actions { border-top: none; padding-top: 0; flex: 0 0 auto; }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+    }
+    @media (max-width: 600px) {
+      .page-body { padding: 1rem; }
+      .topbar { padding: .75rem 1rem; }
+      .sucursales-grid { grid-template-columns: 1fr; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .sucursal-card { animation: fadeInUp .25s ease-out both; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════ SIDEBAR ════════════════════════════ -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <img th:src="@{/images/asistencia.jpeg}" alt="Asistencia El Salvador">
+  </div>
+
+  <div class="sidebar-profile">
+    <div class="profile-avatar">
+      <i class="fas fa-truck-fast"></i>
+    </div>
+    <div class="profile-info">
+      <h3 th:text="${proveedor != null ? proveedor.getNombreProveedor() : 'Mi Empresa'}">Mi Empresa</h3>
+      <p th:text="'NIT: ' + ${nitProveedor}">NIT: 0000-000000-000-0</p>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="#" class="nav-item active">
+      <i class="fas fa-code-branch"></i>
+      <span>Mis Sucursales</span>
+    </a>
+    <a th:href="@{/asistencia/todas/{nit}(nit=${nitProveedor})}" class="nav-item">
+      <i class="fas fa-clipboard-list"></i>
+      <span>Solicitudes de Servicio</span>
+    </a>
+    <a th:href="@{/proveedores/cobertura/{nit}(nit=${nitProveedor})}" class="nav-item">
+      <i class="fas fa-star"></i>
+      <span>Beneficios</span>
+    </a>
+    <a href="#" class="nav-item">
+      <i class="fas fa-building"></i>
+      <span>Mi Perfil</span>
+    </a>
+    <a href="#" class="nav-item">
+      <i class="fas fa-cog"></i>
+      <span>Configuración</span>
+    </a>
+
+    <a href="#" class="nav-item">
+      <i class="fas fa-file-pdf"></i>
+      <span>Reportes</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a th:href="@{/usuarios/loginProveedor}">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Cerrar Sesión</span>
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════════════════ MAIN ════════════════════════════ -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Mis Sucursales</h1>
+      <div class="breadcrumb">
+        <a th:href="@{/proveedor_dashboard}"><i class="fas fa-home"></i> Inicio</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Sucursales</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="proveedor-badge">
+        <i class="fas fa-truck-fast"></i>
+        <span th:text="${proveedor != null ? proveedor.getNombreProveedor() : 'Proveedor'}">Proveedor</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page body -->
+  <div class="page-body">
+
+    <!-- Alerts -->
+    <div th:if="${success}" class="alert alert-success">
+      <i class="fas fa-check-circle"></i>
+      <span th:text="${success}"></span>
+    </div>
+    <div th:if="${error}" class="alert alert-error">
+      <i class="fas fa-exclamation-circle"></i>
+      <span th:text="${error}"></span>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-code-branch"></i></div>
+        <div>
+          <div class="stat-value" th:text="${#lists.size(sucursales)}">0</div>
+          <div class="stat-label">Sucursales totales</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-circle-check"></i></div>
+        <div>
+          <div class="stat-value" id="countActivas">0</div>
+          <div class="stat-label">Activas</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><i class="fas fa-map-location-dot"></i></div>
+        <div>
+          <div class="stat-value" id="countConMapa">0</div>
+          <div class="stat-label">Con ubicación</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Buscar sucursales...">
+        </div>
+        <select class="filter-select" id="estadoFilter">
+          <option value="all">Todos los estados</option>
+          <option value="activo">Activas</option>
+          <option value="inactivo">Inactivas</option>
+        </select>
+      </div>
+      <div class="toolbar-right">
+        <a th:href="@{/proveedores/sucursales/nueva/{nit}(nit=${nitProveedor})}" class="btn-nueva">
+          <i class="fas fa-plus-circle"></i>
+          <span>Nueva Sucursal</span>
+        </a>
+        <div class="view-toggle">
+          <button class="view-btn active" id="gridViewBtn" title="Vista mosaico">
+            <i class="fas fa-th"></i>
+          </button>
+          <button class="view-btn" id="listViewBtn" title="Vista lista">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sucursales -->
+    <div class="section-header">
+      <h2>Listado de sucursales</h2>
+    </div>
+
+    <div class="sucursales-grid" id="sucursalesContainer">
+
+      <!-- Empty state cuando no hay sucursales -->
+      <div th:if="${#lists.isEmpty(sucursales)}" class="empty-state">
+        <i class="fas fa-code-branch"></i>
+        <h3>Sin sucursales registradas</h3>
+        <p>Aún no tienes sucursales. Crea la primera para empezar.</p>
+        <a th:href="@{/proveedores/sucursales/nueva/{nit}(nit=${nitProveedor})}" class="btn-nueva">
+          <i class="fas fa-plus-circle"></i> Crear primera sucursal
+        </a>
+      </div>
+
+      <!-- Cards de sucursales -->
+      <div class="sucursal-card"
+           th:each="s, iterStat : ${sucursales}"
+           th:style="'animation-delay:' + ${iterStat.index * 60} + 'ms'"
+           th:attr="data-nombre=${s.contacto}, data-estado=${s.imagenURL != null ? 'activo' : 'activo'}, data-tiene-mapa=${s.latitud != null ? 'true' : 'false'}">
+
+        <div class="card-top">
+          <div class="card-top-icon"><i class="fas fa-code-branch"></i></div>
+          <div class="card-top-id">ID #<span th:text="${s.idProveedor}">0</span></div>
+        </div>
+
+        <div class="card-body">
+
+          <!-- Nombre / contacto -->
+          <div class="sucursal-nombre"
+               th:text="${s.contacto != null && !s.contacto.isEmpty() ? s.contacto : 'Sucursal sin nombre'}">
+            Contacto
+          </div>
+
+          <!-- Categoría -->
+          <div class="cat-tag" th:if="${s.catNombre != null}">
+            <i class="fas fa-tag"></i>
+            <span th:text="${s.catNombre}">Categoría</span>
+          </div>
+
+          <!-- Datos -->
+          <div class="info-list">
+            <div class="info-row" th:if="${s.telefono != null && !s.telefono.isEmpty()}">
+              <i class="fas fa-phone"></i>
+              <span th:text="${s.telefono}">Teléfono</span>
+            </div>
+            <div class="info-row" th:if="${s.telCasaMatriz != null && !s.telCasaMatriz.isEmpty()}">
+              <i class="fas fa-building"></i>
+              <span th:text="'Casa matriz: ' + ${s.telCasaMatriz}">Tel. matriz</span>
+            </div>
+            <div class="info-row" th:if="${s.latitud != null}">
+              <i class="fas fa-location-crosshairs"></i>
+              <span th:text="|${s.latitud}, ${s.longitud}|">Coordenadas</span>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="card-actions">
+            <button class="btn-action map"
+                    th:if="${s.latitud != null && s.longitud != null}"
+                    th:data-lat="${s.latitud}"
+                    th:data-lng="${s.longitud}"
+                    onclick="verEnMapa(this)">
+              <i class="fas fa-map"></i> Mapa
+            </button>
+            <a class="btn-action edit"
+               th:href="@{/proveedores/sucursales/editar/{id}(id=${s.idProveedor})}">
+              <i class="fas fa-pen-to-square"></i> Editar
+            </a>
+
+            <button class="btn-action delete"
+                    th:data-id="${s.idProveedor}"
+                    onclick="eliminarSucursal(this)">
+              <i class="fas fa-trash"></i> Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state filtrado (JS lo muestra) -->
+      <div class="empty-state" id="emptyFiltered" style="display:none; grid-column:1/-1;">
+        <i class="fas fa-magnifying-glass"></i>
+        <h3>Sin resultados</h3>
+        <p>Ninguna sucursal coincide con los filtros aplicados.</p>
+      </div>
+
+    </div><!-- /sucursalesContainer -->
+  </div><!-- /page-body -->
+</div><!-- /main -->
+
+<script th:inline="javascript">
+  const nitProveedor = /*[[${nitProveedor}]]*/ '';
+
+  const container    = document.getElementById('sucursalesContainer');
+  const searchInput  = document.getElementById('searchInput');
+  const estadoFilter = document.getElementById('estadoFilter');
+  const gridViewBtn  = document.getElementById('gridViewBtn');
+  const listViewBtn  = document.getElementById('listViewBtn');
+  const emptyFiltered = document.getElementById('emptyFiltered');
+
+  // ── Estadísticas ────────────────────────────────────
+  function calcStats() {
+    const cards = container.querySelectorAll('.sucursal-card:not(#emptyFiltered)');
+    let activas = 0, conMapa = 0;
+    cards.forEach(c => {
+      if (c.getAttribute('data-estado') === 'activo') activas++;
+      if (c.getAttribute('data-tiene-mapa') === 'true') conMapa++;
+    });
+    document.getElementById('countActivas').textContent  = activas;
+    document.getElementById('countConMapa').textContent  = conMapa;
+  }
+
+  // ── Filtrado ─────────────────────────────────────────
+  function filterCards() {
+    const term   = searchInput.value.toLowerCase().trim();
+    const estado = estadoFilter.value;
+    const cards  = container.querySelectorAll('.sucursal-card:not(#emptyFiltered)');
+    let visible  = 0;
+
+    cards.forEach(card => {
+      const nombre = (card.getAttribute('data-nombre') || '').toLowerCase();
+      const est    = card.getAttribute('data-estado') || '';
+      const matchN = nombre.includes(term);
+      const matchE = estado === 'all' || est === estado;
+
+      card.style.display = (matchN && matchE) ? '' : 'none';
+      if (matchN && matchE) visible++;
+    });
+
+    emptyFiltered.style.display = visible === 0 ? 'flex' : 'none';
+  }
+
+  // ── Toggle vista ──────────────────────────────────────
+  function setView(type) {
+    if (type === 'list') {
+      container.classList.remove('sucursales-grid');
+      container.classList.add('sucursales-list');
+      listViewBtn.classList.add('active');
+      gridViewBtn.classList.remove('active');
+    } else {
+      container.classList.remove('sucursales-list');
+      container.classList.add('sucursales-grid');
+      gridViewBtn.classList.add('active');
+      listViewBtn.classList.remove('active');
+    }
+  }
+
+  // ── Acciones ──────────────────────────────────────────
+  function verEnMapa(btn) {
+    const lat = btn.getAttribute('data-lat');
+    const lng = btn.getAttribute('data-lng');
+    window.open(`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=17`, '_blank');
+  }
+
+  function eliminarSucursal(btn) {
+    if (!confirm('¿Seguro que deseas eliminar esta sucursal?')) return;
+    window.location.href = `/proveedores/sucursales/eliminar/${btn.getAttribute('data-id')}`;
+  }
+
+  // ── Listeners ─────────────────────────────────────────
+  searchInput.addEventListener('input', filterCards);
+  estadoFilter.addEventListener('change', filterCards);
+  gridViewBtn.addEventListener('click', () => setView('grid'));
+  listViewBtn.addEventListener('click', () => setView('list'));
+
+  // ── Alerts auto-hide ──────────────────────────────────
+  document.querySelectorAll('.alert').forEach(a => {
+    setTimeout(() => {
+      a.style.transition = 'opacity .5s';
+      a.style.opacity = '0';
+      setTimeout(() => a.remove(), 500);
+    }, 5000);
+  });
+
+  // ── Init ──────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', calcStats);
+</script>
+</body>
+</html>

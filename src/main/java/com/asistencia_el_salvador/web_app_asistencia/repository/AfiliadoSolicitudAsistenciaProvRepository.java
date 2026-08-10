@@ -10,4 +10,5 @@ import java.util.List;
 public interface AfiliadoSolicitudAsistenciaProvRepository
         extends JpaRepository<AfiliadoSolicitudAsistenciaProv,String> {
     public List<AfiliadoSolicitudAsistenciaProv> findByDuiAfiliado(String dui);
+    public List<AfiliadoSolicitudAsistenciaProv> findByIdProveedor(int idProveedor);
 }

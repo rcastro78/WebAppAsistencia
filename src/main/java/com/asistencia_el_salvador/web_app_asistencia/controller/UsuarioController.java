@@ -1,15 +1,22 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
+import com.asistencia_el_salvador.web_app_asistencia.dto.CoberturaUsoDTO;
 import com.asistencia_el_salvador.web_app_asistencia.dto.PromocionDTO;
+import com.asistencia_el_salvador.web_app_asistencia.dto.ResumenPlanesCorpDTO;
+import com.asistencia_el_salvador.web_app_asistencia.dto.UsuarioProveedorDTO;
+import com.asistencia_el_salvador.web_app_asistencia.interfaces.CoberturaTotalProjection;
+import com.asistencia_el_salvador.web_app_asistencia.interfaces.UltimaSolicitudProjection;
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
+import com.asistencia_el_salvador.web_app_asistencia.repository.ClienteCorporativoRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.PromocionRepository;
-import com.asistencia_el_salvador.web_app_asistencia.request.ComercioLoginRequest;
-import com.asistencia_el_salvador.web_app_asistencia.request.LoginRequest;
+import com.asistencia_el_salvador.web_app_asistencia.request.*;
 import com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse;
 import com.asistencia_el_salvador.web_app_asistencia.utils.DeviceUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.checkerframework.checker.units.qual.C;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,7 +28,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
-import com.asistencia_el_salvador.web_app_asistencia.request.RegistroRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
@@ -42,6 +48,8 @@ public class UsuarioController {
     private final AccessLogService accessLogService;
     private final EmailService emailService;
     @Autowired
+    private UsuarioCorporativoService usuarioCorporativoService;
+    @Autowired
     private ComercioAfiliadoPromocionService comercioAfiliadoPromocionService;
     @Autowired
     private PlanService planService;
@@ -50,6 +58,23 @@ public class UsuarioController {
     @Autowired
     private PromocionService promocionService;
     private final PromocionRepository promocionRepository;
+    @Autowired
+    private UsuarioProveedorService usuarioProveedorService;
+    @Autowired
+    private ProveedorService proveedorService;
+    @Autowired
+    private VwSucursalesProveedorService sucursalesProveedorService;
+    @Autowired
+    private AfiliadoCorporativoService afiliadoCorporativoService;
+    @Autowired
+    private ClienteCorporativoService clienteCorporativoService;
+    @Autowired
+    private MedCitaService medCitaService;
+    @Autowired
+    private ClienteCorporativoRepository  clienteCorporativoRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     public UsuarioController(UsuarioService usuarioService,
                              UsuarioComercioService usuarioComercioService,
@@ -77,7 +102,6 @@ public class UsuarioController {
             UsuarioResponse usuario = usuarioService.login(request);
 
             if (usuario != null) {
-                // Log de acceso (lo que ya tenías)
                 AccessLog log = new AccessLog();
                 log.setUsername(usuario.getDui());
                 log.setLoginAt(LocalDateTime.now());
@@ -127,6 +151,138 @@ public class UsuarioController {
         return "usuarios";
     }
 
+    @GetMapping("/corporativos")
+    public String listarCorporativos(Model model, HttpSession session) {
+        String nit = (String) session.getAttribute("nitClienteCorp");
+        session.setAttribute("administrador", false);
+        ClienteCorporativo clienteCorporativo = clienteCorporativoRepository.findByNit(nit);
+        List<UsuarioClienteCorporativo> usuarios = usuarioCorporativoService.findByNit(nit);
+        model.addAttribute("usuarios", usuarios);
+        model.addAttribute("clienteCorporativo", clienteCorporativo);
+        return "usuarios_corp";
+    }
+
+    @GetMapping("/corporativos/{nit}")
+    public String listarUsuariosPorCliente(@PathVariable String nit, Model model,
+                                           HttpSession session) {
+        ClienteCorporativo clienteCorporativo = clienteCorporativoRepository.findByNit(nit);
+        List<UsuarioClienteCorporativo> usuarios = usuarioCorporativoService.findByNit(nit);
+        session.setAttribute("administrador", true);
+        model.addAttribute("usuarios", usuarios);
+        model.addAttribute("clienteCorporativo", clienteCorporativo);
+        return "usuarios_corp";
+    }
+
+    @GetMapping("/corporativos/nuevo")
+    public String nuevoUsuarioCorp(HttpSession session, Model model) {
+        UsuarioClienteCorporativo usuario = new UsuarioClienteCorporativo();
+        usuario.setNitProveedor((String) session.getAttribute("nitClienteCorp"));
+        usuario.setEstado(1);
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("administrador", false);
+        model.addAttribute("esEdicion", false);
+        return "usuario_corporativo_form";
+    }
+
+    @GetMapping("/corporativos/nuevo/{nit}")
+    public String nuevoUsuarioCorpAdm(@PathVariable String nit, HttpSession session, Model model) {
+        UsuarioClienteCorporativo usuario = new UsuarioClienteCorporativo();
+        usuario.setNitProveedor(nit);
+        usuario.setEstado(1);
+        model.addAttribute("administrador", true);
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("esEdicion", false);
+        return "usuario_corporativo_form";
+    }
+
+    @PostMapping("/corporativos/restablecer/{dui}")
+    public String restablecerClaveUsuarioCorp(@PathVariable String dui,
+                                              RedirectAttributes redirectAttributes) {
+        boolean exito = usuarioCorporativoService.restablecerClave(dui);
+        if (exito) {
+            redirectAttributes.addFlashAttribute("mensaje", "Contraseña restablecida y enviada por correo");
+            redirectAttributes.addFlashAttribute("tipoMensaje", "success");
+        } else {
+            redirectAttributes.addFlashAttribute("mensaje", "No se pudo restablecer la contraseña");
+            redirectAttributes.addFlashAttribute("tipoMensaje", "error");
+        }
+        return "redirect:/usuarios/corporativos";
+    }
+
+    @GetMapping("/corporativos/editar/{dui}")
+    public String editarUsuarioCorp(@PathVariable String dui, Model model,
+                                    RedirectAttributes redirectAttributes) {
+        UsuarioClienteCorporativo usuario = usuarioCorporativoService.findByDui(dui);
+        if (usuario == null) {
+            redirectAttributes.addFlashAttribute("mensaje", "Usuario no encontrado");
+            redirectAttributes.addFlashAttribute("tipoMensaje", "error");
+            return "redirect:/usuarios/corporativos";
+        }
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("esEdicion", true);
+        return "usuario_corporativo_form";
+    }
+
+    @PostMapping("/corporativos/guardar")
+    public String guardarUsuarioCorp(@ModelAttribute("usuario") UsuarioClienteCorporativo usuario,
+                                     @RequestParam(required = false) String claveNueva,
+                                     HttpSession session,
+                                     RedirectAttributes redirectAttributes) {
+
+        boolean administrador = Boolean.TRUE.equals(session.getAttribute("administrador"));
+        try {
+            if (!administrador) {
+                // Reforzar el NIT desde la sesión solo si es el propio cliente corporativo
+                String nitClienteCorp = (String) session.getAttribute("nitClienteCorp");
+                usuario.setNitProveedor(nitClienteCorp);
+            }
+            usuarioCorporativoService.guardar(usuario, usuario.getEmailAsociado().split("@")[0]);
+            emailService.enviarEmailHtml(usuario.getEmailAsociado(), "Tus credenciales de acceso",
+                    "Por medio de este email te avisamos de tus credenciales para el acceso a la plataforma.\\nUsuario: "
+                            + usuario.getEmailAsociado() + "\\nClave:" + usuario.getEmailAsociado().split("@")[0]);
+
+            redirectAttributes.addFlashAttribute("mensaje", "Usuario guardado correctamente");
+            redirectAttributes.addFlashAttribute("tipoMensaje", "success");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensaje", "Error al guardar: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("tipoMensaje", "error");
+        }
+
+        if (administrador) {
+            return "redirect:/usuarios/corporativos/" + usuario.getNitProveedor();
+        } else {
+            return "redirect:/usuarios/corporativos";
+        }
+    }
+
+    @PostMapping("/corporativos/estado/{dui}")
+    public String cambiarEstadoUsuarioCorp(@PathVariable String dui,
+                                           RedirectAttributes redirectAttributes,
+                                           HttpSession session) {
+        usuarioCorporativoService.cambiarEstado(dui);
+        redirectAttributes.addFlashAttribute("mensaje", "Estado actualizado");
+        redirectAttributes.addFlashAttribute("tipoMensaje", "success");
+        boolean administrador = (boolean) session.getAttribute("administrador");
+        if (administrador) {
+            String nitClienteCorp = (String) session.getAttribute("nitClienteCorp");
+            return "redirect:/usuarios/corporativos/"+nitClienteCorp;
+        }else{
+            return "redirect:/usuarios/corporativos";
+        }
+    }
+
+    /*
+    @PostMapping("/corporativos/eliminar/{id}")
+    public String eliminarUsuarioCorp(@PathVariable String id,
+                                      RedirectAttributes redirectAttributes) {
+        usuarioCorporativoService.eliminar(id);
+        redirectAttributes.addFlashAttribute("mensaje", "Usuario eliminado");
+        redirectAttributes.addFlashAttribute("tipoMensaje", "success");
+        return "redirect:/usuarios/corporativos";
+    }*/
+
+
+
     // Mostrar página de login
     @GetMapping("/login")
     public String mostrarLogin(Model model, HttpSession session,
@@ -140,6 +296,19 @@ public class UsuarioController {
     public String mostrarLoginComercio() {
         return "loginComercio"; // Thymeleaf buscará login.html en templates
     }
+
+
+    @GetMapping("/loginCorporativo")
+    public String mostrarLoginCorp() {
+        return "loginCorporativo"; // Thymeleaf buscará login.html en templates
+    }
+
+
+    @GetMapping("/loginProveedor")
+    public String mostrarLoginProveedor() {
+        return "loginProveedor"; // Thymeleaf buscará login.html en templates
+    }
+
 
     // Procesar login
     @PostMapping({"/login", "/login/"})
@@ -161,7 +330,7 @@ public class UsuarioController {
             session.setAttribute("nombre", usuario.getNombre());
             session.setAttribute("apellido", usuario.getApellido());
             session.setAttribute("dui", usuario.getDui());
-
+            session.setAttribute("email", usuario.getEmail());
             //Guardar session
             DeviceUtils deviceUtils = new DeviceUtils();
 
@@ -184,7 +353,6 @@ public class UsuarioController {
             if (usuario.getRol() == 1) return "redirect:/admin/dashboard";
             if (usuario.getRol() == 2) return "redirect:/admin/ventas/dashboard";
             if (usuario.getRol() == 3) return "redirect:/usuarios/dashboard/";
-
             if (usuario.getRol() == 7) return "redirect:/supervisor/ventas/dashboard";
 
 
@@ -198,7 +366,6 @@ public class UsuarioController {
     }
 
 
-    //Login de los comercios
     //Login de los comercios
     @PostMapping({"/loginComercio", "/loginComercio/"})
     public String loginComercio(@RequestParam String emailAsociado,
@@ -224,6 +391,88 @@ public class UsuarioController {
         }
     }
 
+    //Corporativo
+    @PostMapping({"/loginCorporativo", "/loginCorporativo/"})
+    public String loginCorporativo(@RequestParam String emailAsociado,
+                                @RequestParam String password,
+                                HttpSession session,
+                                Model model) {
+        CorporativoLoginRequest request = new CorporativoLoginRequest();
+        request.setEmailAsociado(emailAsociado);
+        request.setContrasena(password);
+
+        UsuarioClienteCorporativo usuario = usuarioCorporativoService.loginCorp(request);
+        ClienteCorporativo clienteCorporativo = clienteCorporativoService.buscarPorNit(usuario.getNitProveedor());
+        if (usuario != null) {
+            // Guardar en sesión
+            session.setAttribute("usuarioClienteCorp", usuario);
+            session.setAttribute("usuarioCorpEmail",usuario.getEmailAsociado());
+            session.setAttribute("nitClienteCorp", usuario.getNitProveedor());
+            session.setAttribute("clienteCorporativo", clienteCorporativo);
+            session.setAttribute("rol",10);
+            // Redirigir al dashboard
+            return "redirect:/usuarios/dashboard_corporativo";
+        } else {
+            model.addAttribute("error", "Credenciales inválidas o usuario inactivo");
+            return "loginCorporativo";
+        }
+    }
+
+    //Seccion de Proveedores
+    //Login de los proveedores
+    @PostMapping({"/loginProveedor", "/loginProveedor/"})
+    public String loginProveedor(@RequestParam String emailAsociado,
+                                 @RequestParam String password,
+                                 HttpSession session,
+                                 Model model) {
+        Logger logger = LoggerFactory.getLogger(this.getClass());
+        ProveedorLoginRequest request = new ProveedorLoginRequest();
+        request.setEmailAsociado(emailAsociado);
+        request.setContrasena(password);
+
+        UsuarioProveedor usuario = usuarioProveedorService.loginProveedor(request);
+        Proveedor proveedor = proveedorService.buscarProveedorNIT(usuario.getNitProveedor());
+        if (usuario != null) {
+            // Convertir a DTO antes de guardar en sesión
+            UsuarioProveedorDTO dto = new UsuarioProveedorDTO(usuario);
+            session.setAttribute("usuarioProveedor", dto);
+            session.setAttribute("nitProveedor", dto.getNit());
+            session.setAttribute("idProveedor",proveedor.getIdProveedor().toString());
+            session.setAttribute("rol",9);
+            return "redirect:/usuarios/proveedor_dashboard";
+        } else {
+            model.addAttribute("error", "Credenciales inválidas o usuario inactivo");
+            return "loginProveedor";
+        }
+    }
+
+    @GetMapping("/proveedor_dashboard")
+    public String mostrarDashboardProveedor(HttpSession session, Model model) {
+        // Ahora casteamos a DTO, no a la entidad
+        UsuarioProveedorDTO usuario = (UsuarioProveedorDTO) session.getAttribute("usuarioProveedor");
+        if (usuario == null) {
+            return "redirect:/usuarios/loginProveedor";
+        }
+
+        String nitProveedor = usuario.getNit();
+        if (nitProveedor == null) {
+            return "redirect:/usuarios/loginProveedor";
+        }
+
+        List<VWSucursalesProveedor> sucursalesProveedor = sucursalesProveedorService.listarTodas()
+                .stream()
+                .filter(it -> it.getNit().equals(nitProveedor)).toList();
+
+        ProveedorAfiliado proveedor = proveedorService.listarTodas().stream()
+                .filter(it -> it.getNit().equals(nitProveedor))
+                .findFirst()
+                .orElse(null);
+
+        model.addAttribute("nitProveedor", nitProveedor);
+        model.addAttribute("proveedor", proveedor);
+        model.addAttribute("sucursales", sucursalesProveedor);
+        return "proveedor_dashboard";
+    }
     // Endpoint GET para mostrar el dashboard
     /*@GetMapping("/comercio_dashboard")
     public String mostrarDashboardComercio(HttpSession session, Model model) {
@@ -281,6 +530,53 @@ public class UsuarioController {
     }
 
 
+    @GetMapping("/dashboard_corporativo")
+    public String mostrarDashboardCorp(HttpSession session, Model model) {
+        String nit = (String) session.getAttribute("nitClienteCorp");
+        ClienteCorporativo clienteCorporativo = (ClienteCorporativo) session.getAttribute("clienteCorporativo");
+
+        //Obtener datos para mostrar
+        //Afiliados activos corporativos para este nit
+        int afiliadosActivos = afiliadoCorporativoService.buscarTodosActivos(nit).size();
+        long afiliadosConsultaron = medCitaService.totalCitasMes(nit);
+        long afiliadosConCita = medCitaService.totalCitasSieteDias(nit);
+        long getTotalidadEventos = medCitaService.getTotalidadEventos(nit);
+        long idPlanAsociado = medCitaService.getPlanClienteCorporativo(nit);
+        List<ResumenPlanesCorpDTO> listarPlanes = clienteCorporativoService.listarResumenPlanesCorporativo(nit)
+                .stream()
+                .map(p -> new ResumenPlanesCorpDTO(p.getNombrePlan(), p.getCantidad().intValue()))
+                .toList();
+
+        List<CoberturaUsoDTO> coberturasResumen = clienteCorporativoRepository
+                .sumarPorCoberturaByPlan(idPlanAsociado, nit)
+                .stream()
+                .map(CoberturaUsoDTO::new)
+                .toList();
+
+        List<UltimaSolicitudProjection> ultimasSolicitudes = clienteCorporativoRepository.ultimasSolicitudesByNit(nit);
+        model.addAttribute("ultimasSolicitudes", ultimasSolicitudes);
+
+        double usoPromedio = clienteCorporativoService.calcularUsoPromedioPlan(coberturasResumen);
+
+        model.addAttribute("coberturasResumen", coberturasResumen);
+        long totalAfiliadosSalud = listarPlanes.stream().filter(p->p.getNombrePlan().equals("Salud Care")).count();
+        model.addAttribute("totalAfiliadosSalud", totalAfiliadosSalud);
+        model.addAttribute("totalidadEventos", getTotalidadEventos);
+        model.addAttribute("usoPromedioPlan", Math.round(usoPromedio));
+        model.addAttribute("planesAfiliadosResumen", listarPlanes);
+        //Consultas
+        model.addAttribute("afiliadosConsultaron", afiliadosConsultaron);
+        //Consultas a futuro (citas programadas)
+        model.addAttribute("afiliadosConCita", afiliadosConCita);
+        //Datos principales
+        model.addAttribute("nit", nit);
+        model.addAttribute("nombreCliente", clienteCorporativo.getNombreCliente());
+        model.addAttribute("avatarCliente", clienteCorporativo.getNombreCliente().substring(0,2));
+        model.addAttribute("emailCliente", clienteCorporativo.getEmailContacto());
+        model.addAttribute("afiliadosActivos", afiliadosActivos);
+        model.addAttribute("planesAfiliadosResumen", listarPlanes);
+        return "dashboard_corporativo";
+    }
 
 
 

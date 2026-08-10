@@ -9,6 +9,50 @@
 </head>
 <body>
 <div class="dashboard-container">
+
+    <!-- sidebar para el proveedor -->
+    <!-- Sidebar para Proveedor -->
+    <div class="sidebar" th:if="${esProveedor}">
+        <div class="logo">
+            <img th:src="@{/images/asistencia.jpeg}" alt="Asistencia El Salvador">
+        </div>
+
+        <div class="profile-section">
+            <div class="profile-avatar">
+                <i class="fas fa-truck-fast"></i>
+            </div>
+            <h3 th:text="${nombreProveedor}">Mi Empresa</h3>
+            <p th:text="'NIT: ' + ${nitProveedor}">NIT: 0000-000000-000-0</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a th:href="@{/usuarios/proveedor_dashboard}" class="nav-item">
+                <i class="fas fa-code-branch"></i>
+                <span>Mis Sucursales</span>
+            </a>
+            <a th:href="@{/asistencia/todas/{nit}(nit=${nitProveedor})}" class="nav-item active">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Solicitudes de Servicio</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-star"></i>
+                <span>Beneficios</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-building"></i>
+                <span>Mi Perfil</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <a th:href="@{/usuarios/loginProveedor}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
     <!-- Sidebar para Administrador -->
     <div class="sidebar" th:if="${session.rol == 1}">
         <div class="logo">
@@ -134,6 +178,10 @@
                         <i class="fas fa-plus"></i> Nueva Solicitud
                     </a>
                     <a th:href="@{${session.rol == 1 ? '/admin/dashboard' : '/afiliado/plan'}}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+
+                    <a th:href="@{${esProveedor == true ? '/usuarios/loginProveedor' : '/admin/dashboard'}}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Volver
                     </a>
                 </div>
@@ -283,18 +331,34 @@
                         <td>
                             <div class="actions">
                                 <!-- Botones para Admin: siempre visibles -->
-                                <a th:if="${session.rol == 1}"
+
+                                <form th:action="@{/asistencia/editar}" method="get" th:if="${session.rol == 1}">
+                                    <input type="hidden" name="id" th:value="${sol.id}">
+                                    <button type="submit" class="btn-action btn-edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/asistencia/proveedor/editar}" method="get" th:if="${esProveedor}">
+                                    <input type="hidden" name="id" th:value="${sol.id}">
+                                    <button type="submit" class="btn-action btn-edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </form>
+
+
+                                <!--<a th:if="${session.rol == 1}"
                                    th:href="@{/asistencia/editar/{id}(id=${sol.id})}"
                                    class="btn-action btn-info"
                                    title="Ver detalle">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a th:if="${session.rol == 1}"
+                                <a th:if="${session.rol == 1 || esProveedor}"
                                    th:href="@{/asistencia/editar/{id}(id=${sol.id})}"
                                    class="btn-action btn-edit"
                                    title="Editar">
                                     <i class="fas fa-edit"></i>
-                                </a>
+                                </a>-->
                                 <a th:if="${session.rol == 1}"
                                    th:href="@{/asistencia/eliminar/{id}(id=${sol.id})}"
                                    class="btn-action btn-delete"

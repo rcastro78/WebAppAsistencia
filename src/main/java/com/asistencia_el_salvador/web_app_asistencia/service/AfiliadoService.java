@@ -118,9 +118,17 @@ public class AfiliadoService {
         return afiliadoRepository.findAllActive(pageable);
     }
 
+    public Page<Afiliado> listarAfiliadosCorp(Pageable pageable, String nit) {
+        return afiliadoRepository.findAfiliadosByNitCliente(pageable, nit);
+    }
+
+
     public List<Afiliado> listarPatrocinadosActivos(String dui) {
         return afiliadoRepository.findByPatrocinadorDUIAndEstado(dui, 1);
     }
+
+
+
 
     // Obtener todos
     public List<Afiliado> getAllAfiliados() {
@@ -134,6 +142,10 @@ public class AfiliadoService {
     // Obtener todos (vendedor)
     public Page<Afiliado> getAllAfiliadosVendedor(String createdBy, Pageable pageable) {
         return afiliadoRepository.findByCreatedBy(createdBy, pageable);
+    }
+
+    public List<Afiliado> getAllAfiliadosVendedor(String createdBy) {
+        return afiliadoRepository.findByCreatedBy(createdBy);
     }
 
     // Obtener por DUI

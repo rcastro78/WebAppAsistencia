@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -125,6 +126,41 @@ public class AfiliadoSolicitudAsistenciaController {
         model.addAttribute("completadas", completadas);
         model.addAttribute("estadosSolicitud", estados);
         model.addAttribute("session", session);
+        Map<String, String> estadosMap = new HashMap<>();
+        estadosMap.put("0", "Pendiente");
+        estadosMap.put("1", "Procesado");
+        estadosMap.put("2", "En Observación");
+        estadosMap.put("3", "Rechazada");
+        estadosMap.put("4", "Suspendida");
+        model.addAttribute("estadosMap", estadosMap);
+        return "solicitud_asistencia";
+    }
+
+
+
+    @GetMapping("/todas/{nit}")
+    public String listarProveedor(@PathVariable String nit, Model model, HttpSession session) {
+        Proveedor p = proveedorService.buscarProveedorNIT(nit);
+        List<AfiliadoSolicitudAsistencia> solicitudes = service.obtenerPorProveedor(String.valueOf(p.getIdProveedor()));
+        List<EstadoSolicitudServicio> estados = estadoSolicitudServicioService.listarTodos();
+        List<AfiliadoSolicitudAsistenciaProv> solicitudesTabla = afiliadoSolicitudAsistenciaProvService.buscarPorProveedor(p.getIdProveedor());
+
+        // Calcular estadísticas
+        long totalSolicitudes = solicitudes.size();
+        long pendientes = solicitudes.stream().filter(s -> "0".equals(s.getEstado())).count();
+        long enProceso = solicitudes.stream().filter(s -> "1".equals(s.getEstado())).count();
+        long completadas = solicitudes.stream().filter(s -> "2".equals(s.getEstado())).count();
+
+        model.addAttribute("solicitudes", solicitudesTabla);
+        model.addAttribute("totalSolicitudes", totalSolicitudes);
+        model.addAttribute("pendientes", pendientes);
+        model.addAttribute("enProceso", enProceso);
+        model.addAttribute("completadas", completadas);
+        model.addAttribute("estadosSolicitud", estados);
+        model.addAttribute("session", session);
+        model.addAttribute("esProveedor", true);
+        model.addAttribute("nitProveedor", nit);
+        model.addAttribute("nombreProveedor", p.getNombreProveedor());
         Map<String, String> estadosMap = new HashMap<>();
         estadosMap.put("0", "Pendiente");
         estadosMap.put("1", "Procesado");
@@ -281,8 +317,8 @@ public class AfiliadoSolicitudAsistenciaController {
     /**
      * Muestra el formulario para editar una solicitud existente
      */
-    @GetMapping("/editar/{id}")
-    public String editarSolicitud(@PathVariable Integer id, Model model,
+    @GetMapping("/editar")
+    public String editarSolicitud(@RequestParam Integer id, Model model,
                                   HttpSession session, RedirectAttributes redirectAttributes) {
         try {
             AfiliadoSolicitudAsistencia solicitud = service.obtenerPorId(id)
@@ -326,6 +362,7 @@ public class AfiliadoSolicitudAsistenciaController {
             model.addAttribute("solicitud", solicitud);
             model.addAttribute("fechaAsistencia", solicitud.getFechaAsistencia());
             model.addAttribute("idPlanSesion", idPlan);
+            model.addAttribute("esProveedor",false);
             model.addAttribute("estadosSolicitud", estadoSolicitudServicioService.listarTodos());
             model.addAttribute("nombrePlan", plan != null ? plan.getNombrePlan() : "");
             model.addAttribute("nombreAfiliado", afiliado != null ?
@@ -356,6 +393,64 @@ public class AfiliadoSolicitudAsistenciaController {
             return redirectUrl;
         }
     }
+
+
+    @GetMapping("/proveedor/editar")
+    public String editarSolicitudProveedor(@RequestParam Integer id, Model model,
+                                  HttpSession session, RedirectAttributes redirectAttributes) {
+        try {
+            AfiliadoSolicitudAsistencia solicitud = service.obtenerPorId(id)
+                    .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
+
+
+            // Si es afiliado, verificar permisos
+
+            // Cargar datos del afiliado
+            Afiliado afiliado = afiliadoService.getAfiliadoById(solicitud.getDuiAfiliado()).orElse(null);
+
+            // Determinar el idPlan según el rol
+            Integer idPlan = solicitud.getIdPlan();
+
+            Plan plan = planService.getPlanById(idPlan).orElse(null);
+            Cobertura cobertura = coberturaService.buscarPorId(solicitud.getIdAsistencia());
+            // Agregar atributos al modelo
+            model.addAttribute("solicitud", solicitud);
+            model.addAttribute("fechaAsistencia", solicitud.getFechaAsistencia());
+            model.addAttribute("idPlanSesion", idPlan);
+            model.addAttribute("esProveedor",true);
+            model.addAttribute("nombreCobertura",cobertura.getNombreCobertura());
+            model.addAttribute("estadosSolicitud", estadoSolicitudServicioService.listarTodos());
+            model.addAttribute("nombrePlan", plan != null ? plan.getNombrePlan() : "");
+            model.addAttribute("nombreAfiliado", afiliado != null ?
+                    afiliado.getNombre() + " " + afiliado.getApellido() : "");
+            model.addAttribute("afiliadoTelefono",
+                    "+503"+afiliado.getTelefono()
+                            .replace("-", "")
+                            .replace(" ", "")
+                            .replace("(", "")
+                            .replace(")", "")
+                            .trim()
+            );
+            // IMPORTANTE: Agregar los valores preseleccionados para que JavaScript los use
+            model.addAttribute("idCoberturaPreseleccionada", solicitud.getIdAsistencia());
+            model.addAttribute("idProveedorPreseleccionado", solicitud.getIdProveedor());
+
+            model.addAttribute("session", session);
+
+            cargarDatosFormulario(model, session, idPlan);
+
+            return "solicitar_servicio";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("mensaje", "Error al cargar la solicitud: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("tipo", "error");
+            String redirectUrl = ((Integer) session.getAttribute("rol")) == 1 ?
+                    "redirect:/asistencia/todas" : "redirect:/asistencia/solicitudes";
+            return redirectUrl;
+        }
+    }
+
+
 
     @PostMapping("/solicitudes/{id}/calificar")
     @ResponseBody
@@ -406,7 +501,7 @@ public class AfiliadoSolicitudAsistenciaController {
 
         log.info("===== Iniciando proceso de guardar/actualizar solicitud =====");
         log.info("Objeto recibido: {}", solicitud);
-
+        ProveedorAfiliado proveedor = proveedorService.getProveedor(solicitud.getIdProveedor()).get();
         try {
             String dui = session.getAttribute("dui").toString();
             Integer rol = (Integer) session.getAttribute("rol");
@@ -460,7 +555,6 @@ public class AfiliadoSolicitudAsistenciaController {
                     solicitud.setCostosExtra(0.00);
                     log.info("CostosExtra inicializado en 0.00");
                 }
-                ProveedorAfiliado proveedor = proveedorService.getProveedor(solicitud.getIdProveedor()).get();
 
                 emailService.enviarEmailHtml(proveedor.getEmail(),"atencionalcliente@asistenciaelsalvador.com","Solicitud de asistencia de "+afiliadoService.getAfiliadoById(dui).get().getNombre()+ " "+afiliadoService.getAfiliadoById(dui).get().getApellido(),
                         "He solicitado la asistencia siguiente: "+solicitud.getDetalle()+" al proveedor: "+
@@ -538,6 +632,7 @@ public class AfiliadoSolicitudAsistenciaController {
                 solicitud.setRegistradoPor(solicitudExistente.getRegistradoPor());
                 solicitud.setDuiAfiliado(solicitudExistente.getDuiAfiliado());
                 solicitud.setIdPlan(solicitudExistente.getIdPlan());
+                solicitud.setCalificacion(solicitudExistente.getCalificacion());
                 //.setFechaAsistencia(solicitudExistente.getFechaAsistencia());
                 if(solicitudExistente.getEstado().equals("2")) {
                     solicitud.setFechaHoraContacto(LocalDateTime.now());
@@ -567,6 +662,9 @@ public class AfiliadoSolicitudAsistenciaController {
 
             // Redirección final
             String redirectUrl = rol == 1 ? "redirect:/asistencia/todas" : "redirect:/asistencia/solicitudes";
+            if(rol==9){
+                redirectUrl = "redirect:/asistencia/todas/"+proveedor.getNit();
+            }
             log.info("Redireccionando a {}", redirectUrl);
             return redirectUrl;
 

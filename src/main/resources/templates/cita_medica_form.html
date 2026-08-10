@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${esEdicion} ? 'Editar Cita Médica' : 'Nueva Cita Médica'">Cita Médica</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/citas.css}">
+  <link rel="stylesheet" th:href="@{/css/cita.css}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <a th:href="@{/telemedicina/citas}" class="back-link">
+      <i class="fas fa-arrow-left"></i> Volver a citas del afiliado
+    </a>
+    <h1>
+      <i class="fas fa-calendar-plus" style="color:var(--blue-600);" th:if="${!esEdicion}"></i>
+      <i class="fas fa-pen-to-square" style="color:var(--blue-600);" th:if="${esEdicion}"></i>
+      <span th:text="${esEdicion} ? 'Editar Cita Médica' : 'Nueva Cita Médica'">Cita Médica</span>
+    </h1>
+    <span class="subtitle" th:text="${esEdicion} ? 'Actualiza los datos de la cita programada' : 'Completa la información para agendar una nueva cita'"></span>
+  </div>
+
+  <!-- Resumen del afiliado para el que se agenda la cita -->
+  <div class="afiliado-mini" th:if="${afiliado != null}">
+    <div class="avatar" th:text="${#strings.substring(afiliado.nombre,0,1) + #strings.substring(afiliado.apellido,0,1)}">AA</div>
+    <div class="info">
+      <h4 th:text="${afiliado.nombre + ' ' + afiliado.apellido}">Nombre Apellido</h4>
+      <span th:text="${afiliado.dui}">00000000-0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Datos de la Consulta</h2>
+    </div>
+    <div class="card-body">
+
+      <form th:action="@{/telemedicina/citas/guardar}" th:object="${cita}" method="post" id="citaForm">
+
+        <!-- Identificador de la cita, solo presente al editar -->
+        <input type="hidden" th:field="*{idConsulta}" name="idConsulta" th:if="${esEdicion}">
+
+        <!--
+            Estado inicial de la cita (idEstadoConsulta): por ahora se fija en "Pendiente".
+            Cuando se conecte a datos, este valor debería asignarse en el controlador
+            en lugar de venir fijo desde el formulario.
+        -->
+        <input type="hidden" th:field="*{idEstadoConsulta}" th:value="1" th:unless="${esEdicion}">
+
+        <!--
+            NOTA IMPORTANTE: idTipo NO se envía desde este formulario.
+            El controlador lo fija programáticamente a "PROGRAMADA" (2) al crear la cita,
+            para no chocar con el valor "EMERGENCIA" (1) que usa el flujo de
+            /consulta/solicitar. La modalidad (presencial/video) se maneja
+            por separado con el campo `modalidad` de abajo.
+        -->
+
+        <!--
+            Fecha y hora programada: se arma en el cliente combinando el <input type="date">
+            y el <select> de horas cada 15 min, y se envía en este campo oculto en formato
+            ISO (yyyy-MM-ddTHH:mm), que es lo que espera el binding de MedConsulta.fechaProgramada.
+        -->
+        <input type="hidden" th:field="*{fechaProgramada}" id="fechaProgramadaHidden">
+
+        <div class="form-grid">
+
+          <!-- Modalidad de la consulta (antes vivía incorrectamente en idTipo) -->
+          <div class="form-group">
+            <label for="modalidad"><i class="fas fa-laptop-medical"></i> Modalidad de la consulta</label>
+            <select th:field="*{modalidad}" id="modalidad" class="input" required onchange="toggleTelemedNote()">
+              <option value="">Seleccione la modalidad</option>
+              <option value="1">Presencial</option>
+              <option value="2">Telemedicina</option>
+            </select>
+          </div>
+
+          <!-- Tipo de beneficio a utilizar -->
+          <div class="form-group">
+            <label for="idCobertura"><i class="fas fa-umbrella"></i> Beneficio a utilizar</label>
+            <select th:field="*{idCobertura}" id="idCobertura" class="input">
+              <option value="">Seleccione la cobertura</option>
+              <option th:each="cob : ${planCoberturas}"
+                      th:value="${cob.idCobertura}"
+                      th:text="${cob.nombreCobertura}">
+                Nombre de la cobertura
+              </option>
+            </select>
+          </div>
+
+          <!-- especialidades -->
+          <div class="form-group">
+
+              <label for="idEspecialidad"><i class="fas fa-lightbulb"></i> Especialidad</label>
+              <select id="idEspecialidad" name="idEspecialidad" class="input" required
+                      onchange="filtrarDoctoresPorEspecialidad()">
+                <option value="">Seleccione una especialidad</option>
+
+                <option th:each="e : ${especialidades}"
+                        th:value="${e.idEspecialidad}"
+                        th:text="${e.nombreEspecialidad}">
+                </option>
+              </select>
+
+          </div>
+
+          <!-- Médico asignado -->
+          <div class="form-group">
+            <label for="duiDoctor"><i class="fas fa-user-doctor"></i> Médico</label>
+            <select th:field="*{duiDoctor}" id="duiDoctor" class="input" required onchange="actualizarHabilitacionHora()">
+              <option value="" id="opcionDoctorPlaceholder">Seleccione primero una especialidad</option>
+
+              <option th:each="medico : ${doctores}"
+                      th:value="${medico.dui}"
+                      th:text="${medico.nombre + ' ' + medico.apellido}"
+                      th:attr="data-especialidad=${medico.idEspecialidad}">
+              </option>
+            </select>
+            <span class="hint" id="sinDoctoresMsg" style="display:none; color:var(--red-600);">
+              No hay médicos disponibles para esta especialidad.
+            </span>
+          </div>
+
+          <!-- Fecha programada (calendario) -->
+          <div class="form-group">
+            <label for="fechaCita"><i class="fas fa-calendar-day"></i> Fecha de la cita</label>
+            <input type="date" id="fechaCita" class="input" required>
+          </div>
+
+          <!-- Hora programada (slots cada 15 min, 08:00-17:00, validados contra disponibilidad del doctor) -->
+          <div class="form-group">
+            <label for="horaCita"><i class="fas fa-clock"></i> Hora de la cita</label>
+            <select id="horaCita" class="input" required disabled>
+              <option value="">Seleccione fecha y médico primero</option>
+            </select>
+            <span class="hint" id="disponibilidadMsg" style="display:none;"></span>
+            <span class="hint">Horario de atención: 08:00 a 17:00, en bloques de 15 minutos.</span>
+          </div>
+
+          <!-- Aviso de telemedicina -->
+          <div class="form-group full-width">
+            <div class="telemed-note" id="telemedNote">
+              <i class="fas fa-circle-info"></i>
+              <span>Al confirmar, se generará automáticamente un enlace de videollamada para esta consulta. El acceso se habilitará 10 minutos antes de la hora programada, y tanto el afiliado como el médico lo recibirán por correo y podrán verlo desde el listado de citas.</span>
+            </div>
+          </div>
+
+          <!-- Motivo -->
+          <div class="form-group full-width">
+            <label for="motivo"><i class="fas fa-notes-medical"></i> Motivo de la consulta</label>
+            <textarea th:field="*{motivo}" id="motivo" class="input" maxlength="200"
+                      placeholder="Describe brevemente el motivo de la consulta"
+                      oninput="actualizarContador()" required></textarea>
+            <span class="char-count" id="contadorMotivo">0 / 200</span>
+          </div>
+
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn">
+            <i class="fas fa-check"></i>
+            <span th:text="${esEdicion} ? 'Actualizar cita' : 'Agendar cita'"></span>
+          </button>
+          <a th:href="@{/telemedicina/citas}" class="btn secondary">
+            <i class="fas fa-times"></i> Cancelar
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── Configuración de horario laboral ── */
+  const HORA_INICIO = 8;   // 08:00
+  const HORA_FIN = 17;     // 17:00
+  const INTERVALO_MIN = 15;
+
+  /* ── Mostrar aviso cuando la modalidad es Telemedicina ── */
+  function toggleTelemedNote() {
+      const modalidad = document.getElementById('modalidad').value;
+      const nota = document.getElementById('telemedNote');
+      nota.classList.toggle('visible', modalidad === '2');
+  }
+
+  /* ── Filtrar médicos según la especialidad seleccionada ── */
+  function filtrarDoctoresPorEspecialidad(preservarSeleccionActual) {
+      const especialidadSeleccionada = document.getElementById('idEspecialidad').value;
+      const selectDoctor = document.getElementById('duiDoctor');
+      const placeholder = document.getElementById('opcionDoctorPlaceholder');
+      const opciones = selectDoctor.querySelectorAll('option[data-especialidad]');
+      const valorActual = selectDoctor.value;
+      let visibles = 0;
+
+      opciones.forEach(function (opt) {
+          const coincide = especialidadSeleccionada !== '' && opt.dataset.especialidad === especialidadSeleccionada;
+          opt.hidden = !coincide;
+          opt.disabled = !coincide;
+          if (coincide) visibles++;
+      });
+
+      // Si el médico ya seleccionado ya no pertenece a la nueva especialidad, se limpia la selección
+      const opcionActual = selectDoctor.querySelector('option[value="' + CSS.escape(valorActual) + '"]');
+      if (!preservarSeleccionActual && opcionActual && opcionActual.disabled) {
+          selectDoctor.value = '';
+      }
+
+      selectDoctor.disabled = especialidadSeleccionada === '';
+      placeholder.textContent = especialidadSeleccionada === ''
+          ? 'Seleccione primero una especialidad'
+          : 'Seleccione un médico';
+
+      document.getElementById('sinDoctoresMsg').style.display =
+          (especialidadSeleccionada !== '' && visibles === 0) ? 'inline' : 'none';
+
+      // Cambiar de médico invalida la hora ya elegida
+      actualizarHabilitacionHora();
+  }
+
+  /* ── Contador de caracteres del motivo ── */
+  function actualizarContador() {
+      const textarea = document.getElementById('motivo');
+      const contador = document.getElementById('contadorMotivo');
+      const longitud = textarea.value.length;
+      contador.textContent = longitud + ' / 200';
+
+      contador.classList.remove('limit-near', 'limit-reached');
+      if (longitud >= 200) {
+          contador.classList.add('limit-reached');
+      } else if (longitud >= 170) {
+          contador.classList.add('limit-near');
+      }
+  }
+
+  /* ── Generación de slots de hora (cada 15 min, dentro del horario laboral) ── */
+  function generarSlotsHora() {
+      const horaCitaSelect = document.getElementById('horaCita');
+      horaCitaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+      for (let h = HORA_INICIO; h < HORA_FIN; h++) {
+          for (let m = 0; m < 60; m += INTERVALO_MIN) {
+              const hh = String(h).padStart(2, '0');
+              const mm = String(m).padStart(2, '0');
+              const valor = `${hh}:${mm}`;
+              const opt = document.createElement('option');
+              opt.value = valor;
+              opt.textContent = valor;
+              horaCitaSelect.appendChild(opt);
+          }
+      }
+  }
+
+  /* ── Habilita/deshabilita el selector de hora según médico + fecha elegidos ── */
+  function actualizarHabilitacionHora() {
+      const horaCitaSelect = document.getElementById('horaCita');
+      const doctorSeleccionado = document.getElementById('duiDoctor').value;
+      const fechaSeleccionada = document.getElementById('fechaCita').value;
+
+      horaCitaSelect.disabled = !(doctorSeleccionado && fechaSeleccionada);
+      document.getElementById('disponibilidadMsg').style.display = 'none';
+      document.getElementById('fechaProgramadaHidden').value = '';
+
+      if (horaCitaSelect.disabled) {
+          horaCitaSelect.innerHTML = '<option value="">Seleccione fecha y médico primero</option>';
+      } else {
+          generarSlotsHora();
+      }
+  }
+
+  /* ── Verifica disponibilidad del doctor vía AJAX al elegir hora ── */
+  async function verificarDisponibilidadSeleccionada() {
+      const horaCitaSelect = document.getElementById('horaCita');
+      const disponibilidadMsg = document.getElementById('disponibilidadMsg');
+      const fechaProgramadaHidden = document.getElementById('fechaProgramadaHidden');
+
+      const doctorSeleccionado = document.getElementById('duiDoctor').value;
+      const fechaSeleccionada = document.getElementById('fechaCita').value;
+      const horaSeleccionada = horaCitaSelect.value;
+
+      disponibilidadMsg.style.display = 'none';
+      fechaProgramadaHidden.value = '';
+
+      if (!doctorSeleccionado || !fechaSeleccionada || !horaSeleccionada) return;
+
+      const fechaHoraISO = `${fechaSeleccionada}T${horaSeleccionada}`;
+
+      try {
+          const params = new URLSearchParams({ duiDoctor: doctorSeleccionado, fechaHora: fechaHoraISO });
+          const idConsultaInput = document.querySelector('input[name="idConsulta"]');
+          if (idConsultaInput && idConsultaInput.value) {
+              params.append('idConsultaExcluir', idConsultaInput.value);
+          }
+
+          const resp = await fetch(`/telemedicina/citas/disponibilidad?${params.toString()}`);
+          const data = await resp.json();
+
+          if (!data.disponible) {
+              disponibilidadMsg.style.display = 'inline';
+              disponibilidadMsg.style.color = 'var(--red-600)';
+              disponibilidadMsg.textContent = '⚠️ El médico ya tiene una cita en ese horario. Elija otro.';
+              horaCitaSelect.value = '';
+          } else {
+              disponibilidadMsg.style.display = 'inline';
+              disponibilidadMsg.style.color = '#28a745';
+              disponibilidadMsg.textContent = '✓ Horario disponible';
+              fechaProgramadaHidden.value = fechaHoraISO;
+          }
+      } catch (err) {
+          console.error('Error verificando disponibilidad:', err);
+      }
+  }
+
+  /* ── No permitir fechas en el pasado + inicializar todo ── */
+  document.addEventListener('DOMContentLoaded', function () {
+      const fechaCitaInput = document.getElementById('fechaCita');
+      const hoy = new Date();
+      const hoyStr = hoy.getFullYear() + '-' +
+          String(hoy.getMonth() + 1).padStart(2, '0') + '-' +
+          String(hoy.getDate()).padStart(2, '0');
+      fechaCitaInput.min = hoyStr;
+
+      fechaCitaInput.addEventListener('change', actualizarHabilitacionHora);
+      document.getElementById('horaCita').addEventListener('change', verificarDisponibilidadSeleccionada);
+
+      toggleTelemedNote();
+      actualizarContador();
+
+      // En modo edición, idEspecialidad y duiDoctor ya vienen con valor desde th:field.
+      // Se filtra conservando el médico ya asignado en vez de borrarlo.
+      filtrarDoctoresPorEspecialidad(true);
+
+      // Si el formulario trae fechaProgramada precargada (modo edición), separarla
+      // en fecha + hora para reflejarla en los nuevos controles.
+      const fechaProgramadaHidden = document.getElementById('fechaProgramadaHidden');
+      if (fechaProgramadaHidden.value) {
+          const [fechaParte, horaParte] = fechaProgramadaHidden.value.split('T');
+          if (fechaParte && horaParte) {
+              fechaCitaInput.value = fechaParte;
+              actualizarHabilitacionHora();
+              document.getElementById('horaCita').value = horaParte.substring(0, 5);
+          }
+      }
+  });
+
+  /* ── Validación antes de enviar ── */
+  document.getElementById('citaForm').addEventListener('submit', function (e) {
+      const fechaProgramadaHidden = document.getElementById('fechaProgramadaHidden');
+
+      if (!fechaProgramadaHidden.value) {
+          alert('Por favor seleccione fecha y hora, y confirme que el horario esté disponible.');
+          e.preventDefault();
+          return false;
+      }
+
+      return true;
+  });
+</script>
+</body>
+</html>

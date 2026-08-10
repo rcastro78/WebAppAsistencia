@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="${modoEdicion} ? 'Editar Plan - Asistencia El Salvador'
+                                 : 'Nuevo Plan - Asistencia El Salvador'">
+    Plan Casa - Asistencia El Salvador
+  </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/nuevo_afiliado.css}"/>
+
+  <style>
+    .mode-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600;
+      padding: 4px 12px; border-radius: 20px; margin-left: 12px;
+      vertical-align: middle;
+    }
+    .mode-badge.nuevo  { background: #d4edda; color: #155724; }
+    .mode-badge.editar { background: #fff3cd; color: #856404; }
+
+    input[readonly], select[disabled] {
+      background: #f5f5f5 !important;
+      cursor: not-allowed;
+      opacity: 0.75;
+    }
+
+    .form-section-title {
+      grid-column: 1 / -1;
+      font-size: 14px; font-weight: 700;
+      color: #4A90E2; text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e3ecf7;
+      padding-bottom: 6px; margin-top: 10px;
+    }
+
+    .info-casa {
+      grid-column: 1 / -1;
+      background: #f0f6ff; border: 1px solid #c8dff8;
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 13px; color: #2c5282;
+      display: flex; gap: 24px; align-items: center;
+    }
+    .info-casa span { font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Header ── -->
+  <div class="header">
+    <h1>
+      <i th:class="${modoEdicion} ? 'fas fa-edit' : 'fas fa-file-contract'"></i>
+      <span th:text="${modoEdicion} ? 'Editar Plan de Casa' : 'Asignar Plan a Casa'"></span>
+      <span class="mode-badge"
+            th:classappend="${modoEdicion} ? 'editar' : 'nuevo'"
+            th:text="${modoEdicion} ? 'Modo Edición' : 'Nuevo Registro'"></span>
+    </h1>
+    <span class="subtitle"
+          th:text="${modoEdicion}
+                    ? 'Modifica el plan asignado a esta casa'
+                    : 'Selecciona el plan que se asignará a la casa afiliada'"></span>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 th:text="${modoEdicion} ? 'Datos del Plan' : 'Asignación de Plan'"></h2>
+    </div>
+
+    <div class="card-body">
+
+      <form id="planCasaForm"
+            th:action="${modoEdicion}
+                        ? @{/casas/{id}/plan/actualizar(id=${casa.idCasa})}
+                        : @{/casas/{id}/plan/guardar(id=${casa.idCasa})}"
+            th:object="${planCasa}"
+            method="post">
+
+        <div class="form-grid">
+
+          <!-- ── Casa Afiliada ── -->
+          <div class="form-section-title">
+            <i class="fas fa-house-user"></i> Casa Afiliada
+          </div>
+
+          <div class="info-casa">
+            <div><i class="fas fa-hashtag"></i> ID Casa: <span th:text="${casa.idCasa}"></span></div>
+            <div><i class="fas fa-bolt"></i> NIC: <span th:text="${casa.NIC}"></span></div>
+            <div><i class="fas fa-map-marker-alt"></i> Dirección: <span th:text="${casa.direccion}"></span></div>
+          </div>
+
+          <!-- ── Datos del Plan ── -->
+          <div class="form-section-title">
+            <i class="fas fa-file-contract"></i> Datos del Plan
+          </div>
+
+          <input type="hidden" th:field="*{idPlanCasa}"/>
+          <input type="hidden" th:field="*{NIC}"/>
+
+          <!-- Plan -->
+          <div class="form-group">
+            <label for="idPlan">
+              <i class="fas fa-list-alt"></i> Plan
+              <span style="color:#e74c3c">*</span>
+            </label>
+            <select name="idPlan" id="idPlan" class="input" required
+                    onchange="mostrarInfoPlan(this)">
+              <option value="">-- Selecciona un plan --</option>
+              <option th:each="plan : ${planesDisponibles}"
+                      th:value="${plan.idPlan}"
+                      th:text="${plan.nombrePlan + ' – ' + plan.simboloMoneda + plan.costoPlan}"
+                      th:selected="${planCasa.idPlan != null and planCasa.idPlan == plan.idPlan}"
+                      th:data-nombre="${plan.nombrePlan}"
+                      th:data-costo="${plan.costoPlan}"
+                      th:data-costo-anual="${plan.costoPlanAnual}"
+                      th:data-moneda="${plan.simboloMoneda}">
+              </option>
+            </select>
+          </div>
+
+          <!-- Tarjeta info plan -->
+          <div class="form-group full-width" id="infoPlanCard" style="display:none;">
+            <div style="background:#f0f6ff; border:1px solid #c8dff8; border-radius:8px; padding:14px 18px;">
+              <div style="font-weight:700; color:#2c5282; margin-bottom:8px;">
+                <i class="fas fa-info-circle"></i> Detalle del Plan Seleccionado
+              </div>
+              <div style="display:flex; gap:32px; font-size:13px; color:#2d3748;">
+                <span><i class="fas fa-tag"></i> Nombre: <strong id="infoNombre">–</strong></span>
+                <span><i class="fas fa-dollar-sign"></i> Costo mensual: <strong id="infoCosto">–</strong></span>
+                <span><i class="fas fa-calendar-alt"></i> Costo anual: <strong id="infoCostoAnual">–</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estado -->
+          <div class="form-group">
+            <label for="estado">
+              <i class="fas fa-toggle-on"></i> Estado
+              <span style="color:#e74c3c">*</span>
+            </label>
+            <select name="estado" id="estado" class="input" required>
+              <option value="1" th:selected="${planCasa.estado == 1}">Activo</option>
+              <option value="0" th:selected="${planCasa.estado == 0}">Inactivo</option>
+            </select>
+          </div>
+
+        </div><!-- /form-grid -->
+
+        <!-- ── Botones ── -->
+        <div class="actions">
+          <button type="submit" class="btn">
+            <i th:class="${modoEdicion} ? 'fas fa-save' : 'fas fa-plus-circle'"></i>
+            <span th:text="${modoEdicion} ? 'Actualizar Plan' : 'Guardar Plan'"></span>
+          </button>
+
+          <a th:href="@{/casas}" class="btn secondary">
+            <i class="fas fa-times"></i> Cancelar
+          </a>
+
+          <button type="button"
+                  class="btn"
+                  style="background: #e74c3c;"
+                  th:if="${modoEdicion}"
+                  th:data-id="${planCasa.idPlanCasa}"
+                  th:data-info="${'Plan #' + planCasa.idPlanCasa + ' – NIC: ' + planCasa.NIC}"
+                  onclick="confirmarEliminacion(this)">
+            <i class="fas fa-trash-alt"></i> Eliminar Plan
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Formulario oculto para eliminar -->
+      <form th:if="${modoEdicion}"
+            id="deleteForm"
+            th:action="@{/casas/{id}/plan/delete(id=${casa.idCasa})}"
+            method="post"
+            style="display: none;">
+        <input type="hidden" name="idPlanCasa" th:value="${planCasa.idPlanCasa}"/>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function mostrarInfoPlan(select) {
+    const opt  = select.options[select.selectedIndex];
+    const card = document.getElementById('infoPlanCard');
+    if (!opt.value) { card.style.display = 'none'; return; }
+
+    document.getElementById('infoNombre').textContent     = opt.dataset.nombre;
+    document.getElementById('infoCosto').textContent      = opt.dataset.moneda + opt.dataset.costo;
+    document.getElementById('infoCostoAnual').textContent = opt.dataset.moneda + opt.dataset.costoAnual;
+    card.style.display = 'block';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const select = document.getElementById('idPlan');
+    if (select && select.value) mostrarInfoPlan(select);
+  });
+
+  function confirmarEliminacion(btn) {
+    const info = btn.dataset.info;
+    const ok   = confirm(
+      '⚠️ ADVERTENCIA ⚠️\n\n' +
+      `¿Está seguro que desea eliminar:\n${info}?\n\n` +
+      '• Esta acción no se puede deshacer\n\n¿Desea continuar?'
+    );
+    if (ok) {
+      const input = prompt('Para confirmar, escriba: CONFIRMAR');
+      if (input === 'CONFIRMAR') {
+        document.getElementById('deleteForm').submit();
+      } else {
+        alert('❌ Eliminación cancelada. El texto ingresado no coincide.');
+      }
+    }
+  }
+</script>
+</body>
+</html>

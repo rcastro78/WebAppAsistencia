@@ -20,6 +20,10 @@ public class AfiliadoSolicitudAsistenciaProvService {
         return repository.findByDuiAfiliado(dui);
     }
 
+    public List<AfiliadoSolicitudAsistenciaProv> buscarPorProveedor(int idProveedor){
+        return repository.findByIdProveedor(idProveedor);
+    }
+
     public List<AfiliadoSolicitudAsistenciaProv> mostrarTodos(){
         return repository.findAll();
     }

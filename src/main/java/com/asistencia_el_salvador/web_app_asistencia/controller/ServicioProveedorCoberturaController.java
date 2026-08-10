@@ -52,6 +52,34 @@ public class ServicioProveedorCoberturaController {
         return "servicios_proveedor_cobertura";
     }
 
+
+    @GetMapping({"/{nit}"})
+    public String listarCoberturasProveedor2(
+            @PathVariable("nit") String nit,
+            HttpSession session,
+            Model model) {
+
+        Proveedor p = proveedorService.buscarProveedorNIT(nit);
+        Integer idProveedor = p.getIdProveedor();
+        List<ProveedorPlanCobertura> servicios =
+                proveedorPlanCoberturaService.listarPorProveedor(idProveedor);
+
+        ProveedorAfiliado proveedor =
+                proveedorService.getProveedor(idProveedor.toString()).get();
+
+        List<String> nombresCobertura = servicios.stream()
+                .map(ProveedorPlanCobertura::getNombreCobertura)
+                .distinct().sorted().toList();
+
+        model.addAttribute("servicios",        servicios);
+        model.addAttribute("coberturas",        nombresCobertura);
+        model.addAttribute("idProveedor",       idProveedor);
+        model.addAttribute("nombreProveedor",   proveedor.getNombreProveedor());
+        model.addAttribute("esProveedor",true);
+        model.addAttribute("nitProveedor", proveedor.getNit());
+        return "servicios_proveedor_cobertura";
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // GET  /proveedores/cobertura/nuevo?idProveedor=X   →  formulario CREACIÓN
     // ─────────────────────────────────────────────────────────────────────────
@@ -81,22 +109,55 @@ public class ServicioProveedorCoberturaController {
         return "nuevo_servicio_proveedor";
     }
 
+    @GetMapping("/nuevo/{nit}")
+    public String mostrarNuevoBeneficio(
+            @PathVariable("nit") String nit,
+            HttpSession session,
+            Model model) {
+
+        Proveedor p = proveedorService.buscarProveedorNIT(nit);
+        Integer idProveedor = p.getIdProveedor();
+
+        ProveedorAfiliado proveedor =
+                proveedorService.getProveedor(idProveedor.toString()).get();
+
+        model.addAttribute("idProveedor",     idProveedor);
+        model.addAttribute("nombreProveedor", proveedor.getNombreProveedor());
+        model.addAttribute("planes",          planService.listarActivos());
+        model.addAttribute("coberturas",      coberturaService.listarActivas());
+        model.addAttribute("esProveedor",true);
+        // ── Bandera: modo CREACIÓN ──
+        model.addAttribute("esEdicion",       false);
+
+        model.addAttribute("nitProveedor",       proveedor.getNit());
+        // Valores por defecto para el formulario (Thymeleaf los lee aunque sean null)
+        model.addAttribute("idPlanActual",      null);
+        model.addAttribute("idCoberturaActual", null);
+        model.addAttribute("tarifaActual",      null);
+        model.addAttribute("estadoActual",      1);   // Activo por defecto
+
+        return "nuevo_servicio_proveedor";
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // GET  /proveedores/cobertura/editar
     //        ?idProveedor=X&idCobertura=Y&idPlan=Z   →  formulario EDICIÓN
     // ─────────────────────────────────────────────────────────────────────────
-    @GetMapping("/editar")
+    @PostMapping("/editar")
     public String mostrarEditar(
-            @RequestParam("idProveedor") Integer idProveedor,
             @RequestParam("idCobertura") Integer idCobertura,
             @RequestParam("idPlan")      Integer idPlan,
             HttpSession session,
             Model model) {
+        String idProveedor = session.getAttribute("idProveedor").toString();
+        session.setAttribute("editIdProveedor",Integer.parseInt(idProveedor));
+        session.setAttribute("editIdCobertura", idCobertura);
+        session.setAttribute("editIdPlan",      idPlan);
 
         // Cargar el registro existente por su clave compuesta
         ServicioProveedorCobertura registro =
                 servicioProveedorCoberturaService
-                        .buscarPorClave(idProveedor, idCobertura, idPlan)
+                        .buscarPorClave(Integer.parseInt(idProveedor), idCobertura, idPlan)
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "Cobertura no encontrada para la clave indicada"));
 
@@ -116,6 +177,8 @@ public class ServicioProveedorCoberturaController {
         model.addAttribute("idCoberturaActual", registro.getIdCobertura());
         model.addAttribute("tarifaActual",      registro.getTarifa());
         model.addAttribute("estadoActual",      registro.getEstado());
+        model.addAttribute("nitProveedor", proveedor.getNit());
+        model.addAttribute("esProveedor", (Integer)session.getAttribute("rol") == 9);
 
         return "nuevo_servicio_proveedor";   // mismo template, diferente modo
     }
@@ -126,15 +189,23 @@ public class ServicioProveedorCoberturaController {
     // ─────────────────────────────────────────────────────────────────────────
     @PostMapping("/guardar")
     public String guardar(
-            @RequestParam("idProveedor")          Integer idProveedor,
-            @RequestParam("idPlan")               Integer idPlan,
-            @RequestParam("idCobertura")          Integer idCobertura,
+            //@RequestParam("idProveedor")          Integer idProveedor,
+            //@RequestParam("idPlan")               Integer idPlan,
+            //@RequestParam("idCobertura")          Integer idCobertura,
             @RequestParam("tarifa")               Double  tarifa,
             @RequestParam(value = "estado",       defaultValue = "1") Integer estado,
             @RequestParam(value = "esEdicion",    defaultValue = "false") Boolean esEdicion,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            HttpSession session) {
+
+        int rol = (Integer)session.getAttribute("rol");
+
+        Integer idProveedor = (Integer) session.getAttribute("editIdProveedor");
+        Integer idCobertura = (Integer) session.getAttribute("editIdCobertura");
+        Integer idPlan      = (Integer) session.getAttribute("editIdPlan");
 
         try {
+
             ServicioProveedorCobertura entidad = new ServicioProveedorCobertura();
             entidad.setIdProveedor(idProveedor);
             entidad.setIdPlan(idPlan);
@@ -165,9 +236,21 @@ public class ServicioProveedorCoberturaController {
                         + "&idCobertura=" + idCobertura
                         + "&idPlan="      + idPlan;
             }
-            return "redirect:/proveedores/cobertura/nuevo?idProveedor=" + idProveedor;
-        }
 
-        return "redirect:/proveedores/cobertura/?idProveedor=" + idProveedor;
+            if (rol == 9) {
+                Proveedor proveedor = proveedorService.buscarProveedor(idProveedor.toString());
+                String nit  = proveedor.getNit();
+                return "redirect:/proveedores/cobertura/"+nit;
+            }else {
+                return "redirect:/proveedores/cobertura/nuevo?idProveedor=" + idProveedor;
+            }
+        }
+        if (rol == 9) {
+            Proveedor proveedor = proveedorService.buscarProveedor(idProveedor.toString());
+            String nit = proveedor.getNit();
+            return "redirect:/proveedores/cobertura/"+nit;
+        }else {
+            return "redirect:/proveedores/cobertura/?idProveedor=" + idProveedor;
+        }
     }
 }

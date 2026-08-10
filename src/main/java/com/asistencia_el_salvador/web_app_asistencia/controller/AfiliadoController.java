@@ -7,6 +7,7 @@ import com.asistencia_el_salvador.web_app_asistencia.dto.WompiTokenResult;
 import com.asistencia_el_salvador.web_app_asistencia.model.*;
 import com.asistencia_el_salvador.web_app_asistencia.repository.AfiliadoRepository;
 import com.asistencia_el_salvador.web_app_asistencia.repository.PlanAfiliadoRepository;
+import com.asistencia_el_salvador.web_app_asistencia.repository.SubidaMasivaLogRepository;
 import com.asistencia_el_salvador.web_app_asistencia.response.UsuarioResponse;
 import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import com.google.api.client.util.Value;
@@ -63,7 +64,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/afiliado")
 public class AfiliadoController {
@@ -83,6 +84,9 @@ public class AfiliadoController {
 
     @Autowired
     private AfiliadoVehiculoService afiliadoVehiculoService;
+
+    @Autowired
+    private SubidaMasivaLogRepository subidaMasivaLogRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -1129,6 +1133,7 @@ public class AfiliadoController {
     ) {
         UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
         model.addAttribute("usuario", usuario);
+        session.setAttribute("patrocinio",false);
         Page<Afiliado> afiliadosPage = afiliadoService.getAllAfiliadosVendedor(usuario.getDui(),PageRequest.of(page, 10));
         model.addAttribute("afiliados", afiliadosPage.getContent());
         model.addAttribute("rol",usuario.getRol());
@@ -1161,6 +1166,26 @@ public class AfiliadoController {
 
         return "afiliados";
     }
+
+    @GetMapping({"/corporativos"})
+    public String listarAfiliadosCorp(
+            @RequestParam(defaultValue = "0") int page,
+            Model model,
+            HttpSession session) {
+        String nit = (String) session.getAttribute("nitClienteCorp");
+        ClienteCorporativo clienteCorporativo =  (ClienteCorporativo) session.getAttribute("clienteCorporativo");
+        if (nit == null) {
+            return "redirect:/usuarios/loginCorporativo";
+        }
+        Page<Afiliado> afiliados = afiliadoService.listarAfiliadosCorp (PageRequest.of(page, 10),nit);
+        model.addAttribute("afiliados", afiliados.getContent());
+        model.addAttribute("paginaActual", page);
+        model.addAttribute("totalPaginas", afiliados.getTotalPages());
+        model.addAttribute("clienteCorporativo", clienteCorporativo);
+        model.addAttribute("avatarCliente",clienteCorporativo.getNombreCliente().substring(0,2).toUpperCase()) ;
+        return "afiliados_corp";
+    }
+
 
     @GetMapping("/afiliado_plan/{dui}")
     public String mostrarAfiliadoPlan(@PathVariable String dui, Model model) {
@@ -1466,12 +1491,19 @@ public class AfiliadoController {
     public String mostrarFormularioCarga(Model model) {
         //List<Institucion> instituciones = institucionService.listarTodos();
         List<ClienteCorporativo> clientes = clienteCorporativoService.listarActivos();
-        List<Plan> planes = planService.listarActivos();
 
-        //Cambiar instituciones por clientes corporativos
-        //model.addAttribute("instituciones", instituciones);
+        // Mapa nit -> nombre del plan asociado, para mostrarlo en el HTML
+        Map<String, String> nombresPlanPorCliente = new HashMap<>();
+        for (ClienteCorporativo c : clientes) {
+            if (c.getIdPlanAsociado() != null) {
+                planService.getPlanById(c.getIdPlanAsociado())
+                        .ifPresent(plan -> nombresPlanPorCliente.put(c.getNit(), plan.getNombrePlan()));
+            }
+        }
+
+
         model.addAttribute("clientes",clientes);
-        model.addAttribute("planes", planes);
+        model.addAttribute("nombresPlanPorCliente", nombresPlanPorCliente);
         return "carga_masiva_afiliados";
     }
 
@@ -1486,15 +1518,15 @@ public class AfiliadoController {
     @PostMapping("/carga-masiva")
     public String procesarCargaMasiva(@RequestParam("archivo") MultipartFile archivo,
                                       @RequestParam("nitCliente") String nitCliente,
-                                      @RequestParam("idPlan") Integer idPlan,
                                       @RequestParam("tipoCarga") String tipoCarga,
-                                      RedirectAttributes redirectAttributes) {
+                                      RedirectAttributes redirectAttributes,
+                                      HttpSession session) {
 
         if (archivo.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Debe seleccionar un archivo");
             return "redirect:/afiliado/carga-masiva";
         }
-
+        UsuarioResponse usuario = (UsuarioResponse) session.getAttribute("usuario");
         String contentType = archivo.getContentType();
         if (!isExcelFile(contentType)) {
             redirectAttributes.addFlashAttribute("error",
@@ -1510,8 +1542,23 @@ public class AfiliadoController {
 
         try {
             CargaMasivaResultado resultado = cargaMasivaService.procesarArchivoExcel(
-                    archivo, idPlan, nitCliente, tipoCarga
+                    archivo, nitCliente, tipoCarga
             );
+
+            Integer idSubida = subidaMasivaLogRepository.registrarLog(
+                    resultado.getExitosos(),
+                    resultado.getErrores(),
+                    nitCliente,
+                    usuario.getEmail()
+            );
+
+            if (resultado.getErrores() > 0 && idSubida != null) {
+                List<MensajeError> detalles = resultado.getMensajesError().stream()
+                        .map(msg -> new MensajeError(0,"",msg))
+                        .collect(Collectors.toList());
+
+                subidaMasivaLogRepository.registrarDetallesBatch(idSubida, detalles);
+            }
 
             StringBuilder mensajeExito = new StringBuilder();
             mensajeExito.append("Carga completada. ")

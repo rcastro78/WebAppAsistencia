@@ -1,7 +1,10 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
 import com.asistencia_el_salvador.web_app_asistencia.model.CasaAfiliada;
+import com.asistencia_el_salvador.web_app_asistencia.model.PlanCasa;
 import com.asistencia_el_salvador.web_app_asistencia.service.CasaAfiliadaService;
+import com.asistencia_el_salvador.web_app_asistencia.service.PlanCasaService;
+import com.asistencia_el_salvador.web_app_asistencia.service.PlanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -18,10 +21,15 @@ public class CasasController {
     private static final int TAMANO_PAGINA = 10;
 
     private final CasaAfiliadaService casaService;
-
+    private final PlanCasaService planCasaService;
+    private final PlanService planService;
     @Autowired
-    public CasasController(CasaAfiliadaService casaService) {
+    public CasasController(CasaAfiliadaService casaService,
+                           PlanCasaService planCasaService,
+                           PlanService planService) {
         this.casaService = casaService;
+        this.planCasaService = planCasaService;
+        this.planService = planService;
     }
 
     // ── GET /casas  →  Listado paginado ──────────────────────────────────────
@@ -125,6 +133,82 @@ public class CasasController {
             ra.addFlashAttribute("success", "Casa eliminada correctamente.");
         } catch (IllegalArgumentException e) {
             ra.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/casas";
+    }
+
+    //Planes de cobertura para las casas
+    // ── GET /casas/{id}/plan  →  Formulario de plan de la casa ───────────────
+    @GetMapping("/{id}/plan")
+    public String verPlan(@PathVariable Integer id, Model model,
+                          RedirectAttributes ra) {
+
+        Optional<CasaAfiliada> opt = casaService.buscarPorId(id);
+        if (opt.isEmpty()) {
+            ra.addFlashAttribute("error", "Casa no encontrada con id: " + id);
+            return "redirect:/casas";
+        }
+
+        CasaAfiliada casa        = opt.get();
+        PlanCasa     planExistente = planCasaService.findByNIC(casa.getNIC());
+        boolean      modoEdicion   = (planExistente != null);
+        PlanCasa     planCasa      = modoEdicion ? planExistente : new PlanCasa();
+
+        if (!modoEdicion) planCasa.setNIC(casa.getNIC());
+
+        model.addAttribute("casa",             casa);
+        model.addAttribute("planCasa",         planCasa);
+        model.addAttribute("modoEdicion",      modoEdicion);
+        //El tipo 3 es CASA
+        model.addAttribute("planesDisponibles", planService.getPlanByTipoPlan(3));
+
+        return "planCasa_form";
+    }
+
+    // ── POST /casas/{id}/plan/guardar  →  Crear plan para la casa ────────────
+    @PostMapping("/{id}/plan/guardar")
+    public String guardarPlan(@PathVariable Integer id,
+                              @ModelAttribute("planCasa") PlanCasa planCasa,
+                              RedirectAttributes ra) {
+        try {
+            planCasa.setEstado(1);
+            planCasaService.save(planCasa);
+            ra.addFlashAttribute("success", "Plan asignado correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al guardar el plan: " + e.getMessage());
+            return "redirect:/casas/" + id + "/plan";
+        }
+
+        return "redirect:/casas";
+    }
+
+    // ── POST /casas/{id}/plan/actualizar  →  Editar plan existente ───────────
+    @PostMapping("/{id}/plan/actualizar")
+    public String actualizarPlan(@PathVariable Integer id,
+                                 @ModelAttribute("planCasa") PlanCasa planCasa,
+                                 RedirectAttributes ra) {
+        try {
+            planCasaService.save(planCasa);
+            ra.addFlashAttribute("success", "Plan actualizado correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al actualizar el plan: " + e.getMessage());
+            return "redirect:/casas/" + id + "/plan";
+        }
+
+        return "redirect:/casas";
+    }
+
+    // ── POST /casas/{id}/plan/delete  →  Eliminar plan ───────────────────────
+    @PostMapping("/{id}/plan/delete")
+    public String eliminarPlan(@PathVariable Integer id,
+                               @RequestParam long idPlanCasa,
+                               RedirectAttributes ra) {
+        try {
+            planCasaService.eliminar(idPlanCasa);
+            ra.addFlashAttribute("success", "Plan eliminado correctamente.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al eliminar el plan: " + e.getMessage());
         }
 
         return "redirect:/casas";

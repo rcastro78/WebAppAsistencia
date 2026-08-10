@@ -3,10 +3,8 @@ package com.asistencia_el_salvador.web_app_asistencia.controller;
 import ch.qos.logback.core.net.server.Client;
 import com.asistencia_el_salvador.web_app_asistencia.model.ClienteCorporativo;
 import com.asistencia_el_salvador.web_app_asistencia.model.FormaPago;
-import com.asistencia_el_salvador.web_app_asistencia.service.AfiliadoPagoService;
-import com.asistencia_el_salvador.web_app_asistencia.service.ClienteCorporativoService;
-import com.asistencia_el_salvador.web_app_asistencia.service.FirebaseStorageService;
-import com.asistencia_el_salvador.web_app_asistencia.service.FormaPagoService;
+import com.asistencia_el_salvador.web_app_asistencia.model.Plan;
+import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -28,14 +26,17 @@ public class ClienteCorporativoController {
     private final ClienteCorporativoService clienteCorporativoService;
     private final AfiliadoPagoService afiliadoPagoService;
     private final FormaPagoService formaPagoService;
+    private final PlanService planService;
     @Autowired
     private FirebaseStorageService firebaseStorageService;
     public ClienteCorporativoController(ClienteCorporativoService clienteCorporativoService,
                                         AfiliadoPagoService afiliadoPagoService,
-                                        FormaPagoService formaPagoService) {
+                                        FormaPagoService formaPagoService,
+                                        PlanService planService) {
         this.clienteCorporativoService = clienteCorporativoService;
         this.afiliadoPagoService = afiliadoPagoService;
         this.formaPagoService = formaPagoService;
+        this.planService = planService;
     }
 
     @GetMapping({"/",""})
@@ -52,20 +53,17 @@ public class ClienteCorporativoController {
 
     private static final Logger logger = LoggerFactory.getLogger(ClienteCorporativoController.class);
 
-
-
-
-    /**
-     * Muestra el formulario para crear un nuevo cliente corporativo
-     */
     @GetMapping("/nuevo")
     public String nuevoCliente(HttpSession session, Model model) {
         ClienteCorporativo cliente = new ClienteCorporativo();
+        List<Plan> planes = planService.listarPlanesEmpresariales();
         cliente.setEstado(1); // Activo por defecto
         model.addAttribute("cliente", cliente);
         model.addAttribute("esEdicion", false);
+        model.addAttribute("planes", planes);
         return "cliente_corporativo_form";
     }
+
 
     /**
      * Muestra el formulario para editar un cliente corporativo existente
@@ -77,6 +75,7 @@ public class ClienteCorporativoController {
                                 RedirectAttributes redirectAttributes) {
         try {
             ClienteCorporativo cliente = clienteCorporativoService.buscarPorNit(nit);
+            List<Plan> planes = planService.listarPlanesEmpresariales();
 
             if (cliente == null) {
                 logger.error("❌ Cliente no encontrado con NIT: {}", nit);
@@ -87,6 +86,7 @@ public class ClienteCorporativoController {
 
             model.addAttribute("cliente", cliente);
             model.addAttribute("esEdicion", true);
+            model.addAttribute("planes", planes);
             return "cliente_corporativo_form";
 
         } catch (Exception e) {

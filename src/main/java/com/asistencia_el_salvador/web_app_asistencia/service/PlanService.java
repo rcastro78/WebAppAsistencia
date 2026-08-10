@@ -24,6 +24,9 @@ public class PlanService {
     public List<Plan> listarActivos(){
         return planRepository.findByEstado(1);
     }
+    public List<Plan> listarPlanesEmpresariales(){
+        return planRepository.findByIdPlanTipo(2);
+    }
 
     public List<Plan> listarPorPais(int idPais){
         return planRepository.findByIdPais(idPais);
@@ -41,6 +44,9 @@ public class PlanService {
         return planRepository.findByNombrePlan(nombre);
     }
 
+    public List<Plan> getPlanByTipoPlan(int planTipo){
+        return planRepository.findByIdPlanTipo(planTipo);
+    }
     //Crear nuevo plan
     public Plan savePlan(Plan p){
         return planRepository.save(p);

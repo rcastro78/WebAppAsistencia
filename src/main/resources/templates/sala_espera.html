@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sala de espera - Consulta</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+    :root {
+        --purple:#667eea; --purple-dark:#764ba2; --bg:#0d0f1a;
+        --surface:#161827; --surface2:#1e2035; --border:rgba(102,126,234,0.2);
+        --text:#e8eaf6; --muted:#6b7280; --green:#22c55e;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{
+        font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);
+        min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+    }
+    .card{
+        background:var(--surface);border:1px solid var(--border);border-radius:20px;
+        padding:40px 36px;width:100%;max-width:440px;text-align:center;
+        box-shadow:0 20px 60px rgba(0,0,0,.5);
+    }
+    .icon{
+        width:80px;height:80px;border-radius:50%;
+        background:linear-gradient(135deg,var(--purple),var(--purple-dark));
+        display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;
+        margin:0 auto 20px;box-shadow:0 0 0 10px rgba(102,126,234,.1);
+    }
+    h1{font-size:1.3rem;font-weight:700;margin-bottom:8px;}
+    .subtitle{font-size:.9rem;color:var(--muted);margin-bottom:28px;line-height:1.5;}
+    .countdown{
+        font-family:'DM Mono',monospace;font-size:2.4rem;font-weight:500;
+        color:var(--purple);background:var(--surface2);border:1px solid var(--border);
+        border-radius:16px;padding:20px;margin-bottom:24px;letter-spacing:1px;
+    }
+    .fecha-info{
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        font-size:.85rem;color:var(--muted);margin-bottom:28px;
+    }
+    .fecha-info strong{color:var(--text);font-weight:600;}
+    .btn-volver{
+        display:inline-flex;align-items:center;gap:8px;
+        background:var(--surface2);border:1px solid var(--border);color:var(--text);
+        padding:12px 24px;border-radius:12px;text-decoration:none;font-size:.9rem;
+        font-weight:600;transition:all .2s;
+    }
+    .btn-volver:hover{background:rgba(102,126,234,.1);border-color:var(--purple);}
+    .pulse-dot{
+        width:8px;height:8px;border-radius:50%;background:var(--green);
+        display:inline-block;animation:pulse 2s infinite;margin-right:6px;
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .status-line{font-size:.78rem;color:var(--muted);margin-top:20px;}
+  </style>
+</head>
+<body>
+
+<input type="hidden" id="v-fecha-apertura" th:value="${#temporals.format(fechaProgramada, 'yyyy-MM-dd''T''HH:mm:ss')}"/>
+<input type="hidden" id="v-room-id" th:value="${roomId}"/>
+
+<div class="card">
+  <div class="icon"><i class="fas fa-hourglass-half"></i></div>
+  <h1>Tu sala aún no está disponible</h1>
+  <p class="subtitle">El acceso se habilita automáticamente 10 minutos antes de la hora programada.</p>
+
+  <div class="countdown" id="countdown">--:--:--</div>
+
+  <div class="fecha-info">
+    <i class="fas fa-calendar-check"></i>
+    <span>Cita programada: <strong th:text="${#temporals.format(fechaProgramada, 'dd/MM/yyyy hh:mm a')}">--</strong></span>
+  </div>
+
+  <a href="/telemedicina/citas" class="btn-volver">
+    <i class="fas fa-arrow-left"></i> Volver a mis citas
+  </a>
+
+  <div class="status-line"><span class="pulse-dot"></span>Esta página se actualizará automáticamente</div>
+</div>
+
+<script>
+  // fechaProgramada - 10 minutos, calculado en el servidor y formateado como ISO local
+  const fechaProgramadaRaw = document.getElementById('v-fecha-apertura').value;
+  const fechaProgramada = new Date(fechaProgramadaRaw);
+  const fechaApertura = new Date(fechaProgramada.getTime() - 10 * 60 * 1000);
+
+  function tick() {
+      const restante = fechaApertura.getTime() - Date.now();
+
+      if (restante <= 0) {
+          // Llegó la hora: recargar para que el backend valide y sirva la sala real
+          window.location.reload();
+          return;
+      }
+
+      const totalSeg = Math.floor(restante / 1000);
+      const hh = Math.floor(totalSeg / 3600);
+      const mm = Math.floor((totalSeg % 3600) / 60);
+      const ss = totalSeg % 60;
+
+      const pad = n => String(n).padStart(2, '0');
+      document.getElementById('countdown').textContent =
+          hh > 0 ? `${pad(hh)}:${pad(mm)}:${pad(ss)}` : `${pad(mm)}:${pad(ss)}`;
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  // Respaldo: si por algún motivo el timer de JS no dispara el reload
+  // (pestaña en segundo plano, throttling del navegador, etc.), forzamos
+  // una verificación con el servidor cada 30s.
+  setInterval(() => {
+      if (Date.now() >= fechaApertura.getTime()) {
+          window.location.reload();
+      }
+  }, 30000);
+</script>
+</body>
+</html>

@@ -124,7 +124,29 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="form-row">
+                    <!-- Tipo de Plan -->
+                    <div class="form-group">
+                        <label for="idPlanTipo" class="form-label required">
+                            <i class="fas fa-layer-group"></i> Tipo de Plan
+                        </label>
+                        <select id="idPlanTipo"
+                                name="idPlanTipo"
+                                class="form-control"
+                                required>
+                            <option value="">Seleccione un tipo</option>
+                            <option th:each="tp : ${tiposPlan}"
+                                    th:value="${tp.idPlanTipo}"
+                                    th:text="${tp.nombreTipo}"
+                                    th:selected="${plan.idPlanTipo != null && plan.idPlanTipo == tp.idPlanTipo}">
+                            </option>
+                        </select>
+                        <div class="form-help">
+                            <i class="fas fa-info-circle"></i>
+                            Seleccione la categoría o tipo que corresponde a este plan
+                        </div>
+                    </div>
+                </div>
                 <div class="form-row">
                     <!-- Campo País -->
                     <div class="form-group">

@@ -1,7 +1,12 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
+import com.asistencia_el_salvador.web_app_asistencia.dto.CoberturaUsoDTO;
+import com.asistencia_el_salvador.web_app_asistencia.interfaces.UltimaSolicitudProjection;
+import com.asistencia_el_salvador.web_app_asistencia.model.ClienteCorporativo;
 import com.asistencia_el_salvador.web_app_asistencia.model.Cobertura;
+import com.asistencia_el_salvador.web_app_asistencia.repository.ClienteCorporativoRepository;
 import com.asistencia_el_salvador.web_app_asistencia.service.CoberturaService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,13 +15,17 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
+import java.util.List;
+
 @Controller
 @RequestMapping("/coberturas")
 public class CoberturaController {
 
     @Autowired
     private CoberturaService coberturaService;
-
+    @Autowired
+    private ClienteCorporativoRepository clienteCorporativoRepository;
     // ── LISTADO ──────────────────────────────────────────────────────────────
     @GetMapping({"", "/"})
     public String listarCoberturas(@RequestParam(defaultValue = "0") int page, Model model) {
@@ -91,5 +100,57 @@ public class CoberturaController {
             redirectAttributes.addFlashAttribute("error", "Error al eliminar: " + e.getMessage());
         }
         return "redirect:/coberturas";
+    }
+
+    @GetMapping("/corporativo/uso-coberturas")
+    public String verUsoCoberturas(Model model, HttpSession session) {
+
+        String nit = (String) session.getAttribute("nitClienteCorp");
+        if (nit == null) {
+            return "redirect:/usuarios/loginCorporativo";
+        }
+        ClienteCorporativo clienteCorporativo = (ClienteCorporativo) session.getAttribute("clienteCorporativo");
+        Integer idPlanInt = clienteCorporativo.getIdPlanAsociado();
+        if (idPlanInt == null) {
+            // El cliente aún no tiene afiliados/plan asignado
+            model.addAttribute("coberturasResumen", Collections.emptyList());
+            model.addAttribute("ultimasSolicitudes", Collections.emptyList());
+            model.addAttribute("usoPromedioPlan", 0);
+            model.addAttribute("totalEventosDisponibles", 0);
+            model.addAttribute("totalEventosUsados", 0L);
+            model.addAttribute("coberturasEnAlerta", 0L);
+            model.addAttribute("nombreCliente", clienteCorporativo.getNombreCliente());
+            model.addAttribute("avatarCliente", clienteCorporativo.getNombreCliente().substring(0,2));
+            model.addAttribute("emailCliente", clienteCorporativo.getEmailContacto());            return "uso_coberturas";
+        }
+
+        Long idPlan = idPlanInt.longValue();
+
+
+        List<CoberturaUsoDTO> coberturasResumen = clienteCorporativoRepository
+                .sumarPorCoberturaByPlan(idPlan, nit)
+                .stream()
+                .map(CoberturaUsoDTO::new)
+                .toList();
+
+
+        List<UltimaSolicitudProjection> ultimasSolicitudes =
+                coberturaService.obtenerUltimasSolicitudes(nit);
+
+        double usoPromedio = coberturaService.calcularUsoPromedio(coberturasResumen);
+        int totalDisponibles = coberturaService.calcularTotalEventosDisponibles(coberturasResumen);
+        long totalUsados = coberturaService.calcularTotalEventosUsados(coberturasResumen);
+        long enAlerta = coberturaService.contarCoberturasEnAlerta(coberturasResumen);
+        model.addAttribute("nombreCliente", clienteCorporativo.getNombreCliente());
+        model.addAttribute("avatarCliente", clienteCorporativo.getNombreCliente().substring(0,2));
+        model.addAttribute("emailCliente", clienteCorporativo.getEmailContacto());
+        model.addAttribute("coberturasResumen", coberturasResumen);
+        model.addAttribute("ultimasSolicitudes", ultimasSolicitudes);
+        model.addAttribute("usoPromedioPlan", Math.round(usoPromedio));
+        model.addAttribute("totalEventosDisponibles", totalDisponibles);
+        model.addAttribute("totalEventosUsados", totalUsados);
+        model.addAttribute("coberturasEnAlerta", enAlerta);
+
+        return "uso_coberturas";
     }
 }

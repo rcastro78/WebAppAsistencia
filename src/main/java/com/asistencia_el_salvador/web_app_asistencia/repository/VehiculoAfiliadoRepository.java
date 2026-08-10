@@ -16,6 +16,8 @@ public interface VehiculoAfiliadoRepository extends JpaRepository<VehiculoAfilia
     /** Todos los vehículos de un afiliado por su DUI */
     List<VehiculoAfiliado> findByDuiUsuario(String duiUsuario);
 
+    VehiculoAfiliado findByPlacaVehiculo(String placaVehiculo);
+
     /** Paginado por DUI */
     Page<VehiculoAfiliado> findByDuiUsuario(String duiUsuario, Pageable pageable);
 
