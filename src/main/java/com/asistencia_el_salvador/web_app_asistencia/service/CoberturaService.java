@@ -109,4 +109,8 @@ public class CoberturaService {
                 .count();
     }
 
+    public List<Cobertura> getCoberturasByIdRubroCob(Long idRubroCob) {
+        return repository.findByIdRubroCob(idRubroCob);
+    }
+
 }

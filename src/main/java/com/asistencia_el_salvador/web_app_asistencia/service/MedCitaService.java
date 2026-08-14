@@ -21,6 +21,10 @@ public class MedCitaService {
         return medCitaRepository.getTodosMedCitasAfiliado(dui, pageable);
     }
 
+    public List<MedCita> obtenerMedCitas(String dui) {
+        return medCitaRepository.getTodosMedCitasAfiliado(dui);
+    }
+
     public int getPlanClienteCorporativo(String nit) {
         return coberturaRepository.findIdPlanByNit(nit);
     }

@@ -23,7 +23,8 @@ public class Cobertura {
     private double limiteEconomico;
     @Column(name = "porAnio")
     private int porAnio;
-
+    @Column(name = "idRubroCob")
+    private int idRubroCob;
     public int getIdCobertura() {
         return idCobertura;
     }
@@ -78,5 +79,13 @@ public class Cobertura {
 
     public void setPorAnio(int porAnio) {
         this.porAnio = porAnio;
+    }
+
+    public int getIdRubroCob() {
+        return idRubroCob;
+    }
+
+    public void setIdRubroCob(int idRubroCob) {
+        this.idRubroCob = idRubroCob;
     }
 }

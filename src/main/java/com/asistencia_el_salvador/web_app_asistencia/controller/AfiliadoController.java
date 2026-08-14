@@ -2172,7 +2172,7 @@ public class AfiliadoController {
         exampleRow.createCell(3).setCellValue("Colonia Ejemplo, San Salvador");
         exampleRow.createCell(4).setCellValue("2222-3333");
         exampleRow.createCell(5).setCellValue("juan.perez@email.com");
-        exampleRow.createCell(6).setCellValue(new Date());
+        exampleRow.createCell(6).setCellValue("dd/mm/aaaa");
         exampleRow.createCell(7).setCellValue(1); // El Salvador
         exampleRow.createCell(8).setCellValue(1); // San Salvador
         exampleRow.createCell(9).setCellValue(1); // San Salvador

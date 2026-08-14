@@ -25,6 +25,14 @@ public interface MedCitaRepository extends JpaRepository<MedCita, Long> {
     SELECT m
     FROM MedCita m
     WHERE m.duiAfiliado = :dui
+    ORDER BY m.fechaProgramada DESC
+    """)
+    List<MedCita> getTodosMedCitasAfiliado(@Param("dui") String dui);
+
+    @Query("""
+    SELECT m
+    FROM MedCita m
+    WHERE m.duiAfiliado = :dui
       AND m.estadoAgenda = 'PENDIENTE'
     ORDER BY m.fechaProgramada DESC
     """)

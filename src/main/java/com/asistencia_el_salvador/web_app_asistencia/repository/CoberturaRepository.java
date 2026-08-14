@@ -79,4 +79,7 @@ public interface CoberturaRepository extends JpaRepository<Cobertura,String> {
         """, nativeQuery = true)
     Integer findIdPlanByNit(@Param("nit") String nit);
 
+    List<Cobertura> findByIdRubroCob(Long idRubroCob);
+
+
 }

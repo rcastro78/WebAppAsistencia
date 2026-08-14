@@ -92,6 +92,26 @@
 
             <td>
               <div class="action-icons">
+
+                <div class="action-icons">
+                  <a th:href="@{/medicos/clinicas/{dui}(dui=${medico.dui})}"
+                     class="action-btn view"
+                     data-tooltip="Ver Clínicas">
+                    <i class="fas fa-hospital"></i>
+                  </a>
+                  <a th:href="@{/medicos/editar/{dui}(dui=${medico.dui})}"
+                     class="action-btn edit"
+                     data-tooltip="Editar">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a th:href="@{/medicos/eliminar/{dui}(dui=${medico.dui})}"
+                     class="action-btn delete"
+                     data-tooltip="Eliminar"
+                     onclick="return confirm('¿Está seguro que desea eliminar este médico?\n\nEsta acción no se puede deshacer.');">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                </div>
+
                 <a th:href="@{/medicos/editar/{dui}(dui=${medico.dui})}"
                    class="action-btn edit"
                    data-tooltip="Editar">

@@ -1,12 +1,7 @@
 package com.asistencia_el_salvador.web_app_asistencia.controller;
 
-import com.asistencia_el_salvador.web_app_asistencia.model.MedDoctor;
-import com.asistencia_el_salvador.web_app_asistencia.model.MedEspecialidad;
-import com.asistencia_el_salvador.web_app_asistencia.model.Usuario;
-import com.asistencia_el_salvador.web_app_asistencia.service.EmailService;
-import com.asistencia_el_salvador.web_app_asistencia.service.MedDoctorService;
-import com.asistencia_el_salvador.web_app_asistencia.service.MedEspecialidadService;
-import com.asistencia_el_salvador.web_app_asistencia.service.UsuarioService;
+import com.asistencia_el_salvador.web_app_asistencia.model.*;
+import com.asistencia_el_salvador.web_app_asistencia.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -14,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +30,15 @@ public class MedDoctorController {
     @Autowired
     private MedEspecialidadService especialidadService;
 
+    @Autowired
+    private ClinicaService clinicaService;
+
+    @Autowired
+    private MunicipioService municipioService;
+
+    @Autowired
+    private DepartamentoService departamentoService;
+
     // ── LIST ──────────────────────────────────────────────────
 
     /**
@@ -47,6 +52,126 @@ public class MedDoctorController {
         model.addAttribute("medicos", medicos);
         model.addAttribute("especialidades", especialidades);
         return "medicos";
+    }
+
+
+
+    // GET /medicos/clinicas/{dui}
+    @GetMapping("clinicas/{dui}")
+    public String clinicas(@PathVariable("dui") String dui, Model model) {
+        List<VwClinicaDoctor> clinicas = clinicaService.getClinicasDoctor(dui);
+        model.addAttribute("clinicas", clinicas);
+        model.addAttribute("dui", dui);
+        return "clinicas";
+    }
+
+    // GET /medicos/clinicas/nueva/{dui} — formulario para crear
+    @GetMapping("/clinicas/nueva/{dui}")
+    public String mostrarFormulario(@PathVariable String dui, Model model,
+                                    RedirectAttributes redirectAttributes) {
+        Optional<MedDoctor> medicoOpt = doctorService.obtenerPorDui(dui);
+        if (medicoOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Médico no encontrado.");
+            return "redirect:/medicos/listar";
+        }
+
+        model.addAttribute("medico", medicoOpt.get());
+        model.addAttribute("clinica", new Clinica());
+        model.addAttribute("departamentos", departamentoService.getDepartamentosByPais(1));
+        model.addAttribute("esEdicion", false);
+        return "clinicas_form";
+    }
+
+    // POST /medicos/clinicas/nueva/{dui} — guardar nueva clínica
+    @PostMapping("/clinicas/nueva/{dui}")
+    public String guardar(@PathVariable String dui,
+                          @ModelAttribute("clinica") Clinica clinica,
+                          Model model,
+                          RedirectAttributes redirectAttributes) {
+        try {
+            clinica.setEstado(1);
+            clinica.setUpdatedAt(LocalDateTime.now());
+            Clinica clinicaGuardada = clinicaService.guardarClinica(clinica);
+
+            DoctorClinicaId id = new DoctorClinicaId(clinicaGuardada.getIdClinica(), dui);
+            DoctorClinica relacion = new DoctorClinica(id, 1);
+            clinicaService.guardarDoctorClinica(relacion);
+
+            redirectAttributes.addFlashAttribute("success", "Clínica registrada y asociada exitosamente.");
+            return "redirect:/medicos/clinicas/" + dui;
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al guardar la clínica: " + e.getMessage());
+            model.addAttribute("medico", doctorService.obtenerPorDui(dui).orElse(new MedDoctor()));
+            model.addAttribute("departamentos", departamentoService.getDepartamentosByPais(1));
+            model.addAttribute("esEdicion", false);
+            return "clinicas_form";
+        }
+    }
+
+    // POST /medicos/clinicas/editar — muestra el formulario de edición (sin ID en la URL)
+    @PostMapping("/clinicas/editar")
+    public String mostrarFormularioEditarClinica(@RequestParam("idClinica") Integer idClinica,
+                                                 @RequestParam("dui") String dui,
+                                                 Model model,
+                                                 RedirectAttributes redirectAttributes) {
+        if (!clinicaService.perteneceADoctor(idClinica, dui)) {
+            redirectAttributes.addFlashAttribute("error", "No tiene permiso para editar esta clínica.");
+            return "redirect:/medicos/clinicas/" + dui;
+        }
+
+        Optional<Clinica> clinicaOpt = clinicaService.obtenerPorId(Integer.toUnsignedLong(idClinica));
+        Optional<MedDoctor> medicoOpt = doctorService.obtenerPorDui(dui);
+
+        if (clinicaOpt.isEmpty() || medicoOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Clínica o médico no encontrado.");
+            return "redirect:/medicos/clinicas/" + dui;
+        }
+
+        model.addAttribute("clinica", clinicaOpt.get());
+        model.addAttribute("medico", medicoOpt.get());
+        model.addAttribute("departamentos", departamentoService.getDepartamentosByPais(1));
+        model.addAttribute("esEdicion", true);
+        return "clinicas_form";
+    }
+
+    // POST /medicos/clinicas/editar/guardar — procesa la actualización
+    @PostMapping("/clinicas/editar/guardar")
+    public String actualizarClinica(@RequestParam("idClinica") Integer idClinica,
+                                    @RequestParam("dui") String dui,
+                                    @ModelAttribute("clinica") Clinica clinica,
+                                    Model model,
+                                    RedirectAttributes redirectAttributes) {
+        if (!clinicaService.perteneceADoctor(idClinica, dui)) {
+            redirectAttributes.addFlashAttribute("error", "No tiene permiso para editar esta clínica.");
+            return "redirect:/medicos/clinicas/" + dui;
+        }
+
+        try {
+            clinica.setIdClinica(idClinica);
+            clinica.setUpdatedAt(LocalDateTime.now());
+            clinicaService.actualizarClinica(clinica);
+
+            redirectAttributes.addFlashAttribute("success", "Clínica actualizada exitosamente.");
+            return "redirect:/medicos/clinicas/" + dui;
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Error al actualizar la clínica: " + e.getMessage());
+            model.addAttribute("medico", doctorService.obtenerPorDui(dui).orElse(new MedDoctor()));
+            model.addAttribute("departamentos", departamentoService.getDepartamentosByPais(1));
+            model.addAttribute("esEdicion", true);
+            clinica.setIdClinica(idClinica);
+            model.addAttribute("clinica", clinica);
+            return "clinicas_form";
+        }
+    }
+
+
+
+    @GetMapping("/municipios/{idDepto}")
+    @ResponseBody
+    public List<Municipio> municipiosPorDepartamento(@PathVariable Integer idDepto) {
+        return municipioService.getMunicipiosByDepto(idDepto);
     }
 
     // ── CREATE ────────────────────────────────────────────────

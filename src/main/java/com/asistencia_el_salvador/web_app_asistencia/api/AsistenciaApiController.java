@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -93,7 +94,10 @@ public class AsistenciaApiController {
     private DepartamentoService departamentoService;
     @Autowired
     private MunicipioService municipioService;
-
+    @Autowired
+    private MedCitaService medCitaService;
+    @Autowired
+    private MedEspecialidadService  medEspecialidadService;
 
 
     public AsistenciaApiController(
@@ -1010,6 +1014,14 @@ public class AsistenciaApiController {
         }
     }
 
+    //Citas medicas del afiliado
+    @GetMapping("/citas/{dui}")
+    public ResponseEntity<ApiResponse<List<MedCita>>> mostrarListadoDeCitas(@PathVariable String dui){
+        List<MedCita> citas = medCitaService.obtenerMedCitas(dui);
+        return ResponseEntity.ok(ApiResponse.ok(citas, "citas"));
+    }
+
+
     // ════════════════════════════════════════════════════════
     // POST /api/v1/asistencia/consulta
     // Crear nueva consulta medica
@@ -1046,6 +1058,112 @@ public class AsistenciaApiController {
         return ResponseEntity.ok(ApiResponse.ok(consulta,"consultaSolicitada"));
 
 
+    }
+
+    @GetMapping("/doctores")
+    public ResponseEntity<ApiResponse<List<MedDoctor>>> listarDoctoresPorEstado(){
+        List<MedDoctor> doctores = doctorService.obtenerPorEstado(1);
+        return ResponseEntity.ok(ApiResponse.ok(doctores, "doctores"));
+    }
+
+    @GetMapping("/especialidadesMedicas")
+    public ResponseEntity<ApiResponse<List<MedEspecialidad>>>  listarEspecialidadesMedicas(){
+        List<MedEspecialidad> especialidades = medEspecialidadService.listarActivas();
+        return ResponseEntity.ok(ApiResponse.ok(especialidades, "especialidades"));
+    }
+
+    @GetMapping("/coberturas/{idRubro}")
+    public ResponseEntity<ApiResponse<List<Cobertura>>> listarCoberturas(@PathVariable String idRubro, HttpServletRequest session){
+        List<Cobertura> coberturas = coberturaService.getCoberturasByIdRubroCob(Long.parseLong(idRubro));
+        return ResponseEntity.ok(ApiResponse.ok(coberturas, "coberturas"));
+    }
+
+    @PostMapping("/citas/programar/{dui}")
+    public ResponseEntity<ApiResponse<MedConsulta>> programarCita(
+            @RequestBody SolicitudCitaDTO dto,
+            @PathVariable String dui,
+            HttpServletRequest request) throws MessagingException {
+
+        // --- Validaciones básicas de entrada ---
+        if (dto.getFechaProgramada() == null) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("La fecha programada es obligatoria"));
+        }
+        if (dto.getFechaProgramada().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("La fecha programada no puede ser en el pasado"));
+        }
+        if (dto.getDuiDoctor() == null || dto.getDuiDoctor().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Debe seleccionar un doctor"));
+        }
+
+        // --- Doctor debe existir ---
+        Optional<MedDoctor> doctorOpt = doctorService.obtenerPorDui(dto.getDuiDoctor());
+        if (doctorOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("El doctor seleccionado no existe"));
+        }
+        MedDoctor doctor = doctorOpt.get();
+
+        // --- Afiliado debe existir (para el email de confirmación) ---
+        Optional<Afiliado> afiliadoOpt = afiliadoService.getAfiliadoById(dui);
+        if (afiliadoOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error("Afiliado no encontrado"));
+        }
+        Afiliado afiliado = afiliadoOpt.get();
+
+        // --- Validar choque de horario con el doctor ---
+        boolean ocupado = consultaService.existeConflictoHorario(
+                dto.getDuiDoctor(), dto.getFechaProgramada(), null);
+
+        if (ocupado) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(ApiResponse.error(
+                            "El médico seleccionado ya tiene una cita en ese horario. Por favor elija otro."));
+        }
+
+        // --- Armar la consulta ---
+        MedConsulta nuevaConsulta = new MedConsulta();
+        nuevaConsulta.setDuiAfiliado(dui);
+        nuevaConsulta.setDuiDoctor(dto.getDuiDoctor());
+        nuevaConsulta.setMotivo(dto.getMotivoConsulta());
+        nuevaConsulta.setFechaProgramada(dto.getFechaProgramada());
+        nuevaConsulta.setIdCobertura(dto.getIdCobertura());
+        nuevaConsulta.setDuracionMinutos(dto.getDuracionMinutos());
+        nuevaConsulta.setIdEstadoConsulta(1);
+        nuevaConsulta.setRechazada(0);
+
+        // idTipo lo fija el backend, NUNCA el cliente: este endpoint siempre crea
+        // citas PROGRAMADAS (idTipo = 2). idTipo = 1 (EMERGENCIA) es exclusivo del
+        // flujo /consulta/solicitar, para no chocar valores entre ambos orígenes.
+        nuevaConsulta.setIdTipo(2);
+
+        String baseUrl = request.getScheme() + "://" + request.getServerName()
+                + ":" + request.getServerPort();
+
+        // modalidad la elige el usuario: 1 = Presencial, 2 = Video
+        boolean esVideollamada = dto.getModalidad() != null && dto.getModalidad() == 2;
+
+        if (esVideollamada) {
+            nuevaConsulta.setRoomId(UUID.randomUUID().toString());
+        }
+
+        MedConsulta consulta = consultaService.crear(nuevaConsulta);
+
+        // --- Notificaciones ---
+        emailService.enviarEmailHtml(
+                doctor.getEmail(),
+                "Tiene una nueva cita programada",
+                buildHtmlCitaProgramada(doctor, consulta, baseUrl));
+
+        emailService.enviarEmailHtml(
+                afiliado.getEmail(),
+                "Su cita ha sido programada",
+                buildHtmlCitaProgramada(doctor, consulta, baseUrl));
+
+        return ResponseEntity.ok(ApiResponse.ok(consulta, "citaProgramada"));
     }
 
     private String buildHtml(MedDoctor doctor, MedConsulta consulta, String roomUrl) {
@@ -1114,7 +1232,91 @@ public class AsistenciaApiController {
                 roomUrl
         );
     }
+    private String buildHtmlCitaProgramada(MedDoctor doctor, MedConsulta consulta, String baseUrl) {
 
+        boolean esVideollamada = consulta.getRoomId() != null && !consulta.getRoomId().isBlank();
+        String fechaFormateada = consulta.getFechaProgramada() != null
+                ? consulta.getFechaProgramada().format(
+                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm a"))
+                : "Por confirmar";
+
+        String modalidadTexto = esVideollamada ? "Video consulta" : "Presencial";
+        String roomUrl = esVideollamada ? baseUrl + "/telemedicina/consulta/sala/" + consulta.getRoomId() : "";
+
+        String botonHtml = esVideollamada
+                ? """
+              <table width="100%%" cellpadding="0" cellspacing="0">
+                <tr><td align="center">
+                  <a href="%s" style="display:inline-block; padding:16px 40px; background:linear-gradient(135deg,#2563eb,#1e3a8a); color:#ffffff; text-decoration:none; border-radius:10px; font-size:1rem; font-weight:700;">Ingresar a la sala →</a>
+                </td></tr>
+              </table>
+              <p style="margin:24px 0 0; font-size:0.78rem; color:#aaa; text-align:center;">O copie este enlace:<br><span style="color:#2563eb;">%s</span></p>
+              """.formatted(roomUrl, roomUrl)
+                : "";
+
+        return """
+    <!DOCTYPE html>
+    <html lang="es">
+    <head><meta charset="UTF-8"></head>
+    <body style="margin:0; padding:0; background:#f4f4f4; font-family:'Segoe UI',sans-serif;">
+      <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f4f4f4; padding:40px 0;">
+        <tr><td align="center">
+          <table width="600" cellpadding="0" cellspacing="0"
+                 style="background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+            <tr>
+              <td style="background:linear-gradient(135deg,#2563eb,#1e3a8a); padding:32px; text-align:center;">
+                <p style="margin:0; font-size:2rem;">📅</p>
+                <h1 style="margin:8px 0 0; color:#ffffff; font-size:1.4rem; font-weight:700;">Nueva Cita Programada</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px;">
+                <p style="margin:0 0 16px; font-size:1rem; color:#333;">Estimado/a <strong>Dr/a. %s</strong>,</p>
+                <p style="margin:0 0 24px; font-size:0.95rem; color:#555; line-height:1.6;">Se le ha programado una nueva cita. A continuación los detalles:</p>
+                <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f8f9fa; border-radius:10px; border:1px solid #e9ecef; margin-bottom:28px;">
+                  <tr><td style="padding:20px;">
+                    <table width="100%%" cellpadding="6" cellspacing="0">
+                      <tr>
+                        <td style="color:#888; font-size:0.85rem; width:120px;">🪪 Paciente (DUI)</td>
+                        <td style="color:#222; font-weight:600; font-size:0.9rem;">%s</td>
+                      </tr>
+                      <tr>
+                        <td style="color:#888; font-size:0.85rem; border-top:1px solid #e9ecef; padding-top:10px;">📋 Motivo</td>
+                        <td style="color:#222; font-weight:600; font-size:0.9rem; border-top:1px solid #e9ecef; padding-top:10px;">%s</td>
+                      </tr>
+                      <tr>
+                        <td style="color:#888; font-size:0.85rem; border-top:1px solid #e9ecef; padding-top:10px;">🕐 Fecha programada</td>
+                        <td style="color:#222; font-weight:600; font-size:0.9rem; border-top:1px solid #e9ecef; padding-top:10px;">%s</td>
+                      </tr>
+                      <tr>
+                        <td style="color:#888; font-size:0.85rem; border-top:1px solid #e9ecef; padding-top:10px;">🩺 Modalidad</td>
+                        <td style="color:#222; font-weight:600; font-size:0.9rem; border-top:1px solid #e9ecef; padding-top:10px;">%s</td>
+                      </tr>
+                    </table>
+                  </td></tr>
+                </table>
+                %s
+              </td>
+            </tr>
+            <tr>
+              <td style="background:#f8f9fa; padding:20px 32px; border-top:1px solid #e9ecef; text-align:center;">
+                <p style="margin:0; font-size:0.78rem; color:#aaa;">Este correo fue generado automáticamente por el sistema de telemedicina.</p>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+      </table>
+    </body>
+    </html>
+    """.formatted(
+                doctor.getNombre() + " " + doctor.getApellido(),
+                consulta.getDuiAfiliado(),
+                consulta.getMotivo() != null ? consulta.getMotivo() : "No especificado",
+                fechaFormateada,
+                modalidadTexto,
+                botonHtml
+        );
+    }
 
 
     // ════════════════════════════════════════════════════════
